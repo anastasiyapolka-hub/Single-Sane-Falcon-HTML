@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Single Sane Falcon</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8" />
+    <meta property="twitter:card" content="summary_large_image" />
+
+    <style data-tag="reset-style-sheet">
+      html {  line-height: 1.15;}body {  margin: 0;}* {  box-sizing: border-box;  border-width: 0;  border-style: solid;  -webkit-font-smoothing: antialiased;}p,li,ul,pre,div,h1,h2,h3,h4,h5,h6,figure,blockquote,figcaption {  margin: 0;  padding: 0;}button {  background-color: transparent;}button,input,optgroup,select,textarea {  font-family: inherit;  font-size: 100%;  line-height: 1.15;  margin: 0;}button,select {  text-transform: none;}button,[type="button"],[type="reset"],[type="submit"] {  -webkit-appearance: button;  color: inherit;}button::-moz-focus-inner,[type="button"]::-moz-focus-inner,[type="reset"]::-moz-focus-inner,[type="submit"]::-moz-focus-inner {  border-style: none;  padding: 0;}button:-moz-focus,[type="button"]:-moz-focus,[type="reset"]:-moz-focus,[type="submit"]:-moz-focus {  outline: 1px dotted ButtonText;}a {  color: inherit;  text-decoration: inherit;}pre {  white-space: normal;}input {  padding: 2px 4px;}img {  display: block;}details {  display: block;  margin: 0;  padding: 0;}summary::-webkit-details-marker {  display: none;}[data-thq="accordion"] [data-thq="accordion-content"] {  max-height: 0;  overflow: hidden;  transition: max-height 0.3s ease-in-out;  padding: 0;}[data-thq="accordion"] details[data-thq="accordion-trigger"][open] + [data-thq="accordion-content"] {  max-height: 1000vh;}details[data-thq="accordion-trigger"][open] summary [data-thq="accordion-icon"] {  transform: rotate(180deg);}html { scroll-behavior: smooth  }
+    </style>
+    <style data-tag="default-style-sheet">
+      html {
+        font-family: "Noto Sans";
+        font-size: 1rem;
+      }
+
+      body {
+        font-weight: 400;
+        font-style:normal;
+        text-decoration: undefined;
+        text-transform: undefined;
+        letter-spacing: 0.01em;
+        line-height: 1.6;
+        color: var(--color-on-surface);
+        background: var(--color-surface);
+
+        fill: var(--color-on-surface);
+      }
+    </style>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/animate.css@4.1.1/animate.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&amp;display=swap"
+      data-tag="font"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&amp;display=swap"
+      data-tag="font"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&amp;display=swap"
+      data-tag="font"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&amp;display=swap"
+      data-tag="font"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/@teleporthq/teleport-custom-scripts/dist/style.css"
+    />
+  </head>
+  <body>
+    <link rel="stylesheet" href="../style.css" />
+    <div>
+      <link href="./footer.css" rel="stylesheet" />
+      <div class="footer-container">
+        <footer class="footer">
+          <div class="footer-container">
+            <div class="footer-gradient-layer"></div>
+            <div class="footer-content">
+              <div class="footer-brand-section">
+                <div class="footer-logo-wrapper">
+                  <svg
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    class="footer-logo-icon"
+                  >
+                    <g
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path
+                        d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594zM20 2v4m2-2h-4"
+                      ></path>
+                      <circle r="2" cx="4" cy="20"></circle>
+                    </g>
+                  </svg>
+                  <span class="footer-brand-name">COTEL</span>
+                </div>
+                <p class="footer-brand-description">
+                  Ваш AI-копилот для Telegram. Анализируйте чаты, каналы и
+                  группы с помощью искусственного интеллекта.
+                </p>
+                <div class="footer-social-links">
+                  <a href="#">
+                    <div aria-label="Telegram" class="footer-social-link">
+                      <svg
+                        width="24"
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="24"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          d="m15 10l-4 4l6 6l4-16l-18 7l4 2l2 6l3-4"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        ></path>
+                      </svg>
+                    </div>
+                  </a>
+                  <a href="#">
+                    <div aria-label="GitHub" class="footer-social-link">
+                      <svg
+                        width="24"
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="24"
+                        viewBox="0 0 24 24"
+                      >
+                        <g
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <path
+                            d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5c.08-1.25-.27-2.48-1-3.5c.28-1.15.28-2.35 0-3.5c0 0-1 0-3 1.5c-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5c-.39.49-.68 1.05-.85 1.65S8.93 17.38 9 18v4"
+                          ></path>
+                          <path d="M9 18c-4.51 2-5-2-7-2"></path>
+                        </g>
+                      </svg>
+                    </div>
+                  </a>
+                  <a href="#">
+                    <div aria-label="Twitter" class="footer-social-link">
+                      <svg
+                        width="24"
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="24"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6c2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4c-.9-4.2 4-6.6 7-3.8c1.1 0 3-1.2 3-1.2"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        ></path>
+                      </svg>
+                    </div>
+                  </a>
+                  <a href="#">
+                    <div aria-label="Email" class="footer-social-link">
+                      <svg
+                        width="24"
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="24"
+                        viewBox="0 0 24 24"
+                      >
+                        <g
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <path
+                            d="m22 7l-8.991 5.727a2 2 0 0 1-2.009 0L2 7"
+                          ></path>
+                          <rect
+                            x="2"
+                            y="4"
+                            rx="2"
+                            width="20"
+                            height="16"
+                          ></rect>
+                        </g>
+                      </svg>
+                    </div>
+                  </a>
+                </div>
+              </div>
+              <div class="footer-nav-section">
+                <div class="footer-nav-column">
+                  <h3 class="footer-nav-title">Продукт</h3>
+                  <ul class="footer-nav-list">
+                    <li class="footer-nav-item">
+                      <a href="#">
+                        <div class="footer-nav-link">
+                          <span>New Analysis</span>
+                        </div>
+                      </a>
+                    </li>
+                    <li class="footer-nav-item">
+                      <a href="#">
+                        <div class="footer-nav-link">
+                          <span>История анализа</span>
+                        </div>
+                      </a>
+                    </li>
+                    <li class="footer-nav-item">
+                      <a href="#">
+                        <div class="footer-nav-link">
+                          <span>Возможности</span>
+                        </div>
+                      </a>
+                    </li>
+                    <li class="footer-nav-item">
+                      <a href="#">
+                        <div class="footer-nav-link"><span>Тарифы</span></div>
+                      </a>
+                    </li>
+                    <li class="footer-nav-item">
+                      <a href="#">
+                        <div class="footer-nav-link"><span>API</span></div>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+                <div class="footer-nav-column">
+                  <h3 class="footer-nav-title">Компания</h3>
+                  <ul class="footer-nav-list">
+                    <li class="footer-nav-item">
+                      <a href="#">
+                        <div class="footer-nav-link"><span>О нас</span></div>
+                      </a>
+                    </li>
+                    <li class="footer-nav-item">
+                      <a href="#">
+                        <div class="footer-nav-link"><span>Блог</span></div>
+                      </a>
+                    </li>
+                    <li class="footer-nav-item">
+                      <a href="#">
+                        <div class="footer-nav-link"><span>Карьера</span></div>
+                      </a>
+                    </li>
+                    <li class="footer-nav-item">
+                      <a href="#">
+                        <div class="footer-nav-link"><span>Партнеры</span></div>
+                      </a>
+                    </li>
+                    <li class="footer-nav-item">
+                      <a href="#">
+                        <div class="footer-nav-link"><span>Контакты</span></div>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+                <div class="footer-nav-column">
+                  <h3 class="footer-nav-title">Ресурсы</h3>
+                  <ul class="footer-nav-list">
+                    <li class="footer-nav-item">
+                      <a href="#">
+                        <div class="footer-nav-link">
+                          <span>Документация</span>
+                        </div>
+                      </a>
+                    </li>
+                    <li class="footer-nav-item">
+                      <a href="#">
+                        <div class="footer-nav-link"><span>Обучение</span></div>
+                      </a>
+                    </li>
+                    <li class="footer-nav-item">
+                      <a href="#">
+                        <div class="footer-nav-link">
+                          <span>Поддержка</span>
+                        </div>
+                      </a>
+                    </li>
+                    <li class="footer-nav-item">
+                      <a href="#">
+                        <div class="footer-nav-link"><span>FAQ</span></div>
+                      </a>
+                    </li>
+                    <li class="footer-nav-item">
+                      <a href="#">
+                        <div class="footer-nav-link">
+                          <span>Статус системы</span>
+                        </div>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="footer-bottom">
+              <div class="footer-bottom-content">
+                <div class="footer-legal-links">
+                  <a href="#">
+                    <div class="footer-legal-link">
+                      <svg
+                        width="16"
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="16"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        ></path>
+                      </svg>
+                      <span>Политика конфиденциальности</span>
+                    </div>
+                  </a>
+                  <a href="#">
+                    <div class="footer-legal-link">
+                      <svg
+                        width="16"
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="16"
+                        viewBox="0 0 24 24"
+                      >
+                        <g
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <path
+                            d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"
+                          ></path>
+                          <path d="M14 2v5a1 1 0 0 0 1 1h5"></path>
+                        </g>
+                      </svg>
+                      <span>Условия использования</span>
+                    </div>
+                  </a>
+                </div>
+                <p class="footer-copyright">
+                  © 2025 COTEL. Все права защищены. Powered by AI.
+                </p>
+              </div>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+  </body>
+</html>
