@@ -2937,3 +2937,11 @@
     font-size: var(--font-size-xs);
   }
 }
+
+.navigation-logo-cat {
+  height: 28px;        /* подбери 24–32px как нравится */
+  width: auto;
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 4px;       /* маленький отступ от букв */
+}
