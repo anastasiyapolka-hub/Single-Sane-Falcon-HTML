@@ -196,3 +196,10 @@
   font-weight: 500;
   line-height: 24px;
 }
+
+.navigation-logo-cat {
+  height: 1.1em;        /* высота картинки = примерно высоте текста */
+  margin: 0 0.2em;      /* небольшие отступы слева/справа */
+  vertical-align: middle; /* выравнивание по строке текста */
+  display: inline-block;
+}
