@@ -198,7 +198,8 @@
 }
 
 .navigation-logo-cat {
-  height: 1.1em;        /* высота картинки = примерно высоте текста */
+  height: 28px;        /* высота картинки = примерно высоте текста */
+  width: auto;
   margin: 0 0.2em;      /* небольшие отступы слева/справа */
   vertical-align: middle; /* выравнивание по строке текста */
   display: inline-block;
