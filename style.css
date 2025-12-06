@@ -2939,7 +2939,7 @@
 }
 
 .navigation-logo-cat {
-  height: 28px;        /* подбери 24–32px как нравится */
+  height: 32px;        /* подбери 24–32px как нравится */
   width: auto;
   display: inline-block;
   vertical-align: middle;
