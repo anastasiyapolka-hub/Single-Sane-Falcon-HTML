@@ -25,3 +25,9 @@
 .navigation-container7 {
   display: contents;
 }
+
+.navigation-logo-cat {
+  height: 1em;
+  margin: 0 0.15em;
+  vertical-align: middle;
+}
