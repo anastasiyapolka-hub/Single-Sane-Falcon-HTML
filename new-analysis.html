@@ -427,52 +427,75 @@
           if (resultDiv) resultDiv.textContent = "";
 
           try {
-            const resp = await fetch(BACKEND_URL, {
-              method: "POST",
-              body: formData,
-            });
+  const resp = await fetch(BACKEND_URL, {
+    method: "POST",
+    body: formData,
+  });
 
-            const data = await resp.json();
+  // 1. сначала читаем "сырое" тело
+  const rawText = await resp.text();
+  let data = null;
 
-            if (!resp.ok) {
-              const detail = data.detail || data.error || resp.statusText;
-              if (resultDiv) {
-                resultDiv.textContent = "Ошибка: " + detail;
-              }
-              return;
-            }
+  // 2. пробуем распарсить как JSON, если что — игнорируем
+  if (rawText) {
+    try {
+      data = JSON.parse(rawText);
+    } catch (e) {
+      // не JSON — ничего страшного, будем работать с текстом
+    }
+  }
 
-            if (data.error && !data.status) {
-              if (resultDiv) {
-                resultDiv.textContent = "Ошибка: " + data.error;
-              }
-              return;
-            }
+  // 3. если статус не ок — показываем максимум информации
+  if (!resp.ok) {
+    const detail =
+      (data && (data.detail || data.error)) ||
+      rawText ||
+      resp.statusText ||
+      "Неизвестная ошибка";
 
-            // собираем аккуратное сообщение
-            let text = data.message || "";
-            if (!text && data.status === "ok") {
-              text = "Файл успешно загружен";
-            }
+    if (resultDiv) {
+      resultDiv.textContent =
+        "Ошибка сервера (" + resp.status + "): " + detail;
+    }
+    return;
+  }
 
-            if (typeof data.messages_count === "number") {
-              text += ` (сообщений: ${data.messages_count})`;
-            }
+  // 4. если вообще пусто — отдельно подсветим
+  if (!data && !rawText) {
+    if (resultDiv) {
+      resultDiv.textContent =
+        "Сервер вернул пустой ответ (status " + resp.status + ").";
+    }
+    return;
+  }
 
-            if (data.filename) {
-              text += `\nФайл: ${data.filename}`;
-            }
+  // 5. нормальный успешный ответ
+  const payload = data || {};
 
-            if (resultDiv) {
-              resultDiv.textContent = text || JSON.stringify(data, null, 2);
-            }
-          } catch (err) {
-            if (resultDiv) {
-              resultDiv.textContent = "Ошибка запроса: " + err.message;
-            }
-          } finally {
-            showLoader(false);
-          }
+  let text = payload.message || "";
+  if (!text && payload.status === "ok") {
+    text = "Файл успешно загружен";
+  }
+
+  if (typeof payload.messages_count === "number") {
+    text += ` (сообщений: ${payload.messages_count})`;
+  }
+
+  if (payload.filename) {
+    text += `\nФайл: ${payload.filename}`;
+  }
+
+  if (resultDiv) {
+    resultDiv.textContent = text || rawText;
+  }
+} catch (err) {
+  if (resultDiv) {
+    resultDiv.textContent = "Ошибка запроса: " + err.message;
+  }
+} finally {
+  showLoader(false);
+}
+
         });
       }
     })();
