@@ -2947,3 +2947,14 @@
   top: -6px;               /* сдвиг вверх: подбери 1–3px под свой шрифт */
   /*  margin: 0 4px;       /* маленький отступ от букв */
 }
+
+.navigation__logo {
+  cursor: pointer;
+  transition: color 0.2s ease, text-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.navigation__logo:hover {
+  color: #ffffff; /* или твой основной цвет текста */
+  text-shadow: 0 0 10px rgba(82, 192, 255, 0.7); /* лёгкое свечение */
+  transform: translateY(-1px); /* чуть-чуть приподнять при ховере */
+}
