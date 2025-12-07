@@ -283,202 +283,66 @@
             </div>
             <div class="dashboard-bottom-block">
               <div class="dashboard-input-panel">
-                <div class="dashboard-controls-grid">
-                  <div class="dashboard-control-item">
-                    <label class="dashboard-label">
-                      <svg
-                        width="20"
-                        xmlns="http://www.w3.org/2000/svg"
-                        height="20"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          d="M12 3v12m5-7l-5-5l-5 5m14 7v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        ></path>
-                      </svg>
-                      <span>Загрузить файл</span>
-                    </label>
-                    <input
-                      type="file"
-                      accept=".txt,.json,.csv"
-                      class="dashboard-file-input"
-                    />
-                  </div>
-                  <div class="dashboard-control-item">
-                    <label class="dashboard-label">
-                      <svg
-                        width="20"
-                        xmlns="http://www.w3.org/2000/svg"
-                        height="20"
-                        viewBox="0 0 24 24"
-                      >
-                        <g
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        >
-                          <path d="M8 2v4m8-4v4"></path>
-                          <rect
-                            x="3"
-                            y="4"
-                            rx="2"
-                            width="18"
-                            height="18"
-                          ></rect>
-                          <path d="M3 10h18"></path>
-                        </g>
-                      </svg>
-                      <span>Период</span>
-                    </label>
-                    <select class="dashboard-select">
-                      <option>Последние 7 дней</option>
-                      <option>Последние 30 дней</option>
-                      <option>Последние 90 дней</option>
-                      <option>Весь период</option>
-                      <option>Произвольный период</option>
-                    </select>
-                  </div>
-                  <div class="dashboard-control-item">
-                    <label class="dashboard-label">
-                      <svg
-                        width="20"
-                        xmlns="http://www.w3.org/2000/svg"
-                        height="20"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="1.5"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        ></path>
-                      </svg>
-                      <span>Тема</span>
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Введите тему для фильтрации..."
-                      class="dashboard-input"
-                    />
-                  </div>
-                  <div class="dashboard-control-item">
-                    <label class="dashboard-label">
-                      <svg
-                        width="20"
-                        xmlns="http://www.w3.org/2000/svg"
-                        height="20"
-                        viewBox="0 0 24 24"
-                      >
-                        <g
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        >
-                          <path
-                            d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0a2.34 2.34 0 0 0 3.319 1.915a2.34 2.34 0 0 1 2.33 4.033a2.34 2.34 0 0 0 0 3.831a2.34 2.34 0 0 1-2.33 4.033a2.34 2.34 0 0 0-3.319 1.915a2.34 2.34 0 0 1-4.659 0a2.34 2.34 0 0 0-3.32-1.915a2.34 2.34 0 0 1-2.33-4.033a2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"
-                          ></path>
-                          <circle r="3" cx="12" cy="12"></circle>
-                        </g>
-                      </svg>
-                      <span>Тип задачи</span>
-                    </label>
-                    <select class="dashboard-select">
-                      <option>Саммаризация</option>
-                      <option>Конспект</option>
-                      <option>Поиск информации</option>
-                      <option>Извлечение ключевых слов</option>
-                      <option>Анализ тональности</option>
-                      <option>Экспертный анализ</option>
-                    </select>
-                  </div>
-                  <div class="dashboard-control-item">
-                    <label class="dashboard-label">
-                      <svg
-                        width="20"
-                        xmlns="http://www.w3.org/2000/svg"
-                        height="20"
-                        viewBox="0 0 24 24"
-                      >
-                        <g
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        >
-                          <path
-                            d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M16 3.128a4 4 0 0 1 0 7.744M22 21v-2a4 4 0 0 0-3-3.87"
-                          ></path>
-                          <circle r="4" cx="9" cy="7"></circle>
-                        </g>
-                      </svg>
-                      <span>Чаты/Каналы</span>
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Выберите источники..."
-                      class="dashboard-input"
-                    />
-                  </div>
-                  <div class="dashboard-control-action dashboard-control-item">
-                    <button class="btn dashboard-analyze-btn btn-primary">
-                      <svg
-                        width="20"
-                        xmlns="http://www.w3.org/2000/svg"
-                        height="20"
-                        viewBox="0 0 24 24"
-                      >
-                        <g
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        >
-                          <path
-                            d="M12 18V5m3 8a4.17 4.17 0 0 1-3-4a4.17 4.17 0 0 1-3 4m8.598-6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5"
-                          ></path>
-                          <path d="M17.997 5.125a4 4 0 0 1 2.526 5.77"></path>
-                          <path d="M18 18a4 4 0 0 0 2-7.464"></path>
-                          <path
-                            d="M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517"
-                          ></path>
-                          <path d="M6 18a4 4 0 0 1-2-7.464"></path>
-                          <path d="M6.003 5.125a4 4 0 0 0-2.526 5.77"></path>
-                        </g>
-                      </svg>
-                      <span>Анализировать</span>
-                    </button>
-                    <button class="dashboard-expand-btn">
-                      <svg
-                        width="20"
-                        xmlns="http://www.w3.org/2000/svg"
-                        height="20"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          d="m15 15l6 6M15 9l6-6m0 13v5h-5m5-13V3h-5M3 16v5h5m-5 0l6-6M3 8V3h5m1 6L3 3"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        ></path>
-                      </svg>
-                    </button>
-                  </div>
-                </div>
+                <div class="analysis-controls">
+      <!-- Кнопка импорта чата -->
+      <button
+        id="uploadBtn"
+        class="analysis-icon-button"
+        type="button"
+        title="Импорт чата"
+      >
+        <!-- reuse SVG загрузки из старой разметки -->
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M12 3v12m5-7l-5-5l-5 5m14 7v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </button>
+
+      <!-- Скрытый input файла -->
+      <input type="file" id="chatFile" accept=".json" style="display:none" />
+
+      <!-- Овальное поле запроса -->
+      <input
+        id="queryInput"
+        type="text"
+        class="analysis-query-input"
+        placeholder="Введите текст запроса"
+      />
+
+      <!-- Кнопка play -->
+      <button
+        id="analyzeBtn"
+        class="analysis-icon-button analysis-play-button"
+        type="button"
+        title="Выполнить анализ"
+      >
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M8 5v14l11-7z"
+            fill="currentColor"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </button>
+    </div>
               </div>
             </div>
           </div>
