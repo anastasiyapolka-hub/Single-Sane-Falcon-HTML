@@ -2943,5 +2943,7 @@
   width: auto;
   display: inline-block;
   vertical-align: middle;
+  position: relative;
+  top: -6px;               /* сдвиг вверх: подбери 1–3px под свой шрифт */
   /*  margin: 0 4px;       /* маленький отступ от букв */
 }
