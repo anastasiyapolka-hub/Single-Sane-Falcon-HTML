@@ -279,6 +279,7 @@
                     Анализируем ваши данные...
                   </p>
                 </div>
+                 <pre id="analysisResult" class="dashboard-results-text"></pre>
               </div>
             </div>
             <div class="dashboard-bottom-block">
@@ -367,127 +368,86 @@
         <div class="new-analysis-container4">
           <div class="new-analysis-container5">
             <script defer="" data-name="dashboard-interactions">
-              document.addEventListener('DOMContentLoaded', function() {
-                (function(){
-                  const analyzeBtn = document.querySelector(".dashboard-analyze-btn")
-                  const expandBtn = document.querySelector(".dashboard-expand-btn")
-                  const loader = document.querySelector(".dashboard-loader")
-                  const resultsViewer = document.querySelector(".dashboard-results-viewer")
+              document.addEventListener("DOMContentLoaded", function () {
+    (function () {
+      const BACKEND_URL = "https://cotel-backend.onrender.com/analyze";
 
-                  if (analyzeBtn) {
-                    analyzeBtn.addEventListener("click", () => {
-                      if (loader) {
-                        loader.style.display = "flex"
-                      }
-                    })
-                  }
+      const uploadBtn = document.getElementById("uploadBtn");
+      const fileInput = document.getElementById("chatFile");
+      const queryInput = document.getElementById("queryInput");
+      const analyzeBtn = document.getElementById("analyzeBtn");
+      const loader = document.querySelector(".dashboard-loader");
+      const resultDiv = document.getElementById("analysisResult");
 
-                  if (expandBtn) {
-                    expandBtn.addEventListener("click", () => {
-                      const inputPanel = document.querySelector(".dashboard-input-panel")
-                      if (inputPanel) {
-                        inputPanel.classList.toggle("expanded")
-                      }
-                    })
-                  }
+      function showLoader(show) {
+        if (!loader) return;
+        loader.style.display = show ? "flex" : "none";
+      }
 
-                  const templateCards = document.querySelectorAll(".templates-card")
-                  templateCards.forEach((card, index) => {
-                    card.style.animationDelay = `${index * 0.1}s`
-                  })
+      // прячем лоадер по умолчанию
+      showLoader(false);
 
-                  const historyScrollContainer = document.querySelector(
-                    ".history-scroll-container"
-                  )
-                  if (historyScrollContainer) {
-                    let isDown = false
-                    let startX
-                    let scrollLeft
+      // клик по маленькой кнопке → открыть выбор файла
+      if (uploadBtn && fileInput) {
+        uploadBtn.addEventListener("click", () => {
+          fileInput.click();
+        });
 
-                    historyScrollContainer.addEventListener("mousedown", (e) => {
-                      isDown = true
-                      startX = e.pageX - historyScrollContainer.offsetLeft
-                      scrollLeft = historyScrollContainer.scrollLeft
-                    })
+        fileInput.addEventListener("change", () => {
+          if (!fileInput.files[0]) return;
+          resultDiv.textContent = `Выбран файл: ${fileInput.files[0].name}`;
+        });
+      }
 
-                    historyScrollContainer.addEventListener("mouseleave", () => {
-                      isDown = false
-                    })
+      // запуск анализа
+      if (analyzeBtn) {
+        analyzeBtn.addEventListener("click", async () => {
+          const file = fileInput?.files[0];
 
-                    historyScrollContainer.addEventListener("mouseup", () => {
-                      isDown = false
-                    })
+          if (!file) {
+            alert("Сначала импортируйте чат (выберите файл result.json)");
+            return;
+          }
 
-                    historyScrollContainer.addEventListener("mousemove", (e) => {
-                      if (!isDown) return
-                      e.preventDefault()
-                      const x = e.pageX - historyScrollContainer.offsetLeft
-                      const walk = (x - startX) * 2
-                      historyScrollContainer.scrollLeft = scrollLeft - walk
-                    })
-                  }
+          const query = (queryInput?.value || "").trim();
 
-                  const copyBtn = document.querySelector(
-                    ".utility-card-copy .utility-card-action"
-                  )
-                  if (copyBtn) {
-                    copyBtn.addEventListener("click", () => {
-                      const originalText = copyBtn.textContent
-                      copyBtn.textContent = "Скопировано!"
-                      setTimeout(() => {
-                        copyBtn.textContent = originalText
-                      }, 2000)
-                    })
-                  }
+          const formData = new FormData();
+          formData.append("file", file);
 
-                  const ratingBtns = document.querySelectorAll(".utility-rating-btn")
-                  ratingBtns.forEach((btn, index) => {
-                    btn.addEventListener("click", () => {
-                      ratingBtns.forEach((b, i) => {
-                        if (i <= index) {
-                          b.style.filter = "grayscale(0)"
-                        } else {
-                          b.style.filter = "grayscale(1)"
-                        }
-                      })
-                    })
-                  })
+          const params = {
+            query: query || null,
+            result_type: "summary",
+          };
+          formData.append("params", JSON.stringify(params));
 
-                  const searchInput = document.querySelector(".utility-search-input")
-                  const searchBtn = document.querySelector(".utility-search-btn")
-                  if (searchBtn && searchInput) {
-                    searchBtn.addEventListener("click", () => {
-                      const query = searchInput.value
-                      if (query) {
-                        console.log("Searching for:", query)
-                      }
-                    })
-                  }
+          showLoader(true);
+          if (resultDiv) resultDiv.textContent = "";
 
-                  const formatBtns = document.querySelectorAll(".utility-format-btn")
-                  formatBtns.forEach((btn) => {
-                    btn.addEventListener("click", () => {
-                      const format = btn.textContent
-                      console.log("Exporting as:", format)
-                    })
-                  })
+          try {
+            const resp = await fetch(BACKEND_URL, {
+              method: "POST",
+              body: formData,
+            });
 
-                  const toggleInputs = document.querySelectorAll(".settings-toggle-input")
-                  toggleInputs.forEach((input) => {
-                    input.addEventListener("change", () => {
-                      console.log("Toggle changed:", input.checked)
-                    })
-                  })
+            const data = await resp.json();
 
-                  const quickBtns = document.querySelectorAll(".sources-quick-btn")
-                  quickBtns.forEach((btn) => {
-                    btn.addEventListener("click", () => {
-                      quickBtns.forEach((b) => b.classList.remove("sources-quick-btn-active"))
-                      btn.classList.add("sources-quick-btn-active")
-                    })
-                  })
-                })()
-              });
+            if (!resp.ok || data.error) {
+              resultDiv.textContent =
+                "Ошибка анализа: " + (data.error || resp.statusText);
+              return;
+            }
+
+            // пока показываем сырой JSON
+            resultDiv.textContent = JSON.stringify(data, null, 2);
+          } catch (err) {
+            resultDiv.textContent = "Ошибка запроса: " + err.message;
+          } finally {
+            showLoader(false);
+          }
+        });
+      }
+    })();
+  });
             </script>
           </div>
         </div>
