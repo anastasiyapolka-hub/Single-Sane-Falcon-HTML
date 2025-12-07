@@ -369,7 +369,8 @@
         <div class="new-analysis-container4">
           <div class="new-analysis-container5">
             <script defer="" data-name="dashboard-interactions">
-              document.addEventListener("DOMContentLoaded", function () {
+            <script defer data-name="dashboard-interactions">
+  document.addEventListener("DOMContentLoaded", function () {
     (function () {
       const BACKEND_URL = "https://cotel-backend.onrender.com/analyze";
 
@@ -385,10 +386,10 @@
         loader.style.display = show ? "flex" : "none";
       }
 
-      // прячем лоадер по умолчанию
+      // по умолчанию прячем котика
       showLoader(false);
 
-      // клик по маленькой кнопке → открыть выбор файла
+      // клик по кнопке с иконкой → открываем выбор файла
       if (uploadBtn && fileInput) {
         uploadBtn.addEventListener("click", () => {
           fileInput.click();
@@ -396,17 +397,19 @@
 
         fileInput.addEventListener("change", () => {
           if (!fileInput.files[0]) return;
-          resultDiv.textContent = `Выбран файл: ${fileInput.files[0].name}`;
+          if (resultDiv) {
+            resultDiv.textContent = `Выбран файл: ${fileInput.files[0].name}`;
+          }
         });
       }
 
-      // запуск анализа
+      // запуск анализа по кнопке Play
       if (analyzeBtn) {
         analyzeBtn.addEventListener("click", async () => {
           const file = fileInput?.files[0];
 
           if (!file) {
-            alert("Сначала импортируйте чат (выберите файл result.json)");
+            alert("Сначала импортируйте чат (выберите JSON-файл экспорта)");
             return;
           }
 
@@ -432,16 +435,42 @@
 
             const data = await resp.json();
 
-            if (!resp.ok || data.error) {
-              resultDiv.textContent =
-                "Ошибка анализа: " + (data.error || resp.statusText);
+            if (!resp.ok) {
+              const detail = data.detail || data.error || resp.statusText;
+              if (resultDiv) {
+                resultDiv.textContent = "Ошибка: " + detail;
+              }
               return;
             }
 
-            // пока показываем сырой JSON
-            resultDiv.textContent = JSON.stringify(data, null, 2);
+            if (data.error && !data.status) {
+              if (resultDiv) {
+                resultDiv.textContent = "Ошибка: " + data.error;
+              }
+              return;
+            }
+
+            // собираем аккуратное сообщение
+            let text = data.message || "";
+            if (!text && data.status === "ok") {
+              text = "Файл успешно загружен";
+            }
+
+            if (typeof data.messages_count === "number") {
+              text += ` (сообщений: ${data.messages_count})`;
+            }
+
+            if (data.filename) {
+              text += `\nФайл: ${data.filename}`;
+            }
+
+            if (resultDiv) {
+              resultDiv.textContent = text || JSON.stringify(data, null, 2);
+            }
           } catch (err) {
-            resultDiv.textContent = "Ошибка запроса: " + err.message;
+            if (resultDiv) {
+              resultDiv.textContent = "Ошибка запроса: " + err.message;
+            }
           } finally {
             showLoader(false);
           }
@@ -449,6 +478,8 @@
       }
     })();
   });
+</script>
+
             </script>
           </div>
         </div>
