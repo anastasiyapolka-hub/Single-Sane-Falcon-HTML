@@ -356,17 +356,20 @@
 
       // клик по кнопке с иконкой → открываем выбор файла
       if (uploadBtn && fileInput) {
-        uploadBtn.addEventListener("click", () => {
-          fileInput.click();
-        });
+      uploadBtn.addEventListener("click", () => {
+    // важная строка: сбрасываем выбранный файл,
+    // чтобы даже тот же самый файл считался "изменением"
+    fileInput.value = "";
+    fileInput.click();
+  });
 
-        fileInput.addEventListener("change", () => {
-          if (!fileInput.files[0]) return;
-          if (resultDiv) {
-            resultDiv.textContent = `Выбран файл: ${fileInput.files[0].name}`;
-          }
-        });
-      }
+  fileInput.addEventListener("change", () => {
+    if (!fileInput.files[0]) return;
+    if (resultDiv) {
+      resultDiv.textContent = `Выбран файл: ${fileInput.files[0].name}`;
+    }
+  });
+}
 
       // запуск анализа по кнопке Play
       if (analyzeBtn) {
