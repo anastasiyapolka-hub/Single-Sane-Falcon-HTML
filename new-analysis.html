@@ -220,6 +220,9 @@
         <div class="dashboard-main">
           <div class="dashboard-container">
             <div class="dashboard-top-block">
+              <div id="chatTitleBar" class="chat-title-bar" style="display:none;">
+                <span id="chatTitleText"></span>
+              </div>
               <div class="dashboard-results-viewer">
                 <div class="dashboard-loader">
                   <div class="dashboard-loader-cat">
@@ -367,6 +370,14 @@
     if (!fileInput.files[0]) return;
     if (resultDiv) {
       resultDiv.textContent = `Выбран файл: ${fileInput.files[0].name}`;
+    }
+    // вывод названия чата
+    if (data.chat_name) {
+      const bar = document.getElementById("chatTitleBar");
+      const title = document.getElementById("chatTitleText");
+
+      title.textContent = data.chat_name;
+      bar.style.display = "block";
     }
   });
 }
