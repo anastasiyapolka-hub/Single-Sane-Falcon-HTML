@@ -409,82 +409,91 @@
           if (resultDiv) resultDiv.textContent = "";
 
           try {
-  const resp = await fetch(BACKEND_URL, {
-    method: "POST",
-    body: formData,
-  });
+            const resp = await fetch(BACKEND_URL, {
+              method: "POST",
+              body: formData,
+            });
+          
+            // 1. сначала читаем "сырое" тело
+            const rawText = await resp.text();
+            let data = null;
+          
+            // 2. пробуем распарсить как JSON, если что — игнорируем
+            if (rawText) {
+              try {
+                data = JSON.parse(rawText);
+              } catch (e) {
+                // не JSON — ничего страшного, будем работать с текстом
+              }
+            }
 
-  // 1. сначала читаем "сырое" тело
-  const rawText = await resp.text();
-  let data = null;
+            // 3. если статус не ок — показываем максимум информации
+            if (!resp.ok) {
+              const detail =
+                (data && (data.detail || data.error)) ||
+                rawText ||
+                resp.statusText ||
+                "Неизвестная ошибка";
+          
+              if (resultDiv) {
+                resultDiv.textContent =
+                  "Ошибка сервера (" + resp.status + "): " + detail;
+              }
+              return;
+            }
+          
+            // 4. если вообще пусто — отдельно подсветим
+            if (!data && !rawText) {
+              if (resultDiv) {
+                resultDiv.textContent =
+                  "Сервер вернул пустой ответ (status " + resp.status + ").";
+              }
+              return;
+            }
 
-  // 2. пробуем распарсить как JSON, если что — игнорируем
-  if (rawText) {
-    try {
-      data = JSON.parse(rawText);
-    } catch (e) {
-      // не JSON — ничего страшного, будем работать с текстом
-    }
-  }
+            // 5. нормальный успешный ответ
+            const payload = data || {};
+          
+            let text = "";
 
-  // 3. если статус не ок — показываем максимум информации
-  if (!resp.ok) {
-    const detail =
-      (data && (data.detail || data.error)) ||
-      rawText ||
-      resp.statusText ||
-      "Неизвестная ошибка";
+            // 1) сначала сам ответ LLM, если есть
+            if (payload.summary) {
+              text += payload.summary + "\n\n";
+            }
+            
+            // 2) затем служебное сообщение
+            if (payload.message) {
+              text += payload.message;
+            } else if (payload.status === "ok" && !payload.summary) {
+              text += "Файл успешно загружен";
+            }
+          
+            if (typeof payload.messages_count === "number") {
+              text += ` (сообщений: ${payload.messages_count})`;
+            }
+          
+            if (payload.filename) {
+              text += `\nФайл: ${payload.filename}`;
+            }
+          
+            // показать тип и название чата в верхней полоске
+            if (payload.chat_name || payload.chat_type) {
+            const bar = document.getElementById("chatTitleBar");
+            const title = document.getElementById("chatTitleText");
+          
+            const typeText = payload.chat_type ? payload.chat_type : "Чат";
+            const nameText = payload.chat_name ? payload.chat_name : "Без названия";
 
-    if (resultDiv) {
-      resultDiv.textContent =
-        "Ошибка сервера (" + resp.status + "): " + detail;
-    }
-    return;
-  }
-
-  // 4. если вообще пусто — отдельно подсветим
-  if (!data && !rawText) {
-    if (resultDiv) {
-      resultDiv.textContent =
-        "Сервер вернул пустой ответ (status " + resp.status + ").";
-    }
-    return;
-  }
-
-  // 5. нормальный успешный ответ
-  const payload = data || {};
-
-  let text = payload.message || "";
-  if (!text && payload.status === "ok") {
-    text = "Файл успешно загружен";
-  }
-
-  if (typeof payload.messages_count === "number") {
-    text += ` (сообщений: ${payload.messages_count})`;
-  }
-
-  if (payload.filename) {
-    text += `\nФайл: ${payload.filename}`;
-  }
-
-  // показать тип и название чата в верхней полоске
-  if (payload.chat_name || payload.chat_type) {
-  const bar = document.getElementById("chatTitleBar");
-  const title = document.getElementById("chatTitleText");
-
-  const typeText = payload.chat_type ? payload.chat_type : "Чат";
-  const nameText = payload.chat_name ? payload.chat_name : "Без названия";
-
-  title.textContent = `${typeText}: ${nameText}`;
-  bar.style.display = "block";
-}
-  if (resultDiv) {
-    resultDiv.textContent = text || rawText;
-  }
-} catch (err) {
-  if (resultDiv) {
-    resultDiv.textContent = "Ошибка запроса: " + err.message;
-  }
+            title.textContent = `${typeText}: ${nameText}`;
+            bar.style.display = "block";
+          }
+            if (resultDiv) {
+              resultDiv.textContent = text || rawText;
+            }
+        } catch (err) {
+          if (resultDiv) {
+            resultDiv.textContent = "Ошибка запроса: " + err.message;
+          }
 } finally {
   showLoader(false);
 }
