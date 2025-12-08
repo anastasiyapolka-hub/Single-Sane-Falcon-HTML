@@ -329,11 +329,12 @@
 .chat-title-bar {
   width: 100%;
   padding: 8px 14px;
-  background: rgba(0,0,0,0.08);
-  color: #ff7a00; /* оранжевый */
+  background: rgba(20, 20, 20, 0.9);  /* темно-серый, чуть прозрачный */
+  color: #f5f2e9;                     /* молочный текст */
   font-size: 15px;
   font-weight: 600;
-  border-bottom: 1px solid rgba(0,0,0,0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-sizing: border-box;
 }
 
 .analysis-disclaimer {
