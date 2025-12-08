@@ -371,12 +371,12 @@
     if (resultDiv) {
       resultDiv.textContent = `Выбран файл: ${fileInput.files[0].name}`;
     }
-    // вывод названия чата
-    if (data.chat_name) {
+    // показать название чата, если есть
+    if (payload.chat_name) {
       const bar = document.getElementById("chatTitleBar");
       const title = document.getElementById("chatTitleText");
-
-      title.textContent = data.chat_name;
+    
+      title.textContent = payload.chat_name;
       bar.style.display = "block";
     }
   });
