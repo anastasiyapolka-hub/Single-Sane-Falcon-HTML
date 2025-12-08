@@ -371,14 +371,7 @@
     if (resultDiv) {
       resultDiv.textContent = `Выбран файл: ${fileInput.files[0].name}`;
     }
-    // показать название чата, если есть
-    if (payload.chat_name) {
-      const bar = document.getElementById("chatTitleBar");
-      const title = document.getElementById("chatTitleText");
-    
-      title.textContent = payload.chat_name;
-      bar.style.display = "block";
-    }
+  
   });
 }
 
@@ -465,6 +458,14 @@
     text += `\nФайл: ${payload.filename}`;
   }
 
+  // показать название чата, если пришло от бэкенда
+  if (payload.chat_name) {
+      const bar = document.getElementById("chatTitleBar");
+      const title = document.getElementById("chatTitleText");
+  
+      title.textContent = payload.chat_name;
+      bar.style.display = "block";
+  }
   if (resultDiv) {
     resultDiv.textContent = text || rawText;
   }
