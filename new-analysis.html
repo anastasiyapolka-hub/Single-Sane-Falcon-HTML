@@ -212,41 +212,7 @@
             </div>
             <div class="navigation-container6">
               <div class="navigation-container7">
-                <script defer="" data-name="navigation-mobile-menu">
-                  document.addEventListener('DOMContentLoaded', function() {
-                    (function(){
-                      const navToggle = document.getElementById("navToggle")
-                      const navClose = document.getElementById("navClose")
-                      const navOverlay = document.getElementById("navOverlay")
-
-                      function openNav() {
-                        navOverlay.style.display = "block"
-                        navToggle.setAttribute("aria-expanded", "true")
-                        document.body.style.overflow = "hidden"
-                      }
-
-                      function closeNav() {
-                        navOverlay.style.display = "none"
-                        navToggle.setAttribute("aria-expanded", "false")
-                        document.body.style.overflow = ""
-                      }
-
-                      navToggle.addEventListener("click", openNav)
-                      navClose.addEventListener("click", closeNav)
-
-                      navOverlay.addEventListener("click", (e) => {
-                        if (e.target === navOverlay) {
-                          closeNav()
-                        }
-                      })
-
-                      const overlayLinks = navOverlay.querySelectorAll(".navigation__overlay-link")
-                      overlayLinks.forEach((link) => {
-                        link.addEventListener("click", closeNav)
-                      })
-                    })()
-                  });
-                </script>
+                
               </div>
             </div>
           </div>
@@ -371,7 +337,7 @@
             <script defer data-name="dashboard-interactions">
   document.addEventListener("DOMContentLoaded", function () {
     (function () {
-      const BACKEND_URL = "https://cotel.onrender.com/analyze";
+      const BACKEND_URL = "https://cotel-backend.onrender.com/analyze";
 
       const uploadBtn = document.getElementById("uploadBtn");
       const fileInput = document.getElementById("chatFile");
