@@ -467,14 +467,17 @@
     text += `\nФайл: ${payload.filename}`;
   }
 
-  // показать название чата, если пришло от бэкенда
-  if (payload.chat_name) {
-      const bar = document.getElementById("chatTitleBar");
-      const title = document.getElementById("chatTitleText");
-  
-      title.textContent = payload.chat_name;
-      bar.style.display = "block";
-  }
+  // показать тип и название чата в верхней полоске
+  if (payload.chat_name || payload.chat_type) {
+  const bar = document.getElementById("chatTitleBar");
+  const title = document.getElementById("chatTitleText");
+
+  const typeText = payload.chat_type ? payload.chat_type : "Чат";
+  const nameText = payload.chat_name ? payload.chat_name : "Без названия";
+
+  title.textContent = `${typeText}: ${nameText}`;
+  bar.style.display = "block";
+}
   if (resultDiv) {
     resultDiv.textContent = text || rawText;
   }
