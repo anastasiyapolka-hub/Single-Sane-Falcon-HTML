@@ -326,16 +326,44 @@
   white-space: pre-wrap;
 }
 
+/* Полоска с названием чата — тёмно-серая, полупрозрачная,
+   текст молочный, на всю ширину рабочей области */
 .chat-title-bar {
+  display: block;
   width: 100%;
-  padding: 8px 14px;
-  background: rgba(20, 20, 20, 0.9);  /* темно-серый, чуть прозрачный */
-  color: #f5f2e9;                     /* молочный текст */
-  font-size: 15px;
+  margin: 0;
+  padding: 12px 24px;
+
+  background: rgba(0, 0, 0, 0.5);   /* ~50% прозрачности */
+  color: #f7f3ec;                   /* молочный белый */
+  font-size: 18px;
   font-weight: 600;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+  border-radius: 0;
   box-sizing: border-box;
 }
+
+/* Контейнер с результатами — столбиком, без верхнего отступа,
+   чтобы полоска прилипала к верхней границе рабочей области */
+.dashboard-results-viewer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding-top: 0;   /* убрать зазор сверху */
+}
+
+/* Немного воздуха между полоской и текстом результата */
+.dashboard-results-text {
+  margin-top: 16px;
+  white-space: pre-wrap;
+}
+
+/* Если котик сейчас прилипает к полоске —
+   можно чуть опустить его */
+.dashboard-loader {
+  margin-top: 16px;
+}
+
 
 .analysis-disclaimer {
   font-size: 12px;
