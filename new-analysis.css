@@ -326,3 +326,12 @@
   white-space: pre-wrap;
 }
 
+.chat-title-bar {
+  width: 100%;
+  padding: 8px 14px;
+  background: rgba(0,0,0,0.08);
+  color: #ff7a00; /* оранжевый */
+  font-size: 15px;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+}
