@@ -341,7 +341,7 @@
   box-sizing: border-box;
 }
 
-/* Карточка с результатами
+/* Карточка с результатами*/
 .dashboard-results-viewer {
   position: relative;
   display: flex;
