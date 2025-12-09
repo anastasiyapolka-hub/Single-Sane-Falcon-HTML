@@ -372,29 +372,8 @@
                       />
                       <span>Мой аккаунт Telegram</span>
                     </label>
-                    <label class="sidebar-radio-row">
-                      <input
-                        type="radio"
-                        name="dataSource"
-                        id="dataSourcePublic"
-                        value="public"
-                      />
-                      <span>Публичный канал (без логина)</span>
-                    </label>
-                    <label class="sidebar-radio-row">
-                      <input
-                        type="radio"
-                        name="dataSource"
-                        id="dataSourceBot"
-                        value="bot"
-                      />
-                      <span>Чат с ботом</span>
-                    </label>
-                  </div>
-                </details>
-              </div>
 
-              <!-- Блок: Авторизация Telegram (виден только при "Мой аккаунт") -->
+                    <!-- Блок: Авторизация Telegram (виден только при "Мой аккаунт") -->
               <div
                 id="tgAuthBlock"
                 class="tg-auth-block"
@@ -425,6 +404,31 @@
                     историю сообщений.
                   </p>
                 </div>
+
+                
+                    <label class="sidebar-radio-row">
+                      <input
+                        type="radio"
+                        name="dataSource"
+                        id="dataSourcePublic"
+                        value="public"
+                      />
+                      <span>Публичный канал (без логина)</span>
+                    </label>
+                    <label class="sidebar-radio-row">
+                      <input
+                        type="radio"
+                        name="dataSource"
+                        id="dataSourceBot"
+                        value="bot"
+                      />
+                      <span>Чат с ботом</span>
+                    </label>
+                  </div>
+                </details>
+              </div>
+
+        
 
                 <!-- состояние 2: ввод кода -->
                 <div id="tgStateCode" style="display: none;">
