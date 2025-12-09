@@ -609,6 +609,51 @@
       const loader = document.querySelector(".dashboard-loader");
       const resultDiv = document.getElementById("analysisResult");
 
+            // --- ЭЛЕМЕНТЫ ДЛЯ ВЫБОРА ИСТОЧНИКА ДАННЫХ ---
+      const dataSourceFileRadio = document.getElementById("dataSourceFile");
+      const dataSourceAccountRadio = document.getElementById("dataSourceAccount");
+      const dataSourcePublicRadio = document.getElementById("dataSourcePublic");
+      const dataSourceBotRadio = document.getElementById("dataSourceBot");
+
+      const tgAuthBlock = document.getElementById("tgAuthBlock");
+      const tgStatePhone = document.getElementById("tgStatePhone");
+      const tgStateCode = document.getElementById("tgStateCode");
+      const tgStateConnected = document.getElementById("tgStateConnected");
+
+      const tgPhoneInput = document.getElementById("tgPhoneInput");
+      const tgSendCodeBtn = document.getElementById("tgSendCodeBtn");
+      const tgCodeInput = document.getElementById("tgCodeInput");
+      const tgConfirmCodeBtn = document.getElementById("tgConfirmCodeBtn");
+      const tgCancelCodeBtn = document.getElementById("tgCancelCodeBtn");
+      const tgStatusMessage = document.getElementById("tgStatusMessage");
+      const tgConnectedUser = document.getElementById("tgConnectedUser");
+
+      function updateDataSourceUI() {
+        const checked = document.querySelector('input[name="dataSource"]:checked');
+        const mode = checked ? checked.value : "file";
+
+        // показываем / скрываем кнопку загрузки файла
+        if (uploadBtn) {
+          uploadBtn.style.display = mode === "file" ? "inline-flex" : "none";
+        }
+
+        // показываем / скрываем блок авторизации Telegram
+        if (tgAuthBlock) {
+          tgAuthBlock.style.display = mode === "account" ? "block" : "none";
+        }
+      }
+
+      function setTgState(state) {
+        if (!tgStatePhone || !tgStateCode || !tgStateConnected) return;
+
+        tgStatePhone.style.display = state === "phone" ? "block" : "none";
+        tgStateCode.style.display = state === "code" ? "block" : "none";
+        tgStateConnected.style.display = state === "connected" ? "block" : "none";
+      }
+
+      // начальное состояние
+      setTgState("phone");
+
       function showLoader(show) {
         if (!loader) return;
         loader.style.display = show ? "flex" : "none";
@@ -616,6 +661,59 @@
 
       // по умолчанию прячем котика
       showLoader(false);
+
+            // по умолчанию обновляем UI по выбранному источнику
+      updateDataSourceUI();
+
+      // слушаем переключение источника данных
+      dataSourceFileRadio?.addEventListener("change", updateDataSourceUI);
+      dataSourceAccountRadio?.addEventListener("change", updateDataSourceUI);
+      dataSourcePublicRadio?.addEventListener("change", updateDataSourceUI);
+      dataSourceBotRadio?.addEventListener("change", updateDataSourceUI);
+
+      // --- ПОВЕДЕНИЕ БЛОКА АВТОРИЗАЦИИ TELEGRAM (пока без реальных запросов) ---
+
+      tgSendCodeBtn?.addEventListener("click", () => {
+        const phone = (tgPhoneInput?.value || "").trim();
+        if (!phone) {
+          if (tgStatusMessage) {
+            tgStatusMessage.textContent = "Введите номер телефона.";
+          }
+          return;
+        }
+        // здесь позже появится вызов /tg/start_auth
+        if (tgStatusMessage) {
+          tgStatusMessage.textContent =
+            "Отправляем код в Telegram (пока заглушка без сервера).";
+        }
+        setTgState("code");
+      });
+
+      tgConfirmCodeBtn?.addEventListener("click", () => {
+        const code = (tgCodeInput?.value || "").trim();
+        if (!code) {
+          if (tgStatusMessage) {
+            tgStatusMessage.textContent = "Введите код из Telegram.";
+          }
+          return;
+        }
+        // здесь позже будет вызов /tg/confirm_code
+        if (tgStatusMessage) {
+          tgStatusMessage.textContent =
+            "Код принят (демо-режим). Позже здесь будет реальная авторизация.";
+        }
+        if (tgConnectedUser) {
+          tgConnectedUser.textContent = "@username"; // временный плейсхолдер
+        }
+        setTgState("connected");
+      });
+
+      tgCancelCodeBtn?.addEventListener("click", () => {
+        if (tgPhoneInput) tgPhoneInput.value = "";
+        if (tgCodeInput) tgCodeInput.value = "";
+        if (tgStatusMessage) tgStatusMessage.textContent = "";
+        setTgState("phone");
+      });
 
       // клик по кнопке с иконкой → открываем выбор файла
       if (uploadBtn && fileInput) {
