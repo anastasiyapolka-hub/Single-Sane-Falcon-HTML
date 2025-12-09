@@ -329,39 +329,38 @@
 /* Полоска с названием чата — тёмно-серая, полупрозрачная,
    текст молочный, на всю ширину рабочей области */
 .chat-title-bar {
-  display: block;
+ display: none;           /* по умолчанию скрыта, JS включает */
   width: 100%;
-  margin: 0;
+  margin: 0;               /* без внешних отступов */
   padding: 12px 24px;
 
-  background: rgba(0, 0, 0, 0.5);   /* ~50% прозрачности */
-  color: #f7f3ec;                   /* молочный белый */
+  background: rgba(0, 0, 0, 0.5);  /* полупрозрачный серый */
+  color: #f7f3ec;                  /* молочный текст */
   font-size: 18px;
   font-weight: 600;
-
-  border-radius: 0;
   box-sizing: border-box;
 }
 
-/* Контейнер с результатами — столбиком, без верхнего отступа,
-   чтобы полоска прилипала к верхней границе рабочей области */
+/* Карточка с результатами
 .dashboard-results-viewer {
   position: relative;
   display: flex;
   flex-direction: column;
-  padding-top: 0;   /* убрать зазор сверху */
+  padding: 0;              /* ВАЖНО: убираем padding */
+  box-sizing: border-box;
 }
 
 /* Немного воздуха между полоской и текстом результата */
 .dashboard-results-text {
-  margin-top: 16px;
+  margin-top: 8px;
+  padding: 24px; 
   white-space: pre-wrap;
 }
 
 /* Если котик сейчас прилипает к полоске —
    можно чуть опустить его */
 .dashboard-loader {
-  margin-top: 16px;
+ padding: 24px;    
 }
 
 
