@@ -363,6 +363,9 @@
  padding: 24px;    
 }
 
+.dashboard-top-block {
+  padding: 0;
+}
 
 .analysis-disclaimer {
   font-size: 12px;
