@@ -30,6 +30,124 @@
         fill: var(--color-on-surface);
       }
     </style>
+
+      <style>
+      /* Лейаут: слева сайдбар, справа рабочая область */
+      .dashboard-layout {
+        display: flex;
+        align-items: stretch;
+      }
+
+      .dashboard-sidebar {
+        width: 260px;
+        padding: 16px 20px;
+        border-right: 1px solid rgba(0, 0, 0, 0.06);
+        background: #f9fafb;
+        font-size: 0.9rem;
+      }
+
+      .dashboard-sidebar h3 {
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+
+      .sidebar-section {
+        margin-bottom: 18px;
+      }
+
+      .sidebar-section details {
+        border-radius: 8px;
+        padding: 8px 10px;
+        background: #ffffff;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+      }
+
+      .sidebar-section summary {
+        list-style: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-weight: 600;
+      }
+
+      .sidebar-section summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .sidebar-section-body {
+        margin-top: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .sidebar-radio-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .sidebar-radio-row input[type="radio"] {
+        margin: 0;
+      }
+
+      .tg-auth-block {
+        margin-top: 12px;
+        padding: 10px 12px;
+        border-radius: 8px;
+        background: #ffffff;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+      }
+
+      .tg-field {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        margin-bottom: 10px;
+      }
+
+      .tg-input {
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid #d1d5db;
+        font-size: 0.9rem;
+      }
+
+      .tg-button {
+        margin-top: 4px;
+        padding: 6px 14px;
+        border-radius: 999px;
+        border: 1px solid #d1d5db;
+        background: #f3f4f6;
+        cursor: pointer;
+        font-size: 0.85rem;
+      }
+
+      .tg-button:hover {
+        background: #e5e7eb;
+      }
+
+      .tg-status {
+        font-size: 0.8rem;
+        color: #6b7280;
+        margin-top: 4px;
+      }
+
+      @media (max-width: 900px) {
+        .dashboard-layout {
+          flex-direction: column;
+        }
+
+        .dashboard-sidebar {
+          width: 100%;
+          border-right: none;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+        }
+      }
+    </style>
+
     <link
       rel="stylesheet"
       href="https://unpkg.com/animate.css@4.1.1/animate.css"
@@ -218,8 +336,141 @@
           </div>
         </navigation-wrapper>
         <div class="dashboard-main">
-          <div class="dashboard-container">
-            <div class="dashboard-top-block">
+
+          <div class="dashboard-layout">
+            <!-- ЛЕВАЯ КОЛОНКА: источник данных + авторизация -->
+            <aside class="dashboard-sidebar">
+              <!-- Блок: Источник данных -->
+              <div class="sidebar-section">
+                <details id="dataSourceSection" open>
+                  <summary>
+                    <span>Источник данных</span>
+                    <span>▾</span>
+                  </summary>
+                  <div class="sidebar-section-body">
+                    <label class="sidebar-radio-row">
+                      <input
+                        type="radio"
+                        name="dataSource"
+                        id="dataSourceFile"
+                        value="file"
+                        checked
+                      />
+                      <span>Файл Telegram (JSON)</span>
+                    </label>
+                    <label class="sidebar-radio-row">
+                      <input
+                        type="radio"
+                        name="dataSource"
+                        id="dataSourceAccount"
+                        value="account"
+                      />
+                      <span>Мой аккаунт Telegram</span>
+                    </label>
+                    <label class="sidebar-radio-row">
+                      <input
+                        type="radio"
+                        name="dataSource"
+                        id="dataSourcePublic"
+                        value="public"
+                      />
+                      <span>Публичный канал (без логина)</span>
+                    </label>
+                    <label class="sidebar-radio-row">
+                      <input
+                        type="radio"
+                        name="dataSource"
+                        id="dataSourceBot"
+                        value="bot"
+                      />
+                      <span>Чат с ботом</span>
+                    </label>
+                  </div>
+                </details>
+              </div>
+
+              <!-- Блок: Авторизация Telegram (виден только при "Мой аккаунт") -->
+              <div
+                id="tgAuthBlock"
+                class="tg-auth-block"
+                style="display: none;"
+              >
+                <h3>Авторизация Telegram</h3>
+
+                <!-- состояние 1: ввод телефона -->
+                <div id="tgStatePhone">
+                  <div class="tg-field">
+                    <label for="tgPhoneInput">Телефон</label>
+                    <input
+                      id="tgPhoneInput"
+                      type="text"
+                      class="tg-input"
+                      placeholder="+7 9ХХ ХХХ-ХХ-ХХ"
+                    />
+                  </div>
+                  <button
+                    id="tgSendCodeBtn"
+                    type="button"
+                    class="tg-button"
+                  >
+                    Получить код в Telegram
+                  </button>
+                  <p class="tg-status">
+                    Мы отправим код в ваш Telegram-клиент. Мы не сохраняем
+                    историю сообщений.
+                  </p>
+                </div>
+
+                <!-- состояние 2: ввод кода -->
+                <div id="tgStateCode" style="display: none;">
+                  <p class="tg-status">
+                    Мы отправили код в ваш Telegram. Введите его ниже.
+                  </p>
+                  <div class="tg-field">
+                    <label for="tgCodeInput">Код из Telegram</label>
+                    <input
+                      id="tgCodeInput"
+                      type="text"
+                      class="tg-input"
+                      placeholder="12345"
+                    />
+                  </div>
+                  <button
+                    id="tgConfirmCodeBtn"
+                    type="button"
+                    class="tg-button"
+                  >
+                    Подтвердить код
+                  </button>
+                  <button
+                    id="tgCancelCodeBtn"
+                    type="button"
+                    class="tg-button"
+                    style="margin-left: 4px;"
+                  >
+                    Отменить
+                  </button>
+                </div>
+
+                <!-- состояние 3: подключено -->
+                <div id="tgStateConnected" style="display: none;">
+                  <p class="tg-status">
+                    Подключено к Telegram как
+                    <strong id="tgConnectedUser">@username</strong>.
+                  </p>
+                  <p class="tg-status">
+                    В следующем шаге здесь появится список ваших чатов для
+                    анализа.
+                  </p>
+                </div>
+
+                <p id="tgStatusMessage" class="tg-status"></p>
+              </div>
+            </aside>
+            
+
+           <div class="dashboard-container">
+              <div class="dashboard-top-block">
 
               <!-- Полоска заголовка чата -->
               <div id="chatTitleBar" class="chat-title-bar" style="display:none;">
