@@ -2958,3 +2958,10 @@
   text-shadow: 0 0 10px rgba(82, 192, 255, 0.7); /* лёгкое свечение */
   transform: translateY(-1px); /* чуть-чуть приподнять при ховере */
 }
+
+.layout {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
