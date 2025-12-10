@@ -192,46 +192,6 @@
     <link rel="stylesheet" href="./style.css" />
       <link href="./new-analysis.css" rel="stylesheet" />
 
-    <div class="layout">
-  
-  <!-- ЛЕВАЯ ПАНЕЛЬ -->
-  <aside id="leftPanel" class="left-panel expanded">
-    <div class="panel-header">
-      <button id="toggleLeftPanel" class="panel-toggle-btn">
-        ⚙️
-      </button>
-      <span class="panel-title">Настройки</span>
-    </div>
-
-    <nav class="panel-menu">
-      <div class="menu-item">Новый анализ</div>
-      <div class="menu-item">История</div>
-      <div class="menu-item">Источники данных</div>
-    </nav>
-  </aside>
-
-  <!-- ОСНОВНОЙ КОНТЕНТ -->
-  <main class="main-area">
-    <!-- ТВОЯ ШАПКА -->
-    <header id="topHeader" class="top-header">
-      <div class="header-content">
-        <span>COTEL</span>
-      </div>
-    </header>
-
-    <!-- ПОЛОСКА С НАЗВАНИЕМ ЧАТА -->
-    <div id="chatTitleBar" class="chat-title-bar" style="display:none;">
-      <span id="chatTitleText"></span>
-    </div>
-
-    <!-- Дальше — вся твоя рабочая область -->
-    <div id="workArea">
-      <!-- всё, что у тебя уже есть -->
-    </div>
-  </main>
-
-</div>
-
       <div class="new-analysis-container1">
         <navigation-wrapper class="navigation-wrapper">
           <!--Navigation component-->
@@ -896,25 +856,19 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  
-  const leftPanel = document.getElementById("leftPanel");
-  const toggleBtn = document.getElementById("toggleLeftPanel");
+  const header = document.getElementById("mainNav");
+  if (!header) return;
 
-  toggleBtn.addEventListener("click", () => {
-    leftPanel.classList.toggle("collapsed");
-  });
+  let lastScroll = window.scrollY;
 
-  // АВТОСКРЫТИЕ ХЕДЕРА
-  let lastScroll = 0;
-  const header = document.getElementById("topHeader");
-
-  document.addEventListener("scroll", () => {
+  window.addEventListener("scroll", () => {
     const current = window.scrollY;
 
-    if (current > lastScroll) {
-      header.classList.add("hidden");
+    // Скроллим вниз — прячем, вверх — показываем
+    if (current > lastScroll && current > 80) {
+      header.classList.add("nav-hidden");
     } else {
-      header.classList.remove("hidden");
+      header.classList.remove("nav-hidden");
     }
 
     lastScroll = current;
@@ -922,7 +876,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
-          
       <link
         rel="canonical"
         href="https://single-sane-falcon-xjmc7x.teleporthq.app/new-analysis"
