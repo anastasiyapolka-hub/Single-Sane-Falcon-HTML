@@ -396,3 +396,32 @@
 .dashboard-main {
   flex: 1 0 auto; /* занимает всё доступное пространство между хедером и футером */
 }
+
+
+
+/* --- ЖЁСТКО переопределяем футер на рабочей странице --- */
+
+/* Обёртка футера на всю ширину */
+.footer-wrapper {
+  display: block;
+  width: 100%;
+  margin-top: 0;        /* уберём auto, чтобы он не пытался играть с flex */
+}
+
+/* Контейнер футера НЕ должен быть узкой центрированной колонкой */
+.footer-container {
+  display: block;
+  width: 100%;
+  max-width: none !important;   /* перебиваем var(--content-max-width) */
+  margin: 0 !important;         /* убираем margin: 0 auto из style.css */
+  padding-top: var(--spacing-4xl); /* или сколько тебе нужно */
+  box-sizing: border-box;
+}
+
+/* Сам футер — полоса на всю ширину */
+.footer {
+  width: 100%;
+  max-width: none !important;
+  margin: 0 !important;
+  border-radius: 0;
+}
