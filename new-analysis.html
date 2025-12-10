@@ -891,22 +891,32 @@ document.addEventListener("DOMContentLoaded", () => {
   const header = document.getElementById("mainNav");
   if (!header) return;
 
-  let lastScroll = window.scrollY;
+  const INACTIVITY_MS = 10000; // 10 секунд бездействия
+  let hideTimeout = null;
 
-  window.addEventListener("scroll", () => {
-    const current = window.scrollY;
+  function scheduleHide() {
+    if (hideTimeout) clearTimeout(hideTimeout);
+    hideTimeout = setTimeout(() => {
+      header.classList.add("nav-hidden");  // прячем шапку
+    }, INACTIVITY_MS);
+  }
 
-    // Скроллим вниз — прячем, вверх — показываем
-    if (current > lastScroll && current > 80) {
-      header.classList.add("nav-hidden");
-    } else {
-      header.classList.remove("nav-hidden");
-    }
+  function onActivity() {
+    // любое действие пользователя — показать шапку и заново запустить таймер
+    header.classList.remove("nav-hidden");
+    scheduleHide();
+  }
 
-    lastScroll = current;
+  // стартуем таймер сразу после загрузки
+  scheduleHide();
+
+  // считаем "активностью" скролл, движение мыши, клавиатуру и тач
+  ["scroll", "mousemove", "keydown", "touchstart"].forEach((evt) => {
+    window.addEventListener(evt, onActivity, { passive: true });
   });
 });
 </script>
+
 
       <link
         rel="canonical"
