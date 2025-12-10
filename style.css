@@ -2965,3 +2965,94 @@
   height: 100vh;
   overflow: hidden;
 }
+
+
+.left-panel {
+  width: 260px;
+  background: #363537;
+  color: white;
+  padding: 20px;
+  box-sizing: border-box;
+  transition: width 0.25s ease;
+  overflow: hidden;
+  position: relative;
+}
+
+.left-panel.collapsed {
+  width: 64px;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.panel-title {
+  font-size: 18px;
+  font-weight: 600;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+.left-panel.collapsed .panel-title {
+  opacity: 0;
+}
+
+.panel-toggle-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.panel-toggle-btn:hover {
+  opacity: 0.8;
+}
+
+.panel-menu .menu-item {
+  margin: 14px 0;
+  cursor: pointer;
+  font-size: 15px;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+.left-panel.collapsed .menu-item {
+  opacity: 0;
+}
+
+.main-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #FEF3F2; /* молочный */
+  overflow-y: auto;
+}
+
+.top-header {
+  width: 100%;
+  background: rgba(54,53,55,0.6);
+  backdrop-filter: blur(6px);
+  padding: 12px 20px;
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  transition: transform 0.3s ease;
+}
+
+.top-header.hidden {
+  transform: translateY(-100%);
+}
+
+.chat-title-bar {
+  background: rgba(0,0,0,0.5);
+  color: #FFF3E0;
+  padding: 12px 20px;
+  box-sizing: border-box;
+  width: 100%;
+}
