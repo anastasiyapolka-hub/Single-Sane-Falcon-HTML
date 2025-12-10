@@ -646,6 +646,10 @@
       const tgStatusMessage = document.getElementById("tgStatusMessage");
       const tgConnectedUser = document.getElementById("tgConnectedUser");
 
+      // элементы для сворачиваемой левой панели
+      const sidebar = document.querySelector(".dashboard-sidebar");
+      const sidebarToggle = document.getElementById("sidebarToggle");
+      
       function updateDataSourceUI() {
         const checked = document.querySelector('input[name="dataSource"]:checked');
         const mode = checked ? checked.value : "file";
@@ -688,6 +692,17 @@
       dataSourceAccountRadio?.addEventListener("change", updateDataSourceUI);
       dataSourcePublicRadio?.addEventListener("change", updateDataSourceUI);
       dataSourceBotRadio?.addEventListener("change", updateDataSourceUI);
+
+      // --- Сворачивание / разворачивание левой панели ---
+      if (sidebar && sidebarToggle) {
+        sidebarToggle.addEventListener("click", () => {
+          const isCollapsed = sidebar.classList.toggle("collapsed");
+          sidebarToggle.setAttribute(
+            "title",
+            isCollapsed ? "Развернуть панель" : "Свернуть панель"
+          );
+        });
+      }
 
       // --- ПОВЕДЕНИЕ БЛОКА АВТОРИЗАЦИИ TELEGRAM (пока без реальных запросов) ---
 
