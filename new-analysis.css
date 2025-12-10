@@ -34,12 +34,10 @@
   display: block;
   width: 100%;
   margin-top: auto;    /* прижимает футер к низу внутри .new-analysis-container1 */
-  flex-shrink: 0; 
 }
  
 .footer-container {
-  width: 100%;
-  display: block;
+  display: contents;
 }
 
 .new-analysis-container1 {
