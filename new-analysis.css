@@ -30,20 +30,7 @@
   display: contents;
 }
 
-.footer-wrapper {
-  display: block;
-  width: 100%;
-  
-}
- 
-.footer-container {
-  display: block;
-  width: 100%;
-  max-width: none;
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+
 
 .new-analysis-container1 {
   width: 100%;
@@ -51,12 +38,6 @@
   min-height: 100vh;
 }
 
-.footer {
-  max-width: none;   /* убираем ограничение по ширине */
-  width: 100%;
-  margin: 0;         /* убираем центрирование */
-  border-radius: 0;  /* по желанию: можно оставить скругления, если хочешь карточку */
-}
  
 .new-analysis-sources-name1 {
   font-weight: var(--font-weight-medium);
