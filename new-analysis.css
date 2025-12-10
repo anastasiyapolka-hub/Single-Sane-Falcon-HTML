@@ -375,6 +375,12 @@
   padding: 0;
 }
 
+.dashboard-container {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+
 .analysis-disclaimer {
   font-size: 12px;
   color: rgba(0, 0, 0, 0.6);
