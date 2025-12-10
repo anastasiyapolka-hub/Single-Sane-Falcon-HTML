@@ -892,31 +892,42 @@ document.addEventListener("DOMContentLoaded", () => {
   const header = document.getElementById("mainNav");
   if (!header) return;
 
-  const INACTIVITY_MS = 10000; // 10 секунд бездействия
-  let hideTimeout = null;
+  const HOTZONE_HEIGHT = 40;    // сколько пикселей от верха — «горячая зона»
+  const HIDE_DELAY = 1500;      // через сколько мс прятать после показа
+
+  let hideTimer = null;
+
+  function hideHeader() {
+    header.classList.add("nav-hidden");
+  }
 
   function scheduleHide() {
-    if (hideTimeout) clearTimeout(hideTimeout);
-    hideTimeout = setTimeout(() => {
-      header.classList.add("nav-hidden");  // прячем шапку
-    }, INACTIVITY_MS);
+    clearTimeout(hideTimer);
+    hideTimer = setTimeout(hideHeader, HIDE_DELAY);
   }
 
-  function onActivity() {
-    // любое действие пользователя — показать шапку и заново запустить таймер
-    header.classList.remove("nav-hidden");
-    scheduleHide();
-  }
-
-  // стартуем таймер сразу после загрузки
+  // старт: через небольшую паузу шапка уедет
   scheduleHide();
 
-  // считаем "активностью" скролл, движение мыши, клавиатуру и тач
-  ["scroll", "mousemove", "keydown", "touchstart"].forEach((evt) => {
-    window.addEventListener(evt, onActivity, { passive: true });
+  // Показ только если мышка у самого верха окна
+  document.addEventListener("mousemove", (e) => {
+    // e.clientY — позиция курсора от верха окна
+    if (e.clientY <= HOTZONE_HEIGHT) {
+      header.classList.remove("nav-hidden");
+      scheduleHide();  // обновляем таймер скрытия
+    }
+    // если мышка ниже — ничего не делаем, шапка сама скроется по таймеру
+  });
+
+  // Чуть-чуть улучшим поведение при скролле:
+  // при активном скролле просто обновляем таймер скрытия,
+  // но сам хедер НЕ показываем
+  window.addEventListener("scroll", () => {
+    scheduleHide();
   });
 });
 </script>
+
 
 
       <link
