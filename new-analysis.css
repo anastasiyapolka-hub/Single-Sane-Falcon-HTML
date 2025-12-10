@@ -399,29 +399,30 @@
 
 
 
-/* --- ЖЁСТКО переопределяем футер на рабочей странице --- */
+/* === ПОЛНОЕ ПЕРЕОПРЕДЕЛЕНИЕ ФУТЕРА ДЛЯ РАБОЧЕЙ СТРАНИЦЫ === */
 
-/* Обёртка футера на всю ширину */
+/* Футер должен быть шириной во всю страницу */
 .footer-wrapper {
   display: block;
-  width: 100%;
-  margin-top: 0;        /* уберём auto, чтобы он не пытался играть с flex */
+  width: 100% !important;
+  margin-top: 0 !important;
 }
 
-/* Контейнер футера НЕ должен быть узкой центрированной колонкой */
+/* Самый важный блок: убираем центрирование и max-width */
 .footer-container {
-  display: block;
-  width: 100%;
-  max-width: none !important;   /* перебиваем var(--content-max-width) */
-  margin: 0 !important;         /* убираем margin: 0 auto из style.css */
-  padding-top: var(--spacing-4xl); /* или сколько тебе нужно */
-  box-sizing: border-box;
+  display: block !important;
+  width: 100% !important;
+  max-width: none !important;     /* ← Убираем сужение контейнера */
+  margin: 0 !important;           /* ← Убираем margin:auto, который центрирует футер */
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  box-sizing: border-box !important;
 }
 
-/* Сам футер — полоса на всю ширину */
+/* Содержимое footer — тоже должно растягиваться */
 .footer {
-  width: 100%;
+  width: 100% !important;
   max-width: none !important;
   margin: 0 !important;
-  border-radius: 0;
+  border-radius: 0 !important;
 }
