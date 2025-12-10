@@ -94,12 +94,12 @@
         margin: 0;
       }
 
-      .tg-auth-block {
-        margin-top: 12px;
-        padding: 10px 12px;
-        border-radius: 8px;
-        /*background: #ffffff;*/
-        background: #fdfcf8; /* молочный оттенок */
+        .tg-auth-block {
+        margin: 6px 0 10px 22px;      /* чуть сдвигаем вправо + нижний отступ */
+        padding: 12px 14px;
+        border-radius: 12px;
+        background: #fdfcf8;          /* молочно-белый */
+        border: 1px solid #e5e7eb;    /* тонкая серая рамка */
         box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
       }
 
@@ -110,8 +110,9 @@
         margin-bottom: 10px;
         padding: 6px 8px;
         border-radius: 10px;
-        background: rgba(255, 255, 255, 0.7); /* легкая молочная плашка */
+        background: rgba(255, 255, 255, 0.7); /* лёгкая плашка под полями */
       }
+
 
       .tg-input {
         padding: 6px 10px;
@@ -138,6 +139,16 @@
         font-size: 0.8rem;
         color: #6b7280;
         margin-top: 4px;
+      }
+
+      /* Основной дашборд: сайдбар + рабочая область в один ряд */
+      .dashboard-main {
+        display: flex;
+        align-items: flex-start;
+      }
+
+      .dashboard-container {
+        flex: 1;
       }
 
       @media (max-width: 900px) {
@@ -344,15 +355,17 @@
 
           <div class="dashboard-layout">
             <!-- ЛЕВАЯ КОЛОНКА: источник данных + авторизация -->
+                        <!-- ЛЕВАЯ КОЛОНКА: источник данных + авторизация -->
             <aside class="dashboard-sidebar">
-              <!-- Блок: Источник данных -->
               <div class="sidebar-section">
                 <details id="dataSourceSection" open>
                   <summary>
                     <span>Источник данных</span>
                     <span>▾</span>
                   </summary>
+
                   <div class="sidebar-section-body">
+                    <!-- 1. Файл -->
                     <label class="sidebar-radio-row">
                       <input
                         type="radio"
@@ -363,6 +376,8 @@
                       />
                       <span>Файл Telegram (JSON)</span>
                     </label>
+
+                    <!-- 2. Мой аккаунт Telegram -->
                     <label class="sidebar-radio-row">
                       <input
                         type="radio"
@@ -373,39 +388,85 @@
                       <span>Мой аккаунт Telegram</span>
                     </label>
 
-                    <!-- Блок: Авторизация Telegram (виден только при "Мой аккаунт") -->
-              <div
-                id="tgAuthBlock"
-                class="tg-auth-block"
-                style="display: none;"
-              >
-                <h3>Авторизация Telegram</h3>
+                    <!-- Блок: Авторизация Telegram (появляется под "Мой аккаунт") -->
+                    <div
+                      id="tgAuthBlock"
+                      class="tg-auth-block"
+                      style="display: none;"
+                    >
+                      <h3>Авторизация Telegram</h3>
 
-                <!-- состояние 1: ввод телефона -->
-                <div id="tgStatePhone">
-                  <div class="tg-field">
-                    <label for="tgPhoneInput">Телефон</label>
-                    <input
-                      id="tgPhoneInput"
-                      type="text"
-                      class="tg-input"
-                      placeholder="+7 9ХХ ХХХ-ХХ-ХХ"
-                    />
-                  </div>
-                  <button
-                    id="tgSendCodeBtn"
-                    type="button"
-                    class="tg-button"
-                  >
-                    Получить код в Telegram
-                  </button>
-                  <p class="tg-status">
-                    Мы отправим код в ваш Telegram-клиент. Мы не сохраняем
-                    историю сообщений.
-                  </p>
-                </div>
+                      <!-- состояние 1: ввод телефона -->
+                      <div id="tgStatePhone">
+                        <div class="tg-field">
+                          <label for="tgPhoneInput">Телефон</label>
+                          <input
+                            id="tgPhoneInput"
+                            type="text"
+                            class="tg-input"
+                            placeholder="+7 9ХХ ХХХ-ХХ-ХХ"
+                          />
+                        </div>
+                        <button
+                          id="tgSendCodeBtn"
+                          type="button"
+                          class="tg-button"
+                        >
+                          Получить код в Telegram
+                        </button>
+                        <p class="tg-status">
+                          Мы отправим код в ваш Telegram-клиент. Мы не сохраняем
+                          историю сообщений.
+                        </p>
+                      </div>
 
-                
+                      <!-- состояние 2: ввод кода -->
+                      <div id="tgStateCode" style="display: none;">
+                        <p class="tg-status">
+                          Мы отправили код в ваш Telegram. Введите его ниже.
+                        </p>
+                        <div class="tg-field">
+                          <label for="tgCodeInput">Код из Telegram</label>
+                          <input
+                            id="tgCodeInput"
+                            type="text"
+                            class="tg-input"
+                            placeholder="12345"
+                          />
+                        </div>
+                        <button
+                          id="tgConfirmCodeBtn"
+                          type="button"
+                          class="tg-button"
+                        >
+                          Подтвердить код
+                        </button>
+                        <button
+                          id="tgCancelCodeBtn"
+                          type="button"
+                          class="tg-button"
+                          style="margin-left: 4px;"
+                        >
+                          Отменить
+                        </button>
+                      </div>
+
+                      <!-- состояние 3: подключено -->
+                      <div id="tgStateConnected" style="display: none;">
+                        <p class="tg-status">
+                          Подключено к Telegram как
+                          <strong id="tgConnectedUser">@username</strong>.
+                        </p>
+                        <p class="tg-status">
+                          В следующем шаге здесь появится список ваших чатов для
+                          анализа.
+                        </p>
+                      </div>
+
+                      <p id="tgStatusMessage" class="tg-status"></p>
+                    </div>
+
+                    <!-- 3. Публичный канал -->
                     <label class="sidebar-radio-row">
                       <input
                         type="radio"
@@ -415,6 +476,8 @@
                       />
                       <span>Публичный канал (без логина)</span>
                     </label>
+
+                    <!-- 4. Чат с ботом -->
                     <label class="sidebar-radio-row">
                       <input
                         type="radio"
@@ -427,56 +490,7 @@
                   </div>
                 </details>
               </div>
-
-        
-
-                <!-- состояние 2: ввод кода -->
-                <div id="tgStateCode" style="display: none;">
-                  <p class="tg-status">
-                    Мы отправили код в ваш Telegram. Введите его ниже.
-                  </p>
-                  <div class="tg-field">
-                    <label for="tgCodeInput">Код из Telegram</label>
-                    <input
-                      id="tgCodeInput"
-                      type="text"
-                      class="tg-input"
-                      placeholder="12345"
-                    />
-                  </div>
-                  <button
-                    id="tgConfirmCodeBtn"
-                    type="button"
-                    class="tg-button"
-                  >
-                    Подтвердить код
-                  </button>
-                  <button
-                    id="tgCancelCodeBtn"
-                    type="button"
-                    class="tg-button"
-                    style="margin-left: 4px;"
-                  >
-                    Отменить
-                  </button>
-                </div>
-
-                <!-- состояние 3: подключено -->
-                <div id="tgStateConnected" style="display: none;">
-                  <p class="tg-status">
-                    Подключено к Telegram как
-                    <strong id="tgConnectedUser">@username</strong>.
-                  </p>
-                  <p class="tg-status">
-                    В следующем шаге здесь появится список ваших чатов для
-                    анализа.
-                  </p>
-                </div>
-
-                <p id="tgStatusMessage" class="tg-status"></p>
-              </div>
             </aside>
-            
 
            <div class="dashboard-container">
               <div class="dashboard-top-block">
