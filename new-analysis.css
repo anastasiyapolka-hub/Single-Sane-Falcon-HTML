@@ -398,31 +398,69 @@
 }
 
 
-
-/* === ПОЛНОЕ ПЕРЕОПРЕДЕЛЕНИЕ ФУТЕРА ДЛЯ РАБОЧЕЙ СТРАНИЦЫ === */
-
-/* Футер должен быть шириной во всю страницу */
-.footer-wrapper {
-  display: block;
-  width: 100% !important;
-  margin-top: 0 !important;
+.left-panel {
+  width: 260px;
+  background: #363537;
+  color: white;
+  padding: 20px;
+  box-sizing: border-box;
+  transition: width 0.25s ease;
+  overflow: hidden;
+  position: relative;
 }
 
-/* Самый важный блок: убираем центрирование и max-width */
-.footer-container {
-  display: block !important;
-  width: 100% !important;
-  max-width: none !important;     /* ← Убираем сужение контейнера */
-  margin: 0 !important;           /* ← Убираем margin:auto, который центрирует футер */
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-  box-sizing: border-box !important;
+.left-panel.collapsed {
+  width: 64px;
 }
 
-/* Содержимое footer — тоже должно растягиваться */
-.footer {
-  width: 100% !important;
-  max-width: none !important;
-  margin: 0 !important;
-  border-radius: 0 !important;
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
 }
+
+.panel-title {
+  font-size: 18px;
+  font-weight: 600;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+.left-panel.collapsed .panel-title {
+  opacity: 0;
+}
+
+.panel-toggle-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.panel-toggle-btn:hover {
+  opacity: 0.8;
+}
+
+.panel-menu .menu-item {
+  margin: 14px 0;
+  cursor: pointer;
+  font-size: 15px;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+.left-panel.collapsed .menu-item {
+  opacity: 0;
+}
+
+.main-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #FEF3F2; /* молочный */
+  overflow-y: auto;
+}
+
