@@ -159,11 +159,13 @@
   flex: 1 0 auto; /* занимает всё доступное пространство между хедером и футером */
 }
 
-/* Автоскрытие шапки */
- .navigation {
-  position: sticky;      /* или fixed, если хочешь всегда поверх */
+/* Автоскрытие шапки: поверх контента */
+.navigation {
+  position: fixed;      /* ВАЖНО: теперь поверх, не сдвигает контент */
   top: 0;
-  z-index: 50;
+  left: 0;
+  right: 0;
+  z-index: 100;
   transition: transform 0.25s ease;
 }
 
