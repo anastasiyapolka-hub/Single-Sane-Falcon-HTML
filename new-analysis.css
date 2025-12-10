@@ -33,10 +33,16 @@
 .footer-wrapper {
   display: block;
   width: 100%;
+  
 }
  
 .footer-container {
   display: block;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 .new-analysis-container1 {
