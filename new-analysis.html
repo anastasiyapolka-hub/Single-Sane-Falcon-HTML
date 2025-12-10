@@ -604,281 +604,6 @@
         </div>
         
         
-        
-        
-        
-        
-        <div class="new-analysis-container2">
-          <div class="new-analysis-container3">
-            <style>
-                      @keyframes dashboardFloat {0%,100% {transform: translateY(0) rotate(0deg);}
-              50% {transform: translateY(-20px) rotate(5deg);}}@keyframes dashboardBlink {0%,48%,52%,100% {height: 8px;}
-              50% {height: 2px;}}@keyframes dashboardTailWag {0%,100% {transform: rotate(-45deg);}
-              50% {transform: rotate(-25deg);}}@keyframes dashboardPulse {0%,100% {opacity: 1;}
-              50% {opacity: 0.5;}}
-            </style>
-          </div>
-        </div>
-        <div class="new-analysis-container4">
-          <div class="new-analysis-container5">
-            <script defer data-name="dashboard-interactions">
-  document.addEventListener("DOMContentLoaded", function () {
-    (function () {
-      const BACKEND_URL = "https://cotel-backend.onrender.com/analyze";
-
-      const uploadBtn = document.getElementById("uploadBtn");
-      const fileInput = document.getElementById("chatFile");
-      const queryInput = document.getElementById("queryInput");
-      const analyzeBtn = document.getElementById("analyzeBtn");
-      const loader = document.querySelector(".dashboard-loader");
-      const resultDiv = document.getElementById("analysisResult");
-
-            // --- ЭЛЕМЕНТЫ ДЛЯ ВЫБОРА ИСТОЧНИКА ДАННЫХ ---
-      const dataSourceFileRadio = document.getElementById("dataSourceFile");
-      const dataSourceAccountRadio = document.getElementById("dataSourceAccount");
-      const dataSourcePublicRadio = document.getElementById("dataSourcePublic");
-      const dataSourceBotRadio = document.getElementById("dataSourceBot");
-
-      const tgAuthBlock = document.getElementById("tgAuthBlock");
-      const tgStatePhone = document.getElementById("tgStatePhone");
-      const tgStateCode = document.getElementById("tgStateCode");
-      const tgStateConnected = document.getElementById("tgStateConnected");
-
-      const tgPhoneInput = document.getElementById("tgPhoneInput");
-      const tgSendCodeBtn = document.getElementById("tgSendCodeBtn");
-      const tgCodeInput = document.getElementById("tgCodeInput");
-      const tgConfirmCodeBtn = document.getElementById("tgConfirmCodeBtn");
-      const tgCancelCodeBtn = document.getElementById("tgCancelCodeBtn");
-      const tgStatusMessage = document.getElementById("tgStatusMessage");
-      const tgConnectedUser = document.getElementById("tgConnectedUser");
-
-      function updateDataSourceUI() {
-        const checked = document.querySelector('input[name="dataSource"]:checked');
-        const mode = checked ? checked.value : "file";
-
-        // показываем / скрываем кнопку загрузки файла
-        if (uploadBtn) {
-          uploadBtn.style.display = mode === "file" ? "inline-flex" : "none";
-        }
-
-        // показываем / скрываем блок авторизации Telegram
-        if (tgAuthBlock) {
-          tgAuthBlock.style.display = mode === "account" ? "block" : "none";
-        }
-      }
-
-      function setTgState(state) {
-        if (!tgStatePhone || !tgStateCode || !tgStateConnected) return;
-
-        tgStatePhone.style.display = state === "phone" ? "block" : "none";
-        tgStateCode.style.display = state === "code" ? "block" : "none";
-        tgStateConnected.style.display = state === "connected" ? "block" : "none";
-      }
-
-      // начальное состояние
-      setTgState("phone");
-
-      function showLoader(show) {
-        if (!loader) return;
-        loader.style.display = show ? "flex" : "none";
-      }
-
-      // по умолчанию прячем котика
-      showLoader(false);
-
-            // по умолчанию обновляем UI по выбранному источнику
-      updateDataSourceUI();
-
-      // слушаем переключение источника данных
-      dataSourceFileRadio?.addEventListener("change", updateDataSourceUI);
-      dataSourceAccountRadio?.addEventListener("change", updateDataSourceUI);
-      dataSourcePublicRadio?.addEventListener("change", updateDataSourceUI);
-      dataSourceBotRadio?.addEventListener("change", updateDataSourceUI);
-
-      // --- ПОВЕДЕНИЕ БЛОКА АВТОРИЗАЦИИ TELEGRAM (пока без реальных запросов) ---
-
-      tgSendCodeBtn?.addEventListener("click", () => {
-        const phone = (tgPhoneInput?.value || "").trim();
-        if (!phone) {
-          if (tgStatusMessage) {
-            tgStatusMessage.textContent = "Введите номер телефона.";
-          }
-          return;
-        }
-        // здесь позже появится вызов /tg/start_auth
-        if (tgStatusMessage) {
-          tgStatusMessage.textContent =
-            "Отправляем код в Telegram (пока заглушка без сервера).";
-        }
-        setTgState("code");
-      });
-
-      tgConfirmCodeBtn?.addEventListener("click", () => {
-        const code = (tgCodeInput?.value || "").trim();
-        if (!code) {
-          if (tgStatusMessage) {
-            tgStatusMessage.textContent = "Введите код из Telegram.";
-          }
-          return;
-        }
-        // здесь позже будет вызов /tg/confirm_code
-        if (tgStatusMessage) {
-          tgStatusMessage.textContent =
-            "Код принят (демо-режим). Позже здесь будет реальная авторизация.";
-        }
-        if (tgConnectedUser) {
-          tgConnectedUser.textContent = "@username"; // временный плейсхолдер
-        }
-        setTgState("connected");
-      });
-
-      tgCancelCodeBtn?.addEventListener("click", () => {
-        if (tgPhoneInput) tgPhoneInput.value = "";
-        if (tgCodeInput) tgCodeInput.value = "";
-        if (tgStatusMessage) tgStatusMessage.textContent = "";
-        setTgState("phone");
-      });
-
-      // клик по кнопке с иконкой → открываем выбор файла
-      if (uploadBtn && fileInput) {
-      uploadBtn.addEventListener("click", () => {
-    // важная строка: сбрасываем выбранный файл,
-    // чтобы даже тот же самый файл считался "изменением"
-    fileInput.value = "";
-    fileInput.click();
-  });
-
-  fileInput.addEventListener("change", () => {
-    if (!fileInput.files[0]) return;
-    if (resultDiv) {
-      resultDiv.textContent = `Выбран файл: ${fileInput.files[0].name}`;
-    }
-  
-  });
-}
-
-      // запуск анализа по кнопке Play
-      if (analyzeBtn) {
-        analyzeBtn.addEventListener("click", async () => {
-          const file = fileInput?.files[0];
-
-          if (!file) {
-            alert("Сначала импортируйте чат (выберите JSON-файл экспорта)");
-            return;
-          }
-
-          const query = (queryInput?.value || "").trim();
-
-          const formData = new FormData();
-          formData.append("file", file);
-
-          const params = {
-            query: query || null,
-            result_type: "summary",
-          };
-          formData.append("params", JSON.stringify(params));
-
-          showLoader(true);
-          if (resultDiv) resultDiv.textContent = "";
-
-          try {
-            const resp = await fetch(BACKEND_URL, {
-              method: "POST",
-              body: formData,
-            });
-          
-            // 1. сначала читаем "сырое" тело
-            const rawText = await resp.text();
-            let data = null;
-          
-            // 2. пробуем распарсить как JSON, если что — игнорируем
-            if (rawText) {
-              try {
-                data = JSON.parse(rawText);
-              } catch (e) {
-                // не JSON — ничего страшного, будем работать с текстом
-              }
-            }
-
-            // 3. если статус не ок — показываем максимум информации
-            if (!resp.ok) {
-              const detail =
-                (data && (data.detail || data.error)) ||
-                rawText ||
-                resp.statusText ||
-                "Неизвестная ошибка";
-          
-              if (resultDiv) {
-                resultDiv.textContent =
-                  "Ошибка сервера (" + resp.status + "): " + detail;
-              }
-              return;
-            }
-          
-            // 4. если вообще пусто — отдельно подсветим
-            if (!data && !rawText) {
-              if (resultDiv) {
-                resultDiv.textContent =
-                  "Сервер вернул пустой ответ (status " + resp.status + ").";
-              }
-              return;
-            }
-
-            // 5. нормальный успешный ответ
-            const payload = data || {};
-          
-            let text = "";
-
-            // 1) сначала сам ответ LLM, если есть
-            if (payload.summary) {
-              text += payload.summary + "\n\n";
-            }
-            
-            // 2) затем служебное сообщение
-            if (payload.message) {
-              text += payload.message;
-            } else if (payload.status === "ok" && !payload.summary) {
-              text += "Файл успешно загружен";
-            }
-          
-            if (typeof payload.messages_count === "number") {
-              text += ` (сообщений: ${payload.messages_count})`;
-            }
-          
-            if (payload.filename) {
-              text += `\nФайл: ${payload.filename}`;
-            }
-          
-            // показать тип и название чата в верхней полоске
-            if (payload.chat_name || payload.chat_type) {
-            const bar = document.getElementById("chatTitleBar");
-            const title = document.getElementById("chatTitleText");
-          
-            const typeText = payload.chat_type ? payload.chat_type : "Чат";
-            const nameText = payload.chat_name ? payload.chat_name : "Без названия";
-
-            title.textContent = `${typeText}: ${nameText}`;
-            bar.style.display = "block";
-          }
-            if (resultDiv) {
-              resultDiv.textContent = text || rawText;
-            }
-        } catch (err) {
-          if (resultDiv) {
-            resultDiv.textContent = "Ошибка запроса: " + err.message;
-          }
-} finally {
-  showLoader(false);
-}
-
-        });
-      }
-    })();
-  });
-</script>
-
-          </div>
-        </div>
         <footer-wrapper class="footer-wrapper">
           <!--Footer component-->
           <div class="footer-container">
@@ -1181,6 +906,280 @@
             </footer>
           </div>
         </footer-wrapper>
+        
+        
+        
+        <div class="new-analysis-container2">
+          <div class="new-analysis-container3">
+            <style>
+                      @keyframes dashboardFloat {0%,100% {transform: translateY(0) rotate(0deg);}
+              50% {transform: translateY(-20px) rotate(5deg);}}@keyframes dashboardBlink {0%,48%,52%,100% {height: 8px;}
+              50% {height: 2px;}}@keyframes dashboardTailWag {0%,100% {transform: rotate(-45deg);}
+              50% {transform: rotate(-25deg);}}@keyframes dashboardPulse {0%,100% {opacity: 1;}
+              50% {opacity: 0.5;}}
+            </style>
+          </div>
+        </div>
+        <div class="new-analysis-container4">
+          <div class="new-analysis-container5">
+            <script defer data-name="dashboard-interactions">
+  document.addEventListener("DOMContentLoaded", function () {
+    (function () {
+      const BACKEND_URL = "https://cotel-backend.onrender.com/analyze";
+
+      const uploadBtn = document.getElementById("uploadBtn");
+      const fileInput = document.getElementById("chatFile");
+      const queryInput = document.getElementById("queryInput");
+      const analyzeBtn = document.getElementById("analyzeBtn");
+      const loader = document.querySelector(".dashboard-loader");
+      const resultDiv = document.getElementById("analysisResult");
+
+            // --- ЭЛЕМЕНТЫ ДЛЯ ВЫБОРА ИСТОЧНИКА ДАННЫХ ---
+      const dataSourceFileRadio = document.getElementById("dataSourceFile");
+      const dataSourceAccountRadio = document.getElementById("dataSourceAccount");
+      const dataSourcePublicRadio = document.getElementById("dataSourcePublic");
+      const dataSourceBotRadio = document.getElementById("dataSourceBot");
+
+      const tgAuthBlock = document.getElementById("tgAuthBlock");
+      const tgStatePhone = document.getElementById("tgStatePhone");
+      const tgStateCode = document.getElementById("tgStateCode");
+      const tgStateConnected = document.getElementById("tgStateConnected");
+
+      const tgPhoneInput = document.getElementById("tgPhoneInput");
+      const tgSendCodeBtn = document.getElementById("tgSendCodeBtn");
+      const tgCodeInput = document.getElementById("tgCodeInput");
+      const tgConfirmCodeBtn = document.getElementById("tgConfirmCodeBtn");
+      const tgCancelCodeBtn = document.getElementById("tgCancelCodeBtn");
+      const tgStatusMessage = document.getElementById("tgStatusMessage");
+      const tgConnectedUser = document.getElementById("tgConnectedUser");
+
+      function updateDataSourceUI() {
+        const checked = document.querySelector('input[name="dataSource"]:checked');
+        const mode = checked ? checked.value : "file";
+
+        // показываем / скрываем кнопку загрузки файла
+        if (uploadBtn) {
+          uploadBtn.style.display = mode === "file" ? "inline-flex" : "none";
+        }
+
+        // показываем / скрываем блок авторизации Telegram
+        if (tgAuthBlock) {
+          tgAuthBlock.style.display = mode === "account" ? "block" : "none";
+        }
+      }
+
+      function setTgState(state) {
+        if (!tgStatePhone || !tgStateCode || !tgStateConnected) return;
+
+        tgStatePhone.style.display = state === "phone" ? "block" : "none";
+        tgStateCode.style.display = state === "code" ? "block" : "none";
+        tgStateConnected.style.display = state === "connected" ? "block" : "none";
+      }
+
+      // начальное состояние
+      setTgState("phone");
+
+      function showLoader(show) {
+        if (!loader) return;
+        loader.style.display = show ? "flex" : "none";
+      }
+
+      // по умолчанию прячем котика
+      showLoader(false);
+
+            // по умолчанию обновляем UI по выбранному источнику
+      updateDataSourceUI();
+
+      // слушаем переключение источника данных
+      dataSourceFileRadio?.addEventListener("change", updateDataSourceUI);
+      dataSourceAccountRadio?.addEventListener("change", updateDataSourceUI);
+      dataSourcePublicRadio?.addEventListener("change", updateDataSourceUI);
+      dataSourceBotRadio?.addEventListener("change", updateDataSourceUI);
+
+      // --- ПОВЕДЕНИЕ БЛОКА АВТОРИЗАЦИИ TELEGRAM (пока без реальных запросов) ---
+
+      tgSendCodeBtn?.addEventListener("click", () => {
+        const phone = (tgPhoneInput?.value || "").trim();
+        if (!phone) {
+          if (tgStatusMessage) {
+            tgStatusMessage.textContent = "Введите номер телефона.";
+          }
+          return;
+        }
+        // здесь позже появится вызов /tg/start_auth
+        if (tgStatusMessage) {
+          tgStatusMessage.textContent =
+            "Отправляем код в Telegram (пока заглушка без сервера).";
+        }
+        setTgState("code");
+      });
+
+      tgConfirmCodeBtn?.addEventListener("click", () => {
+        const code = (tgCodeInput?.value || "").trim();
+        if (!code) {
+          if (tgStatusMessage) {
+            tgStatusMessage.textContent = "Введите код из Telegram.";
+          }
+          return;
+        }
+        // здесь позже будет вызов /tg/confirm_code
+        if (tgStatusMessage) {
+          tgStatusMessage.textContent =
+            "Код принят (демо-режим). Позже здесь будет реальная авторизация.";
+        }
+        if (tgConnectedUser) {
+          tgConnectedUser.textContent = "@username"; // временный плейсхолдер
+        }
+        setTgState("connected");
+      });
+
+      tgCancelCodeBtn?.addEventListener("click", () => {
+        if (tgPhoneInput) tgPhoneInput.value = "";
+        if (tgCodeInput) tgCodeInput.value = "";
+        if (tgStatusMessage) tgStatusMessage.textContent = "";
+        setTgState("phone");
+      });
+
+      // клик по кнопке с иконкой → открываем выбор файла
+      if (uploadBtn && fileInput) {
+      uploadBtn.addEventListener("click", () => {
+    // важная строка: сбрасываем выбранный файл,
+    // чтобы даже тот же самый файл считался "изменением"
+    fileInput.value = "";
+    fileInput.click();
+  });
+
+  fileInput.addEventListener("change", () => {
+    if (!fileInput.files[0]) return;
+    if (resultDiv) {
+      resultDiv.textContent = `Выбран файл: ${fileInput.files[0].name}`;
+    }
+  
+  });
+}
+
+      // запуск анализа по кнопке Play
+      if (analyzeBtn) {
+        analyzeBtn.addEventListener("click", async () => {
+          const file = fileInput?.files[0];
+
+          if (!file) {
+            alert("Сначала импортируйте чат (выберите JSON-файл экспорта)");
+            return;
+          }
+
+          const query = (queryInput?.value || "").trim();
+
+          const formData = new FormData();
+          formData.append("file", file);
+
+          const params = {
+            query: query || null,
+            result_type: "summary",
+          };
+          formData.append("params", JSON.stringify(params));
+
+          showLoader(true);
+          if (resultDiv) resultDiv.textContent = "";
+
+          try {
+            const resp = await fetch(BACKEND_URL, {
+              method: "POST",
+              body: formData,
+            });
+          
+            // 1. сначала читаем "сырое" тело
+            const rawText = await resp.text();
+            let data = null;
+          
+            // 2. пробуем распарсить как JSON, если что — игнорируем
+            if (rawText) {
+              try {
+                data = JSON.parse(rawText);
+              } catch (e) {
+                // не JSON — ничего страшного, будем работать с текстом
+              }
+            }
+
+            // 3. если статус не ок — показываем максимум информации
+            if (!resp.ok) {
+              const detail =
+                (data && (data.detail || data.error)) ||
+                rawText ||
+                resp.statusText ||
+                "Неизвестная ошибка";
+          
+              if (resultDiv) {
+                resultDiv.textContent =
+                  "Ошибка сервера (" + resp.status + "): " + detail;
+              }
+              return;
+            }
+          
+            // 4. если вообще пусто — отдельно подсветим
+            if (!data && !rawText) {
+              if (resultDiv) {
+                resultDiv.textContent =
+                  "Сервер вернул пустой ответ (status " + resp.status + ").";
+              }
+              return;
+            }
+
+            // 5. нормальный успешный ответ
+            const payload = data || {};
+          
+            let text = "";
+
+            // 1) сначала сам ответ LLM, если есть
+            if (payload.summary) {
+              text += payload.summary + "\n\n";
+            }
+            
+            // 2) затем служебное сообщение
+            if (payload.message) {
+              text += payload.message;
+            } else if (payload.status === "ok" && !payload.summary) {
+              text += "Файл успешно загружен";
+            }
+          
+            if (typeof payload.messages_count === "number") {
+              text += ` (сообщений: ${payload.messages_count})`;
+            }
+          
+            if (payload.filename) {
+              text += `\nФайл: ${payload.filename}`;
+            }
+          
+            // показать тип и название чата в верхней полоске
+            if (payload.chat_name || payload.chat_type) {
+            const bar = document.getElementById("chatTitleBar");
+            const title = document.getElementById("chatTitleText");
+          
+            const typeText = payload.chat_type ? payload.chat_type : "Чат";
+            const nameText = payload.chat_name ? payload.chat_name : "Без названия";
+
+            title.textContent = `${typeText}: ${nameText}`;
+            bar.style.display = "block";
+          }
+            if (resultDiv) {
+              resultDiv.textContent = text || rawText;
+            }
+        } catch (err) {
+          if (resultDiv) {
+            resultDiv.textContent = "Ошибка запроса: " + err.message;
+          }
+} finally {
+  showLoader(false);
+}
+
+        });
+      }
+    })();
+  });
+</script>
+
+          </div>
+        </div>
         
       </div>
       <link
