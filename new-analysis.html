@@ -347,6 +347,21 @@
           <div class="dashboard-layout">
             <!-- ЛЕВАЯ КОЛОНКА: источник данных + авторизация --> 
            <aside class="dashboard-sidebar">
+
+            <div class="sidebar-header">
+            <button
+              id="sidebarToggle"
+              class="sidebar-toggle-btn"
+              type="button"
+              title="Свернуть панель"
+            >
+              ⚙️
+            </button>
+            <span class="sidebar-title">Настройки</span>
+          </div>
+
+             <!-- Весь остальной контент панели -->
+              <div id="sidebarContent">
               <div class="sidebar-section">
                 <details id="dataSourceSection" open>
                   <summary>
@@ -480,6 +495,7 @@
                   </div>
                 </details>
               </div>
+            </div>
             </aside>
 
            <div class="dashboard-container">
