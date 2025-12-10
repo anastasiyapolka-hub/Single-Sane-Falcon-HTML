@@ -33,18 +33,23 @@
 .footer-wrapper {
   display: block;
   width: 100%;
-  margin-top: auto;    /* прижимает футер к низу внутри .new-analysis-container1 */
 }
  
 .footer-container {
-  display: contents;
+  display: block;
 }
 
 .new-analysis-container1 {
   width: 100%;
+  display: block;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column; /* страница = колонка: сверху хедер, ниже контент, внизу футер */
+}
+
+.footer {
+  max-width: none;   /* убираем ограничение по ширине */
+  width: 100%;
+  margin: 0;         /* убираем центрирование */
+  border-radius: 0;  /* по желанию: можно оставить скругления, если хочешь карточку */
 }
  
 .new-analysis-sources-name1 {
