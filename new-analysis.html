@@ -1196,7 +1196,36 @@
     })();
   });
 </script>
-        
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  
+  const leftPanel = document.getElementById("leftPanel");
+  const toggleBtn = document.getElementById("toggleLeftPanel");
+
+  toggleBtn.addEventListener("click", () => {
+    leftPanel.classList.toggle("collapsed");
+  });
+
+  // АВТОСКРЫТИЕ ХЕДЕРА
+  let lastScroll = 0;
+  const header = document.getElementById("topHeader");
+
+  document.addEventListener("scroll", () => {
+    const current = window.scrollY;
+
+    if (current > lastScroll) {
+      header.classList.add("hidden");
+    } else {
+      header.classList.remove("hidden");
+    }
+
+    lastScroll = current;
+  });
+});
+</script>
+
+          
       <link
         rel="canonical"
         href="https://single-sane-falcon-xjmc7x.teleporthq.app/new-analysis"
