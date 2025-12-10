@@ -21,16 +21,6 @@
 .navigation-container5 {
   display: contents;
 }
- 
-.navigation-container6 {
-  display: none;
-}
- 
-.navigation-container7 {
-  display: contents;
-}
-
-
 
 .new-analysis-container1 {
   width: 100%;
@@ -39,127 +29,7 @@
 }
 
  
-.new-analysis-sources-name1 {
-  font-weight: var(--font-weight-medium);
-}
- 
-.new-analysis-sources-count1 {
-  color: var(--color-on-surface-secondary);
-  font-size: var(--font-size-sm);
-}
- 
-.new-analysis-sources-name2 {
-  font-weight: var(--font-weight-medium);
-}
- 
-.new-analysis-sources-count2 {
-  color: var(--color-on-surface-secondary);
-  font-size: var(--font-size-sm);
-}
- 
-.new-analysis-sources-name3 {
-  font-weight: var(--font-weight-medium);
-}
- 
-.new-analysis-sources-count3 {
-  color: var(--color-on-surface-secondary);
-  font-size: var(--font-size-sm);
-}
- 
-.new-analysis-settings-persona-name1 {
-  color: var(--color-on-surface);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-}
- 
-.new-analysis-settings-persona-name2 {
-  color: var(--color-on-surface);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-}
- 
-.new-analysis-settings-persona-name3 {
-  color: var(--color-on-surface);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-}
- 
-.new-analysis-settings-persona-name4 {
-  color: var(--color-on-surface);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-}
- 
-.new-analysis-settings-toggle-input1 {
-  display: none;
-}
- 
-.new-analysis-settings-toggle-slider1 {
-  width: 48px;
-  height: 24px;
-  position: relative;
-  background: var(--color-border);
-  transition: all 0.3s ease;
-  border-radius: var(--border-radius-full);
-}
- 
-.new-analysis-settings-toggle-text1 {
-  color: var(--color-on-surface);
-  font-size: var(--font-size-sm);
-}
- 
-.new-analysis-settings-toggle-input2 {
-  display: none;
-}
- 
-.new-analysis-settings-toggle-slider2 {
-  width: 48px;
-  height: 24px;
-  position: relative;
-  background: var(--color-border);
-  transition: all 0.3s ease;
-  border-radius: var(--border-radius-full);
-}
- 
-.new-analysis-settings-toggle-text2 {
-  color: var(--color-on-surface);
-  font-size: var(--font-size-sm);
-}
- 
-.new-analysis-settings-toggle-input3 {
-  display: none;
-}
- 
-.new-analysis-settings-toggle-slider3 {
-  width: 48px;
-  height: 24px;
-  position: relative;
-  background: var(--color-border);
-  transition: all 0.3s ease;
-  border-radius: var(--border-radius-full);
-}
- 
-.new-analysis-settings-toggle-text3 {
-  color: var(--color-on-surface);
-  font-size: var(--font-size-sm);
-}
- 
-.new-analysis-container2 {
-  display: none;
-}
- 
-.new-analysis-container3 {
-  display: contents;
-}
- 
-.new-analysis-container4 {
-  display: none;
-}
- 
-.new-analysis-container5 {
-  display: contents;
-}
- 
+
 .new-analysis-container6 {
   right: 50px;
   border: 1px solid #ffffff5c;
@@ -178,19 +48,7 @@
   backdrop-filter: blur(6px);
   background-color: rgba(41, 41, 41, 0.41);
 }
- 
-.new-analysis-icon247 {
-  width: 24px;
-  margin-right: 4px;
-}
- 
-.new-analysis-text40 {
-  color: white;
-  font-size: 13px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: 24px;
-}
+
 
 .analysis-controls {
   display: flex;
@@ -199,29 +57,7 @@
   padding: 12px 16px;
 }
 
-.icon-button {
-  border: none;
-  outline: none;
-  cursor: pointer;
-  border-radius: 999px;
-  padding: 8px 10px;
-  background-color: #f2f2f5;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.15s ease, box-shadow 0.15s ease;
-}
 
-.icon-button img {
-  width: 18px;
-  height: 18px;
-  display: block;
-}
-
-.icon-button:hover {
-  background-color: #e2e2ea;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
-}
 
 .upload-button {
   min-width: 36px;
@@ -232,26 +68,6 @@
   min-width: 40px;
   min-height: 40px;
   font-size: 18px;
-}
-
-.query-input {
-  flex: 1;
-  padding: 10px 16px;
-  border-radius: 999px;
-  border: 1px solid #dddce5;
-  background-color: #fff;
-  font-size: 14px;
-  outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.query-input::placeholder {
-  color: #a0a0b4;
-}
-
-.query-input:focus {
-  border-color: #6b6bff;
-  box-shadow: 0 0 0 2px rgba(107, 107, 255, 0.15);
 }
 
 .analysis-controls {
