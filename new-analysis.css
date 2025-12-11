@@ -176,7 +176,7 @@
 .dashboard-sidebar {
   display: flex;
   flex-direction: column;
-  width: 300px;           /* как и было по дизайну */
+  width: 340px;           /* как и было по дизайну */
   box-sizing: border-box;
 
   padding: 16px 20px;
