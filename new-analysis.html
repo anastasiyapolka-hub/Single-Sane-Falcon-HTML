@@ -650,7 +650,39 @@
       // элементы для сворачиваемой левой панели
       const sidebar = document.querySelector(".dashboard-sidebar");
       const sidebarToggle = document.getElementById("sidebarToggle");
+
+            // ----------------------
+      // МАСКА ДЛЯ ТЕЛЕФОНА +7
+      // ----------------------
+      tgPhoneInput.addEventListener("input", function (e) {
+        let value = tgPhoneInput.value.replace(/\D/g, ""); // только цифры
       
+        // Начинаем всегда с "7"
+        if (!value.startsWith("7")) {
+          value = "7" + value;
+        }
+      
+        // Ограничиваем длину до 11 цифр
+        value = value.substring(0, 11);
+      
+        // Форматируем
+        let formatted = "+7";
+      
+        if (value.length > 1) formatted += " " + value.substring(1, 4);
+        if (value.length > 4) formatted += " " + value.substring(4, 7);
+        if (value.length > 7) formatted += " " + value.substring(7, 9);
+        if (value.length > 9) formatted += " " + value.substring(9, 11);
+      
+        tgPhoneInput.value = formatted;
+      });
+      
+      // Не даём удалить "+7"
+      tgPhoneInput.addEventListener("keydown", (e) => {
+        if (tgPhoneInput.selectionStart < 2 && (e.key === "Backspace" || e.key === "Delete")) {
+          e.preventDefault();
+        }
+      });
+
       function updateDataSourceUI() {
         const checked = document.querySelector('input[name="dataSource"]:checked');
         const mode = checked ? checked.value : "file";
