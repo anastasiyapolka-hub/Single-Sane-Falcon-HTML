@@ -707,40 +707,76 @@
 
       // --- ПОВЕДЕНИЕ БЛОКА АВТОРИЗАЦИИ TELEGRAM (пока без реальных запросов) ---
 
-      tgSendCodeBtn?.addEventListener("click", () => {
-        const phone = (tgPhoneInput?.value || "").trim();
-        if (!phone) {
-          if (tgStatusMessage) {
-            tgStatusMessage.textContent = "Введите номер телефона.";
-          }
+      tgSendCodeBtn?.addEventListener("click", async () => {
+      const phone = (tgPhoneInput?.value || "").trim();
+      if (!phone) {
+        tgStatusMessage.textContent = "Введите номер телефона.";
+        return;
+      }
+    
+      tgStatusMessage.textContent = "Отправляем код...";
+    
+      try {
+        const resp = await fetch("https://cotel-backend.onrender.com/tg/send_code", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone })
+        });
+    
+        const data = await resp.json();
+    
+        if (!resp.ok) {
+          tgStatusMessage.textContent = "Ошибка: " + (data.detail || "Не удалось отправить код.");
           return;
         }
-        // здесь позже появится вызов /tg/start_auth
-        if (tgStatusMessage) {
-          tgStatusMessage.textContent =
-            "Отправляем код в Telegram (пока заглушка без сервера).";
-        }
+    
+        tgStatusMessage.textContent = "Код отправлен. Проверьте Telegram.";
         setTgState("code");
+    
+      } catch (err) {
+        tgStatusMessage.textContent = "Ошибка сети: " + err.message;
+      }
       });
 
-      tgConfirmCodeBtn?.addEventListener("click", () => {
-        const code = (tgCodeInput?.value || "").trim();
-        if (!code) {
-          if (tgStatusMessage) {
-            tgStatusMessage.textContent = "Введите код из Telegram.";
-          }
+
+      tgConfirmCodeBtn?.addEventListener("click", async () => {
+      const phone = (tgPhoneInput?.value || "").trim();
+      const code = (tgCodeInput?.value || "").trim();
+    
+      if (!code) {
+        tgStatusMessage.textContent = "Введите код из Telegram.";
+        return;
+      }
+    
+      tgStatusMessage.textContent = "Проверяем код...";
+    
+      try {
+        const resp = await fetch("https://cotel-backend.onrender.com/tg/confirm_code", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone, code })
+        });
+    
+        const data = await resp.json();
+    
+        if (!resp.ok) {
+          tgStatusMessage.textContent = "Ошибка: " + (data.detail || "Код неверен.");
           return;
         }
-        // здесь позже будет вызов /tg/confirm_code
-        if (tgStatusMessage) {
-          tgStatusMessage.textContent =
-            "Код принят (демо-режим). Позже здесь будет реальная авторизация.";
-        }
-        if (tgConnectedUser) {
-          tgConnectedUser.textContent = "@username"; // временный плейсхолдер
-        }
-        setTgState("connected");
-      });
+
+    // успешная авторизация
+    tgConnectedUser.textContent = data.username
+      ? "@" + data.username
+      : data.first_name || "Пользователь";
+
+    tgStatusMessage.textContent = "Успешно подключено.";
+
+    setTgState("connected");
+
+  } catch (err) {
+    tgStatusMessage.textContent = "Ошибка сети: " + err.message;
+  }
+});
 
       tgCancelCodeBtn?.addEventListener("click", () => {
         if (tgPhoneInput) tgPhoneInput.value = "";
