@@ -772,7 +772,7 @@
           @keyframes dashboardPulse { 0%,100% {opacity: 1;} 50% {opacity: 0.5;} }
         </style>
       
-        <script defer data-name="dashboard-interactions">
+       <script defer data-name="dashboard-interactions">
   document.addEventListener("DOMContentLoaded", function () {
     (function () {
       const BACKEND_URL = "https://cotel-backend.onrender.com/analyze";
@@ -784,7 +784,7 @@
       const loader = document.querySelector(".dashboard-loader");
       const resultDiv = document.getElementById("analysisResult");
 
-            // --- ЭЛЕМЕНТЫ ДЛЯ ВЫБОРА ИСТОЧНИКА ДАННЫХ ---
+      // --- ЭЛЕМЕНТЫ ДЛЯ ВЫБОРА ИСТОЧНИКА ДАННЫХ ---
       const dataSourceFileRadio = document.getElementById("dataSourceFile");
       const dataSourceAccountRadio = document.getElementById("dataSourceAccount");
       const dataSourcePublicRadio = document.getElementById("dataSourcePublic");
@@ -812,39 +812,48 @@
       const tgStatusText = document.getElementById("tgStatusText");
       const tgStatusUsername = document.getElementById("tgStatusUsername");
 
+      // поля для "Мой аккаунт Telegram"
+      const activeChatInput = document.getElementById("activeChatInput");
+      const queryDaysInput = document.getElementById("queryDaysInput");
+
       // элементы для сворачиваемой левой панели
       const sidebar = document.querySelector(".dashboard-sidebar");
       const sidebarToggle = document.getElementById("sidebarToggle");
 
       // МАСКА ДЛЯ ТЕЛЕФОНА +7
-      tgPhoneInput.addEventListener("input", function (e) {
-        let value = tgPhoneInput.value.replace(/\D/g, ""); // только цифры
-      
-        // Начинаем всегда с "7"
-        if (!value.startsWith("7")) {
-          value = "7" + value;
-        }
-      
-        // Ограничиваем длину до 11 цифр
-        value = value.substring(0, 11);
-      
-        // Форматируем
-        let formatted = "+7";
-      
-        if (value.length > 1) formatted += " " + value.substring(1, 4);
-        if (value.length > 4) formatted += " " + value.substring(4, 7);
-        if (value.length > 7) formatted += " " + value.substring(7, 9);
-        if (value.length > 9) formatted += " " + value.substring(9, 11);
-      
-        tgPhoneInput.value = formatted;
-      });
-      
-      // Не даём удалить "+7"
-      tgPhoneInput.addEventListener("keydown", (e) => {
-        if (tgPhoneInput.selectionStart < 2 && (e.key === "Backspace" || e.key === "Delete")) {
-          e.preventDefault();
-        }
-      });
+      if (tgPhoneInput) {
+        tgPhoneInput.addEventListener("input", function () {
+          let value = tgPhoneInput.value.replace(/\D/g, ""); // только цифры
+
+          // Начинаем всегда с "7"
+          if (!value.startsWith("7")) {
+            value = "7" + value;
+          }
+
+          // Ограничиваем длину до 11 цифр
+          value = value.substring(0, 11);
+
+          // Форматируем
+          let formatted = "+7";
+
+          if (value.length > 1) formatted += " " + value.substring(1, 4);
+          if (value.length > 4) formatted += " " + value.substring(4, 7);
+          if (value.length > 7) formatted += " " + value.substring(7, 9);
+          if (value.length > 9) formatted += " " + value.substring(9, 11);
+
+          tgPhoneInput.value = formatted;
+        });
+
+        // Не даём удалить "+7"
+        tgPhoneInput.addEventListener("keydown", (e) => {
+          if (
+            tgPhoneInput.selectionStart < 2 &&
+            (e.key === "Backspace" || e.key === "Delete")
+          ) {
+            e.preventDefault();
+          }
+        });
+      }
 
       function updateDataSourceUI() {
         const checked = document.querySelector('input[name="dataSource"]:checked');
@@ -860,31 +869,40 @@
           tgAuthBlock.style.display = mode === "account" ? "block" : "none";
         }
 
-        if (telegramStatusSection) {
+        if (telegramStatusSection && dataSourceAccountRadio) {
           telegramStatusSection.style.display =
             dataSourceAccountRadio.checked ? "block" : "none";
         }
-
       }
 
       function setTgState(state) {
-        tgStatePhone.style.display = state === "phone" ? "block" : "none";
-        tgStateCode.style.display = state === "code" ? "block" : "none";
-        tgStatePassword.style.display = state === "password" ? "block" : "none";
-        tgStateConnected.style.display = state === "connected" ? "block" : "none";
+        if (tgStatePhone) {
+          tgStatePhone.style.display = state === "phone" ? "block" : "none";
+        }
+        if (tgStateCode) {
+          tgStateCode.style.display = state === "code" ? "block" : "none";
+        }
+        if (tgStatePassword) {
+          tgStatePassword.style.display = state === "password" ? "block" : "none";
+        }
+        if (tgStateConnected) {
+          tgStateConnected.style.display = state === "connected" ? "block" : "none";
+        }
       }
 
       function setTelegramConnectionStatus(isConnected, username = null) {
-
         const miniDot = document.getElementById("tgMiniStatusDot");
-          if (miniDot) {
-            miniDot.className = "tg-status-dot " + (isConnected ? "tg-status-on" : "tg-status-off");
-          }
-        
-        if (!telegramStatusSection) return;
-      
+        if (miniDot) {
+          miniDot.className =
+            "tg-status-dot " + (isConnected ? "tg-status-on" : "tg-status-off");
+        }
+
+        if (!telegramStatusSection || !tgStatusDot || !tgStatusText || !tgStatusUsername) {
+          return;
+        }
+
         telegramStatusSection.style.display = "block";
-      
+
         if (isConnected) {
           tgStatusDot.classList.remove("tg-status-off");
           tgStatusDot.classList.add("tg-status-on");
@@ -931,7 +949,6 @@
 
       // --- Мини-иконки в свернутой панели ---
       const miniIconButtons = document.querySelectorAll(".sidebar-mini-icon-btn");
-
       miniIconButtons.forEach((btn) => {
         btn.addEventListener("click", () => {
           const targetId = btn.getAttribute("data-target");
@@ -958,124 +975,137 @@
         });
       });
 
-
-      // --- ПОВЕДЕНИЕ БЛОКА АВТОРИЗАЦИИ TELEGRAM (пока без реальных запросов) ---
+      // --- ПОВЕДЕНИЕ БЛОКА АВТОРИЗАЦИИ TELEGRAM ---
       tgSendCodeBtn?.addEventListener("click", async () => {
-      const phone = (tgPhoneInput?.value || "").trim();
-      if (!phone) {
-        tgStatusMessage.textContent = "Введите номер телефона.";
-        return;
-      }
-    
-      tgStatusMessage.textContent = "Отправляем код...";
-    
-      try {
-        const resp = await fetch("https://cotel-backend.onrender.com/tg/send_code", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ phone })
-        });
-    
-        const data = await resp.json();
-    
-        if (!resp.ok) {
-          tgStatusMessage.textContent = "Ошибка: " + (data.detail || "Не удалось отправить код.");
+        const phone = (tgPhoneInput?.value || "").trim();
+        if (!phone) {
+          tgStatusMessage.textContent = "Введите номер телефона.";
           return;
         }
-    
-        tgStatusMessage.textContent = "Код отправлен. Проверьте Telegram.";
-        setTgState("code");
-    
-      } catch (err) {
-        tgStatusMessage.textContent = "Ошибка сети: " + err.message;
-      }
+
+        tgStatusMessage.textContent = "Отправляем код...";
+
+        try {
+          const resp = await fetch(
+            "https://cotel-backend.onrender.com/tg/send_code",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ phone }),
+            }
+          );
+
+          const data = await resp.json();
+
+          if (!resp.ok) {
+            tgStatusMessage.textContent =
+              "Ошибка: " + (data.detail || "Не удалось отправить код.");
+            return;
+          }
+
+          tgStatusMessage.textContent =
+            "Код отправлен. Проверьте Telegram.";
+          setTgState("code");
+        } catch (err) {
+          tgStatusMessage.textContent =
+            "Ошибка сети: " + err.message;
+        }
       });
 
-
       tgConfirmCodeBtn?.addEventListener("click", async () => {
-      const phone = (tgPhoneInput?.value || "").trim();
-      const code = (tgCodeInput?.value || "").trim();
-    
-      if (!code) {
-        tgStatusMessage.textContent = "Введите код из Telegram.";
-        return;
-      }
-    
-      tgStatusMessage.textContent = "Проверяем код...";
-    
-      try {
-        const resp = await fetch("https://cotel-backend.onrender.com/tg/confirm_code", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ phone, code })
-        });
-    
-        const data = await resp.json();
-    
-       const detail = String(data.detail || "");
+        const phone = (tgPhoneInput?.value || "").trim();
+        const code = (tgCodeInput?.value || "").trim();
 
-        if (!resp.ok) {
-          if (detail.includes("SESSION_PASSWORD_NEEDED") || detail.includes("PASSWORD_NEEDED")) {
-            tgStatusMessage.textContent = "Требуется пароль Telegram (2FA).";
-            setTgState("password");
-            return;
+        if (!code) {
+          tgStatusMessage.textContent = "Введите код из Telegram.";
+          return;
         }
-      
-        tgStatusMessage.textContent = "Ошибка: " + (data.detail || "Код неверен.");
-        return;
-      }
 
+        tgStatusMessage.textContent = "Проверяем код...";
 
-    // успешная авторизация
-    tgConnectedUser.textContent = data.username
-      ? "@" + data.username
-      : data.first_name || "Пользователь";
+        try {
+          const resp = await fetch(
+            "https://cotel-backend.onrender.com/tg/confirm_code",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ phone, code }),
+            }
+          );
 
-    tgStatusMessage.textContent = "Успешно подключено.";
+          const data = await resp.json();
+          const detail = String(data.detail || "");
 
-    setTgState("connected");
-    setTelegramConnectionStatus(true, data.username || data.first_name);
+          if (!resp.ok) {
+            if (
+              detail.includes("SESSION_PASSWORD_NEEDED") ||
+              detail.includes("PASSWORD_NEEDED")
+            ) {
+              tgStatusMessage.textContent =
+                "Требуется пароль Telegram (2FA).";
+              setTgState("password");
+              return;
+            }
 
-  } catch (err) {
-    tgStatusMessage.textContent = "Ошибка сети: " + err.message;
-  }
-});
+            tgStatusMessage.textContent =
+              "Ошибка: " + (data.detail || "Код неверен.");
+            return;
+          }
+
+          // успешная авторизация
+          tgConnectedUser.textContent = data.username
+            ? "@" + data.username
+            : data.first_name || "Пользователь";
+
+          tgStatusMessage.textContent = "Успешно подключено.";
+
+          setTgState("connected");
+          setTelegramConnectionStatus(true, data.username || data.first_name);
+        } catch (err) {
+          tgStatusMessage.textContent =
+            "Ошибка сети: " + err.message;
+        }
+      });
 
       tgConfirmPasswordBtn?.addEventListener("click", async () => {
         const phone = (tgPhoneInput?.value || "").trim();
         const password = (tgPasswordInput?.value || "").trim();
-      
+
         if (!password) {
           tgStatusMessage.textContent = "Введите пароль Telegram.";
           return;
         }
-      
+
         tgStatusMessage.textContent = "Подтверждаем пароль...";
-      
+
         try {
-          const resp = await fetch("https://cotel-backend.onrender.com/tg/confirm_password", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ phone, password })
-          });
-      
+          const resp = await fetch(
+            "https://cotel-backend.onrender.com/tg/confirm_password",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ phone, password }),
+            }
+          );
+
           const data = await resp.json();
-      
+
           if (!resp.ok) {
-            tgStatusMessage.textContent = "Ошибка: " + (data.detail || "Не удалось подтвердить пароль.");
+            tgStatusMessage.textContent =
+              "Ошибка: " + (data.detail || "Не удалось подтвердить пароль.");
             return;
           }
-      
+
           tgConnectedUser.textContent = data.username
             ? "@" + data.username
             : data.first_name || "Пользователь";
-      
+
           tgStatusMessage.textContent = "Успешно подключено.";
           setTgState("connected");
           setTelegramConnectionStatus(true, data.username || data.first_name);
-      
         } catch (err) {
-          tgStatusMessage.textContent = "Ошибка сети: " + err.message;
+          tgStatusMessage.textContent =
+            "Ошибка сети: " + err.message;
         }
       });
 
@@ -1084,175 +1114,163 @@
         if (tgCodeInput) tgCodeInput.value = "";
         if (tgStatusMessage) tgStatusMessage.textContent = "";
         setTgState("phone");
+        setTelegramConnectionStatus(false, null);
       });
 
       // клик по кнопке с иконкой → открываем выбор файла
       if (uploadBtn && fileInput) {
-      uploadBtn.addEventListener("click", () => {
-    // важная строка: сбрасываем выбранный файл,
-    // чтобы даже тот же самый файл считался "изменением"
-    fileInput.value = "";
-    fileInput.click();
-  });
-
-  fileInput.addEventListener("change", () => {
-    if (!fileInput.files[0]) return;
-    if (resultDiv) {
-      resultDiv.textContent = `Выбран файл: ${fileInput.files[0].name}`;
-    }
-  
-  });
-}
-
-  function renderResult(payload, rawText) {
-    let text = "";
-  
-    if (payload?.summary) {
-      text += payload.summary + "\n\n";
-    }
-  
-    if (payload?.message) {
-      text += payload.message;
-    }
-  
-    if (resultDiv) {
-      resultDiv.textContent = text || rawText || "Нет данных";
-    }
-  
-    if (payload?.chat_name) {
-      const bar = document.getElementById("chatTitleBar");
-      const title = document.getElementById("chatTitleText");
-      title.textContent = payload.chat_name;
-      bar.style.display = "block";
-    }
-  }
-
-      
-//кнопка Play
-if (analyzeBtn) {
-  analyzeBtn.addEventListener("click", async () => {
-    const query = (queryInput?.value || "").trim();
-    const isTelegramJson = dataSourceJsonRadio?.checked;
-    const isTelegramAccount = dataSourceAccountRadio?.checked;
-
-    showLoader(true);
-    if (resultDiv) resultDiv.textContent = "";
-
-    try {
-      // ===============================
-      // 1️⃣ ВЕТКА: TELEGRAM JSON
-      // ===============================
-      if (isTelegramJson) {
-        const file = fileInput?.files[0];
-
-        if (!file) {
-          alert("Сначала импортируйте JSON-файл экспорта Telegram.");
-          showLoader(false);
-          return;
-        }
-
-        const formData = new FormData();
-        formData.append("file", file);
-
-        const params = {
-          query: query || null,
-          result_type: "summary",
-        };
-        formData.append("params", JSON.stringify(params));
-
-        const resp = await fetch(BACKEND_URL, {
-          method: "POST",
-          body: formData,
+        uploadBtn.addEventListener("click", () => {
+          fileInput.value = "";
+          fileInput.click();
         });
 
-        const rawText = await resp.text();
-        let data = null;
-
-        try {
-          data = rawText ? JSON.parse(rawText) : null;
-        } catch {}
-
-        if (!resp.ok) {
-          throw new Error(
-            (data && (data.detail || data.error)) ||
-            rawText ||
-            resp.statusText
-          );
-        }
-
-        renderResult(data, rawText);
-        return;
-      }
-
-      // ===============================
-      // 2️⃣ ВЕТКА: МОЙ TELEGRAM АККАУНТ
-      // ===============================
-      if (isTelegramAccount) {
-        const chatLink = (activeChatInput?.value || "").trim();
-        const days = parseInt(queryDaysInput?.value || "7", 10);
-
-        if (!chatLink) {
-          alert("Введите ссылку на чат или канал Telegram.");
-          showLoader(false);
-          return;
-        }
-
-        const payload = {
-          chat_link: chatLink,
-          days: days,
-          user_query: query || null,
-        };
-
-        const resp = await fetch(
-          "https://cotel-backend.onrender.com/tg/analyze_chat",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
+        fileInput.addEventListener("change", () => {
+          if (!fileInput.files[0]) return;
+          if (resultDiv) {
+            resultDiv.textContent = `Выбран файл: ${fileInput.files[0].name}`;
           }
-        );
+        });
+      }
 
-        const rawText = await resp.text();
-        let data = null;
+      function renderResult(payload, rawText) {
+        let text = "";
 
-        try {
-          data = rawText ? JSON.parse(rawText) : null;
-        } catch {}
-
-        if (!resp.ok) {
-          throw new Error(
-            (data && (data.detail || data.error)) ||
-            rawText ||
-            resp.statusText
-          );
+        if (payload?.summary) {
+          text += payload.summary + "\n\n";
         }
 
-        renderResult(data, rawText);
-        return;
+        if (payload?.message) {
+          text += payload.message;
+        }
+
+        if (resultDiv) {
+          resultDiv.textContent = text || rawText || "Нет данных";
+        }
+
+        if (payload?.chat_name) {
+          const bar = document.getElementById("chatTitleBar");
+          const title = document.getElementById("chatTitleText");
+          if (bar && title) {
+            title.textContent = payload.chat_name;
+            bar.style.display = "block";
+          }
+        }
       }
 
-      // ===============================
-      // 3️⃣ НИЧЕГО НЕ ВЫБРАНО
-      // ===============================
-      alert("Выберите источник данных.");
-    } catch (err) {
-      if (resultDiv) {
-        resultDiv.textContent = "Ошибка запроса: " + err.message;
-      }
-    } finally {
-      showLoader(false);
-    }
-  });
-}
+      // кнопка Play
+      if (analyzeBtn) {
+        analyzeBtn.addEventListener("click", async () => {
+          const query = (queryInput?.value || "").trim();
+          const isTelegramJson = dataSourceFileRadio?.checked;
+          const isTelegramAccount = dataSourceAccountRadio?.checked;
 
+          showLoader(true);
+          if (resultDiv) resultDiv.textContent = "";
 
+          try {
+            // 1️⃣ ВЕТКА: TELEGRAM JSON
+            if (isTelegramJson) {
+              const file = fileInput?.files[0];
 
+              if (!file) {
+                alert("Сначала импортируйте JSON-файл экспорта Telegram.");
+                showLoader(false);
+                return;
+              }
 
-      
+              const formData = new FormData();
+              formData.append("file", file);
+
+              const params = {
+                query: query || null,
+                result_type: "summary",
+              };
+              formData.append("params", JSON.stringify(params));
+
+              const resp = await fetch(BACKEND_URL, {
+                method: "POST",
+                body: formData,
+              });
+
+              const rawText = await resp.text();
+              let data = null;
+
+              try {
+                data = rawText ? JSON.parse(rawText) : null;
+              } catch {}
+
+              if (!resp.ok) {
+                throw new Error(
+                  (data && (data.detail || data.error)) ||
+                    rawText ||
+                    resp.statusText
+                );
+              }
+
+              renderResult(data, rawText);
+              return;
+            }
+
+            // 2️⃣ ВЕТКА: МОЙ TELEGRAM АККАУНТ
+            if (isTelegramAccount) {
+              const chatLink = (activeChatInput?.value || "").trim();
+              const days = parseInt(queryDaysInput?.value || "7", 10);
+
+              if (!chatLink) {
+                alert("Введите ссылку на чат или канал Telegram.");
+                showLoader(false);
+                return;
+              }
+
+              const payload = {
+                chat_link: chatLink,
+                days: days,
+                user_query: query || null,
+              };
+
+              const resp = await fetch(
+                "https://cotel-backend.onrender.com/tg/analyze_chat",
+                {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(payload),
+                }
+              );
+
+              const rawText = await resp.text();
+              let data = null;
+
+              try {
+                data = rawText ? JSON.parse(rawText) : null;
+              } catch {}
+
+              if (!resp.ok) {
+                throw new Error(
+                  (data && (data.detail || data.error)) ||
+                    rawText ||
+                    resp.statusText
+                );
+              }
+
+              renderResult(data, rawText);
+              return;
+            }
+
+            // 3️⃣ НИЧЕГО НЕ ВЫБРАНО
+            alert("Выберите источник данных.");
+          } catch (err) {
+            if (resultDiv) {
+              resultDiv.textContent = "Ошибка запроса: " + err.message;
+            }
+          } finally {
+            showLoader(false);
+          }
+        });
       }
     })();
   });
 </script>
+
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
