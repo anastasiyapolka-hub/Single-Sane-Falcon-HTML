@@ -457,6 +457,31 @@
                         </button>
                       </div>
 
+                      <!-- состояние 2.5: требуется пароль Telegram (2FA) -->
+                      <div id="tgStatePassword" style="display: none;">
+                        <p class="tg-status">
+                          Для завершения входа требуется пароль Telegram (2FA).
+                        </p>
+                      
+                        <div class="tg-field">
+                          <label for="tgPasswordInput">Пароль Telegram</label>
+                          <input
+                            id="tgPasswordInput"
+                            type="password"
+                            class="tg-input"
+                            placeholder="Введите пароль"
+                          />
+                        </div>
+                      
+                        <button
+                          id="tgConfirmPasswordBtn"
+                          type="button"
+                          class="tg-button"
+                        >
+                          Подтвердить пароль
+                        </button>
+                      </div>
+
                       <!-- состояние 3: подключено -->
                       <div id="tgStateConnected" style="display: none;">
                         <p class="tg-status">
@@ -639,6 +664,10 @@
       const tgStateCode = document.getElementById("tgStateCode");
       const tgStateConnected = document.getElementById("tgStateConnected");
 
+      const tgStatePassword = document.getElementById("tgStatePassword");
+      const tgPasswordInput = document.getElementById("tgPasswordInput");
+      const tgConfirmPasswordBtn = document.getElementById("tgConfirmPasswordBtn");
+
       const tgPhoneInput = document.getElementById("tgPhoneInput");
       const tgSendCodeBtn = document.getElementById("tgSendCodeBtn");
       const tgCodeInput = document.getElementById("tgCodeInput");
@@ -699,12 +728,12 @@
       }
 
       function setTgState(state) {
-        if (!tgStatePhone || !tgStateCode || !tgStateConnected) return;
-
         tgStatePhone.style.display = state === "phone" ? "block" : "none";
         tgStateCode.style.display = state === "code" ? "block" : "none";
+        tgStatePassword.style.display = state === "password" ? "block" : "none";
         tgStateConnected.style.display = state === "connected" ? "block" : "none";
       }
+
 
       // начальное состояние
       setTgState("phone");
@@ -791,10 +820,17 @@
     
         const data = await resp.json();
     
-        if (!resp.ok) {
-          tgStatusMessage.textContent = "Ошибка: " + (data.detail || "Код неверен.");
+       if (!resp.ok) {
+        if (data.detail === "SESSION_PASSWORD_NEEDED" || data.detail === "PASSWORD_NEEDED") {
+          tgStatusMessage.textContent = "Требуется пароль Telegram.";
+          setTgState("password");
           return;
         }
+      
+        tgStatusMessage.textContent = "Ошибка: " + (data.detail || "Код неверен.");
+        return;
+      }
+
 
     // успешная авторизация
     tgConnectedUser.textContent = data.username
@@ -809,6 +845,43 @@
     tgStatusMessage.textContent = "Ошибка сети: " + err.message;
   }
 });
+
+      tgConfirmPasswordBtn?.addEventListener("click", async () => {
+        const phone = (tgPhoneInput?.value || "").trim();
+        const password = (tgPasswordInput?.value || "").trim();
+      
+        if (!password) {
+          tgStatusMessage.textContent = "Введите пароль Telegram.";
+          return;
+        }
+      
+        tgStatusMessage.textContent = "Подтверждаем пароль...";
+      
+        try {
+          const resp = await fetch("https://cotel-backend.onrender.com/tg/confirm_password", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ phone, password })
+          });
+      
+          const data = await resp.json();
+      
+          if (!resp.ok) {
+            tgStatusMessage.textContent = "Ошибка: " + (data.detail || "Не удалось подтвердить пароль.");
+            return;
+          }
+      
+          tgConnectedUser.textContent = data.username
+            ? "@" + data.username
+            : data.first_name || "Пользователь";
+      
+          tgStatusMessage.textContent = "Успешно подключено.";
+          setTgState("connected");
+      
+        } catch (err) {
+          tgStatusMessage.textContent = "Ошибка сети: " + err.message;
+        }
+      });
 
       tgCancelCodeBtn?.addEventListener("click", () => {
         if (tgPhoneInput) tgPhoneInput.value = "";
