@@ -820,11 +820,13 @@
     
         const data = await resp.json();
     
-       if (!resp.ok) {
-        if (data.detail === "SESSION_PASSWORD_NEEDED" || data.detail === "PASSWORD_NEEDED") {
-          tgStatusMessage.textContent = "Требуется пароль Telegram.";
-          setTgState("password");
-          return;
+       const detail = String(data.detail || "");
+
+        if (!resp.ok) {
+          if (detail.includes("SESSION_PASSWORD_NEEDED") || detail.includes("PASSWORD_NEEDED")) {
+            tgStatusMessage.textContent = "Требуется пароль Telegram (2FA).";
+            setTgState("password");
+            return;
         }
       
         tgStatusMessage.textContent = "Ошибка: " + (data.detail || "Код неверен.");
