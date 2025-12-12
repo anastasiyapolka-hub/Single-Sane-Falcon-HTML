@@ -355,7 +355,10 @@
   height: 10px;
   border-radius: 50%;
   background: #ef4444; /* красный по умолчанию */
+  display: inline-block;   /* ключевой момент — делаем его "видимым" */
+  flex-shrink: 0;
 }
+
 
 .tg-status-dot.tg-status-on {
   background: #22c55e; /* зелёный */
