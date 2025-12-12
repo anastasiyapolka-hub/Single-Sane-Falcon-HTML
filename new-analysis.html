@@ -374,6 +374,14 @@
               <button
                 class="sidebar-mini-icon-btn"
                 type="button"
+                title="Telegram"
+              >
+                <span id="tgMiniStatusDot" class="tg-status-dot tg-status-off"></span>
+              </button>
+
+              <button
+                class="sidebar-mini-icon-btn"
+                type="button"
                 data-target="myChatsSection"
                 title="Мои чаты"
               >
@@ -848,6 +856,12 @@
       }
 
       function setTelegramConnectionStatus(isConnected, username = null) {
+
+        const miniDot = document.getElementById("tgMiniStatusDot");
+          if (miniDot) {
+            miniDot.className = "tg-status-dot " + (isConnected ? "tg-status-on" : "tg-status-off");
+          }
+        
         if (!telegramStatusSection) return;
       
         telegramStatusSection.style.display = "block";
