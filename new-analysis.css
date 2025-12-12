@@ -342,3 +342,25 @@
   transform: translateY(-1px);
 }
 
+/* Статус Telegram */
+.tg-status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.tg-status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ef4444; /* красный по умолчанию */
+}
+
+.tg-status-dot.tg-status-on {
+  background: #22c55e; /* зелёный */
+}
+
+.tg-status-dot.tg-status-off {
+  background: #ef4444; /* красный */
+}
