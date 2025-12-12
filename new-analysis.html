@@ -582,7 +582,31 @@
                 </details>
               </div>
 
-  
+              <!-- НАСТРОЙКИ ЗАПРОСА -->
+              <div class="sidebar-section" id="querySettingsSection">
+                <details>
+                  <summary>
+                    <span>Настройки запроса</span>
+                    <span>▾</span>
+                  </summary>
+              
+                  <div class="sidebar-section-body">
+                    <div class="sidebar-field">
+                      <label for="queryDaysInput">Период (дней)</label>
+                      <input
+                        id="queryDaysInput"
+                        type="number"
+                        class="sidebar-text-input"
+                        min="1"
+                        max="365"
+                        value="7"
+                      />
+                    </div>
+                  </div>
+                </details>
+              </div>
+
+                
                <!-- 2. МОИ ЧАТЫ -->
               <div class="sidebar-section">
                 <details id="myChatsSection" open>
@@ -795,9 +819,7 @@
       const sidebar = document.querySelector(".dashboard-sidebar");
       const sidebarToggle = document.getElementById("sidebarToggle");
 
-            // ----------------------
       // МАСКА ДЛЯ ТЕЛЕФОНА +7
-      // ----------------------
       tgPhoneInput.addEventListener("input", function (e) {
         let value = tgPhoneInput.value.replace(/\D/g, ""); // только цифры
       
@@ -890,7 +912,7 @@
       // по умолчанию прячем котика
       showLoader(false);
 
-            // по умолчанию обновляем UI по выбранному источнику
+      // по умолчанию обновляем UI по выбранному источнику
       updateDataSourceUI();
 
       // слушаем переключение источника данных
@@ -941,7 +963,6 @@
 
 
       // --- ПОВЕДЕНИЕ БЛОКА АВТОРИЗАЦИИ TELEGRAM (пока без реальных запросов) ---
-
       tgSendCodeBtn?.addEventListener("click", async () => {
       const phone = (tgPhoneInput?.value || "").trim();
       if (!phone) {
@@ -1086,121 +1107,151 @@
   });
 }
 
-      // запуск анализа по кнопке Play
-      if (analyzeBtn) {
-        analyzeBtn.addEventListener("click", async () => {
-          const file = fileInput?.files[0];
+  function renderResult(payload, rawText) {
+    let text = "";
+  
+    if (payload?.summary) {
+      text += payload.summary + "\n\n";
+    }
+  
+    if (payload?.message) {
+      text += payload.message;
+    }
+  
+    if (resultDiv) {
+      resultDiv.textContent = text || rawText || "Нет данных";
+    }
+  
+    if (payload?.chat_name) {
+      const bar = document.getElementById("chatTitleBar");
+      const title = document.getElementById("chatTitleText");
+      title.textContent = payload.chat_name;
+      bar.style.display = "block";
+    }
+  }
 
-          if (!file) {
-            alert("Сначала импортируйте чат (выберите JSON-файл экспорта)");
-            return;
+      
+//кнопка Play
+if (analyzeBtn) {
+  analyzeBtn.addEventListener("click", async () => {
+    const query = (queryInput?.value || "").trim();
+    const isTelegramJson = dataSourceJsonRadio?.checked;
+    const isTelegramAccount = dataSourceAccountRadio?.checked;
+
+    showLoader(true);
+    if (resultDiv) resultDiv.textContent = "";
+
+    try {
+      // ===============================
+      // 1️⃣ ВЕТКА: TELEGRAM JSON
+      // ===============================
+      if (isTelegramJson) {
+        const file = fileInput?.files[0];
+
+        if (!file) {
+          alert("Сначала импортируйте JSON-файл экспорта Telegram.");
+          showLoader(false);
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const params = {
+          query: query || null,
+          result_type: "summary",
+        };
+        formData.append("params", JSON.stringify(params));
+
+        const resp = await fetch(BACKEND_URL, {
+          method: "POST",
+          body: formData,
+        });
+
+        const rawText = await resp.text();
+        let data = null;
+
+        try {
+          data = rawText ? JSON.parse(rawText) : null;
+        } catch {}
+
+        if (!resp.ok) {
+          throw new Error(
+            (data && (data.detail || data.error)) ||
+            rawText ||
+            resp.statusText
+          );
+        }
+
+        renderResult(data, rawText);
+        return;
+      }
+
+      // ===============================
+      // 2️⃣ ВЕТКА: МОЙ TELEGRAM АККАУНТ
+      // ===============================
+      if (isTelegramAccount) {
+        const chatLink = (activeChatInput?.value || "").trim();
+        const days = parseInt(queryDaysInput?.value || "7", 10);
+
+        if (!chatLink) {
+          alert("Введите ссылку на чат или канал Telegram.");
+          showLoader(false);
+          return;
+        }
+
+        const payload = {
+          chat_link: chatLink,
+          days: days,
+          user_query: query || null,
+        };
+
+        const resp = await fetch(
+          "https://cotel-backend.onrender.com/tg/analyze_chat",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
           }
+        );
 
-          const query = (queryInput?.value || "").trim();
+        const rawText = await resp.text();
+        let data = null;
 
-          const formData = new FormData();
-          formData.append("file", file);
+        try {
+          data = rawText ? JSON.parse(rawText) : null;
+        } catch {}
 
-          const params = {
-            query: query || null,
-            result_type: "summary",
-          };
-          formData.append("params", JSON.stringify(params));
+        if (!resp.ok) {
+          throw new Error(
+            (data && (data.detail || data.error)) ||
+            rawText ||
+            resp.statusText
+          );
+        }
 
-          showLoader(true);
-          if (resultDiv) resultDiv.textContent = "";
+        renderResult(data, rawText);
+        return;
+      }
 
-          try {
-            const resp = await fetch(BACKEND_URL, {
-              method: "POST",
-              body: formData,
-            });
-          
-            // 1. сначала читаем "сырое" тело
-            const rawText = await resp.text();
-            let data = null;
-          
-            // 2. пробуем распарсить как JSON, если что — игнорируем
-            if (rawText) {
-              try {
-                data = JSON.parse(rawText);
-              } catch (e) {
-                // не JSON — ничего страшного, будем работать с текстом
-              }
-            }
-
-            // 3. если статус не ок — показываем максимум информации
-            if (!resp.ok) {
-              const detail =
-                (data && (data.detail || data.error)) ||
-                rawText ||
-                resp.statusText ||
-                "Неизвестная ошибка";
-          
-              if (resultDiv) {
-                resultDiv.textContent =
-                  "Ошибка сервера (" + resp.status + "): " + detail;
-              }
-              return;
-            }
-          
-            // 4. если вообще пусто — отдельно подсветим
-            if (!data && !rawText) {
-              if (resultDiv) {
-                resultDiv.textContent =
-                  "Сервер вернул пустой ответ (status " + resp.status + ").";
-              }
-              return;
-            }
-
-            // 5. нормальный успешный ответ
-            const payload = data || {};
-          
-            let text = "";
-
-            // 1) сначала сам ответ LLM, если есть
-            if (payload.summary) {
-              text += payload.summary + "\n\n";
-            }
-            
-            // 2) затем служебное сообщение
-            if (payload.message) {
-              text += payload.message;
-            } else if (payload.status === "ok" && !payload.summary) {
-              text += "Файл успешно загружен";
-            }
-          
-            if (typeof payload.messages_count === "number") {
-              text += ` (сообщений: ${payload.messages_count})`;
-            }
-          
-            if (payload.filename) {
-              text += `\nФайл: ${payload.filename}`;
-            }
-          
-            // показать тип и название чата в верхней полоске
-            if (payload.chat_name || payload.chat_type) {
-            const bar = document.getElementById("chatTitleBar");
-            const title = document.getElementById("chatTitleText");
-          
-            const typeText = payload.chat_type ? payload.chat_type : "Чат";
-            const nameText = payload.chat_name ? payload.chat_name : "Без названия";
-
-            title.textContent = `${typeText}: ${nameText}`;
-            bar.style.display = "block";
-          }
-            if (resultDiv) {
-              resultDiv.textContent = text || rawText;
-            }
-        } catch (err) {
-          if (resultDiv) {
-            resultDiv.textContent = "Ошибка запроса: " + err.message;
-          }
-} finally {
-  showLoader(false);
+      // ===============================
+      // 3️⃣ НИЧЕГО НЕ ВЫБРАНО
+      // ===============================
+      alert("Выберите источник данных.");
+    } catch (err) {
+      if (resultDiv) {
+        resultDiv.textContent = "Ошибка запроса: " + err.message;
+      }
+    } finally {
+      showLoader(false);
+    }
+  });
 }
 
-        });
+
+
+
+      
       }
     })();
   });
