@@ -367,3 +367,40 @@
 .tg-status-dot.tg-status-off {
   background: #ef4444; /* красный */
 }
+
+/* Список чатов в блоке "Мои чаты" */
+.sidebar-chat-list {
+  margin-top: 10px;
+  max-height: 220px;            /* можно 180–320 по вкусу */
+  overflow: auto;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 6px;
+}
+
+/* Строка чата */
+.sidebar-chat-item {
+  display: block;
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.9rem;
+  line-height: 1.2;
+}
+
+.sidebar-chat-item:hover {
+  background: #f3f4f6;
+}
+
+.sidebar-chat-item:active {
+  background: #e5e7eb;
+}
+
+/* "Пустой" список */
+.sidebar-chat-empty {
+  padding: 8px 10px;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
