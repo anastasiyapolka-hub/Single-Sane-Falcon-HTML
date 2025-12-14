@@ -279,12 +279,17 @@
   color: #4b5563;
 }
 
+.sidebar-text-input::placeholder {
+  color: #a0a0b4;            /* как у "Введите текст запроса" */
+  font-weight: 400;
+}
 .sidebar-text-input {
   width: 100%;
   padding: 6px 10px;
   border-radius: 999px;
   border: 1px solid #d1d5db;
-  font-size: 0.9rem;
+  font-size: 14px;
+  font-family: inherit;
   background: #ffffff;
 }
 
@@ -554,17 +559,6 @@ html, body {
 /* Прячем контейнер списка чатов, если он пустой */
 .sidebar-chat-list:empty {
   display: none;
-}
-
-/* Поле "Мои чаты": как поле запроса */
-.sidebar-text-input {
-  font-size: 14px;          /* как .analysis-query-input */
-  font-family: inherit;
-}
-
-.sidebar-text-input::placeholder {
-  color: #a0a0b4;            /* как у "Введите текст запроса" */
-  font-weight: 400;
 }
 
 :root { --sidebar-w: 320px; }               /* ширина твоего sidebar */
