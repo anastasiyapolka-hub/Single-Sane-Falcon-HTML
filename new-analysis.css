@@ -390,7 +390,8 @@
 .dashboard-input-panel {
   border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 16px;
-  background: transparent;
+/*   background: transparent;*/
+  background: F3F4F6 !important;  /* ← серый фон */
   box-shadow: none;
 }
 
@@ -438,7 +439,7 @@
 
 /* Спрячем левое/правое меню — оставим только лого по центру */
 .navigation__left,
-.navigation__right{
+.navigation__right {
   display: none !important;
 }
 
@@ -481,7 +482,7 @@
   box-shadow: none !important;
 }
 
-/* Котика чуть опускаем top*/
+/* Котик лого*/
 .navigation-logo-cat {
   width: 24px !important;
   height: 24px !important;
@@ -494,13 +495,6 @@
 .navigation__logo:hover .navigation__logo-text {
   color: inherit !important;
 }
-
-.navigation-logo-cat {
-  width: 18px !important;
-  height: 18px !important;
-  margin: 0 6px !important;
-}
-
 
 .sidebar-chat-item {
   display: block;
