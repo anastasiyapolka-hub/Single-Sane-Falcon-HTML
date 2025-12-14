@@ -432,23 +432,26 @@
   background: transparent !important;
 }
 
-/* === Шапка без автоскрытия, компактная, по сути как "логотип сверху" === */
+/* === Шапка: НЕ фиксируем, без плашки, просто сверху и уезжает при скролле === */
 .navigation {
-  position: sticky;  /* вместо fixed: не перекрывает контент, но всегда сверху */
-  top: 0;
-  background: transparent; /* чтобы был молочный фон страницы */
+  position: static !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-bottom: 0 !important;
+  backdrop-filter: none !important;
 }
 
-/* Спрячем левое/правое меню, оставим только центр-логотип */
-.navigation__left,
-.navigation__right {
-  display: none !important;
-}
-
-/* Центрируем контейнер */
+/* Центрируем контейнер под логотип */
 .navigation__container {
   justify-content: center !important;
-  padding: 10px 0 !important;
+  padding: 14px 0 10px !important;
+}
+
+/* Спрячем левое/правое меню — оставим только лого по центру */
+.navigation__left,
+.navigation__right,
+.navigation__toggle {
+  display: none !important;
 }
 
 /* Уменьшаем логотип */
@@ -457,11 +460,36 @@
   letter-spacing: 0.08em;
 }
 
+/* === Лого: чуть крупнее, котика опустить === */
+.navigation__logo {
+  cursor: default !important;
+}
+
+.navigation__logo-text {
+  font-size: 22px !important;   /* было слишком мелко */
+  letter-spacing: 0.08em;
+  user-select: none;
+}
+
+.navigation-logo-cat {
+  width: 20px !important;
+  height: 20px !important;
+  position: relative;
+  top: 2px;                     /* опускаем котика */
+  margin: 0 6px !important;
+}
+
+/* На всякий случай: никаких hover-эффектов на лого */
+.navigation__logo:hover .navigation__logo-text {
+  color: inherit !important;
+}
+
 .navigation-logo-cat {
   width: 18px !important;
   height: 18px !important;
   margin: 0 6px !important;
 }
+
 
 .sidebar-chat-item {
   display: block;
