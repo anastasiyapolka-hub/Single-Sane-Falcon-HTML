@@ -372,11 +372,13 @@
 .sidebar-chat-list {
   margin-top: 10px;
   max-height: 220px;            /* можно 180–320 по вкусу */
-  overflow: auto;
+  overflow-y: auto;    /* ← скролл только внутри */
+  overflow-x: hidden;
   border: 1px solid #e5e7eb;
   background: #ffffff;
   border-radius: 12px;
   padding: 6px;
+  max-height: 40vh;
 }
 
 /* Строка чата */
@@ -459,3 +461,24 @@
   height: 18px !important;
   margin: 0 6px !important;
 }
+
+.sidebar-chat-item {
+  display: block;
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.9rem;
+  line-height: 1.2;
+  transition: background 0.12s ease, font-weight 0.12s ease;
+}
+
+.sidebar-chat-item:hover {
+  background: #f3f4f6;
+  font-weight: 500;
+}
+
+.sidebar-chat-item:active {
+  background: #e5e7eb;
+}
+
