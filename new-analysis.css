@@ -26,6 +26,7 @@
   width: 100%;
   display: block;
   min-height: 100vh;
+  background: transparent !important;
 }
 
 .analysis-controls {
@@ -407,12 +408,6 @@
   box-shadow: none !important;
   padding: 0 !important;
   margin-top: 8px;
-}
-
-
-/* === Рабочая область без "оранжевой" заливки: молочный фон и прозрачность === */
-.new-analysis-container1 {
-  background: #F7F3EC; /* молочный */
 }
 
 .dashboard-main,
