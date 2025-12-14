@@ -485,10 +485,10 @@
 
 /* Котик лого*/
 .navigation-logo-cat {
-  width: 24px !important;
-  height: 24px !important;
+  width: 28px !important;
+  height: 28px !important;
   position: relative;
-  top: -1px;
+  top: -2px;
   margin: 0 6px !important;
 }
 
@@ -519,7 +519,7 @@
 
 /* === Глобальный фон: молочный везде (перебиваем style.css) === */
 :root {
-  --color-surface: #F7F3EC;
+  --color-surface: #FDFFF6;
   --color-on-surface: #2A2A2A;
   --color-border: rgba(0, 0, 0, 0.06);
 }
@@ -550,3 +550,32 @@ html, body {
   line-height: 1.3;
   color: #6b7280;
 }
+
+/* Прячем контейнер списка чатов, если он пустой */
+.sidebar-chat-list:empty {
+  display: none;
+}
+
+/* Поле "Мои чаты": как поле запроса */
+.sidebar-text-input {
+  font-size: 14px;          /* как .analysis-query-input */
+  font-family: inherit;
+}
+
+.sidebar-text-input::placeholder {
+  color: #a0a0b4;            /* как у "Введите текст запроса" */
+  font-weight: 400;
+}
+
+:root { --sidebar-w: 320px; }               /* ширина твоего sidebar */
+.dashboard-sidebar.collapsed { width: 56px; } /* у тебя уже есть */
+
+/* Хедер позиционируем над правой колонкой */
+.navigation {
+  top: 6px !important;                       /* подняли ближе к верху */
+  left: var(--sidebar-w) !important;
+  right: 0 !important;
+  width: auto !important;
+}
+
+body.sidebar-collapsed { --sidebar-w: 56px; }
