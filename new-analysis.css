@@ -407,11 +407,12 @@
   color: #6b7280;
 }
 
-/* === Тонкая рамка как у сайдбара (вместо черной) === */
+/* === Панель ввода: только тонкая рамка, без заливки === */
 .dashboard-input-panel {
   border: 1px solid rgba(0, 0, 0, 0.06);
-  border-radius: 16px;              /* можно 12–18 по вкусу */
-  background: rgba(247, 243, 236, 0.65); /* чуть молочная, воздушная */
+  border-radius: 16px;
+  background: transparent;
+  box-shadow: none;
 }
 
 /* Если где-то задавался "черный border" у внутренних элементов — приглушаем */
@@ -481,4 +482,27 @@
 .sidebar-chat-item:active {
   background: #e5e7eb;
 }
+
+/* === Глобальный фон: молочный везде (перебиваем style.css) === */
+:root {
+  --color-surface: #F7F3EC;
+  --color-on-surface: #2A2A2A;
+  --color-border: rgba(0, 0, 0, 0.06);
+}
+
+html, body {
+  background: #F7F3EC !important;
+}
+
+/* === Правая рабочая область: без "карточек", теней и заливок === */
+.dashboard-main,
+.dashboard-container,
+.dashboard-top-block,
+.dashboard-results-viewer,
+.dashboard-results-text {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+}
+
 
