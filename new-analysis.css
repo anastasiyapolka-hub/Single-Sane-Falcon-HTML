@@ -506,13 +506,13 @@
 
 /* === Глобальный фон: молочный везде (перебиваем style.css) === */
 :root {
-  --color-surface: #F7F3FC;
+  --color-surface: #FFFFFF;
   --color-on-surface: #2A2A2A;
   --color-border: rgba(0, 0, 0, 0.06);
 }
 
 html, body {
-  background: #F7F3FC !important;
+  background: #FFFFFF !important;
 }
 
 /* === Правая рабочая область: без "карточек", теней и заливок === */
