@@ -613,18 +613,19 @@
                   </summary>
           
                   <div class="sidebar-section-body">
-                    <label class="sidebar-field-label" for="activeChatInput">
+                    <label class="sidebar-field-label" for="">
                       Активный чат
                     </label>
-                    <input
-                      id="activeChatInput"
-                      type="text"
-                      class="sidebar-text-input"
-                      placeholder="https://t.me/..."
-                    />
-                    <p class="sidebar-hint">
-                      Введите ссылку на чат / канал / группу.
-                    </p>
+                   <input
+                    id="activeChatInput"
+                    type="text"
+                    class="sidebar-text-input"
+                    placeholder="Введите ссылку или название чата…"
+                  />
+                  
+                  <!-- Список чатов -->
+                  <div id="myChatsList" class="sidebar-chat-list" aria-label="Список чатов"></div>
+
                   </div>
                 </details>
               </div>
@@ -819,6 +820,10 @@
       // элементы для сворачиваемой левой панели
       const sidebar = document.querySelector(".dashboard-sidebar");
       const sidebarToggle = document.getElementById("sidebarToggle");
+      const myChatsList = document.getElementById("myChatsList");
+      let cachedChats = []; // [{id,title,type,username}]
+
+      activeChatInput?.addEventListener("input", filterChatsByInput);
 
       // МАСКА ДЛЯ ТЕЛЕФОНА +7
       if (tgPhoneInput) {
@@ -929,6 +934,7 @@
 
       // по умолчанию обновляем UI по выбранному источнику
       updateDataSourceUI();
+      loadTelegramChats();
 
       // слушаем переключение источника данных
       dataSourceFileRadio?.addEventListener("change", updateDataSourceUI);
@@ -1061,6 +1067,7 @@
 
           setTgState("connected");
           setTelegramConnectionStatus(true, data.username || data.first_name);
+          await loadTelegramChats();
         } catch (err) {
           tgStatusMessage.textContent =
             "Ошибка сети: " + err.message;
@@ -1103,6 +1110,7 @@
           tgStatusMessage.textContent = "Успешно подключено.";
           setTgState("connected");
           setTelegramConnectionStatus(true, data.username || data.first_name);
+          await loadTelegramChats();
         } catch (err) {
           tgStatusMessage.textContent =
             "Ошибка сети: " + err.message;
@@ -1132,6 +1140,77 @@
         });
       }
 
+
+      async function loadTelegramChats() {
+        try {
+          const resp = await fetch("https://cotel-backend.onrender.com/tg/chats", {
+            method: "GET",
+            credentials: "omit",
+          });
+      
+          const rawText = await resp.text();
+          let data = null;
+          try { data = rawText ? JSON.parse(rawText) : null; } catch {}
+      
+          if (!resp.ok) {
+            // если не авторизованы — просто не показываем список
+            return;
+          }
+      
+          cachedChats = (data && data.chats) ? data.chats : [];
+          renderChatsList(cachedChats);
+      
+        } catch (e) {
+          // молча: список — доп. удобство, не критично
+        }
+      }
+
+      function renderChatsList(list) {
+        if (!myChatsList) return;
+      
+        if (!list || list.length === 0) {
+          myChatsList.innerHTML = `<div class="sidebar-chat-empty">Чаты не найдены.</div>`;
+          return;
+        }
+      
+        myChatsList.innerHTML = list
+          .map((c) => {
+            // “идентификатор”, который будем подставлять в activeChatInput:
+            // если есть username -> @username, иначе -> numeric id
+            const linkValue = c.username ? `@${c.username}` : String(c.id || "");
+            const safeTitle = (c.title || "Без названия").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            return `<div class="sidebar-chat-item" data-link="${linkValue}" title="${safeTitle}">${safeTitle}</div>`;
+          })
+          .join("");
+      
+        // клик по строке
+        myChatsList.querySelectorAll(".sidebar-chat-item").forEach((el) => {
+          el.addEventListener("click", () => {
+            const link = el.getAttribute("data-link") || "";
+            if (activeChatInput) activeChatInput.value = link;
+          });
+        });
+      }
+      
+      function filterChatsByInput() {
+        const q = (activeChatInput?.value || "").trim().toLowerCase();
+        if (!q) {
+          renderChatsList(cachedChats);
+          return;
+        }
+      
+        // фильтрация по title (и по username тоже, чтобы удобно)
+        const filtered = cachedChats.filter((c) => {
+          const t = (c.title || "").toLowerCase();
+          const u = (c.username || "").toLowerCase();
+          return t.includes(q) || u.includes(q.replace("@", ""));
+        });
+      
+        renderChatsList(filtered);
+      }
+
+
+      
       function renderResult(payload, rawText) {
         let text = "";
 
