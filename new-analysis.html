@@ -1351,48 +1351,6 @@
 </script>
 
 
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const header = document.getElementById("mainNav");
-  if (!header) return;
-
-  const HOTZONE_HEIGHT = 40;    // сколько пикселей от верха — «горячая зона»
-  const HIDE_DELAY = 1500;      // через сколько мс прятать после показа
-
-  let hideTimer = null;
-
-  function hideHeader() {
-    header.classList.add("nav-hidden");
-  }
-
-  function scheduleHide() {
-    clearTimeout(hideTimer);
-    hideTimer = setTimeout(hideHeader, HIDE_DELAY);
-  }
-
-  // старт: через небольшую паузу шапка уедет
-  scheduleHide();
-
-  // Показ только если мышка у самого верха окна
-  document.addEventListener("mousemove", (e) => {
-    // e.clientY — позиция курсора от верха окна
-    if (e.clientY <= HOTZONE_HEIGHT) {
-      header.classList.remove("nav-hidden");
-      scheduleHide();  // обновляем таймер скрытия
-    }
-    // если мышка ниже — ничего не делаем, шапка сама скроется по таймеру
-  });
-
-  // Чуть-чуть улучшим поведение при скролле:
-  // при активном скролле просто обновляем таймер скрытия,
-  // но сам хедер НЕ показываем
-  window.addEventListener("scroll", () => {
-    scheduleHide();
-  });
-});
-</script>
-
-
 
       <link
         rel="canonical"
