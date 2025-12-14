@@ -178,11 +178,10 @@
 
 .dashboard-sidebar {
   width: 300px;
-  padding: 16px 20px;
+  padding: 0 20px 16px 20px;  /* верх убрали */
   border-right: 1px solid rgba(0, 0, 0, 0.06);
-  background: #f3f4f6; /* как было */
+  background: transparent;    /* чтобы слиться с молочным */
   font-size: 0.9rem;
-
   box-sizing: border-box;
   transition: width 0.2s ease;
   overflow: hidden; /* важно чтобы контент прятался */
@@ -192,7 +191,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 16px;
+   /* margin-bottom: 16px;*/
+  padding: 16px 0 8px;
 }
 
 .sidebar-toggle-btn {
@@ -419,8 +419,12 @@
 
 /* === Шапка: НЕ фиксируем, без плашки, просто сверху и уезжает при скролле === */
 .navigation {
-  position: static !important;
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  right: 0;
   background: transparent !important;
+  border: 0 !important;
   box-shadow: none !important;
   border-bottom: 0 !important;
   backdrop-filter: none !important;
@@ -446,29 +450,38 @@
 }
 
 
-/* Делаем “бейдж” под логотип, чтобы молочный текст читался */
+/* === Лого без подложки === */
 .navigation__logo {
-  pointer-events: none !important;   /* убирает hover/клик */
+  pointer-events: none !important;  /* убирает hover/клик */
   cursor: default !important;
-  background: #2A2A2A;               /* тёмно-серый */
-  border-radius: 999px;
-  padding: 6px 14px;
+  background: transparent !important;
+  border-radius: 0;
+  padding: 0;
 }
 
-/* Текст логотипа — молочный */
+
+/* Текст лого: тёмно-серый, чуть крупнее */
 .navigation__logo-text {
-  color: #F7F3EC !important;
-  font-size: 22px !important;
+  color: #2A2A2A !important;  /* тёмно-серый из палитры */
+  font-size: 26px !important; /* было мало — увеличили */
   letter-spacing: 0.08em;
   user-select: none;
+  text-decoration: none !important;
 }
 
-/* Котика чуть опускаем */
+.navigation__logo,
+.navigation__logo * {
+  text-decoration: none !important;
+  filter: none !important;
+  box-shadow: none !important;
+}
+
+/* Котика чуть опускаем top*/
 .navigation-logo-cat {
   width: 20px !important;
   height: 20px !important;
   position: relative;
-  top: 2px;
+  top: 0px;
   margin: 0 6px !important;
 }
 
@@ -518,6 +531,8 @@ html, body {
 /* === Правая рабочая область: без "карточек", теней и заливок === */
 .dashboard-main,
 .dashboard-container,
+.new-analysis-container1,
+.dashboard-layout,
 .dashboard-top-block,
 .dashboard-results-viewer,
 .dashboard-results-text {
@@ -527,3 +542,11 @@ html, body {
 }
 
 
+/* === Дисклеймер: отодвинуть от нижней границы === */
+.analysis-disclaimer {
+  margin-top: 10px;
+  padding: 10px 12px 14px 12px; /* добавили нижний воздух */
+  font-size: 0.85rem;
+  line-height: 1.3;
+  color: #6b7280;
+}
