@@ -177,10 +177,10 @@
 
 
 .dashboard-sidebar {
-  width: 300px;
+  width: 320px;
   padding: 0 20px 16px 20px;  /* верх убрали */
   border-right: 1px solid rgba(0, 0, 0, 0.06);
-  background: transparent;    /* чтобы слиться с молочным */
+  background: F3F4F6;    /* чтобы слиться с молочным */
   font-size: 0.9rem;
   box-sizing: border-box;
   transition: width 0.2s ease;
@@ -398,7 +398,7 @@
 .dashboard-bottom-block {
   flex: 0 0 auto;
   border: 0 !important;
-  background: transparent !important;
+  background: F3F4F6 !important;
   box-shadow: none !important;
   padding: 0 !important;
   margin-top: 8px;
@@ -438,9 +438,14 @@
 
 /* Спрячем левое/правое меню — оставим только лого по центру */
 .navigation__left,
-.navigation__right,
-.navigation__toggle {
+.navigation__right{
   display: none !important;
+}
+
+.navigation__toggle {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Уменьшаем логотип */
@@ -478,10 +483,10 @@
 
 /* Котика чуть опускаем top*/
 .navigation-logo-cat {
-  width: 20px !important;
-  height: 20px !important;
+  width: 24px !important;
+  height: 24px !important;
   position: relative;
-  top: 0px;
+  top: -1px;
   margin: 0 6px !important;
 }
 
@@ -519,13 +524,13 @@
 
 /* === Глобальный фон: молочный везде (перебиваем style.css) === */
 :root {
-  --color-surface: #FFFFFF;
+  --color-surface: #F7F3EC;
   --color-on-surface: #2A2A2A;
   --color-border: rgba(0, 0, 0, 0.06);
 }
 
 html, body {
-  background: #FFFFFF !important;
+  background: #F7F3EC !important;
 }
 
 /* === Правая рабочая область: без "карточек", теней и заливок === */
