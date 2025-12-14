@@ -146,14 +146,6 @@
   margin-bottom: 0;   
 }
 
-/* Нижняя часть (панель ввода) — прижата к низу */
-.dashboard-bottom-block {
-  flex: 0 0 auto;
-  border-top: 1px solid var(--color-border);
-  padding-top: 12px;
-  margin-top: 8px;
-}
-
 .dashboard-container {
   width: 100%;
   max-width: none;
@@ -183,19 +175,6 @@
   flex: 1 0 auto; /* занимает всё доступное пространство между хедером и футером */
 }
 
-/* Автоскрытие шапки: поверх контента */
-.navigation {
-  position: fixed;      /* ВАЖНО: теперь поверх, не сдвигает контент */
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-  transition: transform 0.25s ease;
-}
-
-/* .navigation.nav-hidden {
-/  transform: translateY(-100%);
-}*/
 
 .dashboard-sidebar {
   width: 300px;
@@ -415,10 +394,16 @@
   box-shadow: none;
 }
 
-/* Если где-то задавался "черный border" у внутренних элементов — приглушаем */
+/* === Нижняя область: без рамок/заливок = */
 .dashboard-bottom-block {
-  border-top: 0; /* убираем верхнюю черную линию, если воспринимается как "рамка" */
+  flex: 0 0 auto;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin-top: 8px;
 }
+
 
 /* === Рабочая область без "оранжевой" заливки: молочный фон и прозрачность === */
 .new-analysis-container1 {
@@ -460,22 +445,30 @@
   letter-spacing: 0.08em;
 }
 
-/* === Лого: чуть крупнее, котика опустить === */
+
+/* Делаем “бейдж” под логотип, чтобы молочный текст читался */
 .navigation__logo {
+  pointer-events: none !important;   /* убирает hover/клик */
   cursor: default !important;
+  background: #2A2A2A;               /* тёмно-серый */
+  border-radius: 999px;
+  padding: 6px 14px;
 }
 
+/* Текст логотипа — молочный */
 .navigation__logo-text {
-  font-size: 22px !important;   /* было слишком мелко */
+  color: #F7F3EC !important;
+  font-size: 22px !important;
   letter-spacing: 0.08em;
   user-select: none;
 }
 
+/* Котика чуть опускаем */
 .navigation-logo-cat {
   width: 20px !important;
   height: 20px !important;
   position: relative;
-  top: 2px;                     /* опускаем котика */
+  top: 2px;
   margin: 0 6px !important;
 }
 
@@ -513,13 +506,13 @@
 
 /* === Глобальный фон: молочный везде (перебиваем style.css) === */
 :root {
-  --color-surface: #F7F3EC;
+  --color-surface: #F7F3FC;
   --color-on-surface: #2A2A2A;
   --color-border: rgba(0, 0, 0, 0.06);
 }
 
 html, body {
-  background: #F7F3EC !important;
+  background: #F7F3FC !important;
 }
 
 /* === Правая рабочая область: без "карточек", теней и заливок === */
