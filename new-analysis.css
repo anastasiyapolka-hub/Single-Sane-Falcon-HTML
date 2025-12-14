@@ -193,9 +193,9 @@
   transition: transform 0.25s ease;
 }
 
-.navigation.nav-hidden {
-  transform: translateY(-100%);
-}
+/* .navigation.nav-hidden {
+/  transform: translateY(-100%);
+}*/
 
 .dashboard-sidebar {
   width: 300px;
@@ -403,4 +403,59 @@
   padding: 8px 10px;
   font-size: 0.85rem;
   color: #6b7280;
+}
+
+/* === Тонкая рамка как у сайдбара (вместо черной) === */
+.dashboard-input-panel {
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 16px;              /* можно 12–18 по вкусу */
+  background: rgba(247, 243, 236, 0.65); /* чуть молочная, воздушная */
+}
+
+/* Если где-то задавался "черный border" у внутренних элементов — приглушаем */
+.dashboard-bottom-block {
+  border-top: 0; /* убираем верхнюю черную линию, если воспринимается как "рамка" */
+}
+
+/* === Рабочая область без "оранжевой" заливки: молочный фон и прозрачность === */
+.new-analysis-container1 {
+  background: #F7F3EC; /* молочный */
+}
+
+.dashboard-main,
+.dashboard-container,
+.dashboard-top-block,
+.dashboard-results-viewer {
+  background: transparent !important;
+}
+
+/* === Шапка без автоскрытия, компактная, по сути как "логотип сверху" === */
+.navigation {
+  position: sticky;  /* вместо fixed: не перекрывает контент, но всегда сверху */
+  top: 0;
+  background: transparent; /* чтобы был молочный фон страницы */
+}
+
+/* Спрячем левое/правое меню, оставим только центр-логотип */
+.navigation__left,
+.navigation__right {
+  display: none !important;
+}
+
+/* Центрируем контейнер */
+.navigation__container {
+  justify-content: center !important;
+  padding: 10px 0 !important;
+}
+
+/* Уменьшаем логотип */
+.navigation__logo-text {
+  font-size: 18px !important;
+  letter-spacing: 0.08em;
+}
+
+.navigation-logo-cat {
+  width: 18px !important;
+  height: 18px !important;
+  margin: 0 6px !important;
 }
