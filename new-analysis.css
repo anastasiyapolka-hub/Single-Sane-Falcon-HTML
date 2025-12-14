@@ -450,9 +450,7 @@
 }
 
 .navigation__toggle {
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
+  display: none !important;
 }
 
 /* Уменьшаем логотип */
@@ -530,7 +528,7 @@
 }
 
 html, body {
-  background: #F7F3EC !important;
+  background: #FFFFFF !important;
 }
 
 /* === Правая рабочая область: без "карточек", теней и заливок === */
