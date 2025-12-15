@@ -156,6 +156,7 @@
   flex: 1 1 auto;         /* занимает всё оставшееся место по ширине */
   padding: 16px 24px 24px 24px;
   box-sizing: border-box;
+  padding-top: var(--topbar-h) !important;
 }
 
 /* Главный контейнер с левой и правой колонкой */
@@ -432,11 +433,6 @@
   pointer-events: none; /* КЛЮЧЕВОЕ: не перехватываем клики */
 }
 
-/* Центрируем контейнер под логотип */
-.navigation__container {
-  justify-content: center !important;
-  padding: 14px 0 10px !important;
-}
 
 /* Спрячем левое/правое меню — оставим только лого по центру */
 .navigation__left,
@@ -557,12 +553,37 @@ html, body {
 :root { --sidebar-w: 320px; }               /* ширина твоего sidebar */
 .dashboard-sidebar.collapsed { width: 56px; } /* у тебя уже есть */
 
-/* Хедер позиционируем над правой колонкой */
-.navigation {
-  top: 6px !important;                       /* подняли ближе к верху */
-  left: var(--sidebar-w) !important;
-  right: 0 !important;
-  width: auto !important;
-}
 
 body.sidebar-collapsed { --sidebar-w: 56px; }
+
+/* === Верхняя фиксированная полоса с логотипом === */
+:root {
+  --topbar-h: 56px;  /* высота полоски. уменьшай/увеличивай */
+}
+
+/* Хедер позиционируем над правой колонкой */
+.navigation {
+  position: fixed !important;
+  top: 0px !important;                       /* подняли ближе к верху */
+  left: var(--sidebar-w) !important;
+  right: 0 !important;
+  height: var(--topbar-h) !important;
+  width: auto !important;
+
+  background: rgba(255, 255, 255, 0.72) !important; /* матовая */
+  backdrop-filter: blur(10px) !important;            /* “стекло” */
+  -webkit-backdrop-filter: blur(10px) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+
+  z-index: 200 !important;
+  pointer-events: none; /* клики пропускаем */
+}
+
+/* Центрируем контейнер под логотип */
+.navigation__container {
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important; /* ВАЖНО: убирает “толстую” полосу сверху */
+}
