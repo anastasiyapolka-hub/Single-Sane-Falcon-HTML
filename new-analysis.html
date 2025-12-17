@@ -33,7 +33,7 @@
     </style>
 
       <style>
-      /* Лейаут: слева сайдбар, справа рабочая  область */
+      /* Лейаут: слева сайдбар, справа рабочая область */
       .dashboard-layout {
         display: flex;
         align-items:  flex-start;
@@ -226,7 +226,7 @@
                     <div class="navigation__link"><span>История</span></div>
                   </a>
                 </div>
-
+                <a href="#">
                   <div class="navigation__logo">
                    
                     <span class="section-title navigation__logo-text">
@@ -239,7 +239,7 @@
   TEL
 </span>
                   </div>
-
+                </a>
                 <div class="navigation__right">
                   <a href="#">
                     <div class="navigation__link"><span>Настройки</span></div>
@@ -250,7 +250,28 @@
                     </div>
                   </a>
                 </div>
-               
+                <button
+                  id="navToggle"
+                  aria-label="Открыть меню"
+                  aria-expanded="false"
+                  class="navigation__toggle"
+                >
+                  <svg
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M4 5h16M4 12h16M4 19h16"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    ></path>
+                  </svg>
+                </button>
               </div>
             </nav>
             <div id="navOverlay" class="navigation__overlay">
@@ -329,57 +350,19 @@
            <aside class="dashboard-sidebar">
 
             <div class="sidebar-header">
-              <button
-                id="sidebarToggle"
-                class="sidebar-toggle-btn"
-                type="button"
-                title="Свернуть панель"
-              >
+            <button
+              id="sidebarToggle"
+              class="sidebar-toggle-btn"
+              type="button"
+              title="Свернуть панель"
+            >
               ⚙️
-              </button>
-              <span class="sidebar-title">Настройки</span>
-            </div>
+            </button>
+            <span class="sidebar-title">Настройки</span>
+          </div>
 
-            <!-- Мини-иконки, которые показываются только в свернутом состоянии -->
-            <div class="sidebar-mini-icons">
-              <button
-                class="sidebar-mini-icon-btn"
-                type="button"
-                data-target="dataSourceSection"
-                title="Источники данных"
-              >
-                📁
-              </button>
-              <button
-                class="sidebar-mini-icon-btn"
-                type="button"
-                title="Telegram"
-              >
-                <span id="tgMiniStatusDot" class="tg-status-dot tg-status-off"></span>
-              </button>
-
-              <button
-                class="sidebar-mini-icon-btn"
-                type="button"
-                data-target="myChatsSection"
-                title="Мои чаты"
-              >
-                💬
-              </button>
-              <button
-                class="sidebar-mini-icon-btn"
-                type="button"
-                data-target="mySubscriptionsSection"
-                title="Мои подписки"
-              >
-                ⭐
-              </button>
-            </div>
-
-             
              <!-- Весь остальной контент панели -->
               <div id="sidebarContent">
-                <!-- 1. ИСТОЧНИК ДАННЫХ -->
               <div class="sidebar-section">
                 <details id="dataSourceSection" open>
                   <summary>
@@ -474,38 +457,25 @@
                         </button>
                       </div>
 
-                      <!-- состояние 2.5: требуется пароль Telegram (2FA) -->
-                      <div id="tgStatePassword" style="display: none;">
-                        <p class="tg-status">
-                          Для завершения входа требуется пароль Telegram (2FA).
-                        </p>
-                      
-                        <div class="tg-field">
-                          <label for="tgPasswordInput">Пароль Telegram</label>
-                          <input
-                            id="tgPasswordInput"
-                            type="password"
-                            class="tg-input"
-                            placeholder="Введите пароль"
-                          />
-                        </div>
-                      
-                        <button
-                          id="tgConfirmPasswordBtn"
-                          type="button"
-                          class="tg-button"
-                        >
-                          Подтвердить пароль
-                        </button>
-                      </div>
-
                       <!-- состояние 3: подключено -->
                       <div id="tgStateConnected" style="display: none;">
                         <p class="tg-status">
                           Подключено к Telegram как
                           <strong id="tgConnectedUser">@username</strong>.
                         </p>
-                      
+                        <p class="tg-status">
+                          В следующем шаге здесь появится список ваших чатов для
+                          анализа.
+                        </p>
+                        <button
+                        id="tgLogoutBtn"
+                        type="button"
+                        class="tg-button"
+                        style="margin-top: 8px;"
+                      >
+                        Выйти из Telegram
+                      </button>
+
                       </div>
 
                       <p id="tgStatusMessage" class="tg-status"></p>
@@ -535,103 +505,6 @@
                   </div>
                 </details>
               </div>
-
-              <!-- 1.5 АВТОРИЗАЦИЯ TELEGRAM (СТАТУС) -->
-              <div class="sidebar-section" id="telegramStatusSection" style="display:none;">
-                <details open>
-                  <summary>
-                    <span>Авторизация в Telegram</span>
-                    <span>▾</span>
-                  </summary>
-              
-                  <div class="sidebar-section-body">
-                    <div class="tg-status-row">
-                      <span id="tgStatusDot" class="tg-status-dot tg-status-off"></span>
-                      <span id="tgStatusText">Не подключено</span>
-                    </div>
-              
-                    <p class="sidebar-hint">
-                      Аккаунт:
-                      <strong id="tgStatusUsername">—</strong>
-                    </p>
-                  </div>
-                </details>
-              </div>
-
-              <!-- НАСТРОЙКИ ЗАПРОСА -->
-              <div class="sidebar-section" id="querySettingsSection">
-                <details>
-                  <summary>
-                    <span>Настройки запроса</span>
-                    <span>▾</span>
-                  </summary>
-              
-                  <div class="sidebar-section-body">
-                    <div class="sidebar-field">
-                      <label for="queryDaysInput">Период (дней)</label>
-                      <input
-                        id="queryDaysInput"
-                        type="number"
-                        class="sidebar-text-input"
-                        min="1"
-                        max="365"
-                        value="7"
-                      />
-                    </div>
-                  </div>
-                </details>
-              </div>
-
-                
-               <!-- 2. МОИ ЧАТЫ -->
-              <div class="sidebar-section">
-                <details id="myChatsSection" open>
-                  <summary>
-                    <span>Мои чаты</span>
-                    <span>▾</span>
-                  </summary>
-          
-                  <div class="sidebar-section-body">
-                    <label class="sidebar-field-label" for="">
-                      Активный чат
-                    </label>
-                   <input
-                    id="activeChatInput"
-                    type="text"
-                    class="sidebar-text-input"
-                    placeholder="Введите ссылку или название чата…"
-                  />
-                  
-                  <!-- Список чатов -->
-                  <div id="myChatsList" class="sidebar-chat-list" aria-label="Список чатов"></div>
-
-                  </div>
-                </details>
-              </div>
-          
-              <!-- 3. МОИ ПОДПИСКИ -->
-              <div class="sidebar-section">
-                <details id="mySubscriptionsSection" open>
-                  <summary>
-                    <span>Мои подписки</span>
-                    <span>▾</span>
-                  </summary>
-          
-                  <div class="sidebar-section-body sidebar-subscriptions-body">
-                    <button
-                      type="button"
-                      class="sidebar-add-subscription-btn"
-                      title="Добавить подписку"
-                    >
-                      +
-                    </button>
-                    <p class="sidebar-hint sidebar-subscriptions-hint">
-                      Здесь вы позже сможете управлять подписками на каналы.
-                    </p>
-                  </div>
-                </details>
-              </div>
-                
             </div>
             </aside>
 
@@ -752,7 +625,7 @@
           @keyframes dashboardPulse { 0%,100% {opacity: 1;} 50% {opacity: 0.5;} }
         </style>
       
-       <script defer data-name="dashboard-interactions">
+        <script defer data-name="dashboard-interactions">
   document.addEventListener("DOMContentLoaded", function () {
     (function () {
       const BACKEND_URL = "https://cotel-backend.onrender.com/analyze";
@@ -764,7 +637,7 @@
       const loader = document.querySelector(".dashboard-loader");
       const resultDiv = document.getElementById("analysisResult");
 
-      // --- ЭЛЕМЕНТЫ ДЛЯ ВЫБОРА ИСТОЧНИКА ДАННЫХ ---
+            // --- ЭЛЕМЕНТЫ ДЛЯ ВЫБОРА ИСТОЧНИКА ДАННЫХ ---
       const dataSourceFileRadio = document.getElementById("dataSourceFile");
       const dataSourceAccountRadio = document.getElementById("dataSourceAccount");
       const dataSourcePublicRadio = document.getElementById("dataSourcePublic");
@@ -775,10 +648,6 @@
       const tgStateCode = document.getElementById("tgStateCode");
       const tgStateConnected = document.getElementById("tgStateConnected");
 
-      const tgStatePassword = document.getElementById("tgStatePassword");
-      const tgPasswordInput = document.getElementById("tgPasswordInput");
-      const tgConfirmPasswordBtn = document.getElementById("tgConfirmPasswordBtn");
-
       const tgPhoneInput = document.getElementById("tgPhoneInput");
       const tgSendCodeBtn = document.getElementById("tgSendCodeBtn");
       const tgCodeInput = document.getElementById("tgCodeInput");
@@ -786,59 +655,12 @@
       const tgCancelCodeBtn = document.getElementById("tgCancelCodeBtn");
       const tgStatusMessage = document.getElementById("tgStatusMessage");
       const tgConnectedUser = document.getElementById("tgConnectedUser");
-
-      const telegramStatusSection = document.getElementById("telegramStatusSection");
-      const tgStatusDot = document.getElementById("tgStatusDot");
-      const tgStatusText = document.getElementById("tgStatusText");
-      const tgStatusUsername = document.getElementById("tgStatusUsername");
-
-      // поля для "Мой аккаунт Telegram"
-      const activeChatInput = document.getElementById("activeChatInput");
-      const queryDaysInput = document.getElementById("queryDaysInput");
+      const tgLogoutBtn = document.getElementById("tgLogoutBtn");
 
       // элементы для сворачиваемой левой панели
       const sidebar = document.querySelector(".dashboard-sidebar");
       const sidebarToggle = document.getElementById("sidebarToggle");
-      const myChatsList = document.getElementById("myChatsList");
-      let cachedChats = []; // [{id,title,type,username}]
-
-      activeChatInput?.addEventListener("input", filterChatsByInput);
-
-      // МАСКА ДЛЯ ТЕЛЕФОНА +7
-      if (tgPhoneInput) {
-        tgPhoneInput.addEventListener("input", function () {
-          let value = tgPhoneInput.value.replace(/\D/g, ""); // только цифры
-
-          // Начинаем всегда с "7"
-          if (!value.startsWith("7")) {
-            value = "7" + value;
-          }
-
-          // Ограничиваем длину до 11 цифр
-          value = value.substring(0, 11);
-
-          // Форматируем
-          let formatted = "+7";
-
-          if (value.length > 1) formatted += " " + value.substring(1, 4);
-          if (value.length > 4) formatted += " " + value.substring(4, 7);
-          if (value.length > 7) formatted += " " + value.substring(7, 9);
-          if (value.length > 9) formatted += " " + value.substring(9, 11);
-
-          tgPhoneInput.value = formatted;
-        });
-
-        // Не даём удалить "+7"
-        tgPhoneInput.addEventListener("keydown", (e) => {
-          if (
-            tgPhoneInput.selectionStart < 2 &&
-            (e.key === "Backspace" || e.key === "Delete")
-          ) {
-            e.preventDefault();
-          }
-        });
-      }
-
+      
       function updateDataSourceUI() {
         const checked = document.querySelector('input[name="dataSource"]:checked');
         const mode = checked ? checked.value : "file";
@@ -852,52 +674,14 @@
         if (tgAuthBlock) {
           tgAuthBlock.style.display = mode === "account" ? "block" : "none";
         }
-
-        if (telegramStatusSection && dataSourceAccountRadio) {
-          telegramStatusSection.style.display =
-            dataSourceAccountRadio.checked ? "block" : "none";
-        }
       }
 
       function setTgState(state) {
-        if (tgStatePhone) {
-          tgStatePhone.style.display = state === "phone" ? "block" : "none";
-        }
-        if (tgStateCode) {
-          tgStateCode.style.display = state === "code" ? "block" : "none";
-        }
-        if (tgStatePassword) {
-          tgStatePassword.style.display = state === "password" ? "block" : "none";
-        }
-        if (tgStateConnected) {
-          tgStateConnected.style.display = state === "connected" ? "block" : "none";
-        }
-      }
+        if (!tgStatePhone || !tgStateCode || !tgStateConnected) return;
 
-      function setTelegramConnectionStatus(isConnected, username = null) {
-        const miniDot = document.getElementById("tgMiniStatusDot");
-        if (miniDot) {
-          miniDot.className =
-            "tg-status-dot " + (isConnected ? "tg-status-on" : "tg-status-off");
-        }
-
-        if (!telegramStatusSection || !tgStatusDot || !tgStatusText || !tgStatusUsername) {
-          return;
-        }
-
-        telegramStatusSection.style.display = "block";
-
-        if (isConnected) {
-          tgStatusDot.classList.remove("tg-status-off");
-          tgStatusDot.classList.add("tg-status-on");
-          tgStatusText.textContent = "Подключено";
-          tgStatusUsername.textContent = username || "Пользователь";
-        } else {
-          tgStatusDot.classList.remove("tg-status-on");
-          tgStatusDot.classList.add("tg-status-off");
-          tgStatusText.textContent = "Не подключено";
-          tgStatusUsername.textContent = "—";
-        }
+        tgStatePhone.style.display = state === "phone" ? "block" : "none";
+        tgStateCode.style.display = state === "code" ? "block" : "none";
+        tgStateConnected.style.display = state === "connected" ? "block" : "none";
       }
 
       // начальное состояние
@@ -911,9 +695,8 @@
       // по умолчанию прячем котика
       showLoader(false);
 
-      // по умолчанию обновляем UI по выбранному источнику
+            // по умолчанию обновляем UI по выбранному источнику
       updateDataSourceUI();
-      loadTelegramChats();
 
       // слушаем переключение источника данных
       dataSourceFileRadio?.addEventListener("change", updateDataSourceUI);
@@ -929,173 +712,44 @@
             "title",
             isCollapsed ? "Развернуть панель" : "Свернуть панель"
           );
-          // 👇 ВАЖНО: синхронизируем состояние для CSS (логотип, отступы и т.д.)
-          document.body.classList.toggle("sidebar-collapsed", isCollapsed);
         });
       }
 
-      // --- Мини-иконки в свернутой панели ---
-      const miniIconButtons = document.querySelectorAll(".sidebar-mini-icon-btn");
-      miniIconButtons.forEach((btn) => {
-        btn.addEventListener("click", () => {
-          const targetId = btn.getAttribute("data-target");
+      // --- ПОВЕДЕНИЕ БЛОКА АВТОРИЗАЦИИ TELEGRAM (пока без реальных запросов) ---
 
-          // Разворачиваем панель
-          if (sidebar) {
-            sidebar.classList.remove("collapsed");
-          }
-          if (sidebarToggle) {
-            sidebarToggle.setAttribute("title", "Свернуть панель");
-          }
-
-          // Открываем нужный блок <details>
-          if (targetId) {
-            const detailsEl = document.getElementById(targetId);
-            if (detailsEl && detailsEl.tagName.toLowerCase() === "details") {
-              detailsEl.open = true;
-              detailsEl.scrollIntoView({
-                behavior: "smooth",
-                block: "nearest",
-              });
-            }
-          }
-        });
-      });
-
-      // --- ПОВЕДЕНИЕ БЛОКА АВТОРИЗАЦИИ TELEGRAM ---
-      tgSendCodeBtn?.addEventListener("click", async () => {
+      tgSendCodeBtn?.addEventListener("click", () => {
         const phone = (tgPhoneInput?.value || "").trim();
         if (!phone) {
-          tgStatusMessage.textContent = "Введите номер телефона.";
+          if (tgStatusMessage) {
+            tgStatusMessage.textContent = "Введите номер телефона.";
+          }
           return;
         }
-
-        tgStatusMessage.textContent = "Отправляем код...";
-
-        try {
-          const resp = await fetch(
-            "https://cotel-backend.onrender.com/tg/send_code",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ phone }),
-            }
-          );
-
-          const data = await resp.json();
-
-          if (!resp.ok) {
-            tgStatusMessage.textContent =
-              "Ошибка: " + (data.detail || "Не удалось отправить код.");
-            return;
-          }
-
+        // здесь позже появится вызов /tg/start_auth
+        if (tgStatusMessage) {
           tgStatusMessage.textContent =
-            "Код отправлен. Проверьте Telegram.";
-          setTgState("code");
-        } catch (err) {
-          tgStatusMessage.textContent =
-            "Ошибка сети: " + err.message;
+            "Отправляем код в Telegram (пока заглушка без сервера).";
         }
+        setTgState("code");
       });
 
-      tgConfirmCodeBtn?.addEventListener("click", async () => {
-        const phone = (tgPhoneInput?.value || "").trim();
+      tgConfirmCodeBtn?.addEventListener("click", () => {
         const code = (tgCodeInput?.value || "").trim();
-
         if (!code) {
-          tgStatusMessage.textContent = "Введите код из Telegram.";
+          if (tgStatusMessage) {
+            tgStatusMessage.textContent = "Введите код из Telegram.";
+          }
           return;
         }
-
-        tgStatusMessage.textContent = "Проверяем код...";
-
-        try {
-          const resp = await fetch(
-            "https://cotel-backend.onrender.com/tg/confirm_code",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ phone, code }),
-            }
-          );
-
-          const data = await resp.json();
-          const detail = String(data.detail || "");
-
-          if (!resp.ok) {
-            if (
-              detail.includes("SESSION_PASSWORD_NEEDED") ||
-              detail.includes("PASSWORD_NEEDED")
-            ) {
-              tgStatusMessage.textContent =
-                "Требуется пароль Telegram (2FA).";
-              setTgState("password");
-              return;
-            }
-
-            tgStatusMessage.textContent =
-              "Ошибка: " + (data.detail || "Код неверен.");
-            return;
-          }
-
-          // успешная авторизация
-          tgConnectedUser.textContent = data.username
-            ? "@" + data.username
-            : data.first_name || "Пользователь";
-
-          tgStatusMessage.textContent = "Успешно подключено.";
-
-          setTgState("connected");
-          setTelegramConnectionStatus(true, data.username || data.first_name);
-          await loadTelegramChats();
-        } catch (err) {
+        // здесь позже будет вызов /tg/confirm_code
+        if (tgStatusMessage) {
           tgStatusMessage.textContent =
-            "Ошибка сети: " + err.message;
+            "Код принят (демо-режим). Позже здесь будет реальная авторизация.";
         }
-      });
-
-      tgConfirmPasswordBtn?.addEventListener("click", async () => {
-        const phone = (tgPhoneInput?.value || "").trim();
-        const password = (tgPasswordInput?.value || "").trim();
-
-        if (!password) {
-          tgStatusMessage.textContent = "Введите пароль Telegram.";
-          return;
+        if (tgConnectedUser) {
+          tgConnectedUser.textContent = "@username"; // временный плейсхолдер
         }
-
-        tgStatusMessage.textContent = "Подтверждаем пароль...";
-
-        try {
-          const resp = await fetch(
-            "https://cotel-backend.onrender.com/tg/confirm_password",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ phone, password }),
-            }
-          );
-
-          const data = await resp.json();
-
-          if (!resp.ok) {
-            tgStatusMessage.textContent =
-              "Ошибка: " + (data.detail || "Не удалось подтвердить пароль.");
-            return;
-          }
-
-          tgConnectedUser.textContent = data.username
-            ? "@" + data.username
-            : data.first_name || "Пользователь";
-
-          tgStatusMessage.textContent = "Успешно подключено.";
-          setTgState("connected");
-          setTelegramConnectionStatus(true, data.username || data.first_name);
-          await loadTelegramChats();
-        } catch (err) {
-          tgStatusMessage.textContent =
-            "Ошибка сети: " + err.message;
-        }
+        setTgState("connected");
       });
 
       tgCancelCodeBtn?.addEventListener("click", () => {
@@ -1103,232 +757,220 @@
         if (tgCodeInput) tgCodeInput.value = "";
         if (tgStatusMessage) tgStatusMessage.textContent = "";
         setTgState("phone");
-        setTelegramConnectionStatus(false, null);
       });
+
+
+      tgLogoutBtn?.addEventListener("click", async () => {
+        tgStatusMessage.textContent = "Завершаем сессию...";
+
+        try {
+          const resp = await fetch("https://cotel-backend.onrender.com/tg/logout", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+          });
+
+          const data = await resp.json();
+
+          if (!resp.ok) {
+            tgStatusMessage.textContent =
+              "Ошибка: " + (data.detail || "Не удалось завершить сессию.");
+            return;
+          }
+
+          // UI: возвращаемся в состояние “не подключено”
+          tgConnectedUser.textContent = "@username";
+          setTgState("phone");
+          setTelegramConnectionStatus(false, null);
+
+          // (опционально) очистить список чатов в UI, если у тебя есть контейнер
+          const chatList = document.getElementById("sidebarChatList");
+          if (chatList) chatList.innerHTML = "";
+
+          tgStatusMessage.textContent = "Сессия завершена.";
+        } catch (err) {
+          tgStatusMessage.textContent = "Ошибка сети: " + err.message;
+        }
+      });
+
+
 
       // клик по кнопке с иконкой → открываем выбор файла
       if (uploadBtn && fileInput) {
-        uploadBtn.addEventListener("click", () => {
-          fileInput.value = "";
-          fileInput.click();
-        });
+      uploadBtn.addEventListener("click", () => {
+    // важная строка: сбрасываем выбранный файл,
+    // чтобы даже тот же самый файл считался "изменением"
+    fileInput.value = "";
+    fileInput.click();
+  });
 
-        fileInput.addEventListener("change", () => {
-          if (!fileInput.files[0]) return;
-          if (resultDiv) {
-            resultDiv.textContent = `Выбран файл: ${fileInput.files[0].name}`;
-          }
-        });
-      }
+  fileInput.addEventListener("change", () => {
+    if (!fileInput.files[0]) return;
+    if (resultDiv) {
+      resultDiv.textContent = `Выбран файл: ${fileInput.files[0].name}`;
+    }
+  
+  });
+}
 
-
-      async function loadTelegramChats() {
-        try {
-          const resp = await fetch("https://cotel-backend.onrender.com/tg/chats", {
-            method: "GET",
-            credentials: "omit",
-          });
-      
-          const rawText = await resp.text();
-          let data = null;
-          try { data = rawText ? JSON.parse(rawText) : null; } catch {}
-      
-          if (!resp.ok) {
-            // если не авторизованы — просто не показываем список
-            return;
-          }
-      
-          cachedChats = (data && data.chats) ? data.chats : [];
-          renderChatsList(cachedChats);
-      
-        } catch (e) {
-          // молча: список — доп. удобство, не критично
-        }
-      }
-
-      function renderChatsList(list) {
-        if (!myChatsList) return;
-      
-        if (!list || list.length === 0) {
-          myChatsList.innerHTML = `<div class="sidebar-chat-empty">Чаты не найдены.</div>`;
-          return;
-        }
-      
-        myChatsList.innerHTML = list
-          .map((c) => {
-            // “идентификатор”, который будем подставлять в activeChatInput:
-            // если есть username -> @username, иначе -> numeric id
-            const linkValue = c.username ? `@${c.username}` : String(c.id || "");
-            const safeTitle = (c.title || "Без названия").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            return `<div class="sidebar-chat-item" data-link="${linkValue}" title="${safeTitle}">${safeTitle}</div>`;
-          })
-          .join("");
-      
-        // клик по строке
-        myChatsList.querySelectorAll(".sidebar-chat-item").forEach((el) => {
-          el.addEventListener("click", () => {
-            const link = el.getAttribute("data-link") || "";
-            if (activeChatInput) activeChatInput.value = link;
-          });
-        });
-      }
-      
-      function filterChatsByInput() {
-        const q = (activeChatInput?.value || "").trim().toLowerCase();
-        if (!q) {
-          renderChatsList(cachedChats);
-          return;
-        }
-      
-        // фильтрация по title (и по username тоже, чтобы удобно)
-        const filtered = cachedChats.filter((c) => {
-          const t = (c.title || "").toLowerCase();
-          const u = (c.username || "").toLowerCase();
-          return t.includes(q) || u.includes(q.replace("@", ""));
-        });
-      
-        renderChatsList(filtered);
-      }
-
-
-      
-      function renderResult(payload, rawText) {
-        let text = "";
-
-        if (payload?.summary) {
-          text += payload.summary + "\n\n";
-        }
-
-        if (payload?.message) {
-          text += payload.message;
-        }
-
-        if (resultDiv) {
-          resultDiv.textContent = text || rawText || "Нет данных";
-        }
-
-        if (payload?.chat_name) {
-          const bar = document.getElementById("chatTitleBar");
-          const title = document.getElementById("chatTitleText");
-          if (bar && title) {
-            title.textContent = payload.chat_name;
-            bar.style.display = "block";
-          }
-        }
-      }
-
-      // кнопка Play
+      // запуск анализа по кнопке Play
       if (analyzeBtn) {
         analyzeBtn.addEventListener("click", async () => {
+          const file = fileInput?.files[0];
+
+          if (!file) {
+            alert("Сначала импортируйте чат (выберите JSON-файл экспорта)");
+            return;
+          }
+
           const query = (queryInput?.value || "").trim();
-          const isTelegramJson = dataSourceFileRadio?.checked;
-          const isTelegramAccount = dataSourceAccountRadio?.checked;
+
+          const formData = new FormData();
+          formData.append("file", file);
+
+          const params = {
+            query: query || null,
+            result_type: "summary",
+          };
+          formData.append("params", JSON.stringify(params));
 
           showLoader(true);
           if (resultDiv) resultDiv.textContent = "";
 
           try {
-            // 1️⃣ ВЕТКА: TELEGRAM JSON
-            if (isTelegramJson) {
-              const file = fileInput?.files[0];
-
-              if (!file) {
-                alert("Сначала импортируйте JSON-файл экспорта Telegram.");
-                showLoader(false);
-                return;
-              }
-
-              const formData = new FormData();
-              formData.append("file", file);
-
-              const params = {
-                query: query || null,
-                result_type: "summary",
-              };
-              formData.append("params", JSON.stringify(params));
-
-              const resp = await fetch(BACKEND_URL, {
-                method: "POST",
-                body: formData,
-              });
-
-              const rawText = await resp.text();
-              let data = null;
-
+            const resp = await fetch(BACKEND_URL, {
+              method: "POST",
+              body: formData,
+            });
+          
+            // 1. сначала читаем "сырое" тело
+            const rawText = await resp.text();
+            let data = null;
+          
+            // 2. пробуем распарсить как JSON, если что — игнорируем
+            if (rawText) {
               try {
-                data = rawText ? JSON.parse(rawText) : null;
-              } catch {}
-
-              if (!resp.ok) {
-                throw new Error(
-                  (data && (data.detail || data.error)) ||
-                    rawText ||
-                    resp.statusText
-                );
+                data = JSON.parse(rawText);
+              } catch (e) {
+                // не JSON — ничего страшного, будем работать с текстом
               }
+            }
 
-              renderResult(data, rawText);
+            // 3. если статус не ок — показываем максимум информации
+            if (!resp.ok) {
+              const detail =
+                (data && (data.detail || data.error)) ||
+                rawText ||
+                resp.statusText ||
+                "Неизвестная ошибка";
+          
+              if (resultDiv) {
+                resultDiv.textContent =
+                  "Ошибка сервера (" + resp.status + "): " + detail;
+              }
+              return;
+            }
+          
+            // 4. если вообще пусто — отдельно подсветим
+            if (!data && !rawText) {
+              if (resultDiv) {
+                resultDiv.textContent =
+                  "Сервер вернул пустой ответ (status " + resp.status + ").";
+              }
               return;
             }
 
-            // 2️⃣ ВЕТКА: МОЙ TELEGRAM АККАУНТ
-            if (isTelegramAccount) {
-              const chatLink = (activeChatInput?.value || "").trim();
-              const days = parseInt(queryDaysInput?.value || "7", 10);
+            // 5. нормальный успешный ответ
+            const payload = data || {};
+          
+            let text = "";
 
-              if (!chatLink) {
-                alert("Введите ссылку на чат или канал Telegram.");
-                showLoader(false);
-                return;
-              }
-
-              const payload = {
-                chat_link: chatLink,
-                days: days,
-                user_query: query || null,
-              };
-
-              const resp = await fetch(
-                "https://cotel-backend.onrender.com/tg/analyze_chat",
-                {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify(payload),
-                }
-              );
-
-              const rawText = await resp.text();
-              let data = null;
-
-              try {
-                data = rawText ? JSON.parse(rawText) : null;
-              } catch {}
-
-              if (!resp.ok) {
-                throw new Error(
-                  (data && (data.detail || data.error)) ||
-                    rawText ||
-                    resp.statusText
-                );
-              }
-
-              renderResult(data, rawText);
-              return;
+            // 1) сначала сам ответ LLM, если есть
+            if (payload.summary) {
+              text += payload.summary + "\n\n";
             }
-
-            // 3️⃣ НИЧЕГО НЕ ВЫБРАНО
-            alert("Выберите источник данных.");
-          } catch (err) {
-            if (resultDiv) {
-              resultDiv.textContent = "Ошибка запроса: " + err.message;
+            
+            // 2) затем служебное сообщение
+            if (payload.message) {
+              text += payload.message;
+            } else if (payload.status === "ok" && !payload.summary) {
+              text += "Файл успешно загружен";
             }
-          } finally {
-            showLoader(false);
+          
+            if (typeof payload.messages_count === "number") {
+              text += ` (сообщений: ${payload.messages_count})`;
+            }
+          
+            if (payload.filename) {
+              text += `\nФайл: ${payload.filename}`;
+            }
+          
+            // показать тип и название чата в верхней полоске
+            if (payload.chat_name || payload.chat_type) {
+            const bar = document.getElementById("chatTitleBar");
+            const title = document.getElementById("chatTitleText");
+          
+            const typeText = payload.chat_type ? payload.chat_type : "Чат";
+            const nameText = payload.chat_name ? payload.chat_name : "Без названия";
+
+            title.textContent = `${typeText}: ${nameText}`;
+            bar.style.display = "block";
           }
+            if (resultDiv) {
+              resultDiv.textContent = text || rawText;
+            }
+        } catch (err) {
+          if (resultDiv) {
+            resultDiv.textContent = "Ошибка запроса: " + err.message;
+          }
+} finally {
+  showLoader(false);
+}
+
         });
       }
     })();
   });
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const header = document.getElementById("mainNav");
+  if (!header) return;
+
+  const HOTZONE_HEIGHT = 40;    // сколько пикселей от верха — «горячая зона»
+  const HIDE_DELAY = 1500;      // через сколько мс прятать после показа
+
+  let hideTimer = null;
+
+  function hideHeader() {
+    header.classList.add("nav-hidden");
+  }
+
+  function scheduleHide() {
+    clearTimeout(hideTimer);
+    hideTimer = setTimeout(hideHeader, HIDE_DELAY);
+  }
+
+  // старт: через небольшую паузу шапка уедет
+  scheduleHide();
+
+  // Показ только если мышка у самого верха окна
+  document.addEventListener("mousemove", (e) => {
+    // e.clientY — позиция курсора от верха окна
+    if (e.clientY <= HOTZONE_HEIGHT) {
+      header.classList.remove("nav-hidden");
+      scheduleHide();  // обновляем таймер скрытия
+    }
+    // если мышка ниже — ничего не делаем, шапка сама скроется по таймеру
+  });
+
+  // Чуть-чуть улучшим поведение при скролле:
+  // при активном скролле просто обновляем таймер скрытия,
+  // но сам хедер НЕ показываем
+  window.addEventListener("scroll", () => {
+    scheduleHide();
+  });
+});
 </script>
 
 
