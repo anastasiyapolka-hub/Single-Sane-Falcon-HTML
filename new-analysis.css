@@ -191,7 +191,6 @@
 
 .sidebar-header {
   display: flex;
-  height: 44px;  
   align-items: center;
   gap: 8px;
    /* margin-bottom: 16px;*/
@@ -231,8 +230,6 @@
   align-items: center;
   gap: 8px;
   margin-top: 8px;
-  opacity: 0;
-  transition: opacity 0.18s ease;
 }
 
 .sidebar-mini-icon-btn {
@@ -258,35 +255,24 @@
 /* Свернутая панель */
 .dashboard-sidebar.collapsed {
   width: 56px;         /* узкая полоска */
-  padding: 0 10px 16px 10px;    /* верх оставляем 0, чтобы не прыгало */
-}
-
-/* В норме контент видим */
-.sidebar-title,
-#sidebarContent {
-  opacity: 1;
-  transform: translateX(0);
-  transition: opacity 0.18s ease, transform 0.18s ease;
+  padding: 16px 10px;  /* чуть меньше внутренний отступ */
 }
 
 /* Прячем текст и основной контент, оставляем только шапку + мини-иконки */
 .dashboard-sidebar.collapsed .sidebar-title,
 .dashboard-sidebar.collapsed #sidebarContent {
-   opacity: 0;
-  transform: translateX(-8px);
-  pointer-events: none;   /* чтобы не кликается невидимое */
+  display: none;
 }
 
 /* Показываем колонку мини-иконок только в свернутом состоянии */
 .dashboard-sidebar.collapsed .sidebar-mini-icons {
   display: flex;
-  opacity: 1;
 }
 
 /* Центруем шестерёнку по вертикали, когда панель узкая (опционально) */
 .dashboard-sidebar.collapsed .sidebar-header {
   margin-bottom: 0;
-  justify-content: flex-start;  /* вместо center */
+  justify-content: center;
 }
 
 /* Доп. стили для новых полей в блоках "Мои чаты" и "Мои подписки" */
