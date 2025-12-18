@@ -505,14 +505,6 @@
                           Подключено к Telegram как
                           <strong id="tgConnectedUser">@username</strong>.
                         </p>
-                         <button
-                          id="tgLogoutBtn"
-                          type="button"
-                          class="tg-button"
-                          style="margin-top: 8px;"
-                        >
-                          Выйти из Telegram
-                        </button>
 
                       </div>
 
@@ -562,6 +554,16 @@
                       Аккаунт:
                       <strong id="tgStatusUsername">—</strong>
                     </p>
+
+                    <button
+                      id="tgLogoutBtnStatus"
+                      type="button"
+                      class="tg-button"
+                      style="margin-top: 8px;"
+                    >
+                      Завершить сеанс
+                    </button>
+                    
                   </div>
                 </details>
               </div>
@@ -795,6 +797,7 @@
       const tgStatusMessage = document.getElementById("tgStatusMessage");
       const tgConnectedUser = document.getElementById("tgConnectedUser");
       const tgLogoutBtn = document.getElementById("tgLogoutBtn");
+      const tgLogoutBtnStatus = document.getElementById("tgLogoutBtnStatus");
 
       const telegramStatusSection = document.getElementById("telegramStatusSection");
       const tgStatusDot = document.getElementById("tgStatusDot");
@@ -1115,37 +1118,38 @@
         setTelegramConnectionStatus(false, null);
       });
 
-      tgLogoutBtn?.addEventListener("click", async () => {
-      tgStatusMessage.textContent = "Завершаем сессию...";
+      [tgLogoutBtn, tgLogoutBtnStatus].forEach((btn) => {
+        btn?.addEventListener("click", async () => {
+          tgStatusMessage.textContent = "Завершаем сессию...";
 
-      try {
-        const resp = await fetch("https://cotel-backend.onrender.com/tg/logout", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+          try {
+            const resp = await fetch("https://cotel-backend.onrender.com/tg/logout", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+            });
+
+            const data = await resp.json();
+
+            if (!resp.ok) {
+              tgStatusMessage.textContent =
+                "Ошибка: " + (data.detail || "Не удалось завершить сессию.");
+              return;
+            }
+
+            tgConnectedUser.textContent = "@username";
+            setTgState("phone");
+            setTelegramConnectionStatus(false, null);
+
+            // важно: у тебя контейнер списка чатов называется myChatsList
+            if (myChatsList) myChatsList.innerHTML = "";
+
+            tgStatusMessage.textContent = "Сессия завершена.";
+          } catch (err) {
+            tgStatusMessage.textContent = "Ошибка сети: " + err.message;
+          }
         });
+      });
 
-        const data = await resp.json();
-
-        if (!resp.ok) {
-          tgStatusMessage.textContent =
-            "Ошибка: " + (data.detail || "Не удалось завершить сессию.");
-          return;
-        }
-
-        // UI: возвращаемся в состояние “не подключено”
-        tgConnectedUser.textContent = "@username";
-        setTgState("phone");
-        setTelegramConnectionStatus(false, null);
-
-        // (опционально) очистить список чатов в UI, если у тебя есть контейнер
-        const chatList = document.getElementById("sidebarChatList");
-        if (chatList) chatList.innerHTML = "";
-
-        tgStatusMessage.textContent = "Сессия завершена.";
-      } catch (err) {
-        tgStatusMessage.textContent = "Ошибка сети: " + err.message;
-      }
-    });
 
       // клик по кнопке с иконкой → открываем выбор файла
       if (uploadBtn && fileInput) {
