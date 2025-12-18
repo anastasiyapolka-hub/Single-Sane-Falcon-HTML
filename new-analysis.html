@@ -563,7 +563,7 @@
                     >
                       Завершить сеанс
                     </button>
-                    
+
                   </div>
                 </details>
               </div>
@@ -888,6 +888,8 @@
 
       function setTelegramConnectionStatus(isConnected, username = null) {
         const miniDot = document.getElementById("tgMiniStatusDot");
+        const logoutBtn = document.getElementById("tgLogoutBtnStatus");
+
         if (miniDot) {
           miniDot.className =
             "tg-status-dot " + (isConnected ? "tg-status-on" : "tg-status-off");
@@ -898,20 +900,26 @@
         }
 
         telegramStatusSection.style.display = "block";
-
+        
         if (isConnected) {
           tgStatusDot.classList.remove("tg-status-off");
           tgStatusDot.classList.add("tg-status-on");
           tgStatusText.textContent = "Подключено";
           tgStatusUsername.textContent = username || "Пользователь";
+
+          logoutBtn.style.display = "block"; 
+
         } else {
           tgStatusDot.classList.remove("tg-status-on");
           tgStatusDot.classList.add("tg-status-off");
           tgStatusText.textContent = "Не подключено";
           tgStatusUsername.textContent = "—";
+
+          logoutBtn.style.display = "none"; 
         }
       }
 
+      
       // начальное состояние
       setTgState("phone");
 
