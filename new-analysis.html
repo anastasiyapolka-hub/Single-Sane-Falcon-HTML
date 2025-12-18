@@ -945,6 +945,7 @@
       if (sidebar && sidebarToggle) {
         sidebarToggle.addEventListener("click", () => {
           const isCollapsed = sidebar.classList.toggle("collapsed");
+          document.body.classList.toggle("sidebar-collapsed", isCollapsed);
           sidebarToggle.setAttribute(
             "title",
             isCollapsed ? "Развернуть панель" : "Свернуть панель"
