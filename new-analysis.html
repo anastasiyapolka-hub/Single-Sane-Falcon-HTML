@@ -419,6 +419,26 @@
                     >
                       <h3>Авторизация Telegram</h3>
 
+                      <!-- QR login -->
+                      <div id="tgQrBlock" class="tg-qr-block">
+                        <button id="tgQrStartBtn" type="button" class="tg-button">
+                          Войти через QR-код
+                        </button>
+
+                        <div id="tgQrArea" class="tg-qr-area" style="display:none;">
+                          <div id="tgQrCanvas" class="tg-qr-canvas"></div>
+                          <p id="tgQrHint" class="tg-status">Откройте Telegram → Настройки → Устройства → Подключить устройство и сканируйте QR.</p>
+                          <p id="tgQrStatus" class="tg-status"></p>
+
+                          <button id="tgQrRestartBtn" type="button" class="tg-button" style="display:none;">
+                            Обновить QR
+                          </button>
+                        </div>
+
+                        <div class="tg-qr-divider"></div>
+                      </div>
+
+
                       <!-- состояние 1: ввод телефона -->
                       <div id="tgStatePhone">
                         <div class="tg-field">
@@ -762,6 +782,8 @@
           @keyframes dashboardPulse { 0%,100% {opacity: 1;} 50% {opacity: 0.5;} }
         </style>
       
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
        <script defer data-name="dashboard-interactions">
   document.addEventListener("DOMContentLoaded", function () {
     (function () {
@@ -784,10 +806,19 @@
       const tgStatePhone = document.getElementById("tgStatePhone");
       const tgStateCode = document.getElementById("tgStateCode");
       const tgStateConnected = document.getElementById("tgStateConnected");
-
       const tgStatePassword = document.getElementById("tgStatePassword");
       const tgPasswordInput = document.getElementById("tgPasswordInput");
       const tgConfirmPasswordBtn = document.getElementById("tgConfirmPasswordBtn");
+
+      const tgQrStartBtn = document.getElementById("tgQrStartBtn");
+      const tgQrRestartBtn = document.getElementById("tgQrRestartBtn");
+      const tgQrArea = document.getElementById("tgQrArea");
+      const tgQrCanvas = document.getElementById("tgQrCanvas");
+      const tgQrStatus = document.getElementById("tgQrStatus");
+
+      let tgQrPollTimer = null;
+      let tgQrObj = null; // instance of QRCode
+
 
       const tgPhoneInput = document.getElementById("tgPhoneInput");
       const tgSendCodeBtn = document.getElementById("tgSendCodeBtn");
@@ -919,7 +950,112 @@
         }
       }
 
-      
+      function renderQr(url) {
+  if (!tgQrCanvas) return;
+
+  tgQrCanvas.innerHTML = "";
+  tgQrObj = new QRCode(tgQrCanvas, {
+    text: url,
+    width: 200,
+    height: 200,
+  });
+}
+
+      function stopQrPolling() {
+        if (tgQrPollTimer) {
+          clearInterval(tgQrPollTimer);
+          tgQrPollTimer = null;
+        }
+      }
+
+      async function pollQrStatus() {
+        try {
+          const resp = await fetch("https://cotel-backend.onrender.com/tg/qr/status");
+          const data = await resp.json();
+
+          if (!resp.ok) {
+            tgQrStatus.textContent = "Ошибка проверки статуса: " + (data.detail || resp.statusText);
+            return;
+          }
+
+          if (data.status === "waiting") {
+            tgQrStatus.textContent = "Ожидаем подтверждение в Telegram…";
+            return;
+          }
+
+          if (data.status === "expired") {
+            tgQrStatus.textContent = "QR-код истёк. Обновите QR.";
+            tgQrRestartBtn.style.display = "inline-flex";
+            stopQrPolling();
+            return;
+          }
+
+          if (data.status === "password_needed") {
+            tgQrStatus.textContent = "Telegram запросил 2FA-пароль. Введите пароль ниже.";
+            setTgState("password");
+            stopQrPolling();
+            return;
+          }
+
+          if (data.status === "authorized") {
+            tgQrStatus.textContent = "Успешно подключено.";
+            const username = data.username || data.first_name || "Пользователь";
+
+            tgConnectedUser.textContent = data.username ? ("@" + data.username) : username;
+            setTgState("connected");
+            setTelegramConnectionStatus(true, username);
+
+            stopQrPolling();
+            await loadTelegramChats();
+            return;
+          }
+
+          if (data.status === "no_qr") {
+            tgQrStatus.textContent = "";
+            stopQrPolling();
+            return;
+          }
+
+          if (data.status === "error") {
+            tgQrStatus.textContent = "Ошибка: " + (data.detail || "unknown");
+            stopQrPolling();
+            return;
+          }
+        } catch (e) {
+          tgQrStatus.textContent = "Ошибка сети при polling: " + e.message;
+        }
+      }
+
+      async function startQrLogin() {
+        tgStatusMessage.textContent = "";
+        if (tgQrStatus) tgQrStatus.textContent = "Генерируем QR-код…";
+        if (tgQrArea) tgQrArea.style.display = "block";
+        if (tgQrRestartBtn) tgQrRestartBtn.style.display = "none";
+
+        stopQrPolling();
+
+        try {
+          const resp = await fetch("https://cotel-backend.onrender.com/tg/qr/start", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({}),
+          });
+
+          const data = await resp.json();
+          if (!resp.ok) {
+            tgQrStatus.textContent = "Ошибка старта QR: " + (data.detail || "unknown");
+            return;
+          }
+
+          renderQr(data.url);
+          tgQrStatus.textContent = "Ожидаем подтверждение в Telegram…";
+
+          tgQrPollTimer = setInterval(pollQrStatus, 1500);
+        } catch (e) {
+          tgQrStatus.textContent = "Ошибка сети: " + e.message;
+        }
+      }
+
       // начальное состояние
       setTgState("phone");
 
@@ -940,6 +1076,10 @@
       dataSourceAccountRadio?.addEventListener("change", updateDataSourceUI);
       dataSourcePublicRadio?.addEventListener("change", updateDataSourceUI);
       dataSourceBotRadio?.addEventListener("change", updateDataSourceUI);
+
+      
+      tgQrStartBtn?.addEventListener("click", startQrLogin);
+      tgQrRestartBtn?.addEventListener("click", startQrLogin);
 
       // --- Сворачивание / разворачивание левой панели ---
       if (sidebar && sidebarToggle) {

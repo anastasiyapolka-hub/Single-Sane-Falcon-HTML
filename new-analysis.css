@@ -587,3 +587,30 @@ body.sidebar-collapsed { --sidebar-w: 56px; }
   justify-content: center !important;
   padding: 0 !important; /* ВАЖНО: убирает “толстую” полосу сверху */
 }
+
+.tg-qr-block {
+  margin: 6px 0 10px 0;
+}
+
+.tg-qr-divider {
+  margin: 10px 0;
+  height: 1px;
+  background: rgba(0,0,0,0.06);
+}
+
+.tg-qr-area {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.7);
+  border: 1px solid #e5e7eb;
+}
+
+.tg-qr-canvas {
+  width: 200px;
+  height: 200px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 10px;
+  border: 1px solid #e5e7eb;
+}
