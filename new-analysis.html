@@ -559,7 +559,7 @@
                       id="tgLogoutBtnStatus"
                       type="button"
                       class="tg-button"
-                      style="margin-top: 8px;"
+                      style="margin-top: 8px; display: none;"
                     >
                       Завершить сеанс
                     </button>
@@ -933,7 +933,7 @@
 
       // по умолчанию обновляем UI по выбранному источнику
       updateDataSourceUI();
-      loadTelegramChats();
+      setTelegramConnectionStatus(false, null);
 
       // слушаем переключение источника данных
       dataSourceFileRadio?.addEventListener("change", updateDataSourceUI);
