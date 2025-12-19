@@ -188,8 +188,8 @@
   font-size: 0.9rem;
   box-sizing: border-box;
   /*transition: width 0.2s ease;*/
-  transition: width 0.22s cubic-bezier(0.2, 0.9, 0.2, 1);
-  overflow:  visible;   /* или overflow: initial; */
+  transition: width 240ms cubic-bezier(0.2, 0.9, 0.2, 1);
+  overflow: hidden;
   position: relative;
   z-index: 10;        /* сайдбар поверх */
   flex: 0 0 300px;    /* не даём flex ужимать/растягивать неожиданно */
@@ -199,6 +199,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  position: relative;
    /* margin-bottom: 16px;*/
   padding: 16px 0 8px;
    /* фиксируем высоту шапки, чтобы ничего не прыгало */
@@ -207,14 +208,24 @@
 }
 
 .sidebar-toggle-btn {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+
   width: 32px;
   height: 32px;
+   aspect-ratio: 1 / 1;
   border-radius: 999px;
+
+  line-height: 1;
+
   border: none;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+
   background: #363537;
   color: #fef3f2;
   font-size: 16px;
@@ -225,7 +236,7 @@
 
 .sidebar-toggle-btn:hover {
   background: #4b4b4d;
-  transform: translateY(-1px);
+    transform: translateY(-50%) translateY(-1px);
 }
 
 .sidebar-title {
@@ -235,6 +246,14 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+
+  /* оставляем место справа под кнопку */
+  padding-right: 44px;
+
+  transition: opacity 160ms ease, transform 240ms ease, visibility 160ms ease;
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(0);
 }
 
 /* Плавное скрытие контента вместо display:none (как в ChatGPT) */
@@ -281,9 +300,16 @@
 /* Свернутая панель */
 .dashboard-sidebar.collapsed {
   width: 56px;         /* узкая полоска */
-  padding: 16px 10px;  /* чуть меньше внутренний отступ */
+   padding: 0 20px 16px 20px;
   overflow: hidden;
   flex: 0 0 56px !important;
+}
+
+#sidebarContent {
+  transition: opacity 140ms ease, transform 240ms ease, visibility 140ms ease;
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(0);
 }
 
 /* Прячем текст и основной контент, оставляем только шапку + мини-иконки */
@@ -291,6 +317,14 @@
 .dashboard-sidebar.collapsed #sidebarContent {
   display: none;
 } */
+
+.dashboard-sidebar.collapsed .sidebar-title,
+.dashboard-sidebar.collapsed #sidebarContent {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateX(-16px); /* эффект "уходит под границу" */
+}
 
 /* В свернутом состоянии: не убираем из DOM, а “гасим” */
 .dashboard-sidebar.collapsed .sidebar-title,
@@ -309,10 +343,10 @@
 }
 
 /* Центруем шестерёнку по вертикали, когда панель узкая (опционально) */
-.dashboard-sidebar.collapsed .sidebar-header {
+/*.dashboard-sidebar.collapsed .sidebar-header {
   margin-bottom: 0;
   justify-content: center;
-}
+}*/
 
 /* Доп. стили для новых полей в блоках "Мои чаты" и "Мои подписки" */
 .sidebar-field-label {
