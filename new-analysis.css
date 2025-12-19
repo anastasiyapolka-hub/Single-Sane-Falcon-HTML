@@ -186,7 +186,7 @@
   font-size: 0.9rem;
   box-sizing: border-box;
   transition: width 0.2s ease;
-  overflow: hidden; /* важно чтобы контент прятался */
+  overflow:  visible;   /* или overflow: initial; */
 }
 
 .sidebar-header {
@@ -256,6 +256,7 @@
 .dashboard-sidebar.collapsed {
   width: 56px;         /* узкая полоска */
   padding: 16px 10px;  /* чуть меньше внутренний отступ */
+  overflow: hidden;
 }
 
 /* Прячем текст и основной контент, оставляем только шапку + мини-иконки */
