@@ -157,6 +157,8 @@
   padding: 16px 24px 24px 24px;
   box-sizing: border-box;
   padding-top: var(--topbar-h) !important;
+   position: relative;
+  z-index: 1;
 }
 
 /* Главный контейнер с левой и правой колонкой */
@@ -187,6 +189,9 @@
   box-sizing: border-box;
   transition: width 0.2s ease;
   overflow:  visible;   /* или overflow: initial; */
+  position: relative;
+  z-index: 10;        /* сайдбар поверх */
+  flex: 0 0 320px;    /* не даём flex ужимать/растягивать неожиданно */
 }
 
 .sidebar-header {
@@ -637,4 +642,12 @@ body.sidebar-collapsed { --sidebar-w: 56px; }
   display: block;
   max-width: 100%;
   height: auto;
+}
+
+/* TG auth block должен быть строго внутри сайдбара */
+.tg-auth-block {
+  margin: 6px 0 10px 0 !important;  /* убираем 22px слева */
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
 }
