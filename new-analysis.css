@@ -266,12 +266,12 @@
 
 /* Блок с мини-иконками для свернутой панели */
 .sidebar-mini-icons {
-  display: none;              /* по умолчанию скрыты */
+  display: flex;             /* по умолчанию скрыты */
   flex-direction: column;
   align-items: center;
   gap: 8px;
   margin-top: 8px;
-  transition: opacity 0.18s ease, visibility 0.18s ease;
+  transition: opacity 160ms ease, visibility 160ms ease;
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -336,7 +336,7 @@
 
 /* Показываем колонку мини-иконок только в свернутом состоянии */
 .dashboard-sidebar.collapsed .sidebar-mini-icons {
-  display: flex;
+  
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
