@@ -257,21 +257,29 @@
 }
 
 /* Плавное скрытие контента вместо display:none (как в ChatGPT) */
-.sidebar-title,
-#sidebarContent {
+.sidebar-title {
   transition: opacity 0.18s ease, visibility 0.18s ease;
   opacity: 1;
   visibility: visible;
 }
 
+
+/* Контент НЕ исчезает через display:none — он "уезжает под границу" */
+#sidebarContent {
+  transition: opacity 140ms ease, transform 240ms ease, visibility 140ms ease;
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(0);
+}
+
 /* Блок с мини-иконками для свернутой панели */
 .sidebar-mini-icons {
-  display: flex;             /* по умолчанию скрыты */
+  display: none;              /* по умолчанию скрыты */
   flex-direction: column;
   align-items: center;
   gap: 8px;
   margin-top: 8px;
-  transition: opacity 160ms ease, visibility 160ms ease;
+  transition: opacity 0.18s ease, visibility 0.18s ease;
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -305,12 +313,7 @@
   flex: 0 0 56px !important;
 }
 
-#sidebarContent {
-  transition: opacity 140ms ease, transform 240ms ease, visibility 140ms ease;
-  opacity: 1;
-  visibility: visible;
-  transform: translateX(0);
-}
+
 
 /* Прячем текст и основной контент, оставляем только шапку + мини-иконки */
 /* .dashboard-sidebar.collapsed .sidebar-title,
@@ -318,25 +321,18 @@
   display: none;
 } */
 
-.dashboard-sidebar.collapsed .sidebar-title,
-.dashboard-sidebar.collapsed #sidebarContent {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transform: translateX(-16px); /* эффект "уходит под границу" */
-}
-
 /* В свернутом состоянии: не убираем из DOM, а “гасим” */
 .dashboard-sidebar.collapsed .sidebar-title,
 .dashboard-sidebar.collapsed #sidebarContent {
   opacity: 0;
   visibility: hidden;
   pointer-events: none; /* чтобы нельзя было кликать по скрытому */
+   transform: translateX(-16px); /* эффект "уходит под границу" */
 }
 
 /* Показываем колонку мини-иконок только в свернутом состоянии */
 .dashboard-sidebar.collapsed .sidebar-mini-icons {
-  
+  display: flex;
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
