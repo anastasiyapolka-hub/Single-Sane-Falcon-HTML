@@ -187,7 +187,8 @@
   background: #F3F4F6; 
   font-size: 0.9rem;
   box-sizing: border-box;
-  transition: width 0.2s ease;
+  /*transition: width 0.2s ease;*/
+  transition: width 0.22s cubic-bezier(0.2, 0.9, 0.2, 1);
   overflow:  visible;   /* или overflow: initial; */
   position: relative;
   z-index: 10;        /* сайдбар поверх */
@@ -200,6 +201,9 @@
   gap: 8px;
    /* margin-bottom: 16px;*/
   padding: 16px 0 8px;
+   /* фиксируем высоту шапки, чтобы ничего не прыгало */
+  min-height: 44px;
+  box-sizing: border-box;
 }
 
 .sidebar-toggle-btn {
@@ -216,6 +220,7 @@
   font-size: 16px;
   padding: 0;
   transition: background-color 0.15s ease, transform 0.15s ease;
+   margin-left: auto; 
 }
 
 .sidebar-toggle-btn:hover {
@@ -226,6 +231,18 @@
 .sidebar-title {
   font-weight: 600;
   font-size: 0.95rem;
+   /* чтобы текст не “ломал” лейаут при сужении */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Плавное скрытие контента вместо display:none (как в ChatGPT) */
+.sidebar-title,
+#sidebarContent {
+  transition: opacity 0.18s ease, visibility 0.18s ease;
+  opacity: 1;
+  visibility: visible;
 }
 
 /* Блок с мини-иконками для свернутой панели */
@@ -235,6 +252,10 @@
   align-items: center;
   gap: 8px;
   margin-top: 8px;
+  transition: opacity 0.18s ease, visibility 0.18s ease;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .sidebar-mini-icon-btn {
@@ -266,14 +287,25 @@
 }
 
 /* Прячем текст и основной контент, оставляем только шапку + мини-иконки */
-.dashboard-sidebar.collapsed .sidebar-title,
+/* .dashboard-sidebar.collapsed .sidebar-title,
 .dashboard-sidebar.collapsed #sidebarContent {
   display: none;
+} */
+
+/* В свернутом состоянии: не убираем из DOM, а “гасим” */
+.dashboard-sidebar.collapsed .sidebar-title,
+.dashboard-sidebar.collapsed #sidebarContent {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none; /* чтобы нельзя было кликать по скрытому */
 }
 
 /* Показываем колонку мини-иконок только в свернутом состоянии */
 .dashboard-sidebar.collapsed .sidebar-mini-icons {
   display: flex;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
 }
 
 /* Центруем шестерёнку по вертикали, когда панель узкая (опционально) */
