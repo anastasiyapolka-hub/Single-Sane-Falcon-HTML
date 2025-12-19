@@ -959,7 +959,7 @@
 
         // вычисляем размер: ширина контейнера минус паддинги
         const available = box.clientWidth - 20; // 20 — если padding 10+10
-        const size = Math.max(160, Math.min(available, 260)); // коридор 160–260
+        const size = Math.max(160, Math.min(available, 220)); // коридор 160–220
 
         new QRCode(box, {
           text: url,
@@ -1002,6 +1002,7 @@
           if (data.status === "password_needed") {
             tgQrStatus.textContent = "Telegram запросил 2FA-пароль. Введите пароль ниже.";
             setTgState("password");
+            if (tgQrArea) tgQrArea.style.display = "none";  // <-- добавить
             stopQrPolling();
             return;
           }

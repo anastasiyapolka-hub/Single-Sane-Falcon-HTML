@@ -181,7 +181,7 @@
 
 
 .dashboard-sidebar {
-  width: 320px;
+  width: 300px;
   padding: 0 20px 16px 20px;  /* верх убрали */
   border-right: 1px solid rgba(0, 0, 0, 0.06);
   background: #F3F4F6; 
@@ -191,7 +191,7 @@
   overflow:  visible;   /* или overflow: initial; */
   position: relative;
   z-index: 10;        /* сайдбар поверх */
-  flex: 0 0 320px;    /* не даём flex ужимать/растягивать неожиданно */
+  flex: 0 0 300px;    /* не даём flex ужимать/растягивать неожиданно */
 }
 
 .sidebar-header {
@@ -262,6 +262,7 @@
   width: 56px;         /* узкая полоска */
   padding: 16px 10px;  /* чуть меньше внутренний отступ */
   overflow: hidden;
+  flex: 0 0 56px !important;
 }
 
 /* Прячем текст и основной контент, оставляем только шапку + мини-иконки */
@@ -628,7 +629,7 @@ body.sidebar-collapsed { --sidebar-w: 56px; }
   align-items: center;
 
   width: 100%;
-  max-width: 260px; 
+  max-width: 220px; 
   background: #fff;
   border-radius: 14px;
   padding: 10px;
