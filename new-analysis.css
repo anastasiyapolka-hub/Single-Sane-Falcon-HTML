@@ -588,6 +588,12 @@ body.sidebar-collapsed { --sidebar-w: 56px; }
   padding: 0 !important; /* ВАЖНО: убирает “толстую” полосу сверху */
 }
 
+/* 1) ВАЖНО: QR не должен обрезаться родителями */
+#tgAuthBlock,
+#tgAuthBlock * {
+  overflow: visible !important;
+}
+
 .tg-qr-block {
   margin: 6px 0 10px 0;
 }
@@ -604,13 +610,30 @@ body.sidebar-collapsed { --sidebar-w: 56px; }
   border-radius: 12px;
   background: rgba(255,255,255,0.7);
   border: 1px solid #e5e7eb;
+   display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: visible;
 }
 
 .tg-qr-canvas {
-  width: 200px;
-  height: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 100%;
+  max-width: 260px; 
   background: #fff;
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 10px;
   border: 1px solid #e5e7eb;
+  box-sizing: border-box;
+}
+
+/* 3) Если QRCode.js рисует <img> или <canvas> — заставляем его ужиматься */
+.tg-qr-canvas img,
+.tg-qr-canvas canvas {
+  display: block;
+  max-width: 100%;
+  height: auto;
 }

@@ -951,15 +951,24 @@
       }
 
       function renderQr(url) {
-  if (!tgQrCanvas) return;
+        const box = document.querySelector(".tg-qr-canvas"); // или твой контейнер
+        if (!box) return;
 
-  tgQrCanvas.innerHTML = "";
-  tgQrObj = new QRCode(tgQrCanvas, {
-    text: url,
-    width: 200,
-    height: 200,
-  });
-}
+        // чистим
+        box.innerHTML = "";
+
+        // вычисляем размер: ширина контейнера минус паддинги
+        const available = box.clientWidth - 20; // 20 — если padding 10+10
+        const size = Math.max(160, Math.min(available, 260)); // коридор 160–260
+
+        new QRCode(box, {
+          text: url,
+          width: size,
+          height: size,
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      }
+
 
       function stopQrPolling() {
         if (tgQrPollTimer) {
@@ -1077,7 +1086,7 @@
       dataSourcePublicRadio?.addEventListener("change", updateDataSourceUI);
       dataSourceBotRadio?.addEventListener("change", updateDataSourceUI);
 
-      
+
       tgQrStartBtn?.addEventListener("click", startQrLogin);
       tgQrRestartBtn?.addEventListener("click", startQrLogin);
 
