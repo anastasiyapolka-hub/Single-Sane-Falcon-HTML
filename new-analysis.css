@@ -256,14 +256,6 @@
   transform: translateX(0);
 }
 
-/* Плавное скрытие контента вместо display:none (как в ChatGPT) */
-.sidebar-title {
-  transition: opacity 0.18s ease, visibility 0.18s ease;
-  opacity: 1;
-  visibility: visible;
-}
-
-
 /* Контент НЕ исчезает через display:none — он "уезжает под границу" */
 #sidebarContent {
   transition: opacity 140ms ease, transform 240ms ease, visibility 140ms ease;
@@ -313,6 +305,12 @@
   flex: 0 0 56px !important;
 }
 
+/* В свернутом состоянии шестерёнка по центру, как и остальные иконки */
+.dashboard-sidebar.collapsed .sidebar-toggle-btn {
+  left: 50%;
+  right: auto;
+  transform: translate(-50%, -50%);
+}
 
 
 /* Прячем текст и основной контент, оставляем только шапку + мини-иконки */
@@ -713,4 +711,41 @@ body.sidebar-collapsed { --sidebar-w: 56px; }
   width: 100% !important;
   max-width: 100% !important;
   box-sizing: border-box !important;
+}
+
+
+/* По умолчанию (развернуто): контент видим, но появление чуть с задержкой = эффект "ширмы" */
+.sidebar-title,
+#sidebarContent {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(0);
+
+  will-change: opacity, transform, visibility;
+  transition:
+    transform 240ms cubic-bezier(0.2, 0.9, 0.2, 1) 120ms,
+    opacity 180ms ease 120ms,
+    visibility 0s linear 120ms;
+}
+
+/* Свернуто: прячем быстро (до сужения), чтобы текст не успевал сжиматься */
+.dashboard-sidebar.collapsed .sidebar-title,
+.dashboard-sidebar.collapsed #sidebarContent {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateX(-24px);
+
+  transition:
+    transform 120ms ease 0ms,
+    opacity 90ms ease 0ms,
+    visibility 0s linear 90ms;
+}
+
+#sidebarContent {
+  white-space: normal; /* оставляем нормальный текст */
+}
+
+#sidebarContent * {
+  min-width: 0; /* чтобы flex-элементы не раздували блок */
 }
