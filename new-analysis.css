@@ -195,6 +195,38 @@
   flex: 0 0 300px;    /* не даём flex ужимать/растягивать неожиданно */
 }
 
+:root {
+  --sidebar-width: 320px; /* дефолт */
+  --sidebar-collapsed-width: 56px;
+}
+
+/* вместо фиксированной width используем переменную */
+.dashboard-sidebar {
+  width: var(--sidebar-width);
+  position: relative; /* нужно для ручки */
+}
+
+/* collapsed остаётся как есть */
+.dashboard-sidebar.collapsed {
+  width: var(--sidebar-collapsed-width);
+}
+
+/* Ручка ресайза */
+.sidebar-resizer {
+  position: absolute;
+  top: 0;
+  right: -6px;            /* чуть за границу, чтобы удобно хватать */
+  width: 12px;
+  height: 100%;
+  cursor: col-resize;
+  background: transparent;
+}
+
+/* Небольшая подсветка, когда навели */
+.sidebar-resizer:hover {
+  background: rgba(0,0,0,0.04);
+}
+
 .sidebar-header {
   display: flex;
   align-items: center;

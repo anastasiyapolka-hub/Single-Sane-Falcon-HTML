@@ -738,6 +738,10 @@
               </div>
                 
             </div>
+
+            <!-- Resizer -->
+            <div id="sidebarResizer" class="sidebar-resizer" title="Изменить ширину панели"></div>
+
             </aside>
 
            <div class="dashboard-container">
@@ -938,6 +942,8 @@
       const sidebar = document.querySelector(".dashboard-sidebar");
       const sidebarToggle = document.getElementById("sidebarToggle");
       const myChatsList = document.getElementById("myChatsList");
+      const sidebarResizer = document.getElementById("sidebarResizer");
+
       let cachedChats = []; // [{id,title,type,username}]
 
       activeChatInput?.addEventListener("input", filterChatsByInput);
@@ -1226,6 +1232,59 @@
           }
         });
       });
+
+      // --- Resizable sidebar (drag to resize) ---
+      (function initSidebarResize() {
+        if (!sidebar || !sidebarResizer) return;
+
+        const MIN_W = 280;
+        const MAX_W = 520;
+
+        // восстановить ширину из localStorage
+        const saved = localStorage.getItem("cotel_sidebar_width");
+        if (saved) {
+          const w = Math.max(MIN_W, Math.min(MAX_W, parseInt(saved, 10)));
+          document.documentElement.style.setProperty("--sidebar-width", `${w}px`);
+        }
+
+        let isDragging = false;
+
+        function onMouseMove(e) {
+          if (!isDragging) return;
+
+          // если панель свернута — не даём ресайзить
+          if (sidebar.classList.contains("collapsed")) return;
+
+          const rect = sidebar.getBoundingClientRect();
+          const newW = Math.max(MIN_W, Math.min(MAX_W, e.clientX - rect.left));
+
+          document.documentElement.style.setProperty("--sidebar-width", `${newW}px`);
+          localStorage.setItem("cotel_sidebar_width", String(newW));
+        }
+
+        function stopDrag() {
+          isDragging = false;
+          document.body.style.cursor = "";
+          document.body.style.userSelect = "";
+          window.removeEventListener("mousemove", onMouseMove);
+          window.removeEventListener("mouseup", stopDrag);
+        }
+
+        sidebarResizer.addEventListener("mousedown", (e) => {
+          // если панель свернута — сначала развернуть (по UX проще)
+          if (sidebar.classList.contains("collapsed")) {
+            sidebar.classList.remove("collapsed");
+            if (sidebarToggle) sidebarToggle.setAttribute("title", "Свернуть панель");
+          }
+
+          isDragging = true;
+          document.body.style.cursor = "col-resize";
+          document.body.style.userSelect = "none";
+          window.addEventListener("mousemove", onMouseMove);
+          window.addEventListener("mouseup", stopDrag);
+          e.preventDefault();
+        });
+      })();
 
       // --- ПОВЕДЕНИЕ БЛОКА АВТОРИЗАЦИИ TELEGRAM ---
       tgSendCodeBtn?.addEventListener("click", async () => {
