@@ -526,11 +526,10 @@
 
 /* Хедер-обёртка: визуально есть, но клики пропускает (чтобы не ломать sidebar) */
 .navigation {
-  position: fixed !important;
-  top: 0;
+  /*top: 0;
   left: 0;
   right: 0;
-  background: transparent !important;
+  background: transparent !important;*/
   border: 0 !important;
   box-shadow: none !important;
   backdrop-filter: none !important;
@@ -656,11 +655,21 @@ html, body {
   display: none;
 }
 
-:root { --sidebar-w: 320px; }               /* ширина твоего sidebar */
 .dashboard-sidebar.collapsed { width: 56px; } /* у тебя уже есть */
 
+:root {
+  --sidebar-width: 300px;          /* дефолт (можешь поставить 320px) */
+  --sidebar-collapsed-width: 56px;
 
-body.sidebar-collapsed { --sidebar-w: 56px; }
+  /* ЭТО ВАЖНО: ширина, от которой будет сдвигаться верхняя полоска */
+  --sidebar-w: var(--sidebar-width);
+
+  --topbar-h: 56px;
+}
+
+body.sidebar-collapsed {
+  --sidebar-w: var(--sidebar-collapsed-width);
+}
 
 /* === Верхняя фиксированная полоса с логотипом === */
 :root {

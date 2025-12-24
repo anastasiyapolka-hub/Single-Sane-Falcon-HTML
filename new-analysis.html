@@ -1202,6 +1202,7 @@
           );
           // 👇 ВАЖНО: синхронизируем состояние для CSS (логотип, отступы и т.д.)
           document.body.classList.toggle("sidebar-collapsed", isCollapsed);
+         
         });
       }
 
@@ -1274,6 +1275,7 @@
           // если панель свернута — сначала развернуть (по UX проще)
           if (sidebar.classList.contains("collapsed")) {
             sidebar.classList.remove("collapsed");
+            document.body.classList.remove("sidebar-collapsed");
             if (sidebarToggle) sidebarToggle.setAttribute("title", "Свернуть панель");
           }
 
