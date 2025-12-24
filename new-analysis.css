@@ -181,7 +181,8 @@
 
 
 .dashboard-sidebar {
-  width: 300px;
+  /*width: 300px;
+  flex: 0 0 300px;    /* не даём flex ужимать/растягивать неожиданно */
   padding: 0 20px 16px 20px;  /* верх убрали */
   border-right: 1px solid rgba(0, 0, 0, 0.06);
   background: #F3F4F6; 
@@ -192,7 +193,7 @@
   overflow: hidden;
   position: relative;
   z-index: 10;        /* сайдбар поверх */
-  flex: 0 0 300px;    /* не даём flex ужимать/растягивать неожиданно */
+  
 }
 
 :root {
@@ -203,6 +204,7 @@
 /* вместо фиксированной width используем переменную */
 .dashboard-sidebar {
   width: var(--sidebar-width);
+  flex: 0 0 var(--sidebar-width);
   position: relative; /* нужно для ручки */
 }
 
@@ -331,10 +333,15 @@
 
 /* Свернутая панель */
 .dashboard-sidebar.collapsed {
-  width: 56px;         /* узкая полоска */
-   padding: 0 20px 16px 20px;
+ /*  width: 56px;         /* узкая полоска */
+  /*  padding: 0 20px 16px 20px;*/
+  /* overflow: hidden;*/
+  f/* lex: 0 0 56px !important;*/
+
+  width: var(--sidebar-collapsed-width);
+  padding: 0 12px 16px 12px; /* или даже 0 8px 16px 8px */
   overflow: hidden;
-  flex: 0 0 56px !important;
+  flex: 0 0 var(--sidebar-collapsed-width) !important;
 }
 
 /* В свернутом состоянии шестерёнка по центру, как и остальные иконки */
