@@ -648,17 +648,92 @@
                   </summary>
           
                   <div class="sidebar-section-body sidebar-subscriptions-body">
+                    <!-- Кнопка добавления -->
                     <button
+                      id="addSubscriptionBtn"
                       type="button"
                       class="sidebar-add-subscription-btn"
                       title="Добавить подписку"
                     >
                       +
                     </button>
+
+                    <!-- Список подписок (пока простая заглушка) -->
+                    <div id="subscriptionsList" class="sidebar-subscriptions-list" aria-label="Список подписок"></div>
+
+                    <!-- Форма создания подписки (скрыта до нажатия +) -->
+                    <div id="subscriptionCreateBlock" class="tg-auth-block subscription-block" style="display:none;">
+                      <h3>Создание новой подписки</h3>
+
+                      <div class="tg-field">
+                        <label for="subNameInput">Название подписки</label>
+                        <input
+                          id="subNameInput"
+                          type="text"
+                          class="tg-input"
+                          placeholder="Введите имя подписки"
+                        />
+                      </div>
+
+                      <p class="sidebar-hint subscription-hint">
+                        Подписка на приватные и личные чаты доступна только при авторизации через ваш личный аккаунт.
+                      </p>
+
+                      <div class="tg-field">
+                        <label for="subChatInput">Чат / канал</label>
+                        <input
+                          id="subChatInput"
+                          type="text"
+                          class="tg-input"
+                          placeholder="Выберите чат/канал или вставьте ссылку"
+                        />
+                      </div>
+
+                      <!-- Список чатов (как в "Мои чаты") -->
+                      <div id="subChatsList" class="sidebar-chat-list sidebar-chat-list--compact" aria-label="Список чатов для подписки"></div>
+
+                      <div class="tg-field">
+                        <label for="subPeriodSelect">Период чтения</label>
+                        <select id="subPeriodSelect" class="tg-select">
+                          <option value="10m">1 раз в 10 минут</option>
+                          <option value="30m">1 раз в 30 минут</option>
+                          <option value="1h" selected>1 раз в час</option>
+                          <option value="3h">1 раз в 3 часа</option>
+                          <option value="6h">1 раз в 6 часов</option>
+                          <option value="1d">1 раз в день</option>
+                        </select>
+                      </div>
+
+                      <div class="tg-field">
+                        <label for="subPromptInput">Текст запроса</label>
+                        <textarea
+                          id="subPromptInput"
+                          class="tg-textarea"
+                          rows="3"
+                          placeholder="Введите текст запроса для подписки: какую информацию собирать и когда уведомлять"
+                        ></textarea>
+                        <p class="tg-status">
+                          Можно использовать ключевые слова или более сложный запрос — анализ выполняется OpenAI.
+                        </p>
+                      </div>
+
+                      <div class="subscription-actions">
+                        <button id="createSubscriptionBtn" type="button" class="tg-button">
+                          Создать подписку
+                        </button>
+                        <button id="cancelSubscriptionBtn" type="button" class="tg-button">
+                          Отмена
+                        </button>
+                      </div>
+
+                      <p id="subCreateStatus" class="tg-status"></p>
+                    </div>
+
                     <p class="sidebar-hint sidebar-subscriptions-hint">
                       Здесь вы позже сможете управлять подписками на каналы.
                     </p>
                   </div>
+
                 </details>
               </div>
                 
@@ -838,6 +913,26 @@
       // поля для "Мой аккаунт Telegram"
       const activeChatInput = document.getElementById("activeChatInput");
       const queryDaysInput = document.getElementById("queryDaysInput");
+
+      // --- Подписки ---
+      const addSubscriptionBtn = document.getElementById("addSubscriptionBtn");
+      const subscriptionCreateBlock = document.getElementById("subscriptionCreateBlock");
+      const subNameInput = document.getElementById("subNameInput");
+      const subChatInput = document.getElementById("subChatInput");
+      const subChatsList = document.getElementById("subChatsList");
+      const subPeriodSelect = document.getElementById("subPeriodSelect");
+      const subPromptInput = document.getElementById("subPromptInput");
+      const createSubscriptionBtn = document.getElementById("createSubscriptionBtn");
+      const cancelSubscriptionBtn = document.getElementById("cancelSubscriptionBtn");
+      const subCreateStatus = document.getElementById("subCreateStatus");
+      const subscriptionsList = document.getElementById("subscriptionsList");
+
+      // Modal
+      const botConnectModal = document.getElementById("botConnectModal");
+      const modalOkBtn = document.getElementById("modalOkBtn");
+
+      // локальное хранилище подписок (MVP: один пользователь, без БД)
+      let localSubscriptions = []; // [{name, chat, period, prompt, active}]
 
       // элементы для сворачиваемой левой панели
       const sidebar = document.querySelector(".dashboard-sidebar");
@@ -1343,7 +1438,8 @@
       
           cachedChats = (data && data.chats) ? data.chats : [];
           renderChatsList(cachedChats);
-      
+          renderSubChatsList(cachedChats);
+
         } catch (e) {
           // молча: список — доп. удобство, не критично
         }
@@ -1376,6 +1472,31 @@
         });
       }
       
+      function renderSubChatsList(list) {
+        if (!subChatsList) return;
+
+        if (!list || list.length === 0) {
+          subChatsList.innerHTML = `<div class="sidebar-chat-empty">Чаты не найдены.</div>`;
+          return;
+        }
+
+        subChatsList.innerHTML = list
+          .map((c) => {
+            const linkValue = c.username ? `@${c.username}` : String(c.id || "");
+            const safeTitle = (c.title || "Без названия").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            return `<div class="sidebar-chat-item" data-link="${linkValue}" title="${safeTitle}">${safeTitle}</div>`;
+          })
+          .join("");
+
+        subChatsList.querySelectorAll(".sidebar-chat-item").forEach((el) => {
+          el.addEventListener("click", () => {
+            const link = el.getAttribute("data-link") || "";
+            if (subChatInput) subChatInput.value = link;
+          });
+        });
+      }
+
+
       function filterChatsByInput() {
         const q = (activeChatInput?.value || "").trim().toLowerCase();
         if (!q) {
@@ -1393,8 +1514,137 @@
         renderChatsList(filtered);
       }
 
+      function openModal() {
+        if (botConnectModal) botConnectModal.style.display = "flex";
+      }
 
+      function closeModal() {
+        if (botConnectModal) botConnectModal.style.display = "none";
+      }
+
+      modalOkBtn?.addEventListener("click", closeModal);
+      botConnectModal?.addEventListener("click", (e) => {
+        if (e.target === botConnectModal) closeModal();
+      });
+
+      subChatInput?.addEventListener("input", () => {
+        const q = (subChatInput.value || "").trim().toLowerCase();
+        if (!q) {
+          renderSubChatsList(cachedChats);
+          return;
+        }
+        const filtered = cachedChats.filter((c) => {
+          const t = (c.title || "").toLowerCase();
+          const u = (c.username || "").toLowerCase();
+          return t.includes(q) || u.includes(q.replace("@", ""));
+        });
+        renderSubChatsList(filtered);
+      });
+
+      function renderSubscriptions() {
+        if (!subscriptionsList) return;
+        if (!localSubscriptions.length) {
+          subscriptionsList.innerHTML = "";
+          return;
+        }
+
+        subscriptionsList.innerHTML = localSubscriptions
+          .map((s) => {
+            const safeName = String(s.name || "Подписка").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            const dot = s.active ? "subscription-status-dot" : "subscription-status-dot"; // позже расширим цветами
+            return `
+              <div class="subscription-item" title="${safeName}">
+                <span class="${dot}"></span>
+                <span class="subscription-name">${safeName}</span>
+              </div>
+            `;
+          })
+          .join("");
+      }
+
+      function showSubscriptionForm(show) {
+        if (!subscriptionCreateBlock) return;
+        subscriptionCreateBlock.style.display = show ? "block" : "none";
+        if (subCreateStatus) subCreateStatus.textContent = "";
+      }
+
+      function resetSubscriptionForm() {
+        if (subNameInput) subNameInput.value = "";
+        if (subChatInput) subChatInput.value = "";
+        if (subPeriodSelect) subPeriodSelect.value = "1h";
+        if (subPromptInput) {
+          subPromptInput.value = "";
+          autoResizeTextarea(subPromptInput);
+        }
+      }
+
+      function autoResizeTextarea(el) {
+        if (!el) return;
+        el.style.height = "auto";
+        el.style.height = Math.min(el.scrollHeight, 420) + "px";
+      }
+
+      subPromptInput?.addEventListener("input", () => autoResizeTextarea(subPromptInput));
       
+      addSubscriptionBtn?.addEventListener("click", () => {
+        // открываем форму
+        showSubscriptionForm(true);
+        resetSubscriptionForm();
+
+        // наполняем список чатов для выбора (если уже загружены)
+        renderSubChatsList(cachedChats);
+
+        // важно: если пользователь не авторизован, список будет пуст — ок
+      });
+
+      cancelSubscriptionBtn?.addEventListener("click", () => {
+        showSubscriptionForm(false);
+        resetSubscriptionForm();
+      });
+
+      createSubscriptionBtn?.addEventListener("click", async () => {
+        if (!subCreateStatus) return;
+
+        const name = (subNameInput?.value || "").trim();
+        const chat = (subChatInput?.value || "").trim();
+        const period = (subPeriodSelect?.value || "1h").trim();
+        const prompt = (subPromptInput?.value || "").trim();
+
+        if (!name) {
+          subCreateStatus.textContent = "Введите имя подписки.";
+          return;
+        }
+        if (!chat) {
+          subCreateStatus.textContent = "Выберите чат/канал или вставьте ссылку.";
+          return;
+        }
+        if (!prompt) {
+          subCreateStatus.textContent = "Введите текст запроса для подписки.";
+          return;
+        }
+
+        // MVP: бэкенда нет — показываем статус + модалку
+        subCreateStatus.textContent = "Создание подписки…";
+
+        // 1) показываем требование подключить бота
+        openModal();
+
+        // 2) имитируем успешное создание (позже заменим на fetch)
+        setTimeout(() => {
+          localSubscriptions.unshift({
+            name,
+            chat,
+            period,
+            prompt,
+            active: true
+          });
+
+          renderSubscriptions();
+          subCreateStatus.textContent = "Подписка создана.";
+          showSubscriptionForm(false);
+        }, 500);
+      });
+
       function renderResult(payload, rawText) {
         let text = "";
 
@@ -1541,5 +1791,25 @@
         href="https://single-sane-falcon-xjmc7x.teleporthq.app/new-analysis"
       />
     </div>
+
+    <!-- Modal: Подключение бота для подписок -->
+  <div id="botConnectModal" class="modal-overlay" style="display:none;">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <h3 id="modalTitle" class="modal-title">Подключение бота</h3>
+      <p class="modal-text">
+        Для активации механизма подписок требуется подключить бота к CoTel.
+      </p>
+
+      <a class="modal-link" href="https://t.me/CoTel_AlertBot" target="_blank" rel="noopener">
+        t.me/CoTel_AlertBot
+      </a>
+
+      <div class="modal-actions">
+        <button id="modalOkBtn" type="button" class="tg-button">Понятно</button>
+      </div>
+    </div>
+  </div>
+
+
   </body>
 </html>
