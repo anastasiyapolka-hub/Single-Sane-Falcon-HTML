@@ -721,6 +721,10 @@
                         <button id="createSubscriptionBtn" type="button" class="tg-button">
                           Создать подписку
                         </button>
+                        <button id="runSubscriptionsBtn" class="btn btn-secondary">
+                          Запустить подписки
+                        </button>
+
                         <button id="cancelSubscriptionBtn" type="button" class="tg-button">
                           Отмена
                         </button>
@@ -1789,7 +1793,6 @@
         }
       });
 
-
       cancelSubscriptionBtn?.addEventListener("click", () => {
         showSubscriptionForm(false);
         resetSubscriptionForm();
@@ -1839,6 +1842,38 @@
         }
       });
 
+      async function apiRunSubscriptions() {
+        const resp = await fetch(`${SUBS_API_BASE}/subscriptions/run`, {
+          method: "POST",
+          headers: { "Accept": "application/json" }
+        });
+
+        const raw = await resp.text();
+        let data = {};
+        try { data = JSON.parse(raw); } catch (e) {}
+
+        if (!resp.ok) {
+          const msg = data.detail || data.error || raw || "RUN_FAILED";
+          throw new Error(msg);
+        }
+        return data;
+      }
+
+      async function onRunSubscriptionsClick() {
+        try {
+          const result = await apiRunSubscriptions();
+          alert(
+            `Готово.\n` +
+            `${result.ui_message || ""}\n` +
+            `Подписок обработано: ${result.processed_subscriptions}\n` +
+            `Время: ${result.elapsed_seconds} сек.`
+          );
+        } catch (e) {
+          alert(`Ошибка запуска подписок: ${e.message || e}`);
+        }
+      }
+
+      document.getElementById("runSubscriptionsBtn")?.addEventListener("click", onRunSubscriptionsClick);
 
       function renderResult(payload, rawText) {
         let text = "";
