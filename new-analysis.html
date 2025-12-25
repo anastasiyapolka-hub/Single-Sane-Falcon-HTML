@@ -729,9 +729,7 @@
                       <p id="subCreateStatus" class="tg-status"></p>
                     </div>
 
-                    <p class="sidebar-hint sidebar-subscriptions-hint">
-                      Здесь вы позже сможете управлять подписками на каналы.
-                    </p>
+                    
                   </div>
 
                 </details>
@@ -867,6 +865,7 @@
   document.addEventListener("DOMContentLoaded", function () {
     (function () {
       const BACKEND_URL = "https://cotel-backend.onrender.com/analyze";
+      const SUBS_API_BASE = "https://cotel-backend.onrender.com";
 
       const uploadBtn = document.getElementById("uploadBtn");
       const fileInput = document.getElementById("chatFile");
@@ -935,9 +934,7 @@
       const botConnectModal = document.getElementById("botConnectModal");
       const modalOkBtn = document.getElementById("modalOkBtn");
 
-      // локальное хранилище подписок (MVP: один пользователь, без БД)
-      let localSubscriptions = []; // [{name, chat, period, prompt, active}]
-
+      
       // элементы для сворачиваемой левой панели
       const sidebar = document.querySelector(".dashboard-sidebar");
       const sidebarToggle = document.getElementById("sidebarToggle");
@@ -1118,6 +1115,7 @@
 
             stopQrPolling();
             await loadTelegramChats();
+            await refreshSubscriptions();
             return;
           }
 
@@ -1375,6 +1373,7 @@
           setTgState("connected");
           setTelegramConnectionStatus(true, data.username || data.first_name);
           await loadTelegramChats();
+          await refreshSubscriptions();
         } catch (err) {
           tgStatusMessage.textContent =
             "Ошибка сети: " + err.message;
@@ -1418,6 +1417,7 @@
           setTgState("connected");
           setTelegramConnectionStatus(true, data.username || data.first_name);
           await loadTelegramChats();
+          await refreshSubscriptions();
         } catch (err) {
           tgStatusMessage.textContent =
             "Ошибка сети: " + err.message;
@@ -1602,26 +1602,141 @@
         renderSubChatsList(filtered);
       });
 
-      function renderSubscriptions() {
+      function periodToMinutes(v) {
+        // UI values in <select>: 10m/30m/1h/3h/6h/1d
+        const map = {
+          "10m": 10,
+          "30m": 30,
+          "1h": 60,
+          "3h": 180,
+          "6h": 360,
+          "1d": 1440
+        };
+        return map[v] ?? 60;
+      }
+
+        function minutesToHuman(m) {
+          const n = Number(m);
+          if (n === 10) return "1 раз в 10 минут";
+          if (n === 30) return "1 раз в 30 минут";
+          if (n === 60) return "1 раз в час";
+          if (n === 180) return "1 раз в 3 часа";
+          if (n === 360) return "1 раз в 6 часов";
+          if (n === 1440) return "1 раз в день";
+          return `${n} мин`;
+        }
+
+        async function apiGetSubscriptions() {
+          const resp = await fetch(`${SUBS_API_BASE}/subscriptions`, {
+                  method: "GET",
+          headers: { "Accept": "application/json" }
+        });
+
+        const raw = await resp.text();
+        let data = null;
+        try { data = raw ? JSON.parse(raw) : null; } catch {}
+
+        if (!resp.ok) {
+          const msg = (data && (data.detail || data.error)) || raw || resp.statusText;
+          throw new Error(msg);
+        }
+
+        // ожидаем массив
+        return Array.isArray(data) ? data : [];
+      }
+
+      async function apiCreateSubscription(payload) {
+        const resp = await fetch(`${SUBS_API_BASE}/subscriptions`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Accept": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const raw = await resp.text();
+        let data = null;
+        try { data = raw ? JSON.parse(raw) : null; } catch {}
+
+        if (!resp.ok) {
+          const msg = (data && (data.detail || data.error)) || raw || resp.statusText;
+          throw new Error(msg);
+        }
+
+        return data;
+      }
+
+
+
+      function renderSubscriptions(list) {
         if (!subscriptionsList) return;
-        if (!localSubscriptions.length) {
+
+        const subs = Array.isArray(list) ? list : [];
+
+        if (!subs.length) {
           subscriptionsList.innerHTML = "";
           return;
         }
 
-        subscriptionsList.innerHTML = localSubscriptions
-          .map((s) => {
-            const safeName = String(s.name || "Подписка").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            const dot = s.active ? "subscription-status-dot" : "subscription-status-dot"; // позже расширим цветами
-            return `
-              <div class="subscription-item" title="${safeName}">
-                <span class="${dot}"></span>
-                <span class="subscription-name">${safeName}</span>
+        subscriptionsList.innerHTML = subs.map((s) => {
+          const safeName = String(s.name || "Подписка")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+
+          // status: active/paused/error (пока бэк может отдавать active; остальное на будущее)
+          const status = String(s.status || (s.is_active ? "active" : "paused")).toLowerCase();
+
+          let dotClass = "subscription-status-dot";
+          if (status === "paused") dotClass += " is-paused";
+          if (status === "error") dotClass += " is-error";
+
+          const freqText = minutesToHuman(s.frequency_minutes);
+
+          return `
+            <div class="subscription-item" data-sub-id="${s.id || ""}" title="${safeName}">
+              <span class="${dotClass}"></span>
+              <span class="subscription-name">${safeName}</span>
+
+              <div class="subscription-actions-mini" aria-label="Действия подписки">
+                <button class="subscription-action-btn sub-btn-pause" type="button" title="Приостановить">⏸</button>
+                <button class="subscription-action-btn sub-btn-play"  type="button" title="Включить">▶</button>
+                <button class="subscription-action-btn sub-btn-del"   type="button" title="Удалить">✕</button>
               </div>
-            `;
-          })
-          .join("");
+            </div>
+          `;
+        }).join("");
+
+        // Заглушки действий (пока без API)
+        subscriptionsList.querySelectorAll(".sub-btn-pause").forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            e.preventDefault(); e.stopPropagation();
+            alert("MVP: позже добавим API паузы подписки.");
+          });
+        });
+
+        subscriptionsList.querySelectorAll(".sub-btn-play").forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            e.preventDefault(); e.stopPropagation();
+            alert("MVP: позже добавим API включения подписки.");
+          });
+        });
+
+        subscriptionsList.querySelectorAll(".sub-btn-del").forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            e.preventDefault(); e.stopPropagation();
+            alert("MVP: позже добавим API удаления подписки.");
+          });
+        });
       }
+
+      async function refreshSubscriptions() {
+        try {
+          const subs = await apiGetSubscriptions();
+          renderSubscriptions(subs);
+        } catch (e) {
+          // На MVP не спамим ошибками, но можно вывести в консоль
+          console.warn("Subscriptions load failed:", e.message);
+        }
+      }
+
 
       function showSubscriptionForm(show) {
         if (!subscriptionCreateBlock) return;
@@ -1667,44 +1782,46 @@
         if (!subCreateStatus) return;
 
         const name = (subNameInput?.value || "").trim();
-        const chat = (subChatInput?.value || "").trim();
-        const period = (subPeriodSelect?.value || "1h").trim();
+        const chat_ref = (subChatInput?.value || "").trim();
+        const periodVal = (subPeriodSelect?.value || "1h").trim();
         const prompt = (subPromptInput?.value || "").trim();
 
-        if (!name) {
-          subCreateStatus.textContent = "Введите имя подписки.";
-          return;
-        }
-        if (!chat) {
-          subCreateStatus.textContent = "Выберите чат/канал или вставьте ссылку.";
-          return;
-        }
-        if (!prompt) {
-          subCreateStatus.textContent = "Введите текст запроса для подписки.";
-          return;
-        }
+        if (!name) { subCreateStatus.textContent = "Введите имя подписки."; return; }
+        if (!chat_ref) { subCreateStatus.textContent = "Выберите чат/канал или вставьте ссылку."; return; }
+        if (!prompt) { subCreateStatus.textContent = "Введите текст запроса для подписки."; return; }
 
-        // MVP: бэкенда нет — показываем статус + модалку
+        const frequency_minutes = periodToMinutes(periodVal);
+
         subCreateStatus.textContent = "Создание подписки…";
+        openModal(); // оставляем твоё требование (пока без логики подтверждения)
 
-        // 1) показываем требование подключить бота
-        openModal();
+        const payload = {
+          name,
+          source_mode: "personal",
+          chat_ref,
+          frequency_minutes,
+          prompt,
+          is_active: true
+        };
 
-        // 2) имитируем успешное создание (позже заменим на fetch)
-        setTimeout(() => {
-          localSubscriptions.unshift({
-            name,
-            chat,
-            period,
-            prompt,
-            active: true
-          });
+        try {
+          await apiCreateSubscription(payload);
 
-          renderSubscriptions();
           subCreateStatus.textContent = "Подписка создана.";
           showSubscriptionForm(false);
-        }, 500);
+
+          // обновить список
+          await refreshSubscriptions();
+        } catch (e) {
+          const msg = String(e.message || "");
+          if (msg.includes("422")) {
+            subCreateStatus.textContent = "Проверь поля формы (ошибка валидации).";
+          } else {
+            subCreateStatus.textContent = "Ошибка: " + msg;
+          }
+        }
       });
+
 
       function renderResult(payload, rawText) {
         let text = "";

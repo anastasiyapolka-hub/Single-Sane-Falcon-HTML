@@ -898,7 +898,44 @@ body.sidebar-collapsed {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+   flex: 1;
+  min-width: 0;
 }
+
+.subscription-actions-mini {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.subscription-action-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: #ffffff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.12s ease, background-color 0.12s ease, box-shadow 0.12s ease;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.subscription-action-btn:hover {
+  background: #f3f4f6;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.06);
+  transform: translateY(-1px);
+}
+
+.subscription-action-btn:active {
+  transform: translateY(0);
+}
+
+/* future states */
+.subscription-status-dot.is-paused { background: #9ca3af; }
+.subscription-status-dot.is-error  { background: #ef4444; }
 
 /* ===== Modal ===== */
 .modal-overlay {
