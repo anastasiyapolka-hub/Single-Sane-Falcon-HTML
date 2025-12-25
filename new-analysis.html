@@ -941,6 +941,15 @@
       const myChatsList = document.getElementById("myChatsList");
       const sidebarResizer = document.getElementById("sidebarResizer");
 
+      async function isBotConnected() {
+      const r = await fetch(`${SUBS_API_BASE}/tg/bot/link/status`, {
+        method: "GET",
+        headers: { "Accept": "application/json" }
+      });
+      const data = await r.json().catch(() => ({}));
+      return !!data.connected;
+    }
+
       let cachedChats = []; // [{id,title,type,username}]
 
       activeChatInput?.addEventListener("input", filterChatsByInput);
@@ -1762,16 +1771,24 @@
 
       subPromptInput?.addEventListener("input", () => autoResizeTextarea(subPromptInput));
       
-      addSubscriptionBtn?.addEventListener("click", () => {
-        // открываем форму
-        showSubscriptionForm(true);
-        resetSubscriptionForm();
+      addSubscriptionBtn?.addEventListener("click", async () => {
+        try {
+          const connected = await isBotConnected();
 
-        // наполняем список чатов для выбора (если уже загружены)
-        renderSubChatsList(cachedChats);
+          if (!connected) {
+            openModal();     // показать инструкцию “нажми /start”
+            return;
+          }
 
-        // важно: если пользователь не авторизован, список будет пуст — ок
+          showSubscriptionForm(true);
+          resetSubscriptionForm();
+          renderSubChatsList(cachedChats);
+        } catch (e) {
+          // если бэк недоступен — лучше показать модалку, чем “ничего”
+          openModal();
+        }
       });
+
 
       cancelSubscriptionBtn?.addEventListener("click", () => {
         showSubscriptionForm(false);
@@ -1793,8 +1810,8 @@
         const frequency_minutes = periodToMinutes(periodVal);
 
         subCreateStatus.textContent = "Создание подписки…";
-        openModal(); // оставляем твоё требование (пока без логики подтверждения)
-
+        
+        
         const payload = {
           name,
           source_mode: "personal",
