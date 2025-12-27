@@ -660,6 +660,7 @@
                     <button id="runSubscriptionsBtn" type="button" class="tg-button">
                           Запустить подписки
                     </button>
+                    <button id="dispatchBotBtn" class="btn btn-secondary">Запустить бота</button>
 
                     <!-- Список подписок (пока простая заглушка) -->
                     <div id="subscriptionsList" class="sidebar-subscriptions-list" aria-label="Список подписок"></div>
@@ -1859,19 +1860,106 @@
         return data;
       }
 
+      function escapeHtml(s) {
+        return String(s ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;");
+      }
+
+      function renderRunSubscriptionsToWorkArea(data) {
+        const resultDiv = document.getElementById("analysisResult");
+        if (!resultDiv) return;
+
+        const header = `
+          <div style="margin-bottom:12px;">
+            <div><b>Запуск подписок:</b> ${escapeHtml(data.status)}</div>
+            <div>Подписок обработано: <b>${escapeHtml(data.processed_subscriptions)}</b></div>
+            <div>Проверено сообщений: <b>${escapeHtml(data.checked_messages)}</b></div>
+            <div>Найдено совпадений: <b>${escapeHtml(data.found_matches)}</b></div>
+            <div>Время: <b>${escapeHtml(data.elapsed_seconds)}</b> сек.</div>
+          </div>
+          <hr/>
+        `;
+
+        const results = Array.isArray(data.results) ? data.results : [];
+
+        const blocks = results.map((r) => {
+          const title = `<div style="font-size:16px;"><b>${escapeHtml(r.name || ("Subscription #" + r.subscription_id))}</b></div>`;
+          const meta = `
+            <div style="opacity:.85; margin-top:4px;">
+              id=${escapeHtml(r.subscription_id)} · chat=${escapeHtml(r.chat_ref)} · status=<b>${escapeHtml(r.status)}</b> · checked=${escapeHtml(r.checked)} · matches_written=${escapeHtml(r.matches_written)}
+            </div>
+          `;
+
+          const llm = `
+            <div style="margin-top:8px;">
+              <div><b>LLM found:</b> ${escapeHtml(r.llm_found)} · <b>confidence:</b> ${escapeHtml(r.llm_confidence)} </div>
+              <div><b>summary_reason:</b> ${escapeHtml(r.llm_summary_reason)}</div>
+            </div>
+          `;
+
+          const err = r.error
+            ? `<div style="margin-top:8px; color:#b00020;"><b>ERROR:</b> ${escapeHtml(r.error)}</div>`
+            : "";
+
+          const matches = Array.isArray(r.matches) ? r.matches : [];
+          const matchesHtml = matches.length
+            ? `
+              <div style="margin-top:10px;"><b>Matches:</b></div>
+              <div style="margin-top:6px; padding-left:12px;">
+                ${matches.map((m) => `
+                  <div style="margin-bottom:10px;">
+                    <div><b>message_id:</b> ${escapeHtml(m.message_id)} · <b>ts:</b> ${escapeHtml(m.message_ts)} · <b>author:</b> ${escapeHtml(m.author_display)} (${escapeHtml(m.author_id)})</div>
+                    <div><b>excerpt:</b> ${escapeHtml(m.excerpt)}</div>
+                    <div><b>reason:</b> ${escapeHtml(m.reason)}</div>
+                  </div>
+                `).join("")}
+              </div>
+            `
+            : `<div style="margin-top:10px; opacity:.75;">Совпадений нет.</div>`;
+
+          return `<div style="margin:14px 0;">${title}${meta}${llm}${err}${matchesHtml}</div><hr/>`;
+        }).join("");
+
+        resultDiv.innerHTML = header + (blocks || "<div>Нет результатов.</div>");
+      }
+
       async function onRunSubscriptionsClick() {
+        const btn = document.getElementById("runSubscriptionsBtn");
+        if (btn) btn.disabled = true;
+
         try {
-          const result = await apiRunSubscriptions();
-          alert(
-            `Готово.\n` +
-            `${result.ui_message || ""}\n` +
-            `Подписок обработано: ${result.processed_subscriptions}\n` +
-            `Время: ${result.elapsed_seconds} сек.`
-          );
+          const r = await fetch(`${SUBS_API_BASE}/subscriptions/run`, { method: "POST" });
+          const data = await r.json().catch(() => ({}));
+
+          if (!r.ok) {
+            renderRunSubscriptionsToWorkArea({
+              status: "error",
+              processed_subscriptions: 0,
+              checked_messages: 0,
+              found_matches: 0,
+              elapsed_seconds: null,
+              results: [{ name: "run_subscriptions", status: "error", error: data?.detail || JSON.stringify(data) }],
+            });
+            return;
+          }
+
+          renderRunSubscriptionsToWorkArea(data);
         } catch (e) {
-          alert(`Ошибка запуска подписок: ${e.message || e}`);
+          renderRunSubscriptionsToWorkArea({
+            status: "error",
+            processed_subscriptions: 0,
+            checked_messages: 0,
+            found_matches: 0,
+            elapsed_seconds: null,
+            results: [{ name: "run_subscriptions", status: "error", error: String(e) }],
+          });
+        } finally {
+          if (btn) btn.disabled = false;
         }
       }
+
 
       document.getElementById("runSubscriptionsBtn")?.addEventListener("click", onRunSubscriptionsClick);
 
@@ -1898,6 +1986,26 @@
             bar.style.display = "block";
           }
         }
+      }
+
+      const dispatchBotBtn = document.getElementById("dispatchBotBtn");
+
+      async function dispatchBot() {
+        try {
+          const r = await fetch(`${SUBS_API_BASE}/tg/bot/dispatch`, { method: "POST" });
+          const data = await r.json();
+          if (!r.ok) {
+            alert(`Ошибка dispatch: ${r.status}\n${JSON.stringify(data)}`);
+            return;
+          }
+          alert(`Бот отправил уведомления.\nSent=${data.sent}, Failed=${data.failed}\nВремя=${data.elapsed_seconds} сек.`);
+        } catch (e) {
+          alert(`Ошибка dispatch (network/js): ${String(e)}`);
+        }
+      }
+
+      if (dispatchBotBtn) {
+        dispatchBotBtn.addEventListener("click", dispatchBot);
       }
 
       // кнопка Play
