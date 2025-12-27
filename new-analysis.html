@@ -660,7 +660,7 @@
                     <button id="runSubscriptionsBtn" type="button" class="tg-button">
                           Запустить подписки
                     </button>
-                    <button id="dispatchBotBtn" class="btn btn-secondary">Запустить бота</button>
+                    <button id="dispatchBotBtn" type="button"  class="tg-button">Запустить бота</button>
 
                     <!-- Список подписок (пока простая заглушка) -->
                     <div id="subscriptionsList" class="sidebar-subscriptions-list" aria-label="Список подписок"></div>
@@ -1751,6 +1751,81 @@
         }
       }
 
+      function renderRunSubscriptionsToWorkArea(data) {
+        const out = document.getElementById("analysisResult");
+        if (!out) return;
+
+        const esc = (s) => String(s ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;");
+
+        let html = "";
+        html += `<h2>Запуск подписок</h2>`;
+        html += `<div class="run-summary">
+          <div><b>Статус:</b> ${esc(data.status)}</div>
+          <div><b>Обработано подписок:</b> ${esc(data.processed_subscriptions)}</div>
+          <div><b>Проверено сообщений:</b> ${esc(data.checked_messages)}</div>
+          <div><b>Найдено совпадений:</b> ${esc(data.found_matches)}</div>
+          <div><b>Время:</b> ${esc(data.elapsed_seconds)} сек.</div>
+        </div>`;
+
+        const results = data.results || [];
+        for (const r of results) {
+          html += `<hr/>`;
+          html += `<h3>${esc(r.name || ("Subscription #" + r.subscription_id))}</h3>`;
+          html += `<div class="run-sub-meta">
+            <div><b>ID:</b> ${esc(r.subscription_id)}</div>
+            <div><b>Чат:</b> ${esc(r.chat_ref)}</div>
+            <div><b>Статус:</b> ${esc(r.status)}</div>
+            <div><b>Проверено:</b> ${esc(r.checked)}</div>
+            <div><b>Записано MatchEvents:</b> ${esc(r.matches_written)}</div>
+            ${r.error ? `<div class="error"><b>Ошибка:</b> ${esc(r.error)}</div>` : ""}
+          </div>`;
+
+          // LLM JSON
+          html += `<details class="llm-block" ${r.llm_json ? "open" : ""}>
+            <summary><b>Ответ LLM (JSON)</b></summary>
+            <pre>${esc(JSON.stringify(r.llm_json, null, 2))}</pre>
+          </details>`;
+
+          // Match Events rows
+          const evs = r.match_events || [];
+          html += `<details class="match-block" ${evs.length ? "open" : ""}>
+            <summary><b>MatchEvents</b> (${evs.length})</summary>`;
+
+          if (!evs.length) {
+            html += `<div class="muted">Нет строк match_events (совпадений не найдено или запись не произошла).</div>`;
+          } else {
+            for (const ev of evs) {
+              html += `<div class="match-row">
+                <div class="match-title"><b>MatchEvent #${esc(ev.id)}</b></div>
+                <div class="match-fields">
+                  <div><b>subscription_id:</b> ${esc(ev.subscription_id)}</div>
+                  <div><b>message_id:</b> ${esc(ev.message_id)}</div>
+                  <div><b>message_ts:</b> ${esc(ev.message_ts)}</div>
+                  <div><b>author_id:</b> ${esc(ev.author_id)}</div>
+                  <div><b>author_display:</b> ${esc(ev.author_display)}</div>
+                  <div><b>excerpt:</b> ${esc(ev.excerpt)}</div>
+                  <div><b>reason:</b> ${esc(ev.reason)}</div>
+                  <div><b>notify_status:</b> ${esc(ev.notify_status)}</div>
+                  <div><b>created_at:</b> ${esc(ev.created_at)}</div>
+                </div>
+
+                <details class="payload-block">
+                  <summary><b>llm_payload (JSONB)</b></summary>
+                  <pre>${esc(JSON.stringify(ev.llm_payload, null, 2))}</pre>
+                </details>
+              </div>`;
+            }
+          }
+
+          html += `</details>`;
+        }
+
+        out.innerHTML = html;
+      }
+
 
       function showSubscriptionForm(show) {
         if (!subscriptionCreateBlock) return;
@@ -1925,43 +2000,124 @@
         resultDiv.innerHTML = header + (blocks || "<div>Нет результатов.</div>");
       }
 
-      async function onRunSubscriptionsClick() {
-        const btn = document.getElementById("runSubscriptionsBtn");
-        if (btn) btn.disabled = true;
+      //*  async function onRunSubscriptionsClick() {
+       //*   const btn = document.getElementById("runSubscriptionsBtn");
+       //*   if (btn) btn.disabled = true;
 
-        try {
-          const r = await fetch(`${SUBS_API_BASE}/subscriptions/run`, { method: "POST" });
-          const data = await r.json().catch(() => ({}));
+       //*   try {
+       //*     const r = await fetch(`${SUBS_API_BASE}/subscriptions/run`, { method: "POST" });
+        //*    const data = await r.json().catch(() => ({}));
 
-          if (!r.ok) {
-            renderRunSubscriptionsToWorkArea({
-              status: "error",
-              processed_subscriptions: 0,
-              checked_messages: 0,
-              found_matches: 0,
-              elapsed_seconds: null,
-              results: [{ name: "run_subscriptions", status: "error", error: data?.detail || JSON.stringify(data) }],
-            });
-            return;
-          }
+         //*   if (!r.ok) {
+         //*     renderRunSubscriptionsToWorkArea({
+         //*       status: "error",
+              //*  processed_subscriptions: 0,
+         //*       checked_messages: 0,
+         //*       found_matches: 0,
+          //*      elapsed_seconds: null,
+          //*      results: [{ name: "run_subscriptions", status: "error", error: data?.detail || JSON.stringify(data) }],
+          //*    });
+          //*    return;
+         //*  }
 
-          renderRunSubscriptionsToWorkArea(data);
-        } catch (e) {
-          renderRunSubscriptionsToWorkArea({
-            status: "error",
-            processed_subscriptions: 0,
-            checked_messages: 0,
-            found_matches: 0,
-            elapsed_seconds: null,
-            results: [{ name: "run_subscriptions", status: "error", error: String(e) }],
-          });
-        } finally {
-          if (btn) btn.disabled = false;
-        }
-      }
+         //*   renderRunSubscriptionsToWorkArea(data);
+         //* } catch (e) {
+         //*   renderRunSubscriptionsToWorkArea({
+         //*     status: "error",
+          //*    processed_subscriptions: 0,
+          //*    checked_messages: 0,
+          //*    found_matches: 0,
+          //*    elapsed_seconds: null,
+          //*    results: [{ name: "run_subscriptions", status: "error", error: String(e) }],
+          //*  });
+         //* } finally {
+         //*   if (btn) btn.disabled = false;
+        //*  }
+      //*  }
 
 
-      document.getElementById("runSubscriptionsBtn")?.addEventListener("click", onRunSubscriptionsClick);
+      // ===== Запуск подписок (кнопка) =====
+const runSubscriptionsBtn = document.getElementById("runSubscriptionsBtn");
+
+async function runSubscriptions() {
+  // если у тебя есть константа API_BASE — используй её.
+  // иначе можно оставить как прямой URL:
+  const url = "https://cotel-backend.onrender.com/subscriptions/run";
+
+  try {
+    if (runSubscriptionsBtn) {
+      runSubscriptionsBtn.disabled = true;
+      runSubscriptionsBtn.textContent = "Запускаю...";
+    }
+
+    const r = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      // body не нужен
+    });
+
+    // Попробуем корректно разобрать ответ
+    let data = null;
+    const ct = r.headers.get("content-type") || "";
+    if (ct.includes("application/json")) {
+      data = await r.json();
+    } else {
+      const text = await r.text();
+      throw new Error(`BACKEND_NON_JSON_RESPONSE: ${text.slice(0, 400)}`);
+    }
+
+    if (!r.ok) {
+      // бэк мог вернуть {detail: "..."} или {error: "..."}
+      const msg = data?.detail || data?.error || `HTTP_${r.status}`;
+      throw new Error(msg);
+    }
+
+    // Главная часть: выводим отчёт в правый блок
+    if (typeof renderRunSubscriptionsToWorkArea === "function") {
+      renderRunSubscriptionsToWorkArea(data);
+    } else {
+      // Если ты ещё не добавила рендер-функцию — покажем хотя бы алерт
+      alert(data?.ui_message || "Готово (но renderRunSubscriptionsToWorkArea не найдена).");
+    }
+
+    // Доп. короткое уведомление
+    alert(
+      `Готово.\n${data.ui_message || ""}\n` +
+      `Подписок: ${data.processed_subscriptions}\n` +
+      `Время: ${data.elapsed_seconds} сек.`
+    );
+
+  } catch (e) {
+    console.error("RUN_SUBSCRIPTIONS_FAILED", e);
+
+    // Покажем ошибку и в рабочей области (чтобы было видно без консоли)
+    const out = document.getElementById("analysisResult");
+    if (out) {
+      out.innerHTML = `
+        <h2>Запуск подписок — ошибка</h2>
+        <pre>${String(e?.message || e)}</pre>
+      `;
+    }
+
+    alert(`Ошибка запуска подписок:\n${String(e?.message || e)}`);
+  } finally {
+    if (runSubscriptionsBtn) {
+      runSubscriptionsBtn.disabled = false;
+      runSubscriptionsBtn.textContent = "Запустить подписки";
+    }
+  }
+}
+
+if (runSubscriptionsBtn) {
+  runSubscriptionsBtn.addEventListener("click", runSubscriptions);
+} else {
+  console.warn("Кнопка runSubscriptionsBtn не найдена в DOM. Проверь id в HTML.");
+}
+
+
+      //document.getElementById("runSubscriptionsBtn")?.addEventListener("click", onRunSubscriptionsClick);
 
       function renderResult(payload, rawText) {
         let text = "";
