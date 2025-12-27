@@ -1679,7 +1679,6 @@
       }
 
 
-
       function renderSubscriptions(list) {
         if (!subscriptionsList) return;
 
@@ -2040,7 +2039,7 @@
 const runSubscriptionsBtn = document.getElementById("runSubscriptionsBtn");
 
 async function runSubscriptions() {
-  // если у тебя есть константа API_BASE — используй её.
+  // если у тебя есть константа SUBS_API_BASE — используй её.
   // иначе можно оставить как прямой URL:
   const url = "https://cotel-backend.onrender.com/subscriptions/run";
 
@@ -2083,11 +2082,11 @@ async function runSubscriptions() {
     }
 
     // Доп. короткое уведомление
-    alert(
-      `Готово.\n${data.ui_message || ""}\n` +
-      `Подписок: ${data.processed_subscriptions}\n` +
-      `Время: ${data.elapsed_seconds} сек.`
-    );
+    //alert(
+     // `Готово.\n${data.ui_message || ""}\n` +
+     // `Подписок: ${data.processed_subscriptions}\n` +
+     // `Время: ${data.elapsed_seconds} сек.`
+    //);
 
   } catch (e) {
     console.error("RUN_SUBSCRIPTIONS_FAILED", e);
@@ -2114,6 +2113,119 @@ if (runSubscriptionsBtn) {
   runSubscriptionsBtn.addEventListener("click", runSubscriptions);
 } else {
   console.warn("Кнопка runSubscriptionsBtn не найдена в DOM. Проверь id в HTML.");
+}
+
+const API_BASE = "https://cotel-backend.onrender.com"; // если у тебя уже есть - оставь одну
+
+function escapeHtml(s) {
+  return String(s ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
+function renderKeyValueBlock(obj) {
+  const keys = Object.keys(obj || {});
+  if (!keys.length) return "<div>—</div>";
+  return `
+    <div style="margin-left:10px">
+      ${keys.map(k => `<div><b>${escapeHtml(k)}</b>: ${escapeHtml(obj[k])}</div>`).join("")}
+    </div>
+  `;
+}
+
+function renderMatchEventsTable(matchEvents) {
+  if (!Array.isArray(matchEvents) || matchEvents.length === 0) {
+    return `<div style="opacity:.8">Совпадений нет (в БД не записалось новых строк)</div>`;
+  }
+
+  return matchEvents.map(ev => {
+    // вывод всех колонок
+    return `
+      <div style="padding:8px 0; border-top:1px solid rgba(0,0,0,.08)">
+        <div><b>MatchEvent</b> (id=${escapeHtml(ev.id)})</div>
+        ${renderKeyValueBlock(ev)}
+      </div>
+    `;
+  }).join("");
+}
+
+function renderRunResponse(data) {
+  const header = `
+    <div style="padding:10px 0">
+      <div><b>Запуск подписок:</b> ${escapeHtml(data.status)}</div>
+      <div><b>Подписок обработано:</b> ${escapeHtml(data.processed_subscriptions)}</div>
+      <div><b>Проверено сообщений:</b> ${escapeHtml(data.checked_messages)}</div>
+      <div><b>Найдено совпадений (записано в БД):</b> ${escapeHtml(data.found_matches)}</div>
+      <div><b>Время:</b> ${escapeHtml(data.elapsed_seconds)} сек.</div>
+    </div>
+  `;
+
+  const perSub = (data.results || []).map(sub => {
+    const title = `<div style="margin-top:16px"><b>${escapeHtml(sub.name || "Без названия")}</b></div>`;
+    const meta = `
+      <div style="opacity:.9">
+        id=${escapeHtml(sub.subscription_id)} · chat=${escapeHtml(sub.chat_ref)} · status=${escapeHtml(sub.status)}
+        · checked=${escapeHtml(sub.checked)} · matches_written=${escapeHtml(sub.matches_written)}
+        · llm_matches=${escapeHtml(sub.llm_matches_count)}
+      </div>
+    `;
+
+    const llmInfo = `
+      <div style="margin:6px 0; padding:8px; background:rgba(0,0,0,.04); border-radius:8px">
+        <div><b>LLM found:</b> ${escapeHtml(sub.llm_found)}</div>
+        <div><b>confidence:</b> ${escapeHtml(sub.llm_confidence)}</div>
+        <div><b>summary_reason:</b> ${escapeHtml(sub.llm_summary_reason)}</div>
+      </div>
+    `;
+
+    const error = sub.error ? `<div style="color:#b00020"><b>Error:</b> ${escapeHtml(sub.error)}</div>` : "";
+
+    const matchesBlock = `
+      <div style="margin-top:6px">
+        <div style="font-weight:600">MatchEvents (новые строки этого запуска):</div>
+        ${renderMatchEventsTable(sub.match_events)}
+      </div>
+    `;
+
+    return `${title}${meta}${error}${llmInfo}${matchesBlock}`;
+  }).join("");
+
+  const allEvents = `
+    <div style="margin-top:18px; padding-top:12px; border-top:2px solid rgba(0,0,0,.12)">
+      <div style="font-weight:700">DEBUG: все строки таблицы match_events (limit 200)</div>
+      ${renderMatchEventsTable(data.debug_all_match_events)}
+    </div>
+  `;
+
+  return header + perSub + allEvents;
+}
+
+const analysisResult = document.getElementById("analysisResult");
+
+if (runSubscriptionsBtn) {
+  runSubscriptionsBtn.addEventListener("click", async () => {
+    try {
+      runSubscriptionsBtn.disabled = true;
+      runSubscriptionsBtn.textContent = "Запуск…";
+
+      const r = await fetch(`${API_BASE}/subscriptions/run`, { method: "POST" });
+      const data = await r.json();
+
+      if (!r.ok) {
+        analysisResult.innerHTML = `<div style="color:#b00020"><b>Ошибка:</b> ${escapeHtml(JSON.stringify(data))}</div>`;
+        return;
+      }
+
+      analysisResult.innerHTML = renderRunResponse(data);
+
+    } catch (e) {
+      analysisResult.innerHTML = `<div style="color:#b00020"><b>Ошибка:</b> ${escapeHtml(e.message || e)}</div>`;
+    } finally {
+      runSubscriptionsBtn.disabled = false;
+      runSubscriptionsBtn.textContent = "Запустить подписки";
+    }
+  });
 }
 
 
