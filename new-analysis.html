@@ -679,6 +679,14 @@
                         />
                       </div>
 
+                      <div class="tg-field">
+                      <label for="subTypeSelect">Тип подписки</label>
+                      <select id="subTypeSelect" class="tg-select">
+                        <option value="events" selected>События</option>
+                        <option value="digest">Саммари</option>
+                      </select>
+                    </div>
+
                       <p class="sidebar-hint subscription-hint">
                         Подписка на приватные и личные чаты доступна только при авторизации через ваш личный аккаунт.
                       </p>
@@ -1880,6 +1888,8 @@
         const chat_ref = (subChatInput?.value || "").trim();
         const periodVal = (subPeriodSelect?.value || "1h").trim();
         const prompt = (subPromptInput?.value || "").trim();
+        const subTypeSelect = document.getElementById("subTypeSelect");
+        const subscriptionType = (subTypeSelect?.value || "events");
 
         if (!name) { subCreateStatus.textContent = "Введите имя подписки."; return; }
         if (!chat_ref) { subCreateStatus.textContent = "Выберите чат/канал или вставьте ссылку."; return; }
@@ -1896,7 +1906,8 @@
           chat_ref,
           frequency_minutes,
           prompt,
-          is_active: true
+          is_active: true,
+          subscription_type: subscriptionType
         };
 
         try {
