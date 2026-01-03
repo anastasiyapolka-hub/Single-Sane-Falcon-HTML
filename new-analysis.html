@@ -1697,6 +1697,23 @@
         return data;
       }
 
+      async function apiDeleteSubscription(subscriptionId) {
+        const resp = await fetch(`${SUBS_API_BASE}/subscriptions/${encodeURIComponent(subscriptionId)}`, {
+          method: "DELETE",
+          headers: { "Accept": "application/json" },
+        });
+
+        const raw = await resp.text();
+        let data = null;
+        try { data = raw ? JSON.parse(raw) : null; } catch {}
+
+        if (!resp.ok) {
+          const msg = (data && (data.detail || data.error)) || raw || resp.statusText;
+          throw new Error(msg);
+        }
+
+        return data;
+      }
 
       function renderSubscriptions(list) {
         if (!subscriptionsList) return;
@@ -1752,11 +1769,34 @@
         });
 
         subscriptionsList.querySelectorAll(".sub-btn-del").forEach((btn) => {
-          btn.addEventListener("click", (e) => {
-            e.preventDefault(); e.stopPropagation();
-            alert("MVP: позже добавим API удаления подписки.");
+          btn.addEventListener("click", async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const item = btn.closest(".subscription-item");
+            const subId = item?.getAttribute("data-sub-id");
+
+            if (!subId) return;
+
+            const ok = confirm("Удалить подписку? Это удалит также её историю совпадений.");
+            if (!ok) return;
+
+            try {
+              await apiDeleteSubscription(subId);
+
+              // 1) удалить строку из списка без перезагрузки
+              item?.remove();
+
+              // 2) если это была последняя — очистить контейнер
+              if (!subscriptionsList.querySelector(".subscription-item")) {
+                subscriptionsList.innerHTML = "";
+              }
+            } catch (err) {
+              alert("Ошибка удаления: " + (err?.message || String(err)));
+            }
           });
         });
+
       }
 
       async function refreshSubscriptions() {
