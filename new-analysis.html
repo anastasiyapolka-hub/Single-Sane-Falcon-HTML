@@ -690,7 +690,7 @@
                       <p class="sidebar-hint subscription-hint">
                         События - подписка реагирует на появление объявлений/оповещений по вашему запросу и присылает список конкретных сообщений. Саммари - ИИ подготовит резюме/дайджест/саммари чата за указанных период. 
                       </p>
-                      
+
                       <div class="tg-field">
                         <label for="subChatInput">Чат / канал</label>
                         <input
@@ -941,6 +941,7 @@
       const subChatInput = document.getElementById("subChatInput");
       const subChatsList = document.getElementById("subChatsList");
       const subPeriodSelect = document.getElementById("subPeriodSelect");
+      const subTypeSelect = document.getElementById("subTypeSelect");
       const subPromptInput = document.getElementById("subPromptInput");
       const createSubscriptionBtn = document.getElementById("createSubscriptionBtn");
       const cancelSubscriptionBtn = document.getElementById("cancelSubscriptionBtn");
@@ -970,6 +971,11 @@
       let cachedChats = []; // [{id,title,type,username}]
 
       activeChatInput?.addEventListener("input", filterChatsByInput);
+
+      subTypeSelect?.addEventListener("change", () => {
+        const t = (subTypeSelect.value || "events").trim();
+        setPeriodOptionsForType(t);
+      });
 
       // МАСКА ДЛЯ ТЕЛЕФОНА +7
       if (tgPhoneInput) {
@@ -1636,6 +1642,7 @@
           "1h": 60,
           "3h": 180,
           "6h": 360,
+          "12h": 720,
           "1d": 1440
         };
         return map[v] ?? 60;
@@ -1854,6 +1861,32 @@
         }
       }
 
+      function setPeriodOptionsForType(type) {
+        if (!subPeriodSelect) return;
+
+        const optsByType = {
+          events: [
+            { v: "30m", t: "1 раз в 30 минут" },
+            { v: "1h",  t: "1 раз в час" },
+            { v: "3h",  t: "1 раз в 3 часа" },
+            { v: "6h",  t: "1 раз в 6 часов" },
+          ],
+          digest: [
+            { v: "12h", t: "1 раз в 12 часов" },
+            { v: "1d",  t: "1 раз в день" },
+          ],
+        };
+
+        const list = optsByType[type] || optsByType.events;
+
+        subPeriodSelect.innerHTML = list
+          .map((o) => `<option value="${o.v}">${o.t}</option>`)
+          .join("");
+
+        // дефолт
+        subPeriodSelect.value = list[0]?.v || "1h";
+      }
+
       function autoResizeTextarea(el) {
         if (!el) return;
         el.style.height = "auto";
@@ -1873,6 +1906,7 @@
 
           showSubscriptionForm(true);
           resetSubscriptionForm();
+          setPeriodOptionsForType((subTypeSelect?.value || "events").trim());
           renderSubChatsList(cachedChats);
         } catch (e) {
           // если бэк недоступен — лучше показать модалку, чем “ничего”
