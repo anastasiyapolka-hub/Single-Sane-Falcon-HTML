@@ -1778,7 +1778,7 @@
 
             if (!subId) return;
 
-            const ok = confirm("Удалить подписку? Это удалит также её историю совпадений.");
+            const ok = confirm("Удалить подписку?");
             if (!ok) return;
 
             try {
@@ -2030,98 +2030,6 @@
           .replaceAll(">", "&gt;");
       }
 
-      function renderRunSubscriptionsToWorkArea(data) {
-        const resultDiv = document.getElementById("analysisResult");
-        if (!resultDiv) return;
-
-        const header = `
-          <div style="margin-bottom:12px;">
-            <div><b>Запуск подписок:</b> ${escapeHtml(data.status)}</div>
-            <div>Подписок обработано: <b>${escapeHtml(data.processed_subscriptions)}</b></div>
-            <div>Проверено сообщений: <b>${escapeHtml(data.checked_messages)}</b></div>
-            <div>Найдено совпадений: <b>${escapeHtml(data.found_matches)}</b></div>
-            <div>Время: <b>${escapeHtml(data.elapsed_seconds)}</b> сек.</div>
-          </div>
-          <hr/>
-        `;
-
-        const results = Array.isArray(data.results) ? data.results : [];
-
-        const blocks = results.map((r) => {
-          const title = `<div style="font-size:16px;"><b>${escapeHtml(r.name || ("Subscription #" + r.subscription_id))}</b></div>`;
-          const meta = `
-            <div style="opacity:.85; margin-top:4px;">
-              id=${escapeHtml(r.subscription_id)} · chat=${escapeHtml(r.chat_ref)} · status=<b>${escapeHtml(r.status)}</b> · checked=${escapeHtml(r.checked)} · matches_written=${escapeHtml(r.matches_written)}
-            </div>
-          `;
-
-          const llm = `
-            <div style="margin-top:8px;">
-              <div><b>LLM found:</b> ${escapeHtml(r.llm_found)} · <b>confidence:</b> ${escapeHtml(r.llm_confidence)} </div>
-              <div><b>summary_reason:</b> ${escapeHtml(r.llm_summary_reason)}</div>
-            </div>
-          `;
-
-          const err = r.error
-            ? `<div style="margin-top:8px; color:#b00020;"><b>ERROR:</b> ${escapeHtml(r.error)}</div>`
-            : "";
-
-          const matches = Array.isArray(r.matches) ? r.matches : [];
-          const matchesHtml = matches.length
-            ? `
-              <div style="margin-top:10px;"><b>Matches:</b></div>
-              <div style="margin-top:6px; padding-left:12px;">
-                ${matches.map((m) => `
-                  <div style="margin-bottom:10px;">
-                    <div><b>message_id:</b> ${escapeHtml(m.message_id)} · <b>ts:</b> ${escapeHtml(m.message_ts)} · <b>author:</b> ${escapeHtml(m.author_display)} (${escapeHtml(m.author_id)})</div>
-                    <div><b>excerpt:</b> ${escapeHtml(m.excerpt)}</div>
-                    <div><b>reason:</b> ${escapeHtml(m.reason)}</div>
-                  </div>
-                `).join("")}
-              </div>
-            `
-            : `<div style="margin-top:10px; opacity:.75;">Совпадений нет.</div>`;
-
-          return `<div style="margin:14px 0;">${title}${meta}${llm}${err}${matchesHtml}</div><hr/>`;
-        }).join("");
-
-        resultDiv.innerHTML = header + (blocks || "<div>Нет результатов.</div>");
-      }
-
-      //*  async function onRunSubscriptionsClick() {
-       //*   const btn = document.getElementById("runSubscriptionsBtn");
-       //*   if (btn) btn.disabled = true;
-
-       //*   try {
-       //*     const r = await fetch(`${SUBS_API_BASE}/subscriptions/run`, { method: "POST" });
-        //*    const data = await r.json().catch(() => ({}));
-
-         //*   if (!r.ok) {
-         //*     renderRunSubscriptionsToWorkArea({
-         //*       status: "error",
-              //*  processed_subscriptions: 0,
-         //*       checked_messages: 0,
-         //*       found_matches: 0,
-          //*      elapsed_seconds: null,
-          //*      results: [{ name: "run_subscriptions", status: "error", error: data?.detail || JSON.stringify(data) }],
-          //*    });
-          //*    return;
-         //*  }
-
-         //*   renderRunSubscriptionsToWorkArea(data);
-         //* } catch (e) {
-         //*   renderRunSubscriptionsToWorkArea({
-         //*     status: "error",
-          //*    processed_subscriptions: 0,
-          //*    checked_messages: 0,
-          //*    found_matches: 0,
-          //*    elapsed_seconds: null,
-          //*    results: [{ name: "run_subscriptions", status: "error", error: String(e) }],
-          //*  });
-         //* } finally {
-         //*   if (btn) btn.disabled = false;
-        //*  }
-      //*  }
 
 
       // ===== Запуск подписок (кнопка) =====
@@ -2198,11 +2106,11 @@ async function runSubscriptions() {
   }
 }
 
-if (runSubscriptionsBtn) {
-  runSubscriptionsBtn.addEventListener("click", runSubscriptions);
-} else {
-  console.warn("Кнопка runSubscriptionsBtn не найдена в DOM. Проверь id в HTML.");
-}
+// if (runSubscriptionsBtn) {
+//   runSubscriptionsBtn.addEventListener("click", runSubscriptions);
+// } else {
+//   console.warn("Кнопка runSubscriptionsBtn не найдена в DOM. Проверь id в HTML.");
+// }
 
 const API_BASE = "https://cotel-backend.onrender.com"; // если у тебя уже есть - оставь одну
 
