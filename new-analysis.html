@@ -716,6 +716,7 @@
                           <option value="1h" selected>1 раз в час</option>
                           <option value="3h">1 раз в 3 часа</option>
                           <option value="6h">1 раз в 6 часов</option>
+                          <option value="12h">1 раз в 12 часов (полдня)</option>
                           <option value="1d">1 раз в день</option>
                         </select>
                       </div>
@@ -913,6 +914,7 @@
 
       let tgQrPollTimer = null;
       let tgQrObj = null; // instance of QRCode
+      let editingSubscriptionId = null;
 
 
       const tgPhoneInput = document.getElementById("tgPhoneInput");
@@ -1654,7 +1656,8 @@
           if (n === 30) return "1 раз в 30 минут";
           if (n === 60) return "1 раз в час";
           if (n === 180) return "1 раз в 3 часа";
-          if (n === 360) return "1 раз в 6 часов";
+          if (n === 360) return "1 раз в 6 часов"; 
+          if (n === 720) return "1 раз в 12 часов (полдня)";
           if (n === 1440) return "1 раз в день";
           return `${n} мин`;
         }
@@ -1747,6 +1750,7 @@
               <div class="subscription-actions-mini" aria-label="Действия подписки">
                 <button class="subscription-action-btn sub-btn-pause" type="button" title="Приостановить">⏸</button>
                 <button class="subscription-action-btn sub-btn-play"  type="button" title="Включить">▶</button>
+                 <button class="subscription-action-btn sub-btn-edit"  title="Редактировать">✎</button>
                 <button class="subscription-action-btn sub-btn-del"   type="button" title="Удалить">✕</button>
               </div>
             </div>
@@ -1796,6 +1800,39 @@
             }
           });
         });
+
+        // Пауза
+        subscriptionsList.querySelectorAll(".sub-btn-pause").forEach((btn) => {
+          btn.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            const id = btn.closest(".subscription-item")?.dataset.subId;
+            if (!id) return;
+
+            await updateSubscriptionActive(id, false);
+          });
+        });
+
+        // Возобновление
+        subscriptionsList.querySelectorAll(".sub-btn-play").forEach((btn) => {
+          btn.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            const id = btn.closest(".subscription-item")?.dataset.subId;
+            if (!id) return;
+
+            await updateSubscriptionActive(id, true);
+          });
+        });
+
+        subscriptionsList.querySelectorAll(".sub-btn-edit").forEach((btn) => {
+          btn.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            const id = btn.closest(".subscription-item")?.dataset.subId;
+            if (!id) return;
+
+            await openEditSubscription(id);
+          });
+        });
+
 
       }
 
@@ -1884,7 +1921,6 @@
         out.innerHTML = html;
       }
 
-
       function showSubscriptionForm(show) {
         if (!subscriptionCreateBlock) return;
         subscriptionCreateBlock.style.display = show ? "block" : "none";
@@ -1912,6 +1948,7 @@
             { v: "6h",  t: "1 раз в 6 часов" },
           ],
           digest: [
+            { v: "6h",  t: "1 раз в 6 часов" },
             { v: "12h", t: "1 раз в 12 часов" },
             { v: "1d",  t: "1 раз в день" },
           ],
@@ -1931,6 +1968,36 @@
         if (!el) return;
         el.style.height = "auto";
         el.style.height = Math.min(el.scrollHeight, 420) + "px";
+      }
+
+      async function openEditSubscription(id) {
+        try {
+          const resp = await fetch(`${SUBS_API_BASE}/subscriptions/${id}`);
+          const sub = await resp.json();
+
+          editingSubscriptionId = id;
+
+          // заполняем форму
+          subNameInput.value = sub.name || "";
+          subChatInput.value = sub.chat_ref || "";
+          subPromptInput.value = sub.prompt || "";
+
+          // period
+          const minutes = String(sub.frequency_minutes);
+          subPeriodSelect.value =
+            minutes === "10"   ? "10m" :
+            minutes === "30"   ? "30m" :
+            minutes === "60"   ? "1h" :
+            minutes === "180"  ? "3h" :
+            minutes === "360"  ? "6h" :
+            minutes === "1440" ? "1d" : "1h";
+
+          showSubscriptionForm(true);
+
+          createSubscriptionBtn.textContent = "Сохранить изменения";
+        } catch (e) {
+          alert("Ошибка загрузки подписки");
+        }
       }
 
       subPromptInput?.addEventListener("input", () => autoResizeTextarea(subPromptInput));
@@ -1959,52 +2026,69 @@
         resetSubscriptionForm();
       });
 
-      createSubscriptionBtn?.addEventListener("click", async () => {
-        if (!subCreateStatus) return;
+     createSubscriptionBtn?.addEventListener("click", async () => {
+  if (!subCreateStatus) return;
 
-        const name = (subNameInput?.value || "").trim();
-        const chat_ref = (subChatInput?.value || "").trim();
-        const periodVal = (subPeriodSelect?.value || "1h").trim();
-        const prompt = (subPromptInput?.value || "").trim();
-        const subTypeSelect = document.getElementById("subTypeSelect");
-        const subscriptionType = (subTypeSelect?.value || "events");
+  const name = (subNameInput?.value || "").trim();
+  const chat_ref = (subChatInput?.value || "").trim();
+  const periodVal = (subPeriodSelect?.value || "1h").trim();
+  const prompt = (subPromptInput?.value || "").trim();
+  const subTypeSelect = document.getElementById("subTypeSelect");
+  const subscriptionType = (subTypeSelect?.value || "events");
 
-        if (!name) { subCreateStatus.textContent = "Введите имя подписки."; return; }
-        if (!chat_ref) { subCreateStatus.textContent = "Выберите чат/канал или вставьте ссылку."; return; }
-        if (!prompt) { subCreateStatus.textContent = "Введите текст запроса для подписки."; return; }
+  if (!name) { subCreateStatus.textContent = "Введите имя подписки."; return; }
+  if (!chat_ref) { subCreateStatus.textContent = "Выберите чат/канал или вставьте ссылку."; return; }
+  if (!prompt) { subCreateStatus.textContent = "Введите текст запроса для подписки."; return; }
 
-        const frequency_minutes = periodToMinutes(periodVal);
+  const frequency_minutes = periodToMinutes(periodVal);
 
-        subCreateStatus.textContent = "Создание подписки…";
-        
-        
-        const payload = {
-          name,
-          source_mode: "personal",
-          chat_ref,
-          frequency_minutes,
-          prompt,
-          is_active: true,
-          subscription_type: subscriptionType
-        };
+  // Текст статуса зависит от режима: создание или редактирование
+  const isEdit = Boolean(editingSubscriptionId);
+  subCreateStatus.textContent = isEdit ? "Сохранение изменений…" : "Создание подписки…";
 
-        try {
-          await apiCreateSubscription(payload);
+  const payload = {
+    name,
+    source_mode: "personal",
+    chat_ref,
+    frequency_minutes,
+    prompt,
+    is_active: true,
+    subscription_type: subscriptionType
+  };
 
-          subCreateStatus.textContent = "Подписка создана.";
-          showSubscriptionForm(false);
-
-          // обновить список
-          await refreshSubscriptions();
-        } catch (e) {
-          const msg = String(e.message || "");
-          if (msg.includes("422")) {
-            subCreateStatus.textContent = "Проверь поля формы (ошибка валидации).";
-          } else {
-            subCreateStatus.textContent = "Ошибка: " + msg;
-          }
-        }
+  try {
+    if (isEdit) {
+      // UPDATE
+      await fetch(`${SUBS_API_BASE}/subscriptions/${editingSubscriptionId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify(payload)
       });
+      subCreateStatus.textContent = "Изменения сохранены.";
+    } else {
+      // CREATE
+      await apiCreateSubscription(payload);
+      subCreateStatus.textContent = "Подписка создана.";
+    }
+
+    // сбрасываем режим редактирования и UI
+    editingSubscriptionId = null;
+    createSubscriptionBtn.textContent = "Создать подписку";
+
+    showSubscriptionForm(false);
+
+    // обновить список
+    await refreshSubscriptions();
+  } catch (e) {
+    const msg = String(e.message || "");
+    if (msg.includes("422")) {
+      subCreateStatus.textContent = "Проверь поля формы (ошибка валидации).";
+    } else {
+      subCreateStatus.textContent = "Ошибка: " + msg;
+    }
+  }
+});
+
 
       async function apiRunSubscriptions() {
         const resp = await fetch(`${SUBS_API_BASE}/subscriptions/run`, {
@@ -2030,6 +2114,19 @@
           .replaceAll(">", "&gt;");
       }
 
+      async function updateSubscriptionActive(id, isActive) {
+        try {
+          await fetch(`${SUBS_API_BASE}/subscriptions/${id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ is_active: isActive })
+          });
+
+          await refreshSubscriptions();
+        } catch (e) {
+          alert("Ошибка изменения статуса подписки");
+        }
+      }
 
 
       // ===== Запуск подписок (кнопка) =====
