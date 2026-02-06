@@ -1,0 +1,113 @@
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #ffffff;
+}
+
+/* Фон на весь экран */
+.hero {
+  min-height: 100vh;
+  background-image: url("images/back.jpg");
+  background-size: cover;       /* растягиваем по экрану */
+  background-position: center;  /* центр, потом можно подвинуть */
+  background-repeat: no-repeat;
+}
+
+/*
+  Оверлей: слева затемнение, справа почти нет —
+  чтобы текст читался, а герой справа оставался видимым.
+*/
+.overlay {
+  min-height: 100vh;
+  width: 100%;
+  background: linear-gradient(
+    to right,
+    rgba(0,0,0,0.78) 0%,
+    rgba(0,0,0,0.62) 35%,
+    rgba(0,0,0,0.25) 60%,
+    rgba(0,0,0,0.05) 100%
+  );
+  display: flex;
+}
+
+/* Текстовый блок слева — примерно половина экрана */
+.content {
+  max-width: 560px;
+  padding: 64px 48px;
+}
+
+/* Типографика */
+h1 {
+  font-size: 36px;
+  line-height: 1.15;
+  margin: 0 0 10px;
+}
+
+.subtitle {
+  font-size: 18px;
+  margin: 0 0 6px;
+  opacity: 0.92;
+}
+
+.meta {
+  font-size: 13px;
+  margin: 0 0 28px;
+  opacity: 0.65;
+}
+
+.text {
+  font-size: 16px;
+  line-height: 1.65;
+  margin: 0 0 18px;
+  opacity: 0.95;
+}
+
+.block {
+  margin-top: 28px;
+}
+
+.block h2 {
+  font-size: 16px;
+  margin: 0 0 8px;
+  opacity: 0.95;
+}
+
+.block p {
+  margin: 0;
+  line-height: 1.6;
+  opacity: 0.9;
+}
+
+ul {
+  margin: 0;
+  padding-left: 16px;
+}
+
+li {
+  margin-bottom: 6px;
+  opacity: 0.9;
+}
+
+.hashtag {
+  margin-top: 42px;
+  font-size: 14px;
+  opacity: 0.75;
+}
+
+/* Мобильная версия: делаем подложку сильнее, текст шире */
+@media (max-width: 720px) {
+  .overlay {
+    background: rgba(0,0,0,0.68);
+  }
+
+  .content {
+    padding: 40px 22px;
+    max-width: 680px;
+  }
+
+  h1 {
+    font-size: 28px;
+  }
+}
