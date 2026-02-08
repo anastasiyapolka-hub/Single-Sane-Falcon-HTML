@@ -1,24 +1,32 @@
 * { box-sizing: border-box; }
 
+:root {
+  --text: rgba(255,255,255,0.95);
+  --muted: rgba(255,255,255,0.70);
+  --muted2: rgba(255,255,255,0.60);
+  --line: rgba(255,255,255,0.22);
+  --line2: rgba(255,255,255,0.35);
+
+  /* Светло-розовый для хэштега */
+  --accent: rgba(255, 192, 203, 0.92); /* light pink */
+}
+
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  color: #ffffff;
+  font-family: "Manrope", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--text);
 }
 
 /* Фон на весь экран */
 .hero {
   min-height: 100vh;
   background-image: url("images/back.jpg");
-  background-size: cover;       /* растягиваем по экрану */
-  background-position: center;  /* центр, потом можно подвинуть */
+  background-size: cover;
+  background-position: center;
   background-repeat: no-repeat;
 }
 
-/*
-  Оверлей: слева затемнение, справа почти нет —
-  чтобы текст читался, а герой справа оставался видимым.
-*/
+/* Оверлей: слева затемнение */
 .overlay {
   min-height: 100vh;
   width: 100%;
@@ -32,7 +40,7 @@ body {
   display: flex;
 }
 
-/* Текстовый блок слева — примерно половина экрана */
+/* Текстовый блок слева */
 .content {
   max-width: 560px;
   padding: 64px 48px;
@@ -43,60 +51,101 @@ h1 {
   font-size: 36px;
   line-height: 1.15;
   margin: 0 0 10px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
 }
 
 .subtitle {
   font-size: 18px;
   margin: 0 0 6px;
   opacity: 0.92;
+  font-weight: 600;
 }
 
 .meta {
   font-size: 13px;
   margin: 0 0 28px;
-  opacity: 0.65;
+  color: var(--muted2);
 }
 
 .text {
   font-size: 16px;
   line-height: 1.65;
   margin: 0 0 18px;
-  opacity: 0.95;
+  color: var(--text);
 }
 
 .block {
   margin-top: 28px;
 }
 
-.block h2 {
-  font-size: 16px;
-  margin: 0 0 8px;
+.section-title {
+  font-size: 15px;
+  margin: 0 0 10px;
   opacity: 0.95;
+  font-weight: 700;
+  letter-spacing: 0.2px;
 }
 
 .block p {
   margin: 0;
   line-height: 1.6;
-  opacity: 0.9;
+  color: var(--muted);
 }
 
-ul {
+/* Ссылки: убрали синий цвет, убрали маркеры, сделали “визиточный” список */
+.links {
+  list-style: none;
   margin: 0;
-  padding-left: 16px;
+  padding: 0;
+  display: grid;
+  gap: 10px;
 }
 
-li {
-  margin-bottom: 6px;
-  opacity: 0.9;
+.links li {
+  margin: 0;
+  opacity: 1;
 }
 
-.hashtag {
-  margin-top: 42px;
+.links a {
+  color: inherit;             /* НЕ синий */
+  text-decoration: none;      /* без стандартного подчеркивания */
+  display: inline-block;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.links a:hover {
+  border-bottom-color: var(--line2);
+}
+
+/* Почта строкой */
+.contact-line {
+  margin-top: 14px;
   font-size: 14px;
-  opacity: 0.75;
+  color: var(--muted);
 }
 
-/* Мобильная версия: делаем подложку сильнее, текст шире */
+.contact-label {
+  color: var(--muted2);
+  margin-right: 8px;
+}
+
+.contact-value {
+  color: var(--text);
+}
+
+/* Финальный абзац: добавили отступ и акцент на хэштег */
+.outro {
+  margin-top: 28px; /* <- отступ перед последним абзацем */
+}
+
+.tag {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* Мобильная версия */
 @media (max-width: 720px) {
   .overlay {
     background: rgba(0,0,0,0.68);
