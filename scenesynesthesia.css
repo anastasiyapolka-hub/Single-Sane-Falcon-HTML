@@ -1,19 +1,20 @@
 * { box-sizing: border-box; }
 
 :root {
-  --text: rgba(255,255,255,0.95);
-  --muted: rgba(255,255,255,0.70);
-  --muted2: rgba(255,255,255,0.60);
+  /* Берём “не ярко-белый”, как у блока Сотрудничество */
+  --text: rgba(255,255,255,0.70);
+
   --line: rgba(255,255,255,0.22);
   --line2: rgba(255,255,255,0.35);
 
   /* Светло-розовый для хэштега */
-  --accent: rgba(255, 192, 203, 0.92); /* light pink */
+  --accent: rgba(255, 192, 203, 0.92);
 }
 
 body {
   margin: 0;
   font-family: "Manrope", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 200;         /* ExtraLight для всего текста */
   color: var(--text);
 }
 
@@ -46,33 +47,36 @@ body {
   padding: 64px 48px;
 }
 
-/* Типографика */
+/* Заголовки: сохраняем жирные акценты */
 h1 {
   font-size: 36px;
   line-height: 1.15;
   margin: 0 0 10px;
   font-weight: 700;
   letter-spacing: 0.2px;
+  color: inherit;
 }
 
 .subtitle {
   font-size: 18px;
   margin: 0 0 6px;
-  opacity: 0.92;
   font-weight: 600;
+  color: inherit;
 }
 
 .meta {
   font-size: 13px;
   margin: 0 0 28px;
-  color: var(--muted2);
+  font-weight: 200;
+  color: inherit;
 }
 
 .text {
   font-size: 16px;
   line-height: 1.65;
   margin: 0 0 18px;
-  color: var(--text);
+  font-weight: 200;
+  color: inherit;
 }
 
 .block {
@@ -82,18 +86,19 @@ h1 {
 .section-title {
   font-size: 15px;
   margin: 0 0 10px;
-  opacity: 0.95;
   font-weight: 700;
   letter-spacing: 0.2px;
+  color: inherit;
 }
 
 .block p {
   margin: 0;
   line-height: 1.6;
-  color: var(--muted);
+  font-weight: 200;
+  color: inherit;
 }
 
-/* Ссылки: убрали синий цвет, убрали маркеры, сделали “визиточный” список */
+/* Ссылки: не синие, аккуратно */
 .links {
   list-style: none;
   margin: 0;
@@ -102,14 +107,11 @@ h1 {
   gap: 10px;
 }
 
-.links li {
-  margin: 0;
-  opacity: 1;
-}
+.links li { margin: 0; }
 
 .links a {
-  color: inherit;             /* НЕ синий */
-  text-decoration: none;      /* без стандартного подчеркивания */
+  color: inherit;
+  text-decoration: none;
   display: inline-block;
   padding: 6px 0;
   border-bottom: 1px solid var(--line);
@@ -123,26 +125,44 @@ h1 {
 .contact-line {
   margin-top: 14px;
   font-size: 14px;
-  color: var(--muted);
+  font-weight: 200;
+  color: inherit;
 }
 
 .contact-label {
-  color: var(--muted2);
   margin-right: 8px;
+  opacity: 0.9;
 }
 
 .contact-value {
-  color: var(--text);
+  color: inherit;
 }
 
-/* Финальный абзац: добавили отступ и акцент на хэштег */
+/* Финальный абзац: отступ и акцент на хэштег */
 .outro {
-  margin-top: 28px; /* <- отступ перед последним абзацем */
+  margin-top: 28px;
 }
 
 .tag {
   font-weight: 700;
   color: var(--accent);
+}
+
+/* Тонкая линия + сноска (кегль как у meta) */
+.fine-sep {
+  margin: 22px 0 10px;
+  border: 0;
+  height: 1px;
+  background: rgba(255,255,255,0.18);
+}
+
+.disclaimer {
+  margin: 0;
+  font-size: 13px;     /* как у meta */
+  line-height: 1.45;
+  font-weight: 200;
+  color: inherit;
+  opacity: 0.9;
 }
 
 /* Мобильная версия */
