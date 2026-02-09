@@ -47,13 +47,13 @@ body {
   padding: 64px 48px;
 }
 
-/* Заголовки: сохраняем жирные акценты */
 h1 {
+  font-family: "Playfair Display", serif;
   font-size: 36px;
   line-height: 1.15;
   margin: 0 0 10px;
-  font-weight: 700;
-  letter-spacing: 0.2px;
+  font-weight: 500;          /* Medium */
+  letter-spacing: 0.3px;     /* чуть больше воздуха */
   color: inherit;
 }
 
@@ -179,4 +179,18 @@ h1 {
   h1 {
     font-size: 28px;
   }
+}
+
+.title-sep {
+  width: 64px;
+  height: 1px;
+  border: 0;
+  margin: 12px 0 18px;
+  background: rgba(255,255,255,0.35);
+}
+
+.plain-item {
+  padding: 6px 0;
+  border-bottom: 1px solid var(--line);
+  color: inherit;
 }
