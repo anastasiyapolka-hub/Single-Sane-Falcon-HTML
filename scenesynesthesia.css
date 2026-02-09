@@ -2,7 +2,7 @@
 
 :root {
   /* Берём “не ярко-белый”, как у блока Сотрудничество */
-  --text: rgba(255,255,255,0.70);
+  --text: rgba(255,255,255,0.80);
 
   --line: rgba(255,255,255,0.22);
   --line2: rgba(255,255,255,0.35);
@@ -14,7 +14,7 @@
 body {
   margin: 0;
   font-family: "Manrope", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  font-weight: 200;         /* ExtraLight для всего текста */
+  font-weight: 300;         /* ExtraLight для всего текста */
   color: var(--text);
 }
 
