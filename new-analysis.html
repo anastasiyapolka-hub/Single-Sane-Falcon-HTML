@@ -882,8 +882,25 @@
        <script defer data-name="dashboard-interactions">
   document.addEventListener("DOMContentLoaded", function () {
     (function () {
-      const BACKEND_URL = "https://cotel-backend.onrender.com/analyze";
+      //const BACKEND_URL = "https://cotel-backend.onrender.com/analyze"; - убрали после добавления куки
       const SUBS_API_BASE = "https://cotel-backend.onrender.com";
+
+      async function apiFetch(path, options = {}) {
+        const cleanPath = path.startsWith("/") ? path : `/${path}`;
+        const url = `${SUBS_API_BASE}${cleanPath}`;
+
+        const headers = {
+          "Accept": "application/json",
+          ...(options.headers || {}),
+        };
+
+        return fetch(url, {
+          ...options,
+          headers,
+          credentials: "include", // cookie обязательно
+        });
+      }
+
 
       const uploadBtn = document.getElementById("uploadBtn");
       const fileInput = document.getElementById("chatFile");
@@ -962,9 +979,8 @@
       const sidebarResizer = document.getElementById("sidebarResizer");
 
       async function isBotConnected() {
-      const r = await fetch(`${SUBS_API_BASE}/tg/bot/link/status`, {
-        method: "GET",
-        headers: { "Accept": "application/json" }
+      const r = await apiFetch("/tg/bot/link/status", {
+        method: "GET"
       });
       const data = await r.json().catch(() => ({}));
       return !!data.connected;
@@ -1111,7 +1127,7 @@
 
       async function pollQrStatus() {
         try {
-          const resp = await fetch("https://cotel-backend.onrender.com/tg/qr/status");
+          const resp = await apiFetch("/tg/qr/status");
           const data = await resp.json();
 
           if (!resp.ok) {
@@ -1178,7 +1194,7 @@
         stopQrPolling();
 
         try {
-          const resp = await fetch("https://cotel-backend.onrender.com/tg/qr/start", {
+          const resp = await apiFetch("/tg/qr/start", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({}),
@@ -1331,8 +1347,7 @@
         tgStatusMessage.textContent = "Отправляем код...";
 
         try {
-          const resp = await fetch(
-            "https://cotel-backend.onrender.com/tg/send_code",
+          const resp = await apiFetch("/tg/send_code",
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -1369,8 +1384,7 @@
         tgStatusMessage.textContent = "Проверяем код...";
 
         try {
-          const resp = await fetch(
-            "https://cotel-backend.onrender.com/tg/confirm_code",
+          const resp = await apiFetch("/tg/confirm_code",
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -1426,8 +1440,7 @@
         tgStatusMessage.textContent = "Подтверждаем пароль...";
 
         try {
-          const resp = await fetch(
-            "https://cotel-backend.onrender.com/tg/confirm_password",
+          const resp = await apiFetch("/tg/confirm_password",
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -1471,7 +1484,7 @@
           tgStatusMessage.textContent = "Завершаем сессию...";
 
           try {
-            const resp = await fetch("https://cotel-backend.onrender.com/tg/logout", {
+            const resp = await apiFetch("/tg/logout", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
             });
@@ -1517,7 +1530,7 @@
 
       async function loadTelegramChats() {
         try {
-          const resp = await fetch("https://cotel-backend.onrender.com/tg/chats", {
+          const resp = await apiFetch("/tg/chats", {
             method: "GET",
             credentials: "omit",
           });
@@ -1663,9 +1676,8 @@
         }
 
         async function apiGetSubscriptions() {
-          const resp = await fetch(`${SUBS_API_BASE}/subscriptions`, {
-                  method: "GET",
-          headers: { "Accept": "application/json" }
+          const resp = await apiFetch("/subscriptions", {
+                  method: "GET"
         });
 
         const raw = await resp.text();
@@ -1682,7 +1694,7 @@
       }
 
       async function apiCreateSubscription(payload) {
-        const resp = await fetch(`${SUBS_API_BASE}/subscriptions`, {
+        const resp = await apiFetch("/subscriptions", {
           method: "POST",
           headers: { "Content-Type": "application/json", "Accept": "application/json" },
           body: JSON.stringify(payload)
@@ -1701,9 +1713,8 @@
       }
 
       async function apiDeleteSubscription(subscriptionId) {
-        const resp = await fetch(`${SUBS_API_BASE}/subscriptions/${encodeURIComponent(subscriptionId)}`, {
-          method: "DELETE",
-          headers: { "Accept": "application/json" },
+        const resp = await apiFetch(`/subscriptions/${encodeURIComponent(subscriptionId)}`, {
+          method: "DELETE"
         });
 
         const raw = await resp.text();
@@ -1972,7 +1983,7 @@
 
       async function openEditSubscription(id) {
         try {
-          const resp = await fetch(`${SUBS_API_BASE}/subscriptions/${id}`);
+          const resp = await apiFetch(`/subscriptions/${id}`);
           const sub = await resp.json();
 
           editingSubscriptionId = id;
@@ -2059,7 +2070,7 @@
   try {
     if (isEdit) {
       // UPDATE
-      await fetch(`${SUBS_API_BASE}/subscriptions/${editingSubscriptionId}`, {
+      await apiFetch(`/subscriptions/${editingSubscriptionId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", "Accept": "application/json" },
         body: JSON.stringify(payload)
@@ -2091,9 +2102,8 @@
 
 
       async function apiRunSubscriptions() {
-        const resp = await fetch(`${SUBS_API_BASE}/subscriptions/run`, {
-          method: "POST",
-          headers: { "Accept": "application/json" }
+        const resp = await apiFetch("/subscriptions/run", {
+          method: "POST"
         });
 
         const raw = await resp.text();
@@ -2116,7 +2126,7 @@
 
       async function updateSubscriptionActive(id, isActive) {
         try {
-          await fetch(`${SUBS_API_BASE}/subscriptions/${id}`, {
+          await apiFetch(`/subscriptions/${id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ is_active: isActive })
@@ -2143,13 +2153,9 @@ async function runSubscriptions() {
       runSubscriptionsBtn.textContent = "Запускаю...";
     }
 
-    const r = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      // body не нужен
-    });
+    const r = await apiFetch("/subscriptions/run", {
+      method: "POST"
+      });
 
     // Попробуем корректно разобрать ответ
     let data = null;
@@ -2303,7 +2309,7 @@ if (runSubscriptionsBtn) {
       runSubscriptionsBtn.disabled = true;
       runSubscriptionsBtn.textContent = "Запуск…";
 
-      const r = await fetch(`${API_BASE}/subscriptions/run`, { method: "POST" });
+      const r = await apiFetch("/subscriptions/run", { method: "POST" });
       const data = await r.json();
 
       if (!r.ok) {
@@ -2354,7 +2360,7 @@ if (runSubscriptionsBtn) {
 
       async function dispatchBot() {
         try {
-          const r = await fetch(`${SUBS_API_BASE}/tg/bot/dispatch`, { method: "POST" });
+          const r = await apiFetch("/tg/bot/dispatch", { method: "POST" });
           const data = await r.json();
           if (!r.ok) {
             alert(`Ошибка dispatch: ${r.status}\n${JSON.stringify(data)}`);
@@ -2400,7 +2406,7 @@ if (runSubscriptionsBtn) {
               };
               formData.append("params", JSON.stringify(params));
 
-              const resp = await fetch(BACKEND_URL, {
+              const resp = await apiFetch("/analyze", {
                 method: "POST",
                 body: formData,
               });
@@ -2441,8 +2447,7 @@ if (runSubscriptionsBtn) {
                 user_query: query || null,
               };
 
-              const resp = await fetch(
-                "https://cotel-backend.onrender.com/tg/analyze_chat",
+              const resp = await apiFetch("/tg/analyze_chat",
                 {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
