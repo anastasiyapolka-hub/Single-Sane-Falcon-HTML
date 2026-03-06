@@ -3,6 +3,7 @@
   <head>
     <title>Work area</title>
     <link rel="icon" type="image/png" href="images/cotel-cat.png">
+    <link rel="stylesheet" href="/css/auth.css">
     <meta property="og:title" content="New-Analysis - Single Sane Falcon" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta charset="utf-8" />
@@ -755,6 +756,28 @@
                 
             </div>
 
+
+            <div id="sidebar-user">
+              <button id="auth-open-btn" class="auth-button">
+                Войти / Регистрация
+              </button>
+
+              <div id="user-profile" class="hidden">
+                <div class="user-avatar">
+                  <img id="user-avatar-img" src="/images/avatars/cat-1.png">
+                </div>
+
+                <div class="user-info">
+                  <div id="user-email"></div>
+                  <div id="user-plan"></div>
+                </div>
+
+                <div class="user-menu">
+                  <button id="profile-btn">Профиль</button>
+                  <button id="logout-btn">Выйти</button>
+                </div>
+              </div>
+            </div>
             <!-- Resizer -->
             <div id="sidebarResizer" class="sidebar-resizer" title="Изменить ширину панели"></div>
 
@@ -2497,24 +2520,73 @@ if (runSubscriptionsBtn) {
       />
     </div>
 
-    <!-- Modal: Подключение бота для подписок -->
-  <div id="botConnectModal" class="modal-overlay" style="display:none;">
-    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <h3 id="modalTitle" class="modal-title">Подключение бота</h3>
-      <p class="modal-text">
-        Для активации механизма подписок требуется подключить бота к CoTel.
-      </p>
+      <!-- Modal: Подключение бота для подписок -->
+    <div id="botConnectModal" class="modal-overlay" style="display:none;">
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <h3 id="modalTitle" class="modal-title">Подключение бота</h3>
+        <p class="modal-text">
+          Для активации механизма подписок требуется подключить бота к CoTel.
+        </p>
 
-      <a class="modal-link" href="https://t.me/CoTel_AlertBot" target="_blank" rel="noopener">
-        t.me/CoTel_AlertBot
-      </a>
+        <a class="modal-link" href="https://t.me/CoTel_AlertBot" target="_blank" rel="noopener">
+          t.me/CoTel_AlertBot
+        </a>
 
-      <div class="modal-actions">
-        <button id="modalOkBtn" type="button" class="tg-button">Понятно</button>
+        <div class="modal-actions">
+          <button id="modalOkBtn" type="button" class="tg-button">Понятно</button>
+        </div>
       </div>
     </div>
+
+    <div id="auth-modal" class="modal hidden">
+
+    <div class="modal-content">
+
+      <div id="auth-view-login">
+
+        <h2>Войти</h2>
+
+        <input id="login-email" placeholder="Email">
+        <input id="login-password" type="password" placeholder="Пароль">
+
+        <button id="login-submit">Войти</button>
+
+        <p>
+          Нет аккаунта?
+          <span id="show-register">Зарегистрироваться</span>
+        </p>
+
+      </div>
+
+      <div id="auth-view-register" class="hidden">
+
+        <h2>Регистрация</h2>
+
+        <input id="register-email" placeholder="Email">
+        <input id="register-password" type="password" placeholder="Пароль">
+        <input id="register-password2" type="password" placeholder="Повторите пароль">
+
+        <button id="register-submit">Создать аккаунт</button>
+
+      </div>
+
+      <div id="auth-view-verify" class="hidden">
+
+        <h2>Подтверждение email</h2>
+
+        <input id="verify-code" placeholder="Код из письма">
+
+        <button id="verify-submit">Подтвердить</button>
+
+        <button id="verify-back">Назад</button>
+
+      </div>
+
+    </div>
+
   </div>
 
-
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
   </body>
 </html>
