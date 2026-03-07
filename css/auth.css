@@ -7,9 +7,48 @@
 .sidebar-user-area {
   margin-top: auto;
   padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
-.auth-open-btn,
+.user-profile {
+  position: relative;
+  width: 100%;
+}
+
+.auth-open-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  max-width: 100%;
+  align-self: flex-start;
+
+  border-radius: 14px;
+  border: 1px solid #d1d5db;
+  background: #f59e0b;
+  color: #111111;
+
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background 0.18s ease, box-shadow 0.18s ease, font-weight 0.18s ease;
+}
+
+.auth-open-btn:hover {
+  background: #fbbf24;
+  color: #000000;
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.auth-open-btn:active {
+  background: #f59e0b;
+}
+
 .user-profile-trigger,
 .user-dropdown button {
   width: 100%;
@@ -21,15 +60,16 @@
   cursor: pointer;
 }
 
-.user-profile {
-  position: relative;
-}
-
 .user-profile-trigger {
   display: flex;
   align-items: center;
   gap: 10px;
   text-align: left;
+}
+
+.user-profile-trigger:hover,
+.user-dropdown button:hover {
+  background: #f9fafb;
 }
 
 .user-avatar-img {
@@ -72,7 +112,7 @@
   border-radius: 14px;
   background: #ffffff;
   border: 1px solid #e5e7eb;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
   z-index: 50;
 }
 
@@ -101,10 +141,14 @@
   background: #fff;
   border-radius: 18px;
   padding: 24px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.auth-modal-content h2 {
+  margin: 0 0 4px;
 }
 
 .auth-modal-content input {
@@ -119,6 +163,19 @@
   border-radius: 12px;
   padding: 12px 14px;
   cursor: pointer;
+}
+
+#login-submit,
+#register-submit,
+#verify-submit {
+  background: #111827;
+  color: #ffffff;
+}
+
+#login-submit:hover,
+#register-submit:hover,
+#verify-submit:hover {
+  background: #000000;
 }
 
 .auth-modal-close {
@@ -149,6 +206,11 @@
 .sidebar-collapsed #sidebarUserArea {
   display: flex;
   justify-content: center;
+  align-items: center;
+}
+
+.sidebar-collapsed .user-profile {
+  width: auto;
 }
 
 .sidebar-collapsed .user-profile-trigger,
@@ -170,6 +232,6 @@
   width: 32px;
   height: 32px;
   display: block;
-  background: url("images/cats/cat-1.jpg") center/cover no-repeat;
+  background: url("../images/cats/cat-1.jpg") center/cover no-repeat;
   border-radius: 999px;
 }

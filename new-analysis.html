@@ -1554,7 +1554,6 @@
         try {
           const resp = await apiFetch("/tg/chats", {
             method: "GET",
-            credentials: "omit",
           });
       
           const rawText = await resp.text();
@@ -2148,8 +2147,8 @@
 
       async function updateSubscriptionActive(id, isActive) {
         try {
-          await apiFetch(`/subscriptions/${id}`, {
-            method: "PATCH",
+          await apiFetch(`/subscriptions/${id}/toggle`, {
+            method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ is_active: isActive })
           });
@@ -2574,9 +2573,6 @@ if (runSubscriptionsBtn) {
         </div>
       </div>
     </div>
-
-    <script src="js/api.js"></script>
-    <script src="js/auth.js"></script>
 
 <script src="/js/api.js"></script>
 <script src="/js/auth.js"></script>
