@@ -2542,10 +2542,33 @@ if (runSubscriptionsBtn) {
       <div class="auth-modal-content">
         <button id="auth-modal-close" class="auth-modal-close" type="button">×</button>
 
-        <div id="auth-view-login" class="auth-view">
+        <div class="auth-modal-header">
+          <div class="auth-brand-title">
+            <span class="auth-brand-name">CoTel</span>
+            <span class="auth-brand-subtitle">— AI Copilot for Telegram</span>
+          </div>
+          <div class="auth-header-divider"></div>
+        </div>
+        
+        <div id="auth-view-start" class="auth-view">
+          <h2>Войти / зарегистрироваться</h2>
+          <div class="auth-field">
+            <label for="auth-email-check">Почта</label>
+            <input id="auth-email-check" type="email" placeholder="name@email.com">
+          </div>
+          <button id="auth-continue-submit" type="button">Продолжить</button>
+        </div>
+
+        <div id="auth-view-login" class="auth-view hidden">
           <h2>Войти</h2>
-          <input id="login-email" type="email" placeholder="Email">
-          <input id="login-password" type="password" placeholder="Пароль">
+          <div class="auth-field">
+            <label for="login-email">Почта</label>
+            <input id="login-email" type="email" placeholder="name@email.com">
+          </div>
+          <div class="auth-field">
+            <label for="login-password">Пароль</label>
+            <input id="login-password" type="password" placeholder="Введите пароль">
+          </div>
           <button id="login-submit" type="button">Войти</button>
           <p class="auth-switch-text">
             Нет аккаунта?
@@ -2555,10 +2578,19 @@ if (runSubscriptionsBtn) {
 
         <div id="auth-view-register" class="auth-view hidden">
           <h2>Регистрация</h2>
-          <input id="register-email" type="email" placeholder="Email">
-          <input id="register-password" type="password" placeholder="Пароль">
-          <input id="register-password2" type="password" placeholder="Повторите пароль">
-          <button id="register-submit" type="button">Создать аккаунт</button>
+          <div class="auth-field">
+            <label for="register-email">Почта</label>
+            <input id="register-email" type="email" placeholder="name@email.com">
+          </div>
+          <div class="auth-field">
+            <label for="register-password">Пароль</label>
+            <input id="register-password" type="password" placeholder="Придумайте пароль">
+          </div>
+          <div class="auth-field">
+            <label for="register-password2">Подтверждение пароля</label>
+            <input id="register-password2" type="password" placeholder="Повторите пароль">
+          </div>
+          <button id="register-submit" type="button">Зарегистрироваться</button>
           <p class="auth-switch-text">
             Уже есть аккаунт?
             <button id="show-login" type="button" class="auth-link-btn">Войти</button>
@@ -2566,11 +2598,36 @@ if (runSubscriptionsBtn) {
         </div>
 
         <div id="auth-view-verify" class="auth-view hidden">
-          <h2>Подтверждение email</h2>
-          <input id="verify-code" type="text" placeholder="Код из письма">
+          <h2>Подтвердите почту</h2>
+          <p class="auth-note">
+            Мы отправили код подтверждения на вашу почту. Введите его ниже.
+          </p>
+
+          <div class="auth-field">
+            <label for="verify-code">Код подтверждения</label>
+            <input id="verify-code" type="text" placeholder="123456">
+          </div>
+
+          <p id="verify-dev-hint" class="auth-dev-hint hidden"></p>
+
           <button id="verify-submit" type="button">Подтвердить</button>
           <button id="verify-back" type="button" class="secondary-btn">Назад</button>
         </div>
+      </div>
+    </div>
+
+    <div id="cookie-banner" class="cookie-banner hidden">
+      <div class="cookie-banner__card">
+        <div class="cookie-banner__text">
+          <strong>Мы используем cookie 🍪</strong>
+          <p>
+            Продолжая пользоваться сайтом, вы соглашаетесь с использованием cookie
+            для авторизации и корректной работы сервиса.
+          </p>
+        </div>
+        <button id="cookie-accept-btn" type="button" class="cookie-banner__btn">
+          Хорошо
+        </button>
       </div>
     </div>
 
