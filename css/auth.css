@@ -9,7 +9,7 @@
   padding-top: 12px;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
 }
 
 .user-profile {
@@ -28,7 +28,7 @@
   border-radius: 14px;
   border: 1px solid #d1d5db;
   background: #f59e0b;
-  color: #111111;
+  color: #ffffff;
 
   padding: 10px 14px;
   font-size: 0.95rem;

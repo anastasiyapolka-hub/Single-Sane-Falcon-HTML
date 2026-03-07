@@ -1,47 +1,83 @@
 let currentUser = null;
 let registerEmail = null;
 
+function $(id) {
+  return document.getElementById(id);
+}
+
+function openAuthModal(view = "login") {
+  $("auth-modal")?.classList.remove("hidden");
+  switchAuthView(view);
+}
+
+function closeAuthModal() {
+  $("auth-modal")?.classList.add("hidden");
+}
+
+function switchAuthView(view) {
+  $("auth-view-login")?.classList.add("hidden");
+  $("auth-view-register")?.classList.add("hidden");
+  $("auth-view-verify")?.classList.add("hidden");
+
+  if (view === "login") $("auth-view-login")?.classList.remove("hidden");
+  if (view === "register") $("auth-view-register")?.classList.remove("hidden");
+  if (view === "verify") $("auth-view-verify")?.classList.remove("hidden");
+}
+
 async function bootstrapAuth() {
   try {
     const user = await apiFetch("/auth/me");
     setUser(user);
-  } catch {
+  } catch (e) {
     setGuest();
   }
 }
 
 function setGuest() {
-  document.getElementById("auth-open-btn").classList.remove("hidden");
-  document.getElementById("user-profile").classList.add("hidden");
+  currentUser = null;
+  $("auth-open-btn")?.classList.remove("hidden");
+  $("user-profile")?.classList.add("hidden");
+  $("user-dropdown")?.classList.add("hidden");
 }
 
 function setUser(user) {
   currentUser = user;
 
-  document.getElementById("auth-open-btn").classList.add("hidden");
-  document.getElementById("user-profile").classList.remove("hidden");
+  $("auth-open-btn")?.classList.add("hidden");
+  $("user-profile")?.classList.remove("hidden");
 
-  document.getElementById("user-email").textContent = user.email;
-  document.getElementById("user-plan").textContent = user.plan;
+  $("user-email").textContent = user.email || "";
+  $("user-plan").textContent = user.plan || "free";
 
-  setAvatar(user.email);
+  setAvatar(user.email || "");
 }
 
 function setAvatar(email) {
-  const hash = email.split("").reduce((a,b)=>a+b.charCodeAt(0),0);
-  const index = (hash % 20) + 1;
+  const safeEmail = String(email || "");
+  const hash = safeEmail.split("").reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+  const index = (hash % 4) + 1;
 
-  document.getElementById("user-avatar-img").src =
-    `/images/avatars/cat-${index}.png`;
+  $("user-avatar-img").src = `images/cats/cat-${index}.jpg`;
 }
 
-document.getElementById("login-submit").onclick = async () => {
+function toggleUserDropdown() {
+  $("user-dropdown")?.classList.toggle("hidden");
+}
 
-  const email = document.getElementById("login-email").value;
-  const password = document.getElementById("login-password").value;
+function closeUserDropdown() {
+  $("user-dropdown")?.classList.add("hidden");
+}
+
+async function handleLogin() {
+  const email = $("login-email").value.trim();
+  const password = $("login-password").value;
+
+  if (!email || !password) {
+    alert("Введите email и пароль.");
+    return;
+  }
 
   try {
-
     const user = await apiFetch("/auth/login", {
       method: "POST",
       body: JSON.stringify({ email, password })
@@ -49,60 +85,135 @@ document.getElementById("login-submit").onclick = async () => {
 
     setUser(user);
     closeAuthModal();
-
   } catch (err) {
-
-    alert("Ошибка входа");
-
+    const detail = err?.detail?.detail || err?.detail || "Ошибка входа";
+    alert(typeof detail === "string" ? detail : "Ошибка входа");
   }
-};
+}
 
-document.getElementById("register-submit").onclick = async () => {
+async function handleRegister() {
+  const email = $("register-email").value.trim();
+  const password = $("register-password").value;
+  const password2 = $("register-password2").value;
 
-  const email = document.getElementById("register-email").value;
-  const password = document.getElementById("register-password").value;
-  const password2 = document.getElementById("register-password2").value;
+  if (!email || !password || !password2) {
+    alert("Заполните все поля.");
+    return;
+  }
 
-  registerEmail = email;
+  if (password !== password2) {
+    alert("Пароли не совпадают.");
+    return;
+  }
 
-  const res = await apiFetch("/auth/register", {
-    method: "POST",
-    body: JSON.stringify({
-      email,
-      password,
-      password_confirm: password2
-    })
-  });
+  try {
+    registerEmail = email;
 
-  document.getElementById("auth-view-register").classList.add("hidden");
-  document.getElementById("auth-view-verify").classList.remove("hidden");
+    const res = await apiFetch("/auth/register", {
+      method: "POST",
+      body: JSON.stringify({
+        email,
+        password,
+        password_confirm: password2
+      })
+    });
 
-  console.log("DEV CODE:", res.dev_code);
-};
+    switchAuthView("verify");
 
-document.getElementById("verify-submit").onclick = async () => {
+    if (res.dev_code) {
+      alert(`DEV code: ${res.dev_code}`);
+    }
+  } catch (err) {
+    const detail = err?.detail?.detail || err?.detail || "Ошибка регистрации";
+    alert(typeof detail === "string" ? detail : "Ошибка регистрации");
+  }
+}
 
-  const code = document.getElementById("verify-code").value;
+async function handleVerify() {
+  const code = $("verify-code").value.trim();
 
-  const user = await apiFetch("/auth/verify-email", {
-    method: "POST",
-    body: JSON.stringify({
-      email: registerEmail,
-      code
-    })
-  });
+  if (!registerEmail) {
+    alert("Не найден email для подтверждения. Зарегистрируйтесь заново.");
+    switchAuthView("register");
+    return;
+  }
 
-  setUser(user);
-  closeAuthModal();
-};
+  if (!code) {
+    alert("Введите код подтверждения.");
+    return;
+  }
 
-document.getElementById("logout-btn").onclick = async () => {
+  try {
+    const user = await apiFetch("/auth/verify-email", {
+      method: "POST",
+      body: JSON.stringify({
+        email: registerEmail,
+        code
+      })
+    });
 
-  await apiFetch("/auth/logout", { method: "POST" });
+    setUser(user);
+    closeAuthModal();
+  } catch (err) {
+    const detail = err?.detail?.detail || err?.detail || "Ошибка подтверждения";
+    alert(typeof detail === "string" ? detail : "Ошибка подтверждения");
+  }
+}
+
+async function handleLogout() {
+  try {
+    await apiFetch("/auth/logout", { method: "POST" });
+  } catch (_) {
+    // даже если сервер ответил ошибкой, на фронте всё равно сбросим состояние
+  }
 
   setGuest();
-};
+  closeUserDropdown();
+}
+
+function bindAuthUi() {
+  $("auth-open-btn")?.addEventListener("click", () => openAuthModal("login"));
+  $("auth-modal-close")?.addEventListener("click", closeAuthModal);
+  $("show-register")?.addEventListener("click", () => switchAuthView("register"));
+  $("show-login")?.addEventListener("click", () => switchAuthView("login"));
+  $("verify-back")?.addEventListener("click", () => switchAuthView("register"));
+
+  $("login-submit")?.addEventListener("click", handleLogin);
+  $("register-submit")?.addEventListener("click", handleRegister);
+  $("verify-submit")?.addEventListener("click", handleVerify);
+  $("logout-btn")?.addEventListener("click", handleLogout);
+
+  $("user-profile-trigger")?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (!currentUser) return;
+    toggleUserDropdown();
+  });
+
+  $("profile-btn")?.addEventListener("click", () => {
+    closeUserDropdown();
+    alert("Профиль пока сделаем следующим этапом.");
+  });
+
+  $("auth-modal")?.addEventListener("click", (e) => {
+    const content = document.querySelector(".auth-modal-content");
+    if (!content) return;
+
+    const clickedInside = content.contains(e.target);
+    if (!clickedInside) {
+      closeAuthModal();
+    }
+  });
+
+  document.addEventListener("click", (e) => {
+    const profile = $("user-profile");
+    if (!profile) return;
+    if (!profile.contains(e.target)) {
+      closeUserDropdown();
+    }
+  });
+}
 
 document.addEventListener("DOMContentLoaded", () => {
+  bindAuthUi();
   bootstrapAuth();
 });
