@@ -757,26 +757,25 @@
             </div>
 
 
-            <div id="sidebar-user">
-              <button id="auth-open-btn" class="auth-button">
-                Войти / Регистрация
-              </button>
+            <div id="sidebarUserArea" class="sidebar-user-area">
+                <button id="auth-open-btn" class="auth-open-btn">
+                  Войти / Регистрация
+                </button>
 
-              <div id="user-profile" class="hidden">
-                <div class="user-avatar">
-                  <img id="user-avatar-img" src="/images/avatars/cat-1.png">
-                </div>
+                <div id="user-profile" class="user-profile hidden">
+                  <button id="user-profile-trigger" class="user-profile-trigger" type="button">
+                    <img id="user-avatar-img" class="user-avatar-img" src="images/cats/cat-1.jpg" alt="Аватар">
+                    <div class="user-meta expanded-only">
+                      <div id="user-email" class="user-email"></div>
+                      <div id="user-plan" class="user-plan"></div>
+                    </div>
+                  </button>
 
-                <div class="user-info">
-                  <div id="user-email"></div>
-                  <div id="user-plan"></div>
+                  <div id="user-dropdown" class="user-dropdown hidden">
+                    <button id="profile-btn" type="button">Профиль</button>
+                    <button id="logout-btn" type="button">Выйти</button>
+                  </div>
                 </div>
-
-                <div class="user-menu">
-                  <button id="profile-btn">Профиль</button>
-                  <button id="logout-btn">Выйти</button>
-                </div>
-              </div>
             </div>
             <!-- Resizer -->
             <div id="sidebarResizer" class="sidebar-resizer" title="Изменить ширину панели"></div>
@@ -2538,53 +2537,46 @@ if (runSubscriptionsBtn) {
       </div>
     </div>
 
-    <div id="auth-modal" class="modal hidden">
+    <div id="auth-modal" class="auth-modal hidden">
+      <div class="auth-modal-backdrop"></div>
 
-    <div class="modal-content">
+      <div class="auth-modal-content">
+        <button id="auth-modal-close" class="auth-modal-close" type="button">×</button>
 
-      <div id="auth-view-login">
+        <div id="auth-view-login" class="auth-view">
+          <h2>Войти</h2>
+          <input id="login-email" type="email" placeholder="Email">
+          <input id="login-password" type="password" placeholder="Пароль">
+          <button id="login-submit" type="button">Войти</button>
+          <p class="auth-switch-text">
+            Нет аккаунта?
+            <button id="show-register" type="button" class="auth-link-btn">Зарегистрироваться</button>
+          </p>
+        </div>
 
-        <h2>Войти</h2>
+        <div id="auth-view-register" class="auth-view hidden">
+          <h2>Регистрация</h2>
+          <input id="register-email" type="email" placeholder="Email">
+          <input id="register-password" type="password" placeholder="Пароль">
+          <input id="register-password2" type="password" placeholder="Повторите пароль">
+          <button id="register-submit" type="button">Создать аккаунт</button>
+          <p class="auth-switch-text">
+            Уже есть аккаунт?
+            <button id="show-login" type="button" class="auth-link-btn">Войти</button>
+          </p>
+        </div>
 
-        <input id="login-email" placeholder="Email">
-        <input id="login-password" type="password" placeholder="Пароль">
-
-        <button id="login-submit">Войти</button>
-
-        <p>
-          Нет аккаунта?
-          <span id="show-register">Зарегистрироваться</span>
-        </p>
-
+        <div id="auth-view-verify" class="auth-view hidden">
+          <h2>Подтверждение email</h2>
+          <input id="verify-code" type="text" placeholder="Код из письма">
+          <button id="verify-submit" type="button">Подтвердить</button>
+          <button id="verify-back" type="button" class="secondary-btn">Назад</button>
+        </div>
       </div>
-
-      <div id="auth-view-register" class="hidden">
-
-        <h2>Регистрация</h2>
-
-        <input id="register-email" placeholder="Email">
-        <input id="register-password" type="password" placeholder="Пароль">
-        <input id="register-password2" type="password" placeholder="Повторите пароль">
-
-        <button id="register-submit">Создать аккаунт</button>
-
-      </div>
-
-      <div id="auth-view-verify" class="hidden">
-
-        <h2>Подтверждение email</h2>
-
-        <input id="verify-code" placeholder="Код из письма">
-
-        <button id="verify-submit">Подтвердить</button>
-
-        <button id="verify-back">Назад</button>
-
-      </div>
-
     </div>
 
-  </div>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
 
 <script src="/js/api.js"></script>
 <script src="/js/auth.js"></script>
