@@ -270,8 +270,7 @@ text-decoration: underline;
   width: auto;
 }
 
-.sidebar-collapsed .user-profile-trigger,
-.sidebar-collapsed .auth-open-btn {
+.sidebar-collapsed .user-profile-trigger {
   width: 52px;
   height: 52px;
   padding: 6px;
@@ -279,9 +278,23 @@ text-decoration: underline;
   justify-content: center;
 }
 
+
+
 .sidebar-collapsed .auth-open-btn {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  padding: 0;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+
+  background: #f59e0b;
+  border: none;
   font-size: 0;
-  position: relative;
+  line-height: 0;
 }
 
 .sidebar-collapsed .auth-open-btn::before {
