@@ -774,6 +774,7 @@
 
                   <div id="user-dropdown" class="user-dropdown hidden">
                     <button id="profile-btn" type="button">Профиль</button>
+                    <button id="help-btn" type="button">Справка</button>
                     <button id="logout-btn" type="button">Выйти</button>
                   </div>
                 </div>
@@ -907,24 +908,6 @@
     (function () {
       //const BACKEND_URL = "https://cotel-backend.onrender.com/analyze"; - убрали после добавления куки
       const SUBS_API_BASE = "https://cotel-backend.onrender.com";
-
-      async function apiFetch(path, options = {}) {
-        const cleanPath = path.startsWith("/") ? path : `/${path}`;
-        const url = `${SUBS_API_BASE}${cleanPath}`;
-
-        const headers = {
-          "Accept": "application/json",
-          ...(options.headers || {}),
-        };
-
-        return fetch(url, {
-          ...options,
-          headers,
-          credentials: "include", // cookie обязательно
-        });
-      }
-
-
       const uploadBtn = document.getElementById("uploadBtn");
       const fileInput = document.getElementById("chatFile");
       const queryInput = document.getElementById("queryInput");
@@ -1010,6 +993,8 @@
     }
 
       let cachedChats = []; // [{id,title,type,username}]
+
+      bootstrapTelegramState();
 
       activeChatInput?.addEventListener("input", filterChatsByInput);
 
@@ -1238,6 +1223,35 @@
         }
       }
 
+      async function bootstrapTelegramState() {
+        try {
+          const resp = await apiFetch("/tg/chats", { method: "GET" });
+          const rawText = await resp.text();
+          let data = null;
+          try { data = rawText ? JSON.parse(rawText) : null; } catch {}
+
+          if (!resp.ok) {
+            setTelegramConnectionStatus(false, null);
+            return;
+          }
+
+          const chats = (data && data.chats) ? data.chats : [];
+          const username =
+            data?.me?.username ||
+            data?.username ||
+            data?.me?.first_name ||
+            null;
+
+          cachedChats = chats;
+          renderChatsList(cachedChats);
+          renderSubChatsList(cachedChats);
+          setTelegramConnectionStatus(true, username);
+
+          await refreshSubscriptions();
+        } catch (e) {
+          setTelegramConnectionStatus(false, null);
+        }
+      }
       // начальное состояние
       setTgState("phone");
 
@@ -1626,7 +1640,6 @@
         });
       }
 
-
       function filterChatsByInput() {
         const q = (activeChatInput?.value || "").trim().toLowerCase();
         if (!q) {
@@ -1685,7 +1698,7 @@
         return map[v] ?? 60;
       }
 
-        function minutesToHuman(m) {
+      function minutesToHuman(m) {
           const n = Number(m);
           if (n === 10) return "1 раз в 10 минут";
           if (n === 30) return "1 раз в 30 минут";
@@ -1695,12 +1708,12 @@
           if (n === 720) return "1 раз в 12 часов (полдня)";
           if (n === 1440) return "1 раз в день";
           return `${n} мин`;
-        }
+      }
 
-        async function apiGetSubscriptions() {
+      async function apiGetSubscriptions() {
           const resp = await apiFetch("/subscriptions", {
                   method: "GET"
-        });
+      });
 
         const raw = await resp.text();
         let data = null;
@@ -2616,6 +2629,69 @@ if (runSubscriptionsBtn) {
         </div>
       </div>
     </div>
+
+
+
+    <div id="profile-modal" class="auth-modal hidden">
+      <div class="auth-modal-backdrop"></div>
+
+      <div class="auth-modal-content profile-modal-content">
+        <button id="profile-modal-close" class="auth-modal-close" type="button">×</button>
+
+        <div class="auth-modal-header">
+          <div class="auth-brand-title">
+            <span class="auth-brand-name">Профиль</span>
+          </div>
+          <div class="auth-header-divider"></div>
+        </div>
+
+        <div class="profile-block">
+          <div class="profile-avatar-row">
+            <img id="profile-avatar-img" class="user-avatar-img" src="images/cats/cat-1.jpg" alt="Аватар">
+          </div>
+
+          <div class="profile-field">
+            <label>Почта</label>
+            <div id="profile-email" class="profile-static-value">—</div>
+          </div>
+
+          <div class="profile-field profile-plan-row">
+            <div>
+              <label>Тариф</label>
+              <div id="profile-plan" class="profile-static-value">free</div>
+            </div>
+            <button id="change-plan-btn" type="button" class="secondary-btn">Сменить тариф</button>
+          </div>
+
+          <div class="profile-field">
+            <label for="profile-phone">Телефон</label>
+            <input id="profile-phone" type="text" placeholder="+7..." />
+            <p class="profile-help-text">
+              Необязательно. Используется для удобного входа в Telegram.
+            </p>
+          </div>
+
+          <div class="profile-links">
+            <button id="change-password-btn" type="button" class="auth-link-btn">Сменить пароль</button>
+          </div>
+
+          <div class="auth-header-divider"></div>
+
+          <div class="profile-settings-block">
+            <div class="profile-settings-title">Настройки профиля</div>
+
+            <label class="profile-checkbox-row">
+              <input id="ultra-secure-logout" type="checkbox" />
+              <span>
+                Повышенная безопасность
+                <small>При выходе из CoTel также завершать Telegram-сессию</small>
+              </span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
 
     <div id="cookie-banner" class="cookie-banner hidden">
       <div class="cookie-banner__card">

@@ -270,6 +270,33 @@ function bindAuthUi() {
     }
   });
 
+  byId("profile-btn")?.addEventListener("click", () => {
+  closeUserDropdown();
+  openProfileModal();
+``});
+
+    byId("profile-modal-close")?.addEventListener("click", closeProfileModal);
+
+    byId("profile-modal")?.addEventListener("click", (e) => {
+    const content = document.querySelector(".profile-modal-content");
+    if (content && !content.contains(e.target)) {
+        closeProfileModal();
+    }
+    });
+
+    byId("help-btn")?.addEventListener("click", () => {
+    closeUserDropdown();
+    alert("Справку подключим следующим этапом.");
+    });
+
+    byId("change-plan-btn")?.addEventListener("click", () => {
+    alert("Смену тарифа подключим позже.");
+    });
+
+    byId("change-password-btn")?.addEventListener("click", () => {
+    alert("Смену пароля подключим позже.");
+    });
+
   document.addEventListener("click", (e) => {
     const profile = byId("user-profile");
     if (profile && !profile.contains(e.target)) {
@@ -292,6 +319,20 @@ function initCookieBanner() {
     localStorage.setItem("cotel_cookie_banner_accepted", "1");
     banner.classList.add("hidden");
   });
+}
+
+function openProfileModal() {
+  if (!currentUser) return;
+
+  byId("profile-email").textContent = currentUser.email || "—";
+  byId("profile-plan").textContent = currentUser.plan || "free";
+  byId("profile-avatar-img").src = byId("user-avatar-img")?.src || "/images/cats/cat-1.jpg";
+
+  byId("profile-modal")?.classList.remove("hidden");
+}
+
+function closeProfileModal() {
+  byId("profile-modal")?.classList.add("hidden");
 }
 
 
