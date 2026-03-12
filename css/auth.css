@@ -529,3 +529,15 @@ text-decoration: underline;
   color: #6b7280;
   font-size: 0.8rem;
 }
+
+.auth-inline-error {
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #c62828;
+}
+
+.auth-input-error {
+  border: 1px solid #c62828 !important;
+  box-shadow: 0 0 0 2px rgba(198, 40, 40, 0.10);
+}

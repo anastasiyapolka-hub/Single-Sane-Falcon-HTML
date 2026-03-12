@@ -33,7 +33,7 @@
       }
     </style>
 
-      <style>
+    <style>
       /* Лейаут: слева сайдбар, справа рабочая  область */
       .dashboard-layout {
         display: flex;
@@ -985,12 +985,17 @@
       const sidebarResizer = document.getElementById("sidebarResizer");
 
       async function isBotConnected() {
-      const r = await apiFetch("/tg/bot/link/status", {
-        method: "GET"
-      });
-      const data = await r.json().catch(() => ({}));
-      return !!data.connected;
-    }
+        try {
+          const data = await apiFetch("/tg/bot/link/status", {
+            method: "GET"
+          });
+          return !!data?.connected;
+        } catch {
+          return false;
+        }
+      }
+
+
 
       let cachedChats = []; // [{id,title,type,username}]
 
@@ -1202,15 +1207,14 @@
         stopQrPolling();
 
         try {
-          const resp = await apiFetch("/tg/qr/start", {
+          const data = await apiFetch("/tg/qr/start", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({}),
           });
 
-          const data = await resp.json();
-          if (!resp.ok) {
-            tgQrStatus.textContent = "Ошибка старта QR: " + (data.detail || "unknown");
+          if (!data?.url) {
+            tgQrStatus.textContent = "Ошибка старта QR: backend не вернул url";
             return;
           }
 
@@ -1219,23 +1223,16 @@
 
           tgQrPollTimer = setInterval(pollQrStatus, 1500);
         } catch (e) {
-          tgQrStatus.textContent = "Ошибка сети: " + e.message;
+          const msg = e?.detail?.detail || e?.detail || e?.message || "unknown";
+          tgQrStatus.textContent = "Ошибка сети: " + msg;
         }
       }
 
       async function bootstrapTelegramState() {
         try {
-          const resp = await apiFetch("/tg/chats", { method: "GET" });
-          const rawText = await resp.text();
-          let data = null;
-          try { data = rawText ? JSON.parse(rawText) : null; } catch {}
+          const data = await apiFetch("/tg/chats", { method: "GET" });
 
-          if (!resp.ok) {
-            setTelegramConnectionStatus(false, null);
-            return;
-          }
-
-          const chats = (data && data.chats) ? data.chats : [];
+          const chats = Array.isArray(data?.chats) ? data.chats : [];
           const username =
             data?.me?.username ||
             data?.username ||
@@ -1249,9 +1246,17 @@
 
           await refreshSubscriptions();
         } catch (e) {
+          cachedChats = [];
+          renderChatsList([]);
+          renderSubChatsList([]);
           setTelegramConnectionStatus(false, null);
         }
       }
+
+      window.cotelRefreshTelegramState = async function () {
+        await bootstrapTelegramState();
+      };
+
       // начальное состояние
       setTgState("phone");
 
@@ -1265,8 +1270,7 @@
 
       // по умолчанию обновляем UI по выбранному источнику
       updateDataSourceUI();
-      setTelegramConnectionStatus(false, null);
-
+      
       // слушаем переключение источника данных
       dataSourceFileRadio?.addEventListener("change", updateDataSourceUI);
       dataSourceAccountRadio?.addEventListener("change", updateDataSourceUI);
@@ -1567,25 +1571,17 @@
 
       async function loadTelegramChats() {
         try {
-          const resp = await apiFetch("/tg/chats", {
+          const data = await apiFetch("/tg/chats", {
             method: "GET",
           });
-      
-          const rawText = await resp.text();
-          let data = null;
-          try { data = rawText ? JSON.parse(rawText) : null; } catch {}
-      
-          if (!resp.ok) {
-            // если не авторизованы — просто не показываем список
-            return;
-          }
-      
-          cachedChats = (data && data.chats) ? data.chats : [];
+
+          cachedChats = Array.isArray(data?.chats) ? data.chats : [];
           renderChatsList(cachedChats);
           renderSubChatsList(cachedChats);
-
         } catch (e) {
-          // молча: список — доп. удобство, не критично
+          cachedChats = [];
+          renderChatsList([]);
+          renderSubChatsList([]);
         }
       }
 
@@ -1711,57 +1707,40 @@
       }
 
       async function apiGetSubscriptions() {
-          const resp = await apiFetch("/subscriptions", {
-                  method: "GET"
-      });
+        try {
+          const data = await apiFetch("/subscriptions", {
+            method: "GET"
+          });
 
-        const raw = await resp.text();
-        let data = null;
-        try { data = raw ? JSON.parse(raw) : null; } catch {}
-
-        if (!resp.ok) {
-          const msg = (data && (data.detail || data.error)) || raw || resp.statusText;
+          return Array.isArray(data) ? data : [];
+        } catch (e) {
+          const msg = e?.detail?.detail || e?.detail || e?.message || "SUBSCRIPTIONS_LOAD_FAILED";
           throw new Error(msg);
         }
-
-        // ожидаем массив
-        return Array.isArray(data) ? data : [];
       }
 
       async function apiCreateSubscription(payload) {
-        const resp = await apiFetch("/subscriptions", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "Accept": "application/json" },
-          body: JSON.stringify(payload)
-        });
-
-        const raw = await resp.text();
-        let data = null;
-        try { data = raw ? JSON.parse(raw) : null; } catch {}
-
-        if (!resp.ok) {
-          const msg = (data && (data.detail || data.error)) || raw || resp.statusText;
+        try {
+          return await apiFetch("/subscriptions", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Accept": "application/json" },
+            body: JSON.stringify(payload)
+          });
+        } catch (e) {
+          const msg = e?.detail?.detail || e?.detail || e?.message || "SUBSCRIPTION_CREATE_FAILED";
           throw new Error(msg);
         }
-
-        return data;
       }
 
       async function apiDeleteSubscription(subscriptionId) {
-        const resp = await apiFetch(`/subscriptions/${encodeURIComponent(subscriptionId)}`, {
-          method: "DELETE"
-        });
-
-        const raw = await resp.text();
-        let data = null;
-        try { data = raw ? JSON.parse(raw) : null; } catch {}
-
-        if (!resp.ok) {
-          const msg = (data && (data.detail || data.error)) || raw || resp.statusText;
+        try {
+          return await apiFetch(`/subscriptions/${encodeURIComponent(subscriptionId)}`, {
+            method: "DELETE"
+          });
+        } catch (e) {
+          const msg = e?.detail?.detail || e?.detail || e?.message || "SUBSCRIPTION_DELETE_FAILED";
           throw new Error(msg);
         }
-
-        return data;
       }
 
       function renderSubscriptions(list) {
@@ -2137,19 +2116,14 @@
 
 
       async function apiRunSubscriptions() {
-        const resp = await apiFetch("/subscriptions/run", {
-          method: "POST"
-        });
-
-        const raw = await resp.text();
-        let data = {};
-        try { data = JSON.parse(raw); } catch (e) {}
-
-        if (!resp.ok) {
-          const msg = data.detail || data.error || raw || "RUN_FAILED";
+        try {
+          return await apiFetch("/subscriptions/run", {
+            method: "POST"
+          });
+        } catch (e) {
+          const msg = e?.detail?.detail || e?.detail || e?.message || "RUN_FAILED";
           throw new Error(msg);
         }
-        return data;
       }
 
       function escapeHtml(s) {
@@ -2177,72 +2151,32 @@
       // ===== Запуск подписок (кнопка) =====
 const runSubscriptionsBtn = document.getElementById("runSubscriptionsBtn");
 
-async function runSubscriptions() {
-  // если у тебя есть константа SUBS_API_BASE — используй её.
-  // иначе можно оставить как прямой URL:
-  const url = "https://cotel-backend.onrender.com/subscriptions/run";
+      async function runSubscriptions() {
+        try {
+          if (runSubscriptionsBtn) {
+            runSubscriptionsBtn.disabled = true;
+            runSubscriptionsBtn.textContent = "Запускаю...";
+          }
 
-  try {
-    if (runSubscriptionsBtn) {
-      runSubscriptionsBtn.disabled = true;
-      runSubscriptionsBtn.textContent = "Запускаю...";
-    }
+          const data = await apiFetch("/subscriptions/run", {
+            method: "POST"
+          });
 
-    const r = await apiFetch("/subscriptions/run", {
-      method: "POST"
-      });
-
-    // Попробуем корректно разобрать ответ
-    let data = null;
-    const ct = r.headers.get("content-type") || "";
-    if (ct.includes("application/json")) {
-      data = await r.json();
-    } else {
-      const text = await r.text();
-      throw new Error(`BACKEND_NON_JSON_RESPONSE: ${text.slice(0, 400)}`);
-    }
-
-    if (!r.ok) {
-      // бэк мог вернуть {detail: "..."} или {error: "..."}
-      const msg = data?.detail || data?.error || `HTTP_${r.status}`;
-      throw new Error(msg);
-    }
-
-    // Главная часть: выводим отчёт в правый блок
-    if (typeof renderRunSubscriptionsToWorkArea === "function") {
-      renderRunSubscriptionsToWorkArea(data);
-    } else {
-      // Если ты ещё не добавила рендер-функцию — покажем хотя бы алерт
-      alert(data?.ui_message || "Готово (но renderRunSubscriptionsToWorkArea не найдена).");
-    }
-
-    // Доп. короткое уведомление
-    //alert(
-     // `Готово.\n${data.ui_message || ""}\n` +
-     // `Подписок: ${data.processed_subscriptions}\n` +
-     // `Время: ${data.elapsed_seconds} сек.`
-    //);
-
-  } catch (e) {
-    console.error("RUN_SUBSCRIPTIONS_FAILED", e);
-
-    // Покажем ошибку и в рабочей области (чтобы было видно без консоли)
-    const out = document.getElementById("analysisResult");
-    if (out) {
-      out.innerHTML = `
-        <h2>Запуск подписок — ошибка</h2>
-        <pre>${String(e?.message || e)}</pre>
-      `;
-    }
-
-    alert(`Ошибка запуска подписок:\n${String(e?.message || e)}`);
-  } finally {
-    if (runSubscriptionsBtn) {
-      runSubscriptionsBtn.disabled = false;
-      runSubscriptionsBtn.textContent = "Запустить подписки";
-    }
-  }
-}
+          if (typeof renderRunSubscriptionsToWorkArea === "function") {
+            renderRunSubscriptionsToWorkArea(data);
+          } else {
+            alert(data?.ui_message || "Готово.");
+          }
+        } catch (e) {
+          const msg = e?.detail?.detail || e?.detail || e?.message || String(e);
+          alert(`Ошибка запуска подписок: ${msg}`);
+        } finally {
+          if (runSubscriptionsBtn) {
+            runSubscriptionsBtn.disabled = false;
+            runSubscriptionsBtn.textContent = "Запустить подписки";
+          }
+        }
+      }
 
 // if (runSubscriptionsBtn) {
 //   runSubscriptionsBtn.addEventListener("click", runSubscriptions);
@@ -2344,18 +2278,11 @@ if (runSubscriptionsBtn) {
       runSubscriptionsBtn.disabled = true;
       runSubscriptionsBtn.textContent = "Запуск…";
 
-      const r = await apiFetch("/subscriptions/run", { method: "POST" });
-      const data = await r.json();
-
-      if (!r.ok) {
-        analysisResult.innerHTML = `<div style="color:#b00020"><b>Ошибка:</b> ${escapeHtml(JSON.stringify(data))}</div>`;
-        return;
-      }
-
+      const data = await apiFetch("/subscriptions/run", { method: "POST" });
       analysisResult.innerHTML = renderRunResponse(data);
-
     } catch (e) {
-      analysisResult.innerHTML = `<div style="color:#b00020"><b>Ошибка:</b> ${escapeHtml(e.message || e)}</div>`;
+      const msg = e?.detail?.detail || e?.detail || e?.message || String(e);
+      analysisResult.innerHTML = `<div style="color:#b00020"><b>Ошибка:</b> ${escapeHtml(msg)}</div>`;
     } finally {
       runSubscriptionsBtn.disabled = false;
       runSubscriptionsBtn.textContent = "Запустить подписки";
@@ -2395,15 +2322,11 @@ if (runSubscriptionsBtn) {
 
       async function dispatchBot() {
         try {
-          const r = await apiFetch("/tg/bot/dispatch", { method: "POST" });
-          const data = await r.json();
-          if (!r.ok) {
-            alert(`Ошибка dispatch: ${r.status}\n${JSON.stringify(data)}`);
-            return;
-          }
+          const data = await apiFetch("/tg/bot/dispatch", { method: "POST" });
           alert(`Бот отправил уведомления.\nSent=${data.sent}, Failed=${data.failed}\nВремя=${data.elapsed_seconds} сек.`);
         } catch (e) {
-          alert(`Ошибка dispatch (network/js): ${String(e)}`);
+          const msg = e?.detail?.detail || e?.detail || e?.message || String(e);
+          alert(`Ошибка dispatch: ${msg}`);
         }
       }
 
@@ -2441,27 +2364,13 @@ if (runSubscriptionsBtn) {
               };
               formData.append("params", JSON.stringify(params));
 
-              const resp = await apiFetch("/analyze", {
+              
+              const data = await apiFetch("/analyze", {
                 method: "POST",
                 body: formData,
               });
 
-              const rawText = await resp.text();
-              let data = null;
-
-              try {
-                data = rawText ? JSON.parse(rawText) : null;
-              } catch {}
-
-              if (!resp.ok) {
-                throw new Error(
-                  (data && (data.detail || data.error)) ||
-                    rawText ||
-                    resp.statusText
-                );
-              }
-
-              renderResult(data, rawText);
+              renderResult(data, JSON.stringify(data, null, 2));
               return;
             }
 
@@ -2482,30 +2391,14 @@ if (runSubscriptionsBtn) {
                 user_query: query || null,
               };
 
-              const resp = await apiFetch("/tg/analyze_chat",
-                {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify(payload),
-                }
-              );
+              
+              const data = await apiFetch("/tg/analyze_chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+              });
 
-              const rawText = await resp.text();
-              let data = null;
-
-              try {
-                data = rawText ? JSON.parse(rawText) : null;
-              } catch {}
-
-              if (!resp.ok) {
-                throw new Error(
-                  (data && (data.detail || data.error)) ||
-                    rawText ||
-                    resp.statusText
-                );
-              }
-
-              renderResult(data, rawText);
+              renderResult(data, JSON.stringify(data, null, 2));
               return;
             }
 
@@ -2582,6 +2475,7 @@ if (runSubscriptionsBtn) {
           <div class="auth-field">
             <label for="login-password">Пароль</label>
             <input id="login-password" type="password" placeholder="Введите пароль">
+            <p id="login-password-error" class="auth-inline-error hidden"></p>
           </div>
           <button id="login-submit" type="button">Войти</button>
           <p class="auth-switch-text">

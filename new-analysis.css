@@ -336,7 +336,7 @@
  /*  width: 56px;         /* узкая полоска */
   /*  padding: 0 20px 16px 20px;*/
   /* overflow: hidden;*/
-  f/* lex: 0 0 56px !important;*/
+  /* lex: 0 0 56px !important;*/
 
   width: var(--sidebar-collapsed-width);
   padding: 0 12px 16px 12px; /* или даже 0 8px 16px 8px */

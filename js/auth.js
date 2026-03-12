@@ -35,6 +35,8 @@ function resetAuthForms() {
   byId("verify-dev-hint").textContent = "";
   pendingEmail = null;
   registerEmail = null;
+
+  clearLoginError();
 }
 
 async function bootstrapAuth() {
@@ -79,6 +81,36 @@ function closeUserDropdown() {
   byId("user-dropdown")?.classList.add("hidden");
 }
 
+function clearLoginError() {
+  const passwordInput = byId("login-password");
+  const errorEl = byId("login-password-error");
+
+  if (passwordInput) {
+    passwordInput.classList.remove("auth-input-error");
+  }
+
+  if (errorEl) {
+    errorEl.textContent = "";
+    errorEl.classList.add("hidden");
+  }
+}
+
+function showLoginError(message) {
+  const passwordInput = byId("login-password");
+  const errorEl = byId("login-password-error");
+
+  if (passwordInput) {
+    passwordInput.classList.add("auth-input-error");
+    passwordInput.focus();
+    passwordInput.select?.();
+  }
+
+  if (errorEl) {
+    errorEl.textContent = message;
+    errorEl.classList.remove("hidden");
+  }
+}
+
 async function handleCheckEmail() {
   const email = byId("auth-email-check").value.trim().toLowerCase();
   if (!email) {
@@ -110,8 +142,10 @@ async function handleLogin() {
   const email = byId("login-email").value.trim().toLowerCase();
   const password = byId("login-password").value;
 
+  clearLoginError();
+
   if (!email || !password) {
-    alert("Введите почту и пароль.");
+    showLoginError("Введите пароль.");
     return;
   }
 
@@ -122,15 +156,32 @@ async function handleLogin() {
     });
 
     setUser(user);
+
+    if (typeof window.cotelRefreshTelegramState === "function") {
+      await window.cotelRefreshTelegramState();
+    }
+
     closeAuthModal();
   } catch (err) {
     const detail = err?.detail?.detail || err?.detail || "";
+
     if (detail === "EMAIL_NOT_VERIFIED") {
       registerEmail = email;
       switchAuthView("verify");
       return;
     }
-    alert("Не удалось войти.");
+
+    if (
+      detail === "INVALID_CREDENTIALS" ||
+      detail === "INVALID_PASSWORD" ||
+      detail === "LOGIN_FAILED" ||
+      detail === "UNAUTHORIZED"
+    ) {
+      showLoginError("Неверный пароль");
+      return;
+    }
+
+    showLoginError("Не удалось войти");
   }
 }
 
@@ -211,6 +262,11 @@ async function handleVerify() {
     });
 
     setUser(user);
+
+    if (typeof window.cotelRefreshTelegramState === "function") {
+      await window.cotelRefreshTelegramState();
+    }
+
     closeAuthModal();
   } catch (err) {
     alert("Неверный или просроченный код.");
@@ -232,6 +288,7 @@ function bindAuthUi() {
 
   byId("auth-continue-submit")?.addEventListener("click", handleCheckEmail);
   byId("login-submit")?.addEventListener("click", handleLogin);
+  byId("login-password")?.addEventListener("input", clearLoginError);
   byId("register-submit")?.addEventListener("click", handleRegister);
   byId("verify-submit")?.addEventListener("click", handleVerify);
 
