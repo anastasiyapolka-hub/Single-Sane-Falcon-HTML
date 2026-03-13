@@ -390,13 +390,12 @@
 
                   <div class="sidebar-section-body">
                     <!-- 1. Файл -->
-                    <label class="sidebar-radio-row">
+                    <label class="sidebar-radio-row data-source-hidden">
                       <input
                         type="radio"
                         name="dataSource"
                         id="dataSourceFile"
                         value="file"
-                        checked
                       />
                       <span>Файл Telegram (JSON)</span>
                     </label>
@@ -408,6 +407,7 @@
                         name="dataSource"
                         id="dataSourceAccount"
                         value="account"
+                        checked
                       />
                       <span>Мой аккаунт Telegram</span>
                     </label>
@@ -544,7 +544,7 @@
                     </label>
 
                     <!-- 4. Чат с ботом -->
-                    <label class="sidebar-radio-row">
+                    <label class="sidebar-radio-row data-source-hidden">
                       <input
                         type="radio"
                         name="dataSource"
@@ -853,12 +853,12 @@
                   <input type="file" id="chatFile" accept=".json" style="display:none" />
             
                   <!-- Овальное поле запроса -->
-                  <input
+                  <textarea
                     id="queryInput"
-                    type="text"
-                    class="analysis-query-input"
+                    class="analysis-query-input analysis-query-textarea"
                     placeholder="Введите текст запроса"
-                  />
+                    rows="1"
+                  ></textarea>
             
                   <!-- Кнопка play -->
                   <button
@@ -1003,6 +1003,9 @@
 
       activeChatInput?.addEventListener("input", filterChatsByInput);
 
+      queryInput?.addEventListener("input", autoResizeQueryInput);
+      autoResizeQueryInput();
+
       subTypeSelect?.addEventListener("change", () => {
         const t = (subTypeSelect.value || "events").trim();
         setPeriodOptionsForType(t);
@@ -1041,6 +1044,12 @@
             e.preventDefault();
           }
         });
+      }
+
+      function autoResizeQueryInput() {
+        if (!queryInput) return;
+        queryInput.style.height = "auto";
+        queryInput.style.height = Math.min(queryInput.scrollHeight, 220) + "px";
       }
 
       function updateDataSourceUI() {
@@ -1244,12 +1253,22 @@
           renderSubChatsList(cachedChats);
           setTelegramConnectionStatus(true, username);
 
+          if (dataSourceAccountRadio) {
+            dataSourceAccountRadio.checked = true;
+          }
+          updateDataSourceUI();
+
           await refreshSubscriptions();
         } catch (e) {
           cachedChats = [];
           renderChatsList([]);
           renderSubChatsList([]);
           setTelegramConnectionStatus(false, null);
+
+          if (dataSourcePublicRadio) {
+            dataSourcePublicRadio.checked = true;
+          }
+          updateDataSourceUI();
         }
       }
 
@@ -1270,6 +1289,10 @@
 
       // по умолчанию обновляем UI по выбранному источнику
       updateDataSourceUI();
+      
+      if (dataSourceAccountRadio?.checked) {
+        updateDataSourceUI();
+      }
       
       // слушаем переключение источника данных
       dataSourceFileRadio?.addEventListener("change", updateDataSourceUI);
@@ -2532,29 +2555,46 @@ if (runSubscriptionsBtn) {
       <div class="auth-modal-content profile-modal-content">
         <button id="profile-modal-close" class="auth-modal-close" type="button">×</button>
 
-        <div class="auth-modal-header">
-          <div class="auth-brand-title">
-            <span class="auth-brand-name">Профиль</span>
+        <div class="auth-modal-header profile-modal-header">
+          <div class="profile-modal-topline">
+            <img id="profile-avatar-img" class="user-avatar-img profile-header-avatar" src="images/cats/cat-1.jpg" alt="Аватар">
+            <div id="profile-email-header" class="profile-email-header">—</div>
           </div>
           <div class="auth-header-divider"></div>
         </div>
 
         <div class="profile-block">
-          <div class="profile-avatar-row">
-            <img id="profile-avatar-img" class="user-avatar-img" src="images/cats/cat-1.jpg" alt="Аватар">
-          </div>
+          <div class="profile-plan-section">
+            <div class="profile-section-label">Тариф</div>
 
-          <div class="profile-field">
-            <label>Почта</label>
-            <div id="profile-email" class="profile-static-value">—</div>
-          </div>
+            <div class="profile-plan-card">
+              <div id="profile-plan-switcher" class="profile-plan-switcher" data-plan="free">
+                <span class="plan-chip plan-free active">Free</span>
+                <span class="plan-divider">|</span>
+                <span class="plan-chip plan-basic">Basic</span>
+                <span class="plan-divider">|</span>
+                <span class="plan-chip plan-pro">Pro</span>
+              </div>
 
-          <div class="profile-field profile-plan-row">
-            <div>
-              <label>Тариф</label>
-              <div id="profile-plan" class="profile-static-value">free</div>
+              <button id="change-plan-btn" type="button" class="profile-plan-btn">
+                Сменить тариф
+              </button>
             </div>
-            <button id="change-plan-btn" type="button" class="secondary-btn">Сменить тариф</button>
+          </div>
+
+          <div class="profile-limits-section">
+            <div class="profile-section-label">Лимиты</div>
+
+            <div class="profile-limits-card">
+              <div class="profile-limit-row">
+                <span>Количество запросов:</span>
+                <strong>30 в месяц</strong>
+              </div>
+              <div class="profile-limit-row">
+                <span>Количество подписок:</span>
+                <strong>3 активные</strong>
+              </div>
+            </div>
           </div>
 
           <div class="profile-field">

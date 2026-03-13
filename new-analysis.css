@@ -986,3 +986,20 @@ body.sidebar-collapsed {
   display: flex;
   justify-content: flex-end;
 }
+
+.data-source-hidden {
+  display: none !important;
+}
+
+.analysis-query-textarea {
+  width: 100%;
+  min-height: 48px;
+  max-height: 220px;
+  resize: none;
+  overflow-y: auto;
+  line-height: 1.45;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}

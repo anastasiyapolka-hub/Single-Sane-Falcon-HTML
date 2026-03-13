@@ -317,7 +317,20 @@ function bindAuthUi() {
 
   byId("profile-btn")?.addEventListener("click", () => {
     closeUserDropdown();
-    alert("Профиль сделаем следующим этапом.");
+    openProfileModal();
+  });
+
+  byId("help-btn")?.addEventListener("click", () => {
+    closeUserDropdown();
+    alert("Справку подключим следующим этапом.");
+  });
+
+  byId("change-plan-btn")?.addEventListener("click", () => {
+    alert("Смену тарифа подключим позже.");
+  });
+
+  byId("change-password-btn")?.addEventListener("click", () => {
+    alert("Смену пароля подключим позже.");
   });
 
   byId("auth-modal")?.addEventListener("click", (e) => {
@@ -327,32 +340,14 @@ function bindAuthUi() {
     }
   });
 
-  byId("profile-btn")?.addEventListener("click", () => {
-  closeUserDropdown();
-  openProfileModal();
-``});
+  byId("profile-modal-close")?.addEventListener("click", closeProfileModal);
 
-    byId("profile-modal-close")?.addEventListener("click", closeProfileModal);
-
-    byId("profile-modal")?.addEventListener("click", (e) => {
+  byId("profile-modal")?.addEventListener("click", (e) => {
     const content = document.querySelector(".profile-modal-content");
     if (content && !content.contains(e.target)) {
-        closeProfileModal();
+      closeProfileModal();
     }
-    });
-
-    byId("help-btn")?.addEventListener("click", () => {
-    closeUserDropdown();
-    alert("Справку подключим следующим этапом.");
-    });
-
-    byId("change-plan-btn")?.addEventListener("click", () => {
-    alert("Смену тарифа подключим позже.");
-    });
-
-    byId("change-password-btn")?.addEventListener("click", () => {
-    alert("Смену пароля подключим позже.");
-    });
+  });
 
   document.addEventListener("click", (e) => {
     const profile = byId("user-profile");
@@ -381,9 +376,29 @@ function initCookieBanner() {
 function openProfileModal() {
   if (!currentUser) return;
 
-  byId("profile-email").textContent = currentUser.email || "—";
-  byId("profile-plan").textContent = currentUser.plan || "free";
-  byId("profile-avatar-img").src = byId("user-avatar-img")?.src || "/images/cats/cat-1.jpg";
+  const email = currentUser.email || "—";
+  const plan = String(currentUser.plan || "free").toLowerCase();
+  const avatarSrc = byId("user-avatar-img")?.src || "/images/cats/cat-1.jpg";
+
+  byId("profile-email-header").textContent = email;
+  byId("profile-avatar-img").src = avatarSrc;
+
+  const switcher = byId("profile-plan-switcher");
+  if (switcher) {
+    switcher.setAttribute("data-plan", plan);
+
+    switcher.querySelectorAll(".plan-chip").forEach((el) => {
+      el.classList.remove("active");
+    });
+
+    if (plan === "basic") {
+      switcher.querySelector(".plan-basic")?.classList.add("active");
+    } else if (plan === "pro") {
+      switcher.querySelector(".plan-pro")?.classList.add("active");
+    } else {
+      switcher.querySelector(".plan-free")?.classList.add("active");
+    }
+  }
 
   byId("profile-modal")?.classList.remove("hidden");
 }
@@ -392,9 +407,42 @@ function closeProfileModal() {
   byId("profile-modal")?.classList.add("hidden");
 }
 
+function bindProfilePhoneMask() {
+  const input = byId("profile-phone");
+  if (!input) return;
+
+  input.addEventListener("input", function () {
+    let value = input.value.replace(/\D/g, "");
+
+    if (!value.startsWith("7")) {
+      value = "7" + value;
+    }
+
+    value = value.substring(0, 11);
+
+    let formatted = "+7";
+
+    if (value.length > 1) formatted += " " + value.substring(1, 4);
+    if (value.length > 4) formatted += " " + value.substring(4, 7);
+    if (value.length > 7) formatted += " " + value.substring(7, 9);
+    if (value.length > 9) formatted += " " + value.substring(9, 11);
+
+    input.value = formatted;
+  });
+
+  input.addEventListener("keydown", (e) => {
+    if (
+      input.selectionStart < 2 &&
+      (e.key === "Backspace" || e.key === "Delete")
+    ) {
+      e.preventDefault();
+    }
+  });
+}
 
 document.addEventListener("DOMContentLoaded", () => {
   bindAuthUi();
   bootstrapAuth();
   initCookieBanner();
+  bindProfilePhoneMask();
 });
