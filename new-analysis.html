@@ -1276,7 +1276,7 @@
         await bootstrapTelegramState();
       };
 
-      // начальное состояние
+      // начальное  состояние
       setTgState("phone");
 
       function showLoader(show) {
@@ -1288,12 +1288,11 @@
       showLoader(false);
 
       // по умолчанию обновляем UI по выбранному источнику
-      updateDataSourceUI();
-      
+      updateDataSourceUI();    
       if (dataSourceAccountRadio?.checked) {
         updateDataSourceUI();
       }
-      
+
       // слушаем переключение источника данных
       dataSourceFileRadio?.addEventListener("change", updateDataSourceUI);
       dataSourceAccountRadio?.addEventListener("change", updateDataSourceUI);

@@ -442,6 +442,7 @@ function bindProfilePhoneMask() {
 
 document.addEventListener("DOMContentLoaded", () => {
   bindAuthUi();
+  
   bootstrapAuth();
   initCookieBanner();
   bindProfilePhoneMask();

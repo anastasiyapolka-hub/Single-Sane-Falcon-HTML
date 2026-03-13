@@ -937,7 +937,7 @@ body.sidebar-collapsed {
 .subscription-status-dot.is-paused { background: #9ca3af; }
 .subscription-status-dot.is-error  { background: #ef4444; }
 
-/* ===== Modal ===== */
+/* ===== Modal  ===== */
 .modal-overlay {
   position: fixed;
   inset: 0;
