@@ -34,21 +34,6 @@
     </style>
 
     <style>
-      /* Лейаут: слева сайдбар, справа рабочая  область */
-      .dashboard-layout {
-        display: flex;
-        align-items:  flex-start;
-      }
-
-      /* Левая колонка */
-      .dashboard-sidebar {
-        width: 300px;
-        padding: 16px 20px;
-        border-right: 1px solid rgba(0, 0, 0, 0.06);
-        /* background: #f9fafb;*/
-        background: #f3f4f6; /* мягкий светло-серый */
-        font-size: 0.9rem;
-      }
 
       .dashboard-sidebar h3 {
         font-size: 0.9rem;
@@ -384,7 +369,7 @@
               <div class="sidebar-section">
                 <details id="dataSourceSection" open>
                   <summary>
-                    <span>Источник данных</span>
+                    <span>Подключение к Telegram</span>
                     <span>▾</span>
                   </summary>
 
@@ -939,7 +924,27 @@
       let tgQrObj = null; // instance of QRCode
       let editingSubscriptionId = null;
 
+      let isTelegramConnected = false;
 
+      function getTelegramDisplayName(data) {
+        const username =
+          data?.me?.username ||
+          data?.username ||
+          null;
+
+        if (username) {
+          return username.startsWith("@") ? username : `@${username}`;
+        }
+
+        const firstName = data?.me?.first_name || data?.first_name || "";
+        const lastName = data?.me?.last_name || data?.last_name || "";
+        const fullName = `${firstName} ${lastName}`.trim();
+
+        if (fullName) return fullName;
+        if (firstName) return firstName;
+
+        return "Пользователь";
+      }
       const tgPhoneInput = document.getElementById("tgPhoneInput");
       const tgSendCodeBtn = document.getElementById("tgSendCodeBtn");
       const tgCodeInput = document.getElementById("tgCodeInput");
@@ -1054,21 +1059,20 @@
 
       function updateDataSourceUI() {
         const checked = document.querySelector('input[name="dataSource"]:checked');
-        const mode = checked ? checked.value : "file";
+        const mode = checked ? checked.value : "account";
 
-        // показываем / скрываем кнопку загрузки файла
         if (uploadBtn) {
           uploadBtn.style.display = mode === "file" ? "inline-flex" : "none";
         }
 
-        // показываем / скрываем блок авторизации Telegram
         if (tgAuthBlock) {
-          tgAuthBlock.style.display = mode === "account" ? "block" : "none";
+          tgAuthBlock.style.display =
+            mode === "account" && !isTelegramConnected ? "block" : "none";
         }
 
-        if (telegramStatusSection && dataSourceAccountRadio) {
+        if (telegramStatusSection) {
           telegramStatusSection.style.display =
-            dataSourceAccountRadio.checked ? "block" : "none";
+            mode === "account" ? "block" : "none";
         }
       }
 
@@ -1091,33 +1095,51 @@
         const miniDot = document.getElementById("tgMiniStatusDot");
         const logoutBtn = document.getElementById("tgLogoutBtnStatus");
 
+        isTelegramConnected = !!isConnected;
+
         if (miniDot) {
           miniDot.className =
-            "tg-status-dot " + (isConnected ? "tg-status-on" : "tg-status-off");
+            "tg-status-dot " + (isTelegramConnected ? "tg-status-on" : "tg-status-off");
         }
 
         if (!telegramStatusSection || !tgStatusDot || !tgStatusText || !tgStatusUsername) {
+          updateDataSourceUI();
           return;
         }
 
         telegramStatusSection.style.display = "block";
-        
-        if (isConnected) {
+
+        if (isTelegramConnected) {
+          const displayName = username || "Пользователь";
+
           tgStatusDot.classList.remove("tg-status-off");
           tgStatusDot.classList.add("tg-status-on");
           tgStatusText.textContent = "Подключено";
-          tgStatusUsername.textContent = username || "Пользователь";
+          tgStatusUsername.textContent = displayName;
 
-          logoutBtn.style.display = "block"; 
+          if (tgConnectedUser) {
+            tgConnectedUser.textContent = displayName;
+          }
 
+          if (logoutBtn) {
+            logoutBtn.style.display = "block";
+          }
         } else {
           tgStatusDot.classList.remove("tg-status-on");
           tgStatusDot.classList.add("tg-status-off");
           tgStatusText.textContent = "Не подключено";
           tgStatusUsername.textContent = "—";
 
-          logoutBtn.style.display = "none"; 
+          if (tgConnectedUser) {
+            tgConnectedUser.textContent = "@username";
+          }
+
+          if (logoutBtn) {
+            logoutBtn.style.display = "none";
+          }
         }
+
+        updateDataSourceUI();
       }
 
       function renderQr(url) {
@@ -1149,13 +1171,7 @@
 
       async function pollQrStatus() {
         try {
-          const resp = await apiFetch("/tg/qr/status");
-          const data = await resp.json();
-
-          if (!resp.ok) {
-            tgQrStatus.textContent = "Ошибка проверки статуса: " + (data.detail || resp.statusText);
-            return;
-          }
+          const data = await apiFetch("/tg/qr/status");
 
           if (data.status === "waiting") {
             tgQrStatus.textContent = "Ожидаем подтверждение в Telegram…";
@@ -1172,18 +1188,17 @@
           if (data.status === "password_needed") {
             tgQrStatus.textContent = "Telegram запросил 2FA-пароль. Введите пароль ниже.";
             setTgState("password");
-            if (tgQrArea) tgQrArea.style.display = "none";  // <-- добавить
+            if (tgQrArea) tgQrArea.style.display = "none";
             stopQrPolling();
             return;
           }
 
           if (data.status === "authorized") {
-            tgQrStatus.textContent = "Успешно подключено.";
-            const username = data.username || data.first_name || "Пользователь";
+            const displayName = getTelegramDisplayName(data);
 
-            tgConnectedUser.textContent = data.username ? ("@" + data.username) : username;
+            tgQrStatus.textContent = "Успешно подключено.";
             setTgState("connected");
-            setTelegramConnectionStatus(true, username);
+            setTelegramConnectionStatus(true, displayName);
 
             stopQrPolling();
             await loadTelegramChats();
@@ -1203,7 +1218,7 @@
             return;
           }
         } catch (e) {
-          tgQrStatus.textContent = "Ошибка сети при polling: " + e.message;
+          tgQrStatus.textContent = "Ошибка сети при polling: " + (e?.message || "unknown");
         }
       }
 
@@ -1237,40 +1252,43 @@
         }
       }
 
+      
+      
       async function bootstrapTelegramState() {
         try {
           const data = await apiFetch("/tg/chats", { method: "GET" });
 
           const chats = Array.isArray(data?.chats) ? data.chats : [];
-          const username =
-            data?.me?.username ||
-            data?.username ||
-            data?.me?.first_name ||
-            null;
+          const displayName = getTelegramDisplayName(data);
 
           cachedChats = chats;
           renderChatsList(cachedChats);
           renderSubChatsList(cachedChats);
-          setTelegramConnectionStatus(true, username);
+
+          setTgState("connected");
+          setTelegramConnectionStatus(true, displayName);
 
           if (dataSourceAccountRadio) {
             dataSourceAccountRadio.checked = true;
           }
-          updateDataSourceUI();
 
           await refreshSubscriptions();
         } catch (e) {
           cachedChats = [];
           renderChatsList([]);
           renderSubChatsList([]);
+          setTgState("phone");
           setTelegramConnectionStatus(false, null);
 
           if (dataSourcePublicRadio) {
             dataSourcePublicRadio.checked = true;
           }
-          updateDataSourceUI();
+        
         }
       }
+
+
+      
 
       window.cotelRefreshTelegramState = async function () {
         await bootstrapTelegramState();
@@ -1410,28 +1428,17 @@
         tgStatusMessage.textContent = "Отправляем код...";
 
         try {
-          const resp = await apiFetch("/tg/send_code",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ phone }),
-            }
-          );
+          await apiFetch("/tg/send_code", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ phone }),
+          });
 
-          const data = await resp.json();
-
-          if (!resp.ok) {
-            tgStatusMessage.textContent =
-              "Ошибка: " + (data.detail || "Не удалось отправить код.");
-            return;
-          }
-
-          tgStatusMessage.textContent =
-            "Код отправлен. Проверьте Telegram.";
+          tgStatusMessage.textContent = "Код отправлен. Проверьте Telegram.";
           setTgState("code");
         } catch (err) {
-          tgStatusMessage.textContent =
-            "Ошибка сети: " + err.message;
+          const msg = err?.detail?.detail || err?.detail || err?.message || "Не удалось отправить код.";
+          tgStatusMessage.textContent = "Ошибка: " + msg;
         }
       });
 
@@ -1447,47 +1454,32 @@
         tgStatusMessage.textContent = "Проверяем код...";
 
         try {
-          const resp = await apiFetch("/tg/confirm_code",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ phone, code }),
-            }
-          );
+          const data = await apiFetch("/tg/confirm_code", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ phone, code }),
+          });
 
-          const data = await resp.json();
-          const detail = String(data.detail || "");
-
-          if (!resp.ok) {
-            if (
-              detail.includes("SESSION_PASSWORD_NEEDED") ||
-              detail.includes("PASSWORD_NEEDED")
-            ) {
-              tgStatusMessage.textContent =
-                "Требуется пароль Telegram (2FA).";
-              setTgState("password");
-              return;
-            }
-
-            tgStatusMessage.textContent =
-              "Ошибка: " + (data.detail || "Код неверен.");
-            return;
-          }
-
-          // успешная авторизация
-          tgConnectedUser.textContent = data.username
-            ? "@" + data.username
-            : data.first_name || "Пользователь";
+          const displayName = getTelegramDisplayName(data);
 
           tgStatusMessage.textContent = "Успешно подключено.";
-
           setTgState("connected");
-          setTelegramConnectionStatus(true, data.username || data.first_name);
+          setTelegramConnectionStatus(true, displayName);
           await loadTelegramChats();
           await refreshSubscriptions();
         } catch (err) {
-          tgStatusMessage.textContent =
-            "Ошибка сети: " + err.message;
+          const detail = String(err?.detail?.detail || err?.detail || err?.message || "");
+
+          if (
+            detail.includes("SESSION_PASSWORD_NEEDED") ||
+            detail.includes("PASSWORD_NEEDED")
+          ) {
+            tgStatusMessage.textContent = "Требуется пароль Telegram (2FA).";
+            setTgState("password");
+            return;
+          }
+
+          tgStatusMessage.textContent = "Ошибка: " + (detail || "Код неверен.");
         }
       });
 
@@ -1503,34 +1495,22 @@
         tgStatusMessage.textContent = "Подтверждаем пароль...";
 
         try {
-          const resp = await apiFetch("/tg/confirm_password",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ phone, password }),
-            }
-          );
+          const data = await apiFetch("/tg/confirm_password", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ phone, password }),
+          });
 
-          const data = await resp.json();
-
-          if (!resp.ok) {
-            tgStatusMessage.textContent =
-              "Ошибка: " + (data.detail || "Не удалось подтвердить пароль.");
-            return;
-          }
-
-          tgConnectedUser.textContent = data.username
-            ? "@" + data.username
-            : data.first_name || "Пользователь";
+          const displayName = getTelegramDisplayName(data);
 
           tgStatusMessage.textContent = "Успешно подключено.";
           setTgState("connected");
-          setTelegramConnectionStatus(true, data.username || data.first_name);
+          setTelegramConnectionStatus(true, displayName);
           await loadTelegramChats();
           await refreshSubscriptions();
         } catch (err) {
-          tgStatusMessage.textContent =
-            "Ошибка сети: " + err.message;
+          const msg = err?.detail?.detail || err?.detail || err?.message || "Не удалось подтвердить пароль.";
+          tgStatusMessage.textContent = "Ошибка: " + msg;
         }
       });
 
@@ -1547,29 +1527,25 @@
           tgStatusMessage.textContent = "Завершаем сессию...";
 
           try {
-            const resp = await apiFetch("/tg/logout", {
+            await apiFetch("/tg/logout", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
             });
 
-            const data = await resp.json();
+            if (tgPhoneInput) tgPhoneInput.value = "";
+            if (tgCodeInput) tgCodeInput.value = "";
+            if (tgPasswordInput) tgPasswordInput.value = "";
 
-            if (!resp.ok) {
-              tgStatusMessage.textContent =
-                "Ошибка: " + (data.detail || "Не удалось завершить сессию.");
-              return;
-            }
+            cachedChats = [];
+            renderChatsList([]);
+            renderSubChatsList([]);
 
-            tgConnectedUser.textContent = "@username";
             setTgState("phone");
             setTelegramConnectionStatus(false, null);
-
-            // важно: у тебя контейнер списка чатов называется myChatsList
-            if (myChatsList) myChatsList.innerHTML = "";
-
             tgStatusMessage.textContent = "Сессия завершена.";
           } catch (err) {
-            tgStatusMessage.textContent = "Ошибка сети: " + err.message;
+            const msg = err?.detail?.detail || err?.detail || err?.message || "Не удалось завершить сессию.";
+            tgStatusMessage.textContent = "Ошибка: " + msg;
           }
         });
       });

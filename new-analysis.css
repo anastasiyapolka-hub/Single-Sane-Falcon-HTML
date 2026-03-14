@@ -181,16 +181,18 @@
 
 
 .dashboard-sidebar {
-  /*width: 300px;
-  flex: 0 0 300px;    /* не даём flex ужимать/растягивать неожиданно */
-  padding: 0 20px 16px 20px;  /* верх убрали */
+  /*width: 300px;*/
+  min-height: calc(100vh - 86px);
+  display: flex;
+  flex-direction: column;
+  padding: 0 20px 16px 0;  /* верх убрали */
   border-right: 1px solid rgba(0, 0, 0, 0.06);
   background: #F3F4F6; 
   font-size: 0.9rem;
   box-sizing: border-box;
   /*transition: width 0.2s ease;*/
   transition: width 240ms cubic-bezier(0.2, 0.9, 0.2, 1);
-  overflow: hidden;
+  overflow: visible;
   position: relative;
   z-index: 10;        /* сайдбар поверх */
   
