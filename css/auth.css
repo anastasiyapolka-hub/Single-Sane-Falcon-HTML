@@ -7,17 +7,15 @@
 
 .sidebar-user-area {
   margin-top: auto;
-  padding-top: 14px;
-  padding-bottom: 14px;
-  width: calc(100% + 40px);
-  margin-left: -20px;
-  margin-right: -20px;
+  width: 100%;
+  padding: 10px 0;
   border-top: 1px solid #d1d5db;
   background: rgba(245, 158, 11, 0.10);
   display: flex;
   flex-direction: column;
   align-items: stretch;
   overflow: visible;
+  flex-shrink: 0;
 }
 
 .user-profile {
@@ -77,7 +75,7 @@
   border: none;
   border-radius: 0;
   background: transparent;
-  padding: 14px 20px;
+  padding: 10px 14px;
 }
 
 .user-profile-trigger:hover {
@@ -89,8 +87,8 @@
 }
 
 .user-avatar-img {
-   width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 0;
   object-fit: contain;
 }
@@ -102,8 +100,8 @@
 }
 
 .user-email {
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: 0.86rem;
+  font-weight: 700;
   color: #111827;
   white-space: nowrap;
   overflow: hidden;
@@ -111,8 +109,9 @@
 }
 
 .user-plan {
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   color: #6b7280;
+  line-height: 1.1;
 }
 
 .user-dropdown {
@@ -289,8 +288,8 @@ text-decoration: underline;
   display: flex;
   justify-content: center;
   align-items: center;
-  width: auto;
-  margin: auto auto 12px;
+  width: 100%;
+  margin: 16px 0 0 0;
   padding: 0;
   background: transparent;
   border-top: none;
@@ -298,7 +297,7 @@ text-decoration: underline;
 }
 
 .sidebar-collapsed .user-profile {
-  width: auto;
+  width: 100%;
   display: flex;
   justify-content: center;
   position: relative;
@@ -310,6 +309,7 @@ text-decoration: underline;
   height: 48px;
   min-width: 48px;
   padding: 0;
+  margin: 0 auto;
   border-radius: 999px;
   display: flex;
   align-items: center;
@@ -328,12 +328,12 @@ text-decoration: underline;
   height: 48px;
   min-width: 48px;
   padding: 0;
+  margin: 0 auto;
   border-radius: 999px;
   display: flex;
   align-items: center;
   justify-content: center;
   align-self: center;
-
   background: #f59e0b;
   border: none;
   font-size: 0;
