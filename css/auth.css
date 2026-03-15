@@ -193,12 +193,14 @@ padding: 28px 24px 24px;
   color: #374151;
 }
 
-.auth-modal-content input {
+.auth-modal-content input,
+.auth-modal-content select {
   width: 100%;
   border: 1px solid #d1d5db;
   border-radius: 12px;
   padding: 12px 14px;
   font-size: 0.95rem;
+  background: #ffffff;
 }
 
 .auth-note {
@@ -681,4 +683,28 @@ text-decoration: underline;
   border-radius: 12px;
   padding: 12px 14px;
   font-size: 0.95rem;
+}
+
+.profile-field select {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 0.95rem;
+  background: #ffffff;
+}
+
+.profile-static-value {
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  padding: 12px 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #f9fafb;
+}
+
+.auth-note.auth-country-error,
+.profile-help-text.profile-save-note {
+  color: #b91c1c;
 }

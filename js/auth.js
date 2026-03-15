@@ -2,6 +2,184 @@ let currentUser = null;
 let registerEmail = null;
 let pendingEmail = null;
 
+const COTEL_LANG_MANUAL_KEY = "cotel_language_manual";
+const COTEL_LANG_AUTO_KEY = "cotel_language_auto";
+const COTEL_USER_PREFS_KEY = "cotel_user_prefs";
+
+const COUNTRY_LIST = [
+  { code: "AM", name: "Armenia" },
+  { code: "AU", name: "Australia" },
+  { code: "AT", name: "Austria" },
+  { code: "AZ", name: "Azerbaijan" },
+  { code: "BE", name: "Belgium" },
+  { code: "BG", name: "Bulgaria" },
+  { code: "CA", name: "Canada" },
+  { code: "CN", name: "China" },
+  { code: "HR", name: "Croatia" },
+  { code: "CY", name: "Cyprus" },
+  { code: "CZ", name: "Czech Republic" },
+  { code: "DK", name: "Denmark" },
+  { code: "EE", name: "Estonia" },
+  { code: "FI", name: "Finland" },
+  { code: "FR", name: "France" },
+  { code: "GE", name: "Georgia" },
+  { code: "DE", name: "Germany" },
+  { code: "GR", name: "Greece" },
+  { code: "HU", name: "Hungary" },
+  { code: "IN", name: "India" },
+  { code: "IE", name: "Ireland" },
+  { code: "IL", name: "Israel" },
+  { code: "IT", name: "Italy" },
+  { code: "JP", name: "Japan" },
+  { code: "KZ", name: "Kazakhstan" },
+  { code: "KG", name: "Kyrgyzstan" },
+  { code: "LV", name: "Latvia" },
+  { code: "LT", name: "Lithuania" },
+  { code: "LU", name: "Luxembourg" },
+  { code: "MD", name: "Moldova" },
+  { code: "ME", name: "Montenegro" },
+  { code: "NL", name: "Netherlands" },
+  { code: "NO", name: "Norway" },
+  { code: "PL", name: "Poland" },
+  { code: "PT", name: "Portugal" },
+  { code: "RO", name: "Romania" },
+  { code: "RS", name: "Serbia" },
+  { code: "SG", name: "Singapore" },
+  { code: "SK", name: "Slovakia" },
+  { code: "SI", name: "Slovenia" },
+  { code: "ES", name: "Spain" },
+  { code: "SE", name: "Sweden" },
+  { code: "CH", name: "Switzerland" },
+  { code: "TJ", name: "Tajikistan" },
+  { code: "TH", name: "Thailand" },
+  { code: "TR", name: "Turkey" },
+  { code: "TM", name: "Turkmenistan" },
+  { code: "UA", name: "Ukraine" },
+  { code: "AE", name: "United Arab Emirates" },
+  { code: "GB", name: "United Kingdom" },
+  { code: "US", name: "United States" },
+  { code: "UZ", name: "Uzbekistan" },
+  { code: "RU", name: "Russia" }
+];
+
+function normalizeLanguage(value) {
+  return String(value || "").toLowerCase().startsWith("ru") ? "ru" : "en";
+}
+
+function detectBrowserLanguage() {
+  const languages = Array.isArray(navigator.languages) && navigator.languages.length
+    ? navigator.languages
+    : [navigator.language || "en"];
+
+  const hasRussian = languages.some((lang) =>
+    String(lang || "").toLowerCase().startsWith("ru")
+  );
+
+  return hasRussian ? "ru" : "en";
+}
+
+function applyLanguageToDocument(lang) {
+  document.documentElement.lang = normalizeLanguage(lang);
+}
+
+function getStoredUserPrefsMap() {
+  try {
+    return JSON.parse(localStorage.getItem(COTEL_USER_PREFS_KEY) || "{}");
+  } catch {
+    return {};
+  }
+}
+
+function saveStoredUserPrefsMap(map) {
+  localStorage.setItem(COTEL_USER_PREFS_KEY, JSON.stringify(map));
+}
+
+function loadUserLocalPrefs(email) {
+  if (!email) return {};
+  const map = getStoredUserPrefsMap();
+  return map[email] || {};
+}
+
+function saveUserLocalPrefs(email, patch) {
+  if (!email) return;
+  const map = getStoredUserPrefsMap();
+  map[email] = {
+    ...(map[email] || {}),
+    ...patch
+  };
+  saveStoredUserPrefsMap(map);
+}
+
+function getEffectiveLanguage(user = null) {
+  const userLang = normalizeLanguage(user?.language);
+  const manualLang = localStorage.getItem(COTEL_LANG_MANUAL_KEY);
+  const autoLang = localStorage.getItem(COTEL_LANG_AUTO_KEY);
+
+  if (user?.language) return userLang;
+  if (manualLang) return normalizeLanguage(manualLang);
+  if (autoLang) return normalizeLanguage(autoLang);
+
+  const detected = detectBrowserLanguage();
+  localStorage.setItem(COTEL_LANG_AUTO_KEY, detected);
+  return detected;
+}
+
+function initLanguagePreference() {
+  const lang = getEffectiveLanguage();
+  applyLanguageToDocument(lang);
+}
+
+function setManualLanguage(lang) {
+  const normalized = normalizeLanguage(lang);
+  localStorage.setItem(COTEL_LANG_MANUAL_KEY, normalized);
+  applyLanguageToDocument(normalized);
+
+  if (currentUser?.email) {
+    saveUserLocalPrefs(currentUser.email, {
+      language: normalized,
+      language_source: "manual"
+    });
+  }
+
+  if (currentUser) {
+    currentUser.language = normalized;
+    currentUser.language_source = "manual";
+  }
+}
+
+function buildCountryOptions() {
+  const list = byId("country-options");
+  if (!list) return;
+
+  list.innerHTML = COUNTRY_LIST
+    .map((country) => `<option value="${country.name}"></option>`)
+    .join("");
+}
+
+function findCountryByName(name) {
+  const normalized = String(name || "").trim().toLowerCase();
+  return COUNTRY_LIST.find(
+    (country) => country.name.toLowerCase() === normalized
+  ) || null;
+}
+
+function syncRegisterCountryCode() {
+  const countryInput = byId("register-country");
+  const countryCodeInput = byId("register-country-code");
+  if (!countryInput || !countryCodeInput) return;
+
+  const match = findCountryByName(countryInput.value);
+  countryCodeInput.value = match ? match.code : "";
+}
+
+function bindCountryField() {
+  const countryInput = byId("register-country");
+  if (!countryInput) return;
+
+  countryInput.addEventListener("input", syncRegisterCountryCode);
+  countryInput.addEventListener("change", syncRegisterCountryCode);
+}
+
 function byId(id) {
   return document.getElementById(id);
 }
@@ -25,8 +203,18 @@ function switchAuthView(view) {
 }
 
 function resetAuthForms() {
-  ["auth-email-check", "login-email", "login-password", "register-email", "register-password", "register-password2", "verify-code"]
-    .forEach((id) => {
+  [
+  "auth-email-check",
+  "login-email",
+  "login-password",
+  "register-email",
+  "register-country",
+  "register-country-code",
+  "register-password",
+  "register-password2",
+  "verify-code"
+]
+  .forEach((id) => {
       const el = byId(id);
       if (el) el.value = "";
     });
@@ -56,15 +244,34 @@ function setGuest() {
 }
 
 function setUser(user) {
-  currentUser = user;
+  const localPrefs = loadUserLocalPrefs(user?.email || "");
+  const resolvedLanguage =
+    user?.language ||
+    localPrefs.language ||
+    getEffectiveLanguage(user);
+
+  currentUser = {
+    ...user,
+    ...localPrefs,
+    language: normalizeLanguage(resolvedLanguage)
+  };
+
   byId("auth-open-btn")?.classList.add("hidden");
   byId("user-profile")?.classList.remove("hidden");
   byId("user-dropdown")?.classList.add("hidden");
 
-  byId("user-email").textContent = user.email || "";
-  byId("user-plan").textContent = user.plan || "free";
+  byId("user-email").textContent = currentUser.email || "";
+  byId("user-plan").textContent = currentUser.plan || "free";
 
-  setAvatar(user.email || "");
+  applyLanguageToDocument(currentUser.language);
+  setAvatar(currentUser.email || "");
+
+  saveUserLocalPrefs(currentUser.email || "", {
+    country_name: currentUser.country_name || currentUser.country || "",
+    country_code: currentUser.country_code || "",
+    language: currentUser.language,
+    language_source: currentUser.language_source || "auto"
+  });
 }
 
 function setAvatar(email) {
@@ -187,11 +394,18 @@ async function handleLogin() {
 
 async function handleRegister() {
   const email = byId("register-email").value.trim().toLowerCase();
+  const countryName = byId("register-country")?.value.trim() || "";
+  const countryMatch = findCountryByName(countryName);
   const password = byId("register-password").value;
   const password2 = byId("register-password2").value;
 
-  if (!email || !password || !password2) {
+  if (!email || !countryName || !password || !password2) {
     alert("Заполните все поля.");
+    return;
+  }
+
+  if (!countryMatch) {
+    alert("Выберите страну из списка.");
     return;
   }
 
@@ -201,6 +415,13 @@ async function handleRegister() {
   }
 
   registerEmail = email;
+
+  saveUserLocalPrefs(email, {
+    country_name: countryMatch.name,
+    country_code: countryMatch.code,
+    language: getEffectiveLanguage(),
+    language_source: "auto"
+  });
 
   try {
     const res = await apiFetch("/auth/register", {
@@ -334,6 +555,8 @@ function bindAuthUi() {
     alert("Смену пароля подключим позже.");
   });
 
+  byId("profile-language")?.addEventListener("change", handleProfileLanguageChange);
+  
   byId("auth-modal")?.addEventListener("click", (e) => {
     const content = document.querySelector(".auth-modal-content");
     if (content && !content.contains(e.target)) {
@@ -380,9 +603,22 @@ function openProfileModal() {
   const email = currentUser.email || "—";
   const plan = String(currentUser.plan || "free").toLowerCase();
   const avatarSrc = byId("user-avatar-img")?.src || "/images/cats/cat-1.jpg";
+  const countryValue =
+    currentUser.country_name ||
+    currentUser.country ||
+    "—";
+  const languageValue = normalizeLanguage(
+    currentUser.language || getEffectiveLanguage(currentUser)
+  );
 
   byId("profile-email-header").textContent = email;
   byId("profile-avatar-img").src = avatarSrc;
+  byId("profile-country").textContent = countryValue;
+
+  const languageSelect = byId("profile-language");
+  if (languageSelect) {
+    languageSelect.value = languageValue;
+  }
 
   const switcher = byId("profile-plan-switcher");
   if (switcher) {
@@ -406,6 +642,13 @@ function openProfileModal() {
 
 function closeProfileModal() {
   byId("profile-modal")?.classList.add("hidden");
+}
+
+function handleProfileLanguageChange() {
+  const select = byId("profile-language");
+  if (!select) return;
+
+  setManualLanguage(select.value);
 }
 
 function bindProfilePhoneMask() {
@@ -442,6 +685,9 @@ function bindProfilePhoneMask() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  initLanguagePreference();
+  buildCountryOptions();
+  bindCountryField();
   bindAuthUi();
 
   bootstrapAuth();

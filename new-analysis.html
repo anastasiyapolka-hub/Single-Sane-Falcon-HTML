@@ -1058,10 +1058,10 @@
         }
 
         if (telegramStatusSection) {
-          telegramStatusSection.style.display =
-            mode === "account" ? "block" : "none";
+          telegramStatusSection.style.display = mode === "account" ? "block" : "none";
         }
       }
+
 
       function setTgState(state) {
         if (tgStatePhone) {
@@ -1271,6 +1271,7 @@
             dataSourcePublicRadio.checked = true;
           }
         
+          updateDataSourceUI();
         }
       }
 
@@ -2476,6 +2477,20 @@ if (runSubscriptionsBtn) {
             <input id="register-email" type="email" placeholder="name@email.com">
           </div>
           <div class="auth-field">
+            <label for="register-country">Страна</label>
+            <input
+              id="register-country"
+              type="text"
+              list="country-options"
+              placeholder="Начните вводить страну"
+              autocomplete="country-name"
+            >
+            <input id="register-country-code" type="hidden">
+            <p class="auth-note">
+              Выберите страну из списка. Это поле заполняется один раз при регистрации.
+            </p>
+          </div>
+          <div class="auth-field">
             <label for="register-password">Пароль</label>
             <input id="register-password" type="password" placeholder="Придумайте пароль">
           </div>
@@ -2560,6 +2575,13 @@ if (runSubscriptionsBtn) {
           </div>
 
           <div class="profile-field">
+            <div class="profile-field">
+              <label>Страна</label>
+              <div id="profile-country" class="profile-static-value">—</div>
+              <p class="profile-help-text">
+                Страна задается при регистрации и пока не редактируется в профиле.
+              </p>
+            </div>
             <label for="profile-phone">Телефон</label>
             <input id="profile-phone" type="text" placeholder="+7..." />
             <p class="profile-help-text">
@@ -2576,6 +2598,16 @@ if (runSubscriptionsBtn) {
           <div class="profile-settings-block">
             <div class="profile-settings-title">Настройки профиля</div>
 
+            <div class="profile-field">
+              <label for="profile-language">Язык интерфейса</label>
+              <select id="profile-language">
+                <option value="en">English</option>
+                <option value="ru">Русский</option>
+              </select>
+              <p class="profile-help-text">
+                Если язык выбран вручную, он становится приоритетным над автоопределением.
+              </p>
+            </div>
             <label class="profile-checkbox-row">
               <input id="ultra-secure-logout" type="checkbox" />
               <span>
@@ -2604,6 +2636,7 @@ if (runSubscriptionsBtn) {
       </div>
     </div>
 
+<datalist id="country-options"></datalist>
 <script src="/js/api.js"></script>
 <script src="/js/auth.js"></script>
   </body>
