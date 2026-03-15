@@ -326,7 +326,8 @@ function bindAuthUi() {
   });
 
   byId("change-plan-btn")?.addEventListener("click", () => {
-    alert("Смену тарифа подключим позже.");
+   closeUserDropdown();
+   window.location.href = "/pricing.html";
   });
 
   byId("change-password-btn")?.addEventListener("click", () => {
@@ -442,7 +443,7 @@ function bindProfilePhoneMask() {
 
 document.addEventListener("DOMContentLoaded", () => {
   bindAuthUi();
-  
+
   bootstrapAuth();
   initCookieBanner();
   bindProfilePhoneMask();
