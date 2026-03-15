@@ -31,8 +31,8 @@ body {
 .new-analysis-container1 {
   width: 100%;
   display: block;
-  height: 100vh;
-  min-height: 100vh;
+  height: 100dvh;
+  min-height: 100dvh;
   overflow: hidden;
   background: transparent !important;
 }
@@ -171,8 +171,8 @@ body {
   flex-direction: column;
   flex: 1 1 auto;
   min-width: 0;
- min-height: calc(100vh - var(--topbar-h));
-  height: calc(100vh - var(--topbar-h));
+  min-height: 100%;
+  height: 100%;
   padding: var(--topbar-h) 24px 0 24px;
   box-sizing: border-box;
   position: relative;
@@ -180,13 +180,14 @@ body {
   overflow: hidden;
 }
 
+
 /* Главный контейнер с левой и правой колонкой */
 .dashboard-layout {
   display: flex;
   align-items: stretch;
   width: 100%;
-  min-height: calc(100vh - var(--topbar-h));
-  height: calc(100vh - var(--topbar-h));
+  min-height: 100%;
+  height: 100%;
   overflow: hidden;
 }
 
@@ -200,11 +201,10 @@ body {
 .dashboard-main {
   flex: 1 1 auto;
   min-width: 0;
-  min-height: calc(100vh - var(--topbar-h));
-  height: calc(100vh - var(--topbar-h));
+  min-height: 100%;
+  height: 100%;
   overflow: hidden;
 }
-
 
 .dashboard-sidebar {
   width: var(--sidebar-width);
@@ -212,8 +212,8 @@ body {
   min-width: var(--sidebar-width);
   max-width: var(--sidebar-width);
 
-  min-height: calc(100vh - var(--topbar-h));
-  height: calc(100vh - var(--topbar-h));
+  min-height: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   padding: 0;
@@ -371,8 +371,8 @@ body {
   min-width: var(--sidebar-collapsed-width);
   max-width: var(--sidebar-collapsed-width);
 
-  height: calc(100vh - var(--topbar-h));
-  min-height: calc(100vh - var(--topbar-h));
+  height: 100%;
+  min-height: 100%;
   padding: 0 4px;
   overflow: visible;
   align-items: center;
