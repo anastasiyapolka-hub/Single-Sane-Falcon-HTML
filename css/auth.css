@@ -310,9 +310,9 @@ text-decoration: underline;
 }
 
 .sidebar-collapsed .user-profile-trigger {
-  width: 48px;
-  height: 48px;
-  min-width: 48px;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
   padding: 0;
   margin: 0 auto;
   border-radius: 999px;
@@ -329,9 +329,9 @@ text-decoration: underline;
 }
 
 .sidebar-collapsed .auth-open-btn {
-  width: 48px;
-  height: 48px;
-  min-width: 48px;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
   padding: 0;
   margin: 0 auto 4px auto;
   border-radius: 999px;
