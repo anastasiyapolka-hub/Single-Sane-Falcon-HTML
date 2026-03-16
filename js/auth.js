@@ -261,11 +261,8 @@ async function bootstrapAuth() {
 
 function setGuest() {
 
-  document.body.classList.remove("user-not-auth");
-
-  const localPrefs = loadUserLocalPrefs(user?.email || "");
-  
   currentUser = null;
+
   byId("auth-open-btn")?.classList.remove("hidden");
   byId("user-profile")?.classList.add("hidden");
   byId("user-dropdown")?.classList.add("hidden");
