@@ -277,13 +277,13 @@ body {
 
 .sidebar-toggle-btn {
   position: absolute;
-  right: 0;
+  right: 20px;
   top: 50%;
   transform: translateY(-50%);
 
   width: 32px;
   height: 32px;
-   aspect-ratio: 1 / 1;
+  aspect-ratio: 1 / 1;
   border-radius: 999px;
 
   line-height: 1;
@@ -299,7 +299,7 @@ body {
   font-size: 16px;
   padding: 0;
   transition: background-color 0.15s ease, transform 0.15s ease;
-   margin-left: auto; 
+  margin-left: auto; 
 }
 
 .sidebar-toggle-btn:hover {
@@ -385,6 +385,17 @@ body {
   transform: translate(-50%, -50%);
 }
 
+.dashboard-sidebar.collapsed .sidebar-mini-icons {
+  margin-bottom: 16px;
+}
+
+/* Футер скрываем для неавторизованного пользователя */
+
+body.user-not-auth .dashboard-bottom-block {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
 
 /* Прячем текст и основной контент, оставляем только шапку + мини-иконки */
 /* .dashboard-sidebar.collapsed .sidebar-title,

@@ -7,63 +7,82 @@ const COTEL_LANG_AUTO_KEY = "cotel_language_auto";
 const COTEL_USER_PREFS_KEY = "cotel_user_prefs";
 
 const COUNTRY_LIST = [
-  { code: "AM", name: "Armenia" },
-  { code: "AU", name: "Australia" },
-  { code: "AT", name: "Austria" },
-  { code: "AZ", name: "Azerbaijan" },
-  { code: "BE", name: "Belgium" },
-  { code: "BG", name: "Bulgaria" },
-  { code: "CA", name: "Canada" },
-  { code: "CN", name: "China" },
-  { code: "HR", name: "Croatia" },
-  { code: "CY", name: "Cyprus" },
-  { code: "CZ", name: "Czech Republic" },
-  { code: "DK", name: "Denmark" },
-  { code: "EE", name: "Estonia" },
-  { code: "FI", name: "Finland" },
-  { code: "FR", name: "France" },
-  { code: "GE", name: "Georgia" },
-  { code: "DE", name: "Germany" },
-  { code: "GR", name: "Greece" },
-  { code: "HU", name: "Hungary" },
-  { code: "IN", name: "India" },
-  { code: "IE", name: "Ireland" },
-  { code: "IL", name: "Israel" },
-  { code: "IT", name: "Italy" },
-  { code: "JP", name: "Japan" },
-  { code: "KZ", name: "Kazakhstan" },
-  { code: "KG", name: "Kyrgyzstan" },
-  { code: "LV", name: "Latvia" },
-  { code: "LT", name: "Lithuania" },
-  { code: "LU", name: "Luxembourg" },
-  { code: "MD", name: "Moldova" },
-  { code: "ME", name: "Montenegro" },
-  { code: "NL", name: "Netherlands" },
-  { code: "NO", name: "Norway" },
-  { code: "PL", name: "Poland" },
-  { code: "PT", name: "Portugal" },
-  { code: "RO", name: "Romania" },
-  { code: "RS", name: "Serbia" },
-  { code: "SG", name: "Singapore" },
-  { code: "SK", name: "Slovakia" },
-  { code: "SI", name: "Slovenia" },
-  { code: "ES", name: "Spain" },
-  { code: "SE", name: "Sweden" },
-  { code: "CH", name: "Switzerland" },
-  { code: "TJ", name: "Tajikistan" },
-  { code: "TH", name: "Thailand" },
-  { code: "TR", name: "Turkey" },
-  { code: "TM", name: "Turkmenistan" },
-  { code: "UA", name: "Ukraine" },
-  { code: "AE", name: "United Arab Emirates" },
-  { code: "GB", name: "United Kingdom" },
-  { code: "US", name: "United States" },
-  { code: "UZ", name: "Uzbekistan" },
-  { code: "RU", name: "Russia" }
+  { code: "AM", name_en: "Armenia", name_ru: "Армения" },
+  { code: "AU", name_en: "Australia", name_ru: "Австралия" },
+  { code: "AT", name_en: "Austria", name_ru: "Австрия" },
+  { code: "AZ", name_en: "Azerbaijan", name_ru: "Азербайджан" },
+  { code: "BE", name_en: "Belgium", name_ru: "Бельгия" },
+  { code: "BG", name_en: "Bulgaria", name_ru: "Болгария" },
+  { code: "CA", name_en: "Canada", name_ru: "Канада" },
+  { code: "CN", name_en: "China", name_ru: "Китай" },
+  { code: "HR", name_en: "Croatia", name_ru: "Хорватия" },
+  { code: "CY", name_en: "Cyprus", name_ru: "Кипр" },
+  { code: "CZ", name_en: "Czech Republic", name_ru: "Чехия" },
+  { code: "DK", name_en: "Denmark", name_ru: "Дания" },
+  { code: "EE", name_en: "Estonia", name_ru: "Эстония" },
+  { code: "FI", name_en: "Finland", name_ru: "Финляндия" },
+  { code: "FR", name_en: "France", name_ru: "Франция" },
+  { code: "GE", name_en: "Georgia", name_ru: "Грузия" },
+  { code: "DE", name_en: "Germany", name_ru: "Германия" },
+  { code: "GR", name_en: "Greece", name_ru: "Греция" },
+  { code: "HU", name_en: "Hungary", name_ru: "Венгрия" },
+  { code: "IN", name_en: "India", name_ru: "Индия" },
+  { code: "IE", name_en: "Ireland", name_ru: "Ирландия" },
+  { code: "IL", name_en: "Israel", name_ru: "Израиль" },
+  { code: "IT", name_en: "Italy", name_ru: "Италия" },
+  { code: "JP", name_en: "Japan", name_ru: "Япония" },
+  { code: "KZ", name_en: "Kazakhstan", name_ru: "Казахстан" },
+  { code: "KG", name_en: "Kyrgyzstan", name_ru: "Кыргызстан" },
+  { code: "LV", name_en: "Latvia", name_ru: "Латвия" },
+  { code: "LT", name_en: "Lithuania", name_ru: "Литва" },
+  { code: "LU", name_en: "Luxembourg", name_ru: "Люксембург" },
+  { code: "MD", name_en: "Moldova", name_ru: "Молдова" },
+  { code: "ME", name_en: "Montenegro", name_ru: "Черногория" },
+  { code: "NL", name_en: "Netherlands", name_ru: "Нидерланды" },
+  { code: "NO", name_en: "Norway", name_ru: "Норвегия" },
+  { code: "PL", name_en: "Poland", name_ru: "Польша" },
+  { code: "PT", name_en: "Portugal", name_ru: "Португалия" },
+  { code: "RO", name_en: "Romania", name_ru: "Румыния" },
+  { code: "RS", name_en: "Serbia", name_ru: "Сербия" },
+  { code: "SG", name_en: "Singapore", name_ru: "Сингапур" },
+  { code: "SK", name_en: "Slovakia", name_ru: "Словакия" },
+  { code: "SI", name_en: "Slovenia", name_ru: "Словения" },
+  { code: "ES", name_en: "Spain", name_ru: "Испания" },
+  { code: "SE", name_en: "Sweden", name_ru: "Швеция" },
+  { code: "CH", name_en: "Switzerland", name_ru: "Швейцария" },
+  { code: "TJ", name_en: "Tajikistan", name_ru: "Таджикистан" },
+  { code: "TH", name_en: "Thailand", name_ru: "Таиланд" },
+  { code: "TR", name_en: "Turkey", name_ru: "Турция" },
+  { code: "TM", name_en: "Turkmenistan", name_ru: "Туркменистан" },
+  { code: "UA", name_en: "Ukraine", name_ru: "Украина" },
+  { code: "AE", name_en: "United Arab Emirates", name_ru: "ОАЭ" },
+  { code: "GB", name_en: "United Kingdom", name_ru: "Великобритания" },
+  { code: "US", name_en: "United States", name_ru: "США" },
+  { code: "UZ", name_en: "Uzbekistan", name_ru: "Узбекистан" },
+  { code: "RU", name_en: "Russia", name_ru: "Россия" }
 ];
 
 function normalizeLanguage(value) {
   return String(value || "").toLowerCase().startsWith("ru") ? "ru" : "en";
+}
+
+function getCountryLabel(country, lang = "en") {
+  if (!country) return "";
+  return normalizeLanguage(lang) === "ru"
+    ? country.name_ru
+    : country.name_en;
+}
+
+function getCurrentUiLanguage() {
+  if (currentUser?.language) return normalizeLanguage(currentUser.language);
+
+  const manualLang = localStorage.getItem(COTEL_LANG_MANUAL_KEY);
+  if (manualLang) return normalizeLanguage(manualLang);
+
+  const autoLang = localStorage.getItem(COTEL_LANG_AUTO_KEY);
+  if (autoLang) return normalizeLanguage(autoLang);
+
+  return detectBrowserLanguage();
 }
 
 function detectBrowserLanguage() {
@@ -151,15 +170,19 @@ function buildCountryOptions() {
   const list = byId("country-options");
   if (!list) return;
 
+  const lang = getCurrentUiLanguage();
+
   list.innerHTML = COUNTRY_LIST
-    .map((country) => `<option value="${country.name}"></option>`)
+    .map((country) => `<option value="${getCountryLabel(country, lang)}"></option>`)
     .join("");
 }
 
 function findCountryByName(name) {
   const normalized = String(name || "").trim().toLowerCase();
-  return COUNTRY_LIST.find(
-    (country) => country.name.toLowerCase() === normalized
+
+  return COUNTRY_LIST.find((country) =>
+    country.name_en.toLowerCase() === normalized ||
+    country.name_ru.toLowerCase() === normalized
   ) || null;
 }
 
@@ -237,10 +260,17 @@ async function bootstrapAuth() {
 }
 
 function setGuest() {
+
+  document.body.classList.remove("user-not-auth");
+
+  const localPrefs = loadUserLocalPrefs(user?.email || "");
+  
   currentUser = null;
   byId("auth-open-btn")?.classList.remove("hidden");
   byId("user-profile")?.classList.add("hidden");
   byId("user-dropdown")?.classList.add("hidden");
+
+  document.body.classList.add("user-not-auth");
 }
 
 function setUser(user) {
@@ -603,10 +633,14 @@ function openProfileModal() {
   const email = currentUser.email || "—";
   const plan = String(currentUser.plan || "free").toLowerCase();
   const avatarSrc = byId("user-avatar-img")?.src || "/images/cats/cat-1.jpg";
-  const countryValue =
-    currentUser.country_name ||
-    currentUser.country ||
-    "—";
+  const countryObj = COUNTRY_LIST.find(
+    (country) => country.code === (currentUser.country_code || "")
+  );
+
+  const countryValue = countryObj
+    ? getCountryLabel(countryObj, getCurrentUiLanguage())
+    : (currentUser.country_name || currentUser.country || "—");
+    
   const languageValue = normalizeLanguage(
     currentUser.language || getEffectiveLanguage(currentUser)
   );
@@ -649,6 +683,19 @@ function handleProfileLanguageChange() {
   if (!select) return;
 
   setManualLanguage(select.value);
+  buildCountryOptions();
+
+  if (currentUser?.country_code) {
+    const countryObj = COUNTRY_LIST.find(
+      (country) => country.code === currentUser.country_code
+    );
+    if (countryObj) {
+      byId("profile-country").textContent = getCountryLabel(
+        countryObj,
+        getCurrentUiLanguage()
+      );
+    }
+  }
 }
 
 function bindProfilePhoneMask() {
