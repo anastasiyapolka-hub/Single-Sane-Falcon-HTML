@@ -300,6 +300,8 @@ body {
   padding: 0;
   transition: background-color 0.15s ease, transform 0.15s ease;
   margin-left: auto; 
+  z-index: 5;
+
 }
 
 .sidebar-toggle-btn:hover {
@@ -316,7 +318,7 @@ body {
   text-align: center;
   width: 100%;
   padding: 0 44px 0 0;
-
+  pointer-events: none;
   transition: opacity 160ms ease, transform 240ms ease, visibility 160ms ease;
   opacity: 1;
   visibility: visible;
