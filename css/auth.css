@@ -19,6 +19,14 @@
   flex-shrink: 0;
 }
 
+body.user-not-auth .sidebar-user-area {
+  background: transparent !important;
+  border-top-color: transparent !important;
+}
+
+body.user-not-auth .sidebar-user-area .auth-open-btn {
+  align-self: center;
+}
 
 .user-profile {
   position: relative;
@@ -295,7 +303,7 @@ text-decoration: underline;
   align-items: flex-end;
   width: 100%;
   margin: 0;
-  padding: 0 0 16px 0;
+  padding: 0 0 8px 0;
   background: transparent;
   border-top: none;
   overflow: visible;

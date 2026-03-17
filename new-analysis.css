@@ -266,13 +266,13 @@ body {
 .sidebar-header {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 8px;
   position: relative;
-  padding: 16px 20px 8px;
+  padding: 16px 20px 8px 20px;
   min-height: 44px;
   box-sizing: border-box;
-  text-align: center;
+  text-align: left;
 }
 
 .sidebar-toggle-btn {
@@ -315,9 +315,11 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  text-align: center;
-  width: 100%;
-  padding: 0 44px 0 0;
+  text-align: left;
+  width: auto;
+  max-width: calc(100% - 84px);
+  margin-left: 20px;
+  padding: 0;
   pointer-events: none;
   transition: opacity 160ms ease, transform 240ms ease, visibility 160ms ease;
   opacity: 1;
@@ -393,10 +395,13 @@ body {
 
 /* Футер скрываем для неавторизованного пользователя */
 
-body.user-not-auth .dashboard-bottom-block {
+body.user-not-auth #sidebarUserArea {
   background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
+  border-top-color: transparent !important;
+}
+
+body.user-not-auth #sidebarUserArea .auth-open-btn {
+  margin-bottom: 0;
 }
 
 /* Прячем текст и основной контент, оставляем только шапку + мини-иконки */

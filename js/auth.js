@@ -271,6 +271,8 @@ function setGuest() {
 }
 
 function setUser(user) {
+
+  document.body.classList.remove("user-not-auth");
   const localPrefs = loadUserLocalPrefs(user?.email || "");
   const resolvedLanguage =
     user?.language ||
