@@ -318,7 +318,7 @@ body {
   text-align: left;
   width: auto;
   max-width: calc(100% - 84px);
-  margin-left: 20px;
+  margin-left: 0;
   padding: 0;
   pointer-events: none;
   transition: opacity 160ms ease, transform 240ms ease, visibility 160ms ease;
