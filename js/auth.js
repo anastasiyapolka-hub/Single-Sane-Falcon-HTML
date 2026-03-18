@@ -148,7 +148,7 @@ function initLanguagePreference() {
   applyLanguageToDocument(lang);
 }
 
-function setManualLanguage(lang) {
+async function setManualLanguage(lang) {
   const normalized = normalizeLanguage(lang);
   localStorage.setItem(COTEL_LANG_MANUAL_KEY, normalized);
   applyLanguageToDocument(normalized);
@@ -163,6 +163,25 @@ function setManualLanguage(lang) {
   if (currentUser) {
     currentUser.language = normalized;
     currentUser.language_source = "manual";
+  }
+
+  if (currentUser?.id) {
+    try {
+      const updatedUser = await apiFetch("/auth/preferences", {
+        method: "PATCH",
+        body: JSON.stringify({
+          language: normalized,
+          language_source: "manual"
+        })
+      });
+
+      currentUser = {
+        ...currentUser,
+        ...updatedUser
+      };
+    } catch (err) {
+      console.warn("Language preference save failed", err);
+    }
   }
 }
 
@@ -280,9 +299,11 @@ function setUser(user) {
     getEffectiveLanguage(user);
 
   currentUser = {
-    ...user,
     ...localPrefs,
-    language: normalizeLanguage(resolvedLanguage)
+    ...user,
+    language: normalizeLanguage(resolvedLanguage),
+    language_source: user?.language_source || localPrefs.language_source || "auto",
+    country_code: user?.country_code || localPrefs.country_code || null
   };
 
   byId("auth-open-btn")?.classList.add("hidden");
@@ -296,7 +317,6 @@ function setUser(user) {
   setAvatar(currentUser.email || "");
 
   saveUserLocalPrefs(currentUser.email || "", {
-    country_name: currentUser.country_name || currentUser.country || "",
     country_code: currentUser.country_code || "",
     language: currentUser.language,
     language_source: currentUser.language_source || "auto"
@@ -445,10 +465,11 @@ async function handleRegister() {
 
   registerEmail = email;
 
+  const autoLanguage = getEffectiveLanguage();
+
   saveUserLocalPrefs(email, {
-    country_name: countryMatch.name,
     country_code: countryMatch.code,
-    language: getEffectiveLanguage(),
+    language: autoLanguage,
     language_source: "auto"
   });
 
@@ -458,7 +479,10 @@ async function handleRegister() {
       body: JSON.stringify({
         email,
         password,
-        password_confirm: password2
+        password_confirm: password2,
+        country_code: countryMatch.code,
+        language: autoLanguage,
+        language_source: "auto"
       })
     });
 
@@ -677,11 +701,11 @@ function closeProfileModal() {
   byId("profile-modal")?.classList.add("hidden");
 }
 
-function handleProfileLanguageChange() {
+async function handleProfileLanguageChange() {
   const select = byId("profile-language");
   if (!select) return;
 
-  setManualLanguage(select.value);
+  await setManualLanguage(select.value);
   buildCountryOptions();
 
   if (currentUser?.country_code) {
