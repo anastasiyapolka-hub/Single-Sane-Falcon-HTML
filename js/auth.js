@@ -226,6 +226,40 @@ function byId(id) {
   return document.getElementById(id);
 }
 
+function togglePasswordVisibility(button) {
+  const targetId = button?.getAttribute("data-target");
+  if (!targetId) return;
+
+  const input = byId(targetId);
+  if (!input) return;
+
+  const isPassword = input.type === "password";
+  input.type = isPassword ? "text" : "password";
+
+  button.classList.toggle("is-active", isPassword);
+  button.setAttribute(
+    "aria-label",
+    isPassword ? "Скрыть пароль" : "Показать пароль"
+  );
+  button.setAttribute(
+    "title",
+    isPassword ? "Скрыть пароль" : "Показать пароль"
+  );
+  button.textContent = isPassword ? "🙈" : "👁";
+
+  input.focus();
+  const len = input.value.length;
+  try {
+    input.setSelectionRange(len, len);
+  } catch (_) {}
+}
+
+function bindPasswordToggles() {
+  document.querySelectorAll(".password-toggle-btn").forEach((button) => {
+    button.addEventListener("click", () => togglePasswordVisibility(button));
+  });
+}
+
 function openAuthModal() {
   byId("auth-modal")?.classList.remove("hidden");
   switchAuthView("start");
@@ -759,6 +793,7 @@ document.addEventListener("DOMContentLoaded", () => {
   buildCountryOptions();
   bindCountryField();
   bindAuthUi();
+  bindPasswordToggles();
 
   bootstrapAuth();
   initCookieBanner();

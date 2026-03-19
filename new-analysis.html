@@ -2458,11 +2458,22 @@ if (runSubscriptionsBtn) {
             <label for="login-email">Почта</label>
             <input id="login-email" type="email" placeholder="name@email.com">
           </div>
+
           <div class="auth-field">
             <label for="login-password">Пароль</label>
-            <input id="login-password" type="password" placeholder="Введите пароль">
+            <div class="password-input-wrap">
+              <input id="login-password" type="password" placeholder="Введите пароль">
+              <button
+                type="button"
+                class="password-toggle-btn"
+                data-target="login-password"
+                aria-label="Показать пароль"
+                title="Показать пароль"
+              >👁</button>
+            </div>
             <p id="login-password-error" class="auth-inline-error hidden"></p>
           </div>
+
           <button id="login-submit" type="button">Войти</button>
           <p class="auth-switch-text">
             Нет аккаунта?
@@ -2490,14 +2501,36 @@ if (runSubscriptionsBtn) {
               Выберите страну из списка. Это поле заполняется один раз при регистрации.
             </p>
           </div>
+
           <div class="auth-field">
             <label for="register-password">Пароль</label>
-            <input id="register-password" type="password" placeholder="Придумайте пароль">
+            <div class="password-input-wrap">
+              <input id="register-password" type="password" placeholder="Придумайте пароль">
+              <button
+                type="button"
+                class="password-toggle-btn"
+                data-target="register-password"
+                aria-label="Показать пароль"
+                title="Показать пароль"
+              >👁</button>
+            </div>
           </div>
+
           <div class="auth-field">
             <label for="register-password2">Подтверждение пароля</label>
-            <input id="register-password2" type="password" placeholder="Повторите пароль">
+            <div class="password-input-wrap">
+              <input id="register-password2" type="password" placeholder="Повторите пароль">
+              <button
+                type="button"
+                class="password-toggle-btn"
+                data-target="register-password2"
+                aria-label="Показать пароль"
+                title="Показать пароль"
+              >👁</button>
+            </div>
           </div>
+
+
           <button id="register-submit" type="button">Зарегистрироваться</button>
           <p class="auth-switch-text">
             Уже есть аккаунт?
@@ -2540,79 +2573,83 @@ if (runSubscriptionsBtn) {
           <div class="auth-header-divider"></div>
         </div>
 
-        <div class="profile-block">
-          <div class="profile-plan-section">
-            <div class="profile-section-label">Тариф</div>
+        <div class="profile-layout">
+          <div class="profile-column profile-column-main">
+            <div class="profile-block">
+              <div class="profile-plan-section">
+                <div class="profile-section-label">Тариф</div>
 
-            <div class="profile-plan-card">
-              <div id="profile-plan-switcher" class="profile-plan-switcher" data-plan="free">
-                <span class="plan-chip plan-free active">Free</span>
-                <span class="plan-divider">|</span>
-                <span class="plan-chip plan-basic">Basic</span>
-                <span class="plan-divider">|</span>
-                <span class="plan-chip plan-pro">Pro</span>
+                <div class="profile-plan-card">
+                  <div id="profile-plan-switcher" class="profile-plan-switcher" data-plan="free">
+                    <span class="plan-chip plan-free active">Free</span>
+                    <span class="plan-divider">|</span>
+                    <span class="plan-chip plan-basic">Basic</span>
+                    <span class="plan-divider">|</span>
+                    <span class="plan-chip plan-pro">Pro</span>
+                  </div>
+
+                  <button id="change-plan-btn" type="button" class="profile-plan-btn">
+                    Сменить тариф
+                  </button>
+                </div>
               </div>
 
-              <button id="change-plan-btn" type="button" class="profile-plan-btn">
-                Сменить тариф
-              </button>
+              <div class="profile-limits-section">
+                <div class="profile-section-label">Лимиты</div>
+
+                <div class="profile-limits-card">
+                  <div class="profile-limit-row">
+                    <span>Количество запросов:</span>
+                    <strong>30 в месяц</strong>
+                  </div>
+                  <div class="profile-limit-row">
+                    <span>Количество подписок:</span>
+                    <strong>3 активные</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div class="profile-field">
+                <label>Страна</label>
+                <div id="profile-country" class="profile-static-value">—</div>
+              </div>
+
+              <div class="profile-field">
+                <label for="profile-phone">Телефон</label>
+                <input id="profile-phone" type="text" placeholder="+7..." />
+                <p class="profile-help-text">
+                  Необязательно. Используется для удобного входа в Telegram.
+                </p>
+              </div>
+
+              <div class="profile-links">
+                <button id="change-password-btn" type="button" class="auth-link-btn">Сменить пароль</button>
+              </div>
             </div>
           </div>
 
-          <div class="profile-limits-section">
-            <div class="profile-section-label">Лимиты</div>
+          <div class="profile-layout-divider" aria-hidden="true"></div>
 
-            <div class="profile-limits-card">
-              <div class="profile-limit-row">
-                <span>Количество запросов:</span>
-                <strong>30 в месяц</strong>
+          <div class="profile-column profile-column-settings">
+            <div class="profile-settings-block">
+              <div class="profile-settings-title">Настройки профиля</div>
+
+              <div class="profile-field">
+                <label for="profile-language">Язык интерфейса</label>
+                <select id="profile-language">
+                  <option value="en">English</option>
+                  <option value="ru">Русский</option>
+                </select>
               </div>
-              <div class="profile-limit-row">
-                <span>Количество подписок:</span>
-                <strong>3 активные</strong>
-              </div>
+
+              <label class="profile-checkbox-row">
+                <input id="ultra-secure-logout" type="checkbox" />
+                <span>
+                  Повышенная безопасность
+                  <small>При выходе из CoTel также завершать Telegram-сессию</small>
+                </span>
+              </label>
             </div>
-          </div>
-
-          <div class="profile-field">
-            <label>Страна</label>
-            <div id="profile-country" class="profile-static-value">—</div>
-          </div>
-
-          <div class="profile-field">
-            <label for="profile-phone">Телефон</label>
-            <input id="profile-phone" type="text" placeholder="+7..." />
-            <p class="profile-help-text">
-              Необязательно. Используется для удобного входа в Telegram.
-            </p>
-          </div>
-
-          <div class="profile-links">
-            <button id="change-password-btn" type="button" class="auth-link-btn">Сменить пароль</button>
-          </div>
-
-          <div class="auth-header-divider"></div>
-
-          <div class="profile-settings-block">
-            <div class="profile-settings-title">Настройки профиля</div>
-
-            <div class="profile-field">
-              <label for="profile-language">Язык интерфейса</label>
-              <select id="profile-language">
-                <option value="en">English</option>
-                <option value="ru">Русский</option>
-              </select>
-              <p class="profile-help-text">
-                Если язык выбран вручную, он становится приоритетным над автоопределением.
-              </p>
-            </div>
-            <label class="profile-checkbox-row">
-              <input id="ultra-secure-logout" type="checkbox" />
-              <span>
-                Повышенная безопасность
-                <small>При выходе из CoTel также завершать Telegram-сессию</small>
-              </span>
-            </label>
           </div>
         </div>
       </div>

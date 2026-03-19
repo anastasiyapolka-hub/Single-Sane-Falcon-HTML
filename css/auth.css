@@ -166,11 +166,13 @@ body.user-not-auth .sidebar-user-area .auth-open-btn {
   margin: 8vh auto 0;
   background: #fff;
   border-radius: 18px;
-padding: 28px 24px 24px;
+  padding: 28px 24px 24px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
   display: flex;
   flex-direction: column;
   gap: 12px;
+  max-height: 86vh;
+  overflow-y: auto;
 }
 
 
@@ -209,6 +211,43 @@ padding: 28px 24px 24px;
   padding: 12px 14px;
   font-size: 0.95rem;
   background: #ffffff;
+}
+
+.password-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrap input {
+  padding-right: 48px;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #6b7280;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.password-toggle-btn:hover {
+  color: #111827;
+}
+
+.password-toggle-btn.is-active {
+  color: #111827;
 }
 
 .auth-note {
@@ -483,13 +522,16 @@ text-decoration: underline;
 }
 
 .profile-modal-content {
-  width: min(92vw, 460px);
+  width: min(94vw, 980px);
+  max-height: min(86vh, 860px);
+  overflow-y: auto;
 }
 
 .profile-block {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  min-width: 0;
 }
 
 .profile-avatar-row {
@@ -578,6 +620,55 @@ text-decoration: underline;
 
 .profile-modal-header {
   gap: 16px;
+}
+
+.profile-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) 1px minmax(280px, 0.9fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.profile-column {
+  min-width: 0;
+}
+
+.profile-column-main,
+.profile-column-settings {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-layout-divider {
+  width: 1px;
+  align-self: stretch;
+  background: #e5e7eb;
+  border-radius: 999px;
+}
+
+.profile-column-settings .profile-settings-block {
+  gap: 16px;
+}
+
+.profile-column-settings .profile-settings-title {
+  text-align: left;
+  margin-bottom: 2px;
+}
+
+@media (max-width: 860px) {
+  .profile-modal-content {
+    width: min(94vw, 620px);
+  }
+
+  .profile-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .profile-layout-divider {
+    width: 100%;
+    height: 1px;
+  }
 }
 
 .profile-modal-topline {
