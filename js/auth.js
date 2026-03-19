@@ -581,6 +581,42 @@ async function handleVerify() {
   }
 }
 
+async function handleResendVerifyCode() {
+  if (!registerEmail) {
+    alert("Не найден email для повторной отправки кода.");
+    switchAuthView("start");
+    return;
+  }
+
+  try {
+    const res = await apiFetch("/auth/resend-verification-code", {
+      method: "POST",
+      body: JSON.stringify({
+        email: registerEmail
+      })
+    });
+
+    alert("Новый код отправлен на почту.");
+
+    if (res.dev_code) {
+      const hint = byId("verify-dev-hint");
+      if (hint) {
+        hint.textContent = `DEV-код для теста: ${res.dev_code}`;
+        hint.classList.remove("hidden");
+      }
+    }
+  } catch (err) {
+    const detail = err?.detail?.detail || err?.detail || "";
+
+    if (detail === "EMAIL_ALREADY_VERIFIED") {
+      alert("Почта уже подтверждена.");
+      return;
+    }
+
+    alert("Не удалось отправить код повторно.");
+  }
+}
+
 async function handleLogout() {
   try {
     await apiFetch("/auth/logout", { method: "POST" });
@@ -599,7 +635,8 @@ function bindAuthUi() {
   byId("login-password")?.addEventListener("input", clearLoginError);
   byId("register-submit")?.addEventListener("click", handleRegister);
   byId("verify-submit")?.addEventListener("click", handleVerify);
-
+  byId("verify-resend")?.addEventListener("click", handleResendVerifyCode);
+  
   byId("show-register")?.addEventListener("click", () => {
     byId("register-email").value = pendingEmail || "";
     switchAuthView("register");
