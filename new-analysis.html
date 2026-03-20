@@ -4,6 +4,10 @@
     <title>Work area</title>
     <link rel="icon" type="image/png" href="images/cotel-cat.png">
     <link rel="stylesheet" href="/css/auth.css">
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/intl-tel-input@26.8.1/build/css/intlTelInput.css"
+    />
     <meta property="og:title" content="New-Analysis - Single Sane Falcon" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta charset="utf-8" />
@@ -1407,7 +1411,10 @@
 
       // --- ПОВЕДЕНИЕ БЛОКА АВТОРИЗАЦИИ TELEGRAM ---
       tgSendCodeBtn?.addEventListener("click", async () => {
-        const phone = (tgPhoneInput?.value || "").trim();
+        const phone =
+          typeof window.getTelegramPhoneE164 === "function"
+            ? window.getTelegramPhoneE164()
+            : (tgPhoneInput?.value || "").trim();
         if (!phone) {
           tgStatusMessage.textContent = "Введите номер телефона.";
           return;
@@ -1431,7 +1438,10 @@
       });
 
       tgConfirmCodeBtn?.addEventListener("click", async () => {
-        const phone = (tgPhoneInput?.value || "").trim();
+        const phone =
+          typeof window.getTelegramPhoneE164 === "function"
+            ? window.getTelegramPhoneE164()
+            : (tgPhoneInput?.value || "").trim();
         const code = (tgCodeInput?.value || "").trim();
 
         if (!code) {
@@ -1472,9 +1482,12 @@
       });
 
       tgConfirmPasswordBtn?.addEventListener("click", async () => {
-        const phone = (tgPhoneInput?.value || "").trim();
+        const phone =
+          typeof window.getTelegramPhoneE164 === "function"
+            ? window.getTelegramPhoneE164()
+            : (tgPhoneInput?.value || "").trim();
         const password = (tgPasswordInput?.value || "").trim();
-
+        
         if (!password) {
           tgStatusMessage.textContent = "Введите пароль Telegram.";
           return;
@@ -2675,6 +2688,7 @@ if (runSubscriptionsBtn) {
 
 <datalist id="country-options"></datalist>
 <script src="/js/api.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@26.8.1/build/js/intlTelInput.min.js"></script>
 <script src="/js/auth.js"></script>
   </body>
 </html>

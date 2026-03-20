@@ -213,6 +213,28 @@ body.user-not-auth .sidebar-user-area .auth-open-btn {
   background: #ffffff;
 }
 
+.auth-modal-content .iti {
+  width: 100%;
+}
+
+.auth-modal-content .iti__tel-input {
+  width: 100% !important;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  font-size: 0.95rem;
+  background: #ffffff;
+}
+
+.auth-modal-content .iti__selected-country {
+  border-radius: 12px 0 0 12px;
+}
+
+.auth-modal-content .iti__country-list {
+  z-index: 4000;
+}
+
 .password-input-wrap {
   position: relative;
   display: flex;

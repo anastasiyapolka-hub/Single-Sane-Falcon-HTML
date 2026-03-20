@@ -913,6 +913,27 @@ body.sidebar-collapsed {
   box-shadow: 0 0 0 1px rgba(107, 114, 128, 0.25);
 }
 
+.tg-field .iti {
+  width: 100%;
+}
+
+.tg-field .iti__tel-input {
+  width: 100% !important;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  font-size: 0.9rem;
+  background: #ffffff;
+}
+
+.tg-field .iti__selected-country {
+  border-radius: 999px 0 0 999px;
+}
+
+.tg-field .iti__country-list {
+  z-index: 4000;
+}
+
 .subscription-actions {
   display: flex;
   gap: 8px;

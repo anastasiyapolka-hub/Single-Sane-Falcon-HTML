@@ -1,7 +1,11 @@
 let currentUser = null;
 let registerEmail = null;
 let pendingEmail = null;
-
+let profilePhoneIti = null;
+let tgPhoneIti = null;
+let verifyResendCooldownTimer = null;
+let verifyResendCooldownLeft = 0;
+const VERIFY_RESEND_COOLDOWN_SEC = 60;
 const COTEL_LANG_MANUAL_KEY = "cotel_language_manual";
 const COTEL_LANG_AUTO_KEY = "cotel_language_auto";
 const COTEL_USER_PREFS_KEY = "cotel_user_prefs";
@@ -222,6 +226,111 @@ function bindCountryField() {
   countryInput.addEventListener("change", syncRegisterCountryCode);
 }
 
+function normalizeCountryIso2(code) {
+  const normalized = String(code || "").trim().toLowerCase();
+  if (!normalized) return "ru";
+
+  const exists = COUNTRY_LIST.some(
+    (country) => country.code.toLowerCase() === normalized
+  );
+
+  return exists ? normalized : "ru";
+}
+
+function getDefaultPhoneCountryIso2() {
+  return normalizeCountryIso2(currentUser?.country_code || "ru");
+}
+
+function buildIntlPhoneOptions(countryIso2) {
+  return {
+    initialCountry: countryIso2,
+    nationalMode: true,
+    separateDialCode: true,
+    strictMode: true,
+    formatAsYouType: true,
+    formatOnDisplay: true,
+    autoPlaceholder: "aggressive",
+    countrySearch: true,
+    fixDropdownWidth: true,
+    dropdownContainer: document.body,
+    loadUtils: () =>
+      import("https://cdn.jsdelivr.net/npm/intl-tel-input@26.8.1/build/js/utils.js"),
+  };
+}
+
+function getNormalizedPhoneFromInstance(instance, inputEl) {
+  if (!inputEl) return "";
+
+  const rawValue = (inputEl.value || "").trim();
+  if (!rawValue) return "";
+
+  if (instance) {
+    const e164 = instance.getNumber();
+    if (e164) return e164;
+  }
+
+  return rawValue;
+}
+
+function initProfilePhoneInput(forceCountry = null) {
+  const input = byId("profile-phone");
+  if (!input || !window.intlTelInput) return;
+
+  const defaultCountry = normalizeCountryIso2(forceCountry || getDefaultPhoneCountryIso2());
+
+  if (profilePhoneIti) {
+    profilePhoneIti.destroy();
+    profilePhoneIti = null;
+  }
+
+  profilePhoneIti = window.intlTelInput(
+    input,
+    buildIntlPhoneOptions(defaultCountry)
+  );
+}
+
+function initTelegramPhoneInput(forceCountry = null) {
+  const input = byId("tgPhoneInput");
+  if (!input || !window.intlTelInput) return;
+
+  const defaultCountry = normalizeCountryIso2(forceCountry || getDefaultPhoneCountryIso2());
+
+  if (tgPhoneIti) {
+    tgPhoneIti.destroy();
+    tgPhoneIti = null;
+  }
+
+  tgPhoneIti = window.intlTelInput(
+    input,
+    buildIntlPhoneOptions(defaultCountry)
+  );
+}
+
+function initIntlPhoneInputs(forceCountry = null) {
+  initProfilePhoneInput(forceCountry);
+  initTelegramPhoneInput(forceCountry);
+}
+
+function applyPhoneCountryFromCurrentUser() {
+  const countryIso2 = getDefaultPhoneCountryIso2();
+
+  if (profilePhoneIti) {
+    profilePhoneIti.setCountry(countryIso2);
+  }
+
+  if (tgPhoneIti) {
+    tgPhoneIti.setCountry(countryIso2);
+  }
+}
+
+window.getTelegramPhoneE164 = function () {
+  return getNormalizedPhoneFromInstance(tgPhoneIti, byId("tgPhoneInput"));
+};
+
+window.getProfilePhoneE164 = function () {
+  return getNormalizedPhoneFromInstance(profilePhoneIti, byId("profile-phone"));
+};
+
 function byId(id) {
   return document.getElementById(id);
 }
@@ -301,6 +410,56 @@ function resetAuthForms() {
   registerEmail = null;
 
   clearLoginError();
+  stopVerifyResendCooldown();
+}
+
+function setVerifyResendButtonState() {
+  const btn = byId("verify-resend");
+  if (!btn) return;
+
+  if (verifyResendCooldownLeft > 0) {
+    const minutes = Math.floor(verifyResendCooldownLeft / 60);
+    const seconds = verifyResendCooldownLeft % 60;
+    btn.disabled = true;
+    btn.textContent = `Отправить код повторно через ${minutes}:${String(seconds).padStart(2, "0")}`;
+  } else {
+    btn.disabled = false;
+    btn.textContent = "Отправить код повторно";
+  }
+}
+
+function stopVerifyResendCooldown() {
+  if (verifyResendCooldownTimer) {
+    clearInterval(verifyResendCooldownTimer);
+    verifyResendCooldownTimer = null;
+  }
+  verifyResendCooldownLeft = 0;
+  setVerifyResendButtonState();
+}
+
+function startVerifyResendCooldown(seconds = VERIFY_RESEND_COOLDOWN_SEC) {
+  if (verifyResendCooldownTimer) {
+    clearInterval(verifyResendCooldownTimer);
+    verifyResendCooldownTimer = null;
+  }
+
+  verifyResendCooldownLeft = Math.max(0, Number(seconds) || 0);
+  setVerifyResendButtonState();
+
+  if (verifyResendCooldownLeft <= 0) {
+    return;
+  }
+
+  verifyResendCooldownTimer = setInterval(() => {
+    verifyResendCooldownLeft -= 1;
+
+    if (verifyResendCooldownLeft <= 0) {
+      stopVerifyResendCooldown();
+      return;
+    }
+
+    setVerifyResendButtonState();
+  }, 1000);
 }
 
 async function bootstrapAuth() {
@@ -321,6 +480,7 @@ function setGuest() {
   byId("user-dropdown")?.classList.add("hidden");
 
   document.body.classList.add("user-not-auth");
+  applyPhoneCountryFromCurrentUser();
 }
 
 function setUser(user) {
@@ -349,7 +509,7 @@ function setUser(user) {
 
   applyLanguageToDocument(currentUser.language);
   setAvatar(currentUser.email || "");
-
+  applyPhoneCountryFromCurrentUser();
   saveUserLocalPrefs(currentUser.email || "", {
     country_code: currentUser.country_code || "",
     language: currentUser.language,
@@ -521,6 +681,7 @@ async function handleRegister() {
     });
 
     switchAuthView("verify");
+    startVerifyResendCooldown();
 
   } catch (err) {
     const detail = err?.detail?.detail || err?.detail || "";
@@ -592,12 +753,20 @@ async function handleResendVerifyCode() {
     });
 
     alert("Новый код отправлен на почту.");
+    startVerifyResendCooldown();
 
   } catch (err) {
     const detail = err?.detail?.detail || err?.detail || "";
 
     if (detail === "EMAIL_ALREADY_VERIFIED") {
       alert("Почта уже подтверждена.");
+      return;
+    }
+
+    if (typeof detail === "object" && detail?.code === "RESEND_COOLDOWN") {
+      const retryAfter = Number(detail.retry_after_sec || VERIFY_RESEND_COOLDOWN_SEC);
+      startVerifyResendCooldown(retryAfter);
+      alert(`Повторная отправка будет доступна через ${retryAfter} сек.`);
       return;
     }
 
@@ -754,6 +923,7 @@ function openProfileModal() {
   }
 
   byId("profile-modal")?.classList.remove("hidden");
+  applyPhoneCountryFromCurrentUser();
 }
 
 function closeProfileModal() {
@@ -780,38 +950,7 @@ async function handleProfileLanguageChange() {
   }
 }
 
-function bindProfilePhoneMask() {
-  const input = byId("profile-phone");
-  if (!input) return;
 
-  input.addEventListener("input", function () {
-    let value = input.value.replace(/\D/g, "");
-
-    if (!value.startsWith("7")) {
-      value = "7" + value;
-    }
-
-    value = value.substring(0, 11);
-
-    let formatted = "+7";
-
-    if (value.length > 1) formatted += " " + value.substring(1, 4);
-    if (value.length > 4) formatted += " " + value.substring(4, 7);
-    if (value.length > 7) formatted += " " + value.substring(7, 9);
-    if (value.length > 9) formatted += " " + value.substring(9, 11);
-
-    input.value = formatted;
-  });
-
-  input.addEventListener("keydown", (e) => {
-    if (
-      input.selectionStart < 2 &&
-      (e.key === "Backspace" || e.key === "Delete")
-    ) {
-      e.preventDefault();
-    }
-  });
-}
 
 document.addEventListener("DOMContentLoaded", () => {
   initLanguagePreference();
@@ -820,7 +959,8 @@ document.addEventListener("DOMContentLoaded", () => {
   bindAuthUi();
   bindPasswordToggles();
 
+  initIntlPhoneInputs();
   bootstrapAuth();
   initCookieBanner();
-  bindProfilePhoneMask();
+  
 });
