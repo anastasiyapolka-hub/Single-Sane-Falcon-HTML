@@ -241,7 +241,7 @@ function getDefaultPhoneCountryIso2() {
   return normalizeCountryIso2(currentUser?.country_code || "ru");
 }
 
-function buildIntlPhoneOptions(countryIso2) {
+function buildTelegramPhoneOptions(countryIso2) {
   return {
     initialCountry: countryIso2,
     nationalMode: true,
@@ -253,6 +253,23 @@ function buildIntlPhoneOptions(countryIso2) {
     countrySearch: true,
     fixDropdownWidth: true,
     dropdownContainer: document.body,
+    loadUtils: () =>
+      import("https://cdn.jsdelivr.net/npm/intl-tel-input@26.8.1/build/js/utils.js"),
+  };
+}
+
+function buildProfilePhoneOptions(countryIso2) {
+  return {
+    initialCountry: countryIso2,
+    nationalMode: true,
+    separateDialCode: true,
+    strictMode: true,
+    formatAsYouType: true,
+    formatOnDisplay: true,
+    autoPlaceholder: "aggressive",
+    countrySearch: true,
+    fixDropdownWidth: true,
+    dropdownContainer: byId("profile-modal") || document.body,
     loadUtils: () =>
       import("https://cdn.jsdelivr.net/npm/intl-tel-input@26.8.1/build/js/utils.js"),
   };
@@ -283,10 +300,10 @@ function initProfilePhoneInput(forceCountry = null) {
     profilePhoneIti = null;
   }
 
-  profilePhoneIti = window.intlTelInput(
+    profilePhoneIti = window.intlTelInput(
     input,
-    buildIntlPhoneOptions(defaultCountry)
-  );
+    buildProfilePhoneOptions(defaultCountry)
+    );
 }
 
 function initTelegramPhoneInput(forceCountry = null) {
@@ -300,10 +317,10 @@ function initTelegramPhoneInput(forceCountry = null) {
     tgPhoneIti = null;
   }
 
-  tgPhoneIti = window.intlTelInput(
+    tgPhoneIti = window.intlTelInput(
     input,
-    buildIntlPhoneOptions(defaultCountry)
-  );
+    buildTelegramPhoneOptions(defaultCountry)
+    );
 }
 
 function initIntlPhoneInputs(forceCountry = null) {

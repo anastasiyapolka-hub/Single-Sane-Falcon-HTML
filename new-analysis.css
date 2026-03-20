@@ -919,11 +919,23 @@ body.sidebar-collapsed {
 
 .tg-field .iti__tel-input {
   width: 100% !important;
-  padding: 6px 10px;
+  height: 40px;
+  padding: 6px 10px 6px 56px;
   border-radius: 999px;
   border: 1px solid #d1d5db;
   font-size: 0.9rem;
   background: #ffffff;
+  box-sizing: border-box;
+}
+
+.tg-field .iti__selected-country-primary {
+  height: 40px;
+  display: flex;
+  align-items: center;
+}
+
+.tg-field .iti__selected-country {
+  padding-left: 10px;
 }
 
 .tg-field .iti__selected-country {

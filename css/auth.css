@@ -219,20 +219,40 @@ body.user-not-auth .sidebar-user-area .auth-open-btn {
 
 .auth-modal-content .iti__tel-input {
   width: 100% !important;
+  height: 48px;
   border: 1px solid #d1d5db;
   border-radius: 12px;
-  padding-top: 12px;
-  padding-bottom: 12px;
+  padding: 12px 14px 12px 52px;
   font-size: 0.95rem;
   background: #ffffff;
+  box-sizing: border-box;
+}
+.auth-modal-content .iti__selected-country-primary {
+  height: 48px;
+  display: flex;
+  align-items: center;
 }
 
 .auth-modal-content .iti__selected-country {
+  padding-left: 12px;
   border-radius: 12px 0 0 12px;
 }
 
 .auth-modal-content .iti__country-list {
   z-index: 4000;
+}
+
+#profile-modal .iti {
+  width: 100%;
+}
+
+#profile-modal .iti__country-list {
+  z-index: 5005 !important;
+  max-height: 240px;
+}
+
+#profile-modal .iti__dropdown-content {
+  z-index: 5005 !important;
 }
 
 .password-input-wrap {
