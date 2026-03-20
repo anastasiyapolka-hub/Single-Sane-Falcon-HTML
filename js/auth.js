@@ -522,11 +522,6 @@ async function handleRegister() {
 
     switchAuthView("verify");
 
-    if (res.dev_code) {
-      const hint = byId("verify-dev-hint");
-      hint.textContent = `DEV-код для теста: ${res.dev_code}`;
-      hint.classList.remove("hidden");
-    }
   } catch (err) {
     const detail = err?.detail?.detail || err?.detail || "";
     if (detail === "PASSWORD_TOO_SHORT") {
@@ -598,13 +593,6 @@ async function handleResendVerifyCode() {
 
     alert("Новый код отправлен на почту.");
 
-    if (res.dev_code) {
-      const hint = byId("verify-dev-hint");
-      if (hint) {
-        hint.textContent = `DEV-код для теста: ${res.dev_code}`;
-        hint.classList.remove("hidden");
-      }
-    }
   } catch (err) {
     const detail = err?.detail?.detail || err?.detail || "";
 
