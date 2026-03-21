@@ -344,6 +344,24 @@ body.user-not-auth .sidebar-user-area .auth-open-btn {
   cursor: pointer;
 }
 
+/* reset для внутренних кнопок intl-tel-input внутри модалок */
+.auth-modal-content .iti__selected-country-primary,
+.auth-modal-content .iti__country-container button,
+.auth-modal-content .iti button {
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  width: auto !important;
+  min-width: auto !important;
+}
+
+/* явный курсор для клика по флагу */
+.auth-modal-content .iti__selected-country-primary {
+  cursor: pointer;
+}
+
 #login-submit,
 #register-submit,
 #verify-submit {
@@ -690,21 +708,22 @@ text-decoration: underline;
 
 .profile-actions-row {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   margin-top: 18px;
 }
 
 .profile-save-btn {
-  background: #4b5563;
+  background: #111827;
   color: #ffffff;
-  border-radius: 12px;
-  padding: 12px 16px;
+  border-radius: 999px;
+  padding: 14px 28px;
+  min-width: 320px;
   cursor: pointer;
   transition: background 0.18s ease, box-shadow 0.18s ease;
 }
 
 .profile-save-btn:hover {
-  background: #374151;
+  background: #000000;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
