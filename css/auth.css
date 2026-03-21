@@ -86,9 +86,7 @@ body.user-not-auth .sidebar-user-area .auth-open-btn {
   border-radius: 0;
   background: transparent;
   padding: 8px 14px;
-}
-
-.user-profile-trigger {
+  cursor: pointer;
   justify-content: space-between;
 }
 
@@ -104,11 +102,11 @@ body.user-not-auth .sidebar-user-area .auth-open-btn {
   width: 30px;
   height: 30px;
   min-width: 30px;
-  border-radius: 999px;
+  border-radius: 50%;
   border: none;
   background: transparent;
   color: #6b7280;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
@@ -116,7 +114,7 @@ body.user-not-auth .sidebar-user-area .auth-open-btn {
 }
 
 .quick-logout-btn:hover {
-  background: rgba(255, 255, 255, 0.28);
+  background: rgba(0,0,0,0.08);
   color: #111827;
 }
 
