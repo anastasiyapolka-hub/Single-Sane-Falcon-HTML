@@ -269,7 +269,6 @@ function buildProfilePhoneOptions(countryIso2) {
     autoPlaceholder: "aggressive",
     countrySearch: true,
     fixDropdownWidth: true,
-    dropdownContainer: document.body,
     loadUtils: () =>
       import("https://cdn.jsdelivr.net/npm/intl-tel-input@26.8.1/build/js/utils.js"),
   };
@@ -837,7 +836,7 @@ function bindAuthUi() {
     e.stopPropagation();
     handleLogout();
   });
-  
+
   byId("user-profile-trigger")?.addEventListener("click", (e) => {
     e.stopPropagation();
     if (!currentUser) return;
@@ -868,9 +867,13 @@ function bindAuthUi() {
 
   byId("auth-modal")?.addEventListener("click", (e) => {
     const content = document.querySelector(".auth-modal-content");
-    if (content && !content.contains(e.target)) {
-      closeAuthModal();
+
+    // блокируем всплытие кликов внутри модалки
+    if (content && content.contains(e.target)) {
+      e.stopPropagation();
     }
+
+    // ничего НЕ делаем при клике вне — модалка не закрывается
   });
 
   byId("profile-modal-close")?.addEventListener("click", closeProfileModal);

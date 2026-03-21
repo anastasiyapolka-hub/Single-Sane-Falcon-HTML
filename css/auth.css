@@ -277,6 +277,61 @@ body.user-not-auth .sidebar-user-area .auth-open-btn {
   width: 100%;
 }
 
+#profile-modal .profile-field .iti {
+  width: 100%;
+}
+
+#profile-modal .profile-field .iti__tel-input {
+  width: 100% !important;
+  height: 48px;
+  border: 1px solid #d1d5db;
+  border-radius: 24px;
+  padding: 12px 14px 12px 64px;
+  font-size: 0.95rem;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+#profile-modal .profile-field .iti__country-container {
+  left: 0;
+}
+
+#profile-modal .profile-field .iti__selected-country-primary {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  padding-left: 12px !important;
+  padding-right: 10px !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 24px 0 0 24px !important;
+  cursor: pointer;
+}
+
+#profile-modal .profile-field .iti__selected-country {
+  padding-left: 0;
+  border-radius: 24px 0 0 24px;
+}
+
+#profile-modal .profile-field .iti__arrow {
+  margin-left: 6px;
+}
+
+#profile-modal .profile-field .iti__dropdown-content {
+  z-index: 7001 !important;
+}
+
+#profile-modal .profile-field .iti__country-list {
+  z-index: 7002 !important;
+  margin-top: 6px !important;
+  border-radius: 14px !important;
+  background: #ffffff !important;
+  border: 1px solid #d1d5db !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.14) !important;
+  max-height: 260px !important;
+  overflow-y: auto !important;
+}
+
 .iti__country-container {
   z-index: 6000 !important;
 }
@@ -342,6 +397,17 @@ body.user-not-auth .sidebar-user-area .auth-open-btn {
   border-radius: 12px;
   padding: 12px 14px;
   cursor: pointer;
+}
+
+#profile-modal .iti button,
+#profile-modal .iti__selected-country-primary,
+#profile-modal .iti__country-container button {
+  padding: 0 !important;
+  border-radius: 0 !important;
+  min-width: auto !important;
+  width: auto !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 /* reset для внутренних кнопок intl-tel-input внутри модалок */
@@ -708,23 +774,29 @@ text-decoration: underline;
 
 .profile-actions-row {
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   margin-top: 18px;
 }
 
 .profile-save-btn {
   background: #111827;
-  color: #ffffff;
+  color: #ffffff !important;
+  border: none;
   border-radius: 999px;
   padding: 14px 28px;
   min-width: 320px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.2;
   cursor: pointer;
-  transition: background 0.18s ease, box-shadow 0.18s ease;
+  transition: background 0.18s ease, box-shadow 0.18s ease, font-weight 0.18s ease;
 }
 
 .profile-save-btn:hover {
   background: #000000;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  color: #ffffff !important;
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
 }
 
 .auth-inline-error {
