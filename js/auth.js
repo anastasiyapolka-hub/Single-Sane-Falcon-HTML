@@ -269,7 +269,7 @@ function buildProfilePhoneOptions(countryIso2) {
     autoPlaceholder: "aggressive",
     countrySearch: true,
     fixDropdownWidth: true,
-    dropdownContainer: byId("profile-modal") || document.body,
+    dropdownContainer: document.body,
     loadUtils: () =>
       import("https://cdn.jsdelivr.net/npm/intl-tel-input@26.8.1/build/js/utils.js"),
   };
@@ -527,6 +527,12 @@ function setUser(user) {
   applyLanguageToDocument(currentUser.language);
   setAvatar(currentUser.email || "");
   applyPhoneCountryFromCurrentUser();
+  
+  const tgPhoneInput = byId("tgPhoneInput");
+  if (tgPhoneIti && tgPhoneInput && currentUser?.phone) {
+    tgPhoneIti.setNumber(currentUser.phone);
+  }
+  
   saveUserLocalPrefs(currentUser.email || "", {
     country_code: currentUser.country_code || "",
     language: currentUser.language,
@@ -854,7 +860,8 @@ function bindAuthUi() {
   });
 
   byId("profile-language")?.addEventListener("change", handleProfileLanguageChange);
-  
+  byId("save-profile-btn")?.addEventListener("click", handleSaveProfile);
+
   byId("auth-modal")?.addEventListener("click", (e) => {
     const content = document.querySelector(".auth-modal-content");
     if (content && !content.contains(e.target)) {
@@ -866,6 +873,14 @@ function bindAuthUi() {
 
   byId("profile-modal")?.addEventListener("click", (e) => {
     const content = document.querySelector(".profile-modal-content");
+    const insideIntlDropdown =
+      e.target instanceof Element &&
+      !!e.target.closest(".iti, .iti__country-container, .iti__country-list");
+
+    if (insideIntlDropdown) {
+      return;
+    }
+
     if (content && !content.contains(e.target)) {
       closeProfileModal();
     }
@@ -922,6 +937,15 @@ function openProfileModal() {
     languageSelect.value = languageValue;
   }
 
+  const profilePhoneInput = byId("profile-phone");
+  if (profilePhoneInput) {
+    if (profilePhoneIti && currentUser?.phone) {
+      profilePhoneIti.setNumber(currentUser.phone);
+    } else {
+      profilePhoneInput.value = currentUser?.phone || "";
+    }
+  }
+
   const switcher = byId("profile-plan-switcher");
   if (switcher) {
     switcher.setAttribute("data-plan", plan);
@@ -939,8 +963,61 @@ function openProfileModal() {
     }
   }
 
+  if (profilePhoneIti && currentUser?.phone) {
+    profilePhoneIti.setNumber(currentUser.phone);
+  }
+
   byId("profile-modal")?.classList.remove("hidden");
   applyPhoneCountryFromCurrentUser();
+}
+
+async function handleSaveProfile() {
+  if (!currentUser) return;
+
+  const language = normalizeLanguage(byId("profile-language")?.value || "en");
+  const phone =
+    typeof window.getProfilePhoneE164 === "function"
+      ? window.getProfilePhoneE164()
+      : (byId("profile-phone")?.value || "").trim();
+
+  try {
+    const updatedUser = await apiFetch("/auth/preferences", {
+      method: "PATCH",
+      body: JSON.stringify({
+        language,
+        language_source: "manual",
+        phone: phone || null
+      })
+    });
+
+    setUser(updatedUser);
+
+    const tgPhoneInput = document.getElementById("tgPhoneInput");
+    if (
+      updatedUser?.phone &&
+      typeof tgPhoneIti !== "undefined" &&
+      tgPhoneIti &&
+      tgPhoneInput
+    ) {
+      tgPhoneIti.setNumber(updatedUser.phone);
+    }
+
+    closeProfileModal();
+  } catch (err) {
+    const detail = err?.detail?.detail || err?.detail || "";
+
+    if (detail === "PHONE_ALREADY_USED") {
+      alert("Этот номер телефона уже используется в другом аккаунте.");
+      return;
+    }
+
+    if (detail === "PHONE_INVALID") {
+      alert("Телефон введён в неверном формате.");
+      return;
+    }
+
+    alert("Не удалось сохранить изменения профиля.");
+  }
 }
 
 function closeProfileModal() {

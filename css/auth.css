@@ -246,13 +246,22 @@ body.user-not-auth .sidebar-user-area .auth-open-btn {
   width: 100%;
 }
 
-#profile-modal .iti__country-list {
-  z-index: 5005 !important;
-  max-height: 240px;
+.iti__country-container {
+  z-index: 6000 !important;
 }
 
-#profile-modal .iti__dropdown-content {
-  z-index: 5005 !important;
+.iti__country-list {
+  z-index: 6001 !important;
+  background: #ffffff !important;
+  border: 1px solid #d1d5db !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.14) !important;
+  max-height: 260px !important;
+  overflow-y: auto !important;
+}
+
+.iti__dropdown-content {
+  z-index: 6001 !important;
+  background: #ffffff !important;
 }
 
 .password-input-wrap {
@@ -646,6 +655,24 @@ text-decoration: underline;
   margin-top: 4px;
   color: #6b7280;
   font-size: 0.8rem;
+}
+
+.profile-actions-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+
+.profile-save-btn {
+  background: #111827;
+  color: #ffffff;
+  border-radius: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+}
+
+.profile-save-btn:hover {
+  background: #000000;
 }
 
 .auth-inline-error {
