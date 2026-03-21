@@ -88,6 +88,38 @@ body.user-not-auth .sidebar-user-area .auth-open-btn {
   padding: 8px 14px;
 }
 
+.user-profile-trigger {
+  justify-content: space-between;
+}
+
+.user-profile-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.quick-logout-btn {
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+
+.quick-logout-btn:hover {
+  background: rgba(255, 255, 255, 0.28);
+  color: #111827;
+}
+
 .user-profile-trigger:hover {
   background: rgba(255, 255, 255, 0.22);
 }
@@ -127,10 +159,11 @@ body.user-not-auth .sidebar-user-area .auth-open-btn {
 
 .user-dropdown {
   position: absolute;
-  left: 0;
+  left: 50%;
+  transform: translateX(-50%);
   bottom: calc(100% + 8px);
-  width: 220px;
-  min-width: 220px;
+  width: min(240px, calc(100% - 24px));
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -664,15 +697,17 @@ text-decoration: underline;
 }
 
 .profile-save-btn {
-  background: #111827;
+  background: #4b5563;
   color: #ffffff;
   border-radius: 12px;
   padding: 12px 16px;
   cursor: pointer;
+  transition: background 0.18s ease, box-shadow 0.18s ease;
 }
 
 .profile-save-btn:hover {
-  background: #000000;
+  background: #374151;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 .auth-inline-error {

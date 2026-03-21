@@ -741,11 +741,23 @@
 
                 <div id="user-profile" class="user-profile hidden">
                   <button id="user-profile-trigger" class="user-profile-trigger" type="button">
-                    <img id="user-avatar-img" class="user-avatar-img" src="images/cats/cat-1.jpg" alt="Аватар">
-                    <div class="user-meta expanded-only">
-                      <div id="user-email" class="user-email"></div>
-                      <div id="user-plan" class="user-plan"></div>
+                    <div class="user-profile-main">
+                      <img id="user-avatar-img" class="user-avatar-img" src="images/cats/cat-1.jpg" alt="Аватар">
+                      <div class="user-meta expanded-only">
+                        <div id="user-email" class="user-email"></div>
+                        <div id="user-plan" class="user-plan"></div>
+                      </div>
                     </div>
+
+                    <button
+                      id="quick-logout-btn"
+                      class="quick-logout-btn expanded-only"
+                      type="button"
+                      title="Выйти"
+                      aria-label="Выйти"
+                    >
+                      🚪
+                    </button>
                   </button>
 
                   <div id="user-dropdown" class="user-dropdown hidden">

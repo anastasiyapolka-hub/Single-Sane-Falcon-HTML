@@ -532,7 +532,7 @@ function setUser(user) {
   if (tgPhoneIti && tgPhoneInput && currentUser?.phone) {
     tgPhoneIti.setNumber(currentUser.phone);
   }
-  
+
   saveUserLocalPrefs(currentUser.email || "", {
     country_code: currentUser.country_code || "",
     language: currentUser.language,
@@ -833,7 +833,11 @@ function bindAuthUi() {
   });
 
   byId("logout-btn")?.addEventListener("click", handleLogout);
-
+  byId("quick-logout-btn")?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    handleLogout();
+  });
+  
   byId("user-profile-trigger")?.addEventListener("click", (e) => {
     e.stopPropagation();
     if (!currentUser) return;
@@ -923,7 +927,7 @@ function openProfileModal() {
   const countryValue = countryObj
     ? getCountryLabel(countryObj, getCurrentUiLanguage())
     : (currentUser.country_name || currentUser.country || "—");
-    
+
   const languageValue = normalizeLanguage(
     currentUser.language || getEffectiveLanguage(currentUser)
   );
@@ -935,15 +939,6 @@ function openProfileModal() {
   const languageSelect = byId("profile-language");
   if (languageSelect) {
     languageSelect.value = languageValue;
-  }
-
-  const profilePhoneInput = byId("profile-phone");
-  if (profilePhoneInput) {
-    if (profilePhoneIti && currentUser?.phone) {
-      profilePhoneIti.setNumber(currentUser.phone);
-    } else {
-      profilePhoneInput.value = currentUser?.phone || "";
-    }
   }
 
   const switcher = byId("profile-plan-switcher");
@@ -963,12 +958,19 @@ function openProfileModal() {
     }
   }
 
-  if (profilePhoneIti && currentUser?.phone) {
-    profilePhoneIti.setNumber(currentUser.phone);
-  }
-
   byId("profile-modal")?.classList.remove("hidden");
-  applyPhoneCountryFromCurrentUser();
+
+  requestAnimationFrame(() => {
+    initProfilePhoneInput();
+
+    if (profilePhoneIti) {
+      if (currentUser?.phone) {
+        profilePhoneIti.setNumber(currentUser.phone);
+      } else {
+        profilePhoneIti.setCountry(getDefaultPhoneCountryIso2());
+      }
+    }
+  });
 }
 
 async function handleSaveProfile() {
@@ -1053,7 +1055,7 @@ document.addEventListener("DOMContentLoaded", () => {
   bindAuthUi();
   bindPasswordToggles();
 
-  initIntlPhoneInputs();
+  initTelegramPhoneInput();
   bootstrapAuth();
   initCookieBanner();
   
