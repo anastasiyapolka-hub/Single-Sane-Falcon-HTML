@@ -1103,3 +1103,74 @@ body.sidebar-collapsed {
   white-space: pre-wrap;
   word-break: break-word;
 }
+
+/* === Неавторизованный пользователь: размытая левая панель + CTA по центру === */
+
+body.user-not-auth .dashboard-sidebar {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Размываем и приглушаем весь контент панели, кроме зоны кнопки входа и ресайзера */
+body.user-not-auth .dashboard-sidebar > *:not(#sidebarUserArea):not(#sidebarResizer) {
+  filter: blur(3px);
+  opacity: 0.5;
+  pointer-events: none;
+  user-select: none;
+  transition: filter 0.2s ease, opacity 0.2s ease;
+}
+
+/* Зона с кнопкой превращается в центральный overlay */
+body.user-not-auth #sidebarUserArea {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: transparent !important;
+  border-top: none !important;
+}
+
+/* Кнопка по центру, заметнее и крупнее */
+body.user-not-auth #sidebarUserArea .auth-open-btn {
+  width: min(260px, 100%);
+  min-height: 54px;
+  padding: 14px 24px;
+  margin: 0;
+  border-radius: 999px;
+  box-shadow: 0 12px 32px rgba(17, 24, 39, 0.16);
+  position: relative;
+  z-index: 31;
+}
+
+/* В свернутом sidebar тоже не уводим кнопку вниз, а оставляем по центру */
+body.user-not-auth.sidebar-collapsed #sidebarUserArea,
+body.user-not-auth .dashboard-sidebar.collapsed #sidebarUserArea {
+  inset: 0;
+  padding: 12px;
+  justify-content: center;
+  align-items: center;
+}
+
+body.user-not-auth.sidebar-collapsed #sidebarUserArea .auth-open-btn,
+body.user-not-auth .dashboard-sidebar.collapsed #sidebarUserArea .auth-open-btn {
+  width: 42px;
+  min-width: 42px;
+  height: 42px;
+  min-height: 42px;
+  padding: 0;
+  box-shadow: 0 8px 24px rgba(17, 24, 39, 0.18);
+}
+
+/* Чтобы иконка/текст кнопки корректно отображались в обоих состояниях */
+body.user-not-auth .dashboard-sidebar.collapsed #sidebarUserArea .auth-open-btn .collapsed-only,
+body.user-not-auth.sidebar-collapsed #sidebarUserArea .auth-open-btn .collapsed-only {
+  display: inline-flex !important;
+}
+
+body.user-not-auth .dashboard-sidebar.collapsed #sidebarUserArea .auth-open-btn .expanded-only,
+body.user-not-auth.sidebar-collapsed #sidebarUserArea .auth-open-btn .expanded-only {
+  display: none !important;
+}
