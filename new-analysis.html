@@ -733,6 +733,13 @@
             </div>
             </div>
 
+            <div class="sidebar-section">
+              <button id="adminPanelBtn" type="button" class="tg-button" style="width:100%;">
+                Панель администрирования
+              </button>
+            </div>
+
+
             <div id="sidebarUserArea" class="sidebar-user-area">
                 <button id="auth-open-btn" class="auth-open-btn" type="button" aria-label="Войти/Зарегистрироваться">
                   <span class="auth-open-btn__text expanded-only">Войти / Регистрация</span>
@@ -907,6 +914,7 @@
       const loader = document.querySelector(".dashboard-loader");
       const resultDiv = document.getElementById("analysisResult");
       const isServiceAccount = dataSourcePublicRadio?.checked;
+      const adminPanelBtn = document.getElementById("adminPanelBtn");
 
       // --- ЭЛЕМЕНТЫ ДЛЯ ВЫБОРА ИСТОЧНИКА ДАННЫХ ---
       const dataSourceFileRadio = document.getElementById("dataSourceFile");
@@ -1022,6 +1030,10 @@
       subTypeSelect?.addEventListener("change", () => {
         const t = (subTypeSelect.value || "events").trim();
         setPeriodOptionsForType(t);
+      });
+
+      adminPanelBtn?.addEventListener("click", () => {
+        window.location.href = "/admin-service-accounts.html";
       });
 
       function autoResizeQueryInput() {
