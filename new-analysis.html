@@ -906,6 +906,7 @@
       const analyzeBtn = document.getElementById("analyzeBtn");
       const loader = document.querySelector(".dashboard-loader");
       const resultDiv = document.getElementById("analysisResult");
+      const isServiceAccount = dataSourcePublicRadio?.checked;
 
       // --- ЭЛЕМЕНТЫ ДЛЯ ВЫБОРА ИСТОЧНИКА ДАННЫХ ---
       const dataSourceFileRadio = document.getElementById("dataSourceFile");
@@ -2373,6 +2374,33 @@ if (runSubscriptionsBtn) {
 
               
               const data = await apiFetch("/tg/analyze_chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+              });
+
+              renderResult(data, JSON.stringify(data, null, 2));
+              return;
+            }
+
+            // ВЕТКА: CЛУЖЕБНЫЙ АККАУНТ
+            if (isServiceAccount) {
+              const chatLink = (activeChatInput?.value || "").trim();
+              const days = parseInt(queryDaysInput?.value || "7", 10);
+
+              if (!chatLink) {
+                alert("Введите публичный username или ссылку на публичный чат/канал Telegram.");
+                showLoader(false);
+                return;
+              }
+
+              const payload = {
+                chat_link: chatLink,
+                days: days,
+                user_query: query || "",
+              };
+
+              const data = await apiFetch("/tg/service/analyze_chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
