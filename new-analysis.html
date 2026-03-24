@@ -913,7 +913,7 @@
       const analyzeBtn = document.getElementById("analyzeBtn");
       const loader = document.querySelector(".dashboard-loader");
       const resultDiv = document.getElementById("analysisResult");
-      const isServiceAccount = dataSourcePublicRadio?.checked;
+      
       const adminPanelBtn = document.getElementById("adminPanelBtn");
 
       // --- ЭЛЕМЕНТЫ ДЛЯ ВЫБОРА ИСТОЧНИКА ДАННЫХ ---
@@ -2330,6 +2330,8 @@ if (runSubscriptionsBtn) {
       // кнопка Play
       if (analyzeBtn) {
         analyzeBtn.addEventListener("click", async () => {
+
+          const isServiceAccount = dataSourcePublicRadio?.checked;
           const query = (queryInput?.value || "").trim();
           const isTelegramJson = dataSourceFileRadio?.checked;
           const isTelegramAccount = dataSourceAccountRadio?.checked;
