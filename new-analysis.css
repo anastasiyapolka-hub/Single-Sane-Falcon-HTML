@@ -1174,3 +1174,133 @@ body.user-not-auth .dashboard-sidebar.collapsed #sidebarUserArea .auth-open-btn 
 body.user-not-auth.sidebar-collapsed #sidebarUserArea .auth-open-btn .expanded-only {
   display: none !important;
 }
+
+/* === MOBILE FIX: рабочая область должна оставаться видимой справа === */
+@media (max-width: 900px) {
+  :root {
+    --sidebar-width: min(78vw, 320px);
+    --sidebar-collapsed-width: 56px;
+  }
+
+  .dashboard-layout {
+    flex-direction: row !important;
+    align-items: stretch !important;
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    overflow: hidden;
+  }
+
+  .dashboard-sidebar {
+    width: var(--sidebar-width) !important;
+    flex: 0 0 var(--sidebar-width) !important;
+    min-width: var(--sidebar-width) !important;
+    max-width: var(--sidebar-width) !important;
+    height: 100%;
+    min-height: 100%;
+    border-right: 1px solid rgba(0, 0, 0, 0.06) !important;
+    border-bottom: none !important;
+  }
+
+  .dashboard-sidebar.collapsed {
+    width: var(--sidebar-collapsed-width) !important;
+    flex: 0 0 var(--sidebar-collapsed-width) !important;
+    min-width: var(--sidebar-collapsed-width) !important;
+    max-width: var(--sidebar-collapsed-width) !important;
+  }
+
+  .dashboard-main {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto;
+    height: 100%;
+    min-height: 100%;
+    overflow: hidden;
+  }
+
+  .dashboard-container {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto;
+    height: 100%;
+    min-height: 100%;
+    padding: var(--topbar-h) 12px 0 12px;
+    overflow: hidden;
+  }
+
+  .dashboard-top-block {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .dashboard-results-viewer {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .dashboard-results-text {
+    padding: 16px;
+  }
+
+  .dashboard-bottom-block {
+    padding: 8px 0 calc(env(safe-area-inset-bottom) + 10px) 0 !important;
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+  }
+
+  .dashboard-input-panel {
+    border-radius: 14px;
+  }
+
+  .analysis-controls {
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  .analysis-query-input,
+  .analysis-query-textarea {
+    min-width: 0;
+    width: 100%;
+    font-size: 16px; /* чтобы iPhone не делал странный zoom/focus */
+  }
+
+  .analysis-icon-button {
+    flex: 0 0 auto;
+  }
+
+  .navigation {
+    left: var(--sidebar-w) !important;
+    right: 0 !important;
+  }
+}
+
+@media (max-width: 560px) {
+  :root {
+    --sidebar-width: min(82vw, 300px);
+  }
+
+  .dashboard-container {
+    padding: var(--topbar-h) 10px 0 10px;
+  }
+
+  .analysis-controls {
+    gap: 6px;
+    padding: 10px;
+  }
+
+  .analysis-play-button {
+    min-width: 38px;
+    min-height: 38px;
+  }
+
+  .analysis-disclaimer {
+    padding: 8px 10px 12px 10px;
+    font-size: 0.78rem;
+  }
+}
