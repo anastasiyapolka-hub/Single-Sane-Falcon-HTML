@@ -792,31 +792,9 @@
               </div>
               <div class="dashboard-results-viewer">
                 
-                <div class="dashboard-loader">
-                  <div class="dashboard-loader-cat">
-                    <div class="dashboard-cat-body">
-                      <div
-                        class="dashboard-cat-ear dashboard-cat-ear-left"
-                      ></div>
-                      <div
-                        class="dashboard-cat-ear dashboard-cat-ear-right"
-                      ></div>
-                      <div class="dashboard-cat-face">
-                        <div
-                          class="dashboard-cat-eye dashboard-cat-eye-left"
-                        ></div>
-                        <div
-                          class="dashboard-cat-eye dashboard-cat-eye-right"
-                        ></div>
-                        <div class="dashboard-cat-nose"></div>
-                      </div>
-                    </div>
-                    <div class="dashboard-cat-tail"></div>
-                  </div>
-                  <p class="dashboard-loader-text section-content">
-                    Анализируем ваши данные...
-                  </p>
-                </div>
+              <div class="dashboard-loader">
+                <div id="dashboardLottieLoader" class="dashboard-lottie-loader"></div>
+              </div>
                  <pre id="analysisResult" class="dashboard-results-text"></pre>
               </div>
             </div>
@@ -901,7 +879,7 @@
         </style>
       
       <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js"></script>
        <script defer data-name="dashboard-interactions">
   document.addEventListener("DOMContentLoaded", function () {
     (function () {
@@ -913,7 +891,8 @@
       const analyzeBtn = document.getElementById("analyzeBtn");
       const loader = document.querySelector(".dashboard-loader");
       const resultDiv = document.getElementById("analysisResult");
-      
+      const lottieLoaderContainer = document.getElementById("dashboardLottieLoader");
+      let dashboardLottieInstance = null;
       const adminPanelBtn = document.getElementById("adminPanelBtn");
 
       // --- ЭЛЕМЕНТЫ ДЛЯ ВЫБОРА ИСТОЧНИКА ДАННЫХ ---
@@ -1283,9 +1262,29 @@
       // начальное  состояние
       setTgState("phone");
 
+      function initDashboardLottie() {
+        if (!lottieLoaderContainer) return;
+        if (dashboardLottieInstance) return;
+        if (typeof lottie === "undefined") return;
+
+        dashboardLottieInstance = lottie.loadAnimation({
+          container: lottieLoaderContainer,
+          renderer: "svg",
+          loop: true,
+          autoplay: true,
+          path: "/assets/lottie/cat-loader.json"
+        });
+      }
+
       function showLoader(show) {
         if (!loader) return;
-        loader.style.display = show ? "flex" : "none";
+
+        if (show) {
+          initDashboardLottie();
+          loader.style.display = "flex";
+        } else {
+          loader.style.display = "none";
+        }
       }
 
       // по умолчанию прячем котика
@@ -2426,13 +2425,20 @@ if (runSubscriptionsBtn) {
 
             // 3️⃣ НИЧЕГО НЕ ВЫБРАНО
             alert("Выберите источник данных.");
-          } catch (err) {
-            if (resultDiv) {
-              resultDiv.textContent = "Ошибка запроса: " + err.message;
-            }
-          } finally {
-            showLoader(false);
+         } catch (err) {
+          const msg =
+            err?.detail?.message ||
+            err?.detail?.detail ||
+            (typeof err?.detail === "string" ? err.detail : "") ||
+            err?.message ||
+            String(err);
+
+          if (resultDiv) {
+            resultDiv.textContent = "Ошибка запроса: " + msg;
           }
+        } finally {
+          showLoader(false);
+        }
         });
       }
     })();

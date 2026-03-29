@@ -103,6 +103,17 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding: 24px;
+  min-height: 280px;
+  width: 100%;
+}
+
+.dashboard-lottie-loader {
+  width: 220px;
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .dashboard-results-text {
@@ -145,12 +156,6 @@ body {
   padding: 24px;
   white-space: pre-wrap;
   flex: 0 0 auto;
-}
-
-/* Если котик сейчас прилипает к полоске —
-   можно чуть опустить его */
-.dashboard-loader {
- padding: 24px;    
 }
 
 .dashboard-top-block {
