@@ -793,7 +793,10 @@
               <div class="dashboard-results-viewer">
                 
               <div class="dashboard-loader">
-                <div id="dashboardLottieLoader" class="dashboard-lottie-loader"></div>
+                <div class="dashboard-loader-inner">
+                  <div id="dashboardLottieLoader" class="dashboard-lottie-loader"></div>
+                  <div id="dashboardStatusText" class="dashboard-status-text" aria-live="polite"></div>
+                </div>
               </div>
                  <pre id="analysisResult" class="dashboard-results-text"></pre>
               </div>
@@ -888,11 +891,21 @@
       const uploadBtn = document.getElementById("uploadBtn");
       const fileInput = document.getElementById("chatFile");
       const queryInput = document.getElementById("queryInput");
+      
       const analyzeBtn = document.getElementById("analyzeBtn");
       const loader = document.querySelector(".dashboard-loader");
       const resultDiv = document.getElementById("analysisResult");
       const lottieLoaderContainer = document.getElementById("dashboardLottieLoader");
+      const dashboardStatusText = document.getElementById("dashboardStatusText");
       let dashboardLottieInstance = null;
+      let loaderStatusTimer = null;
+      let loaderSequence = [];
+      let loaderSequenceIndex = 0;
+      let loaderShownAt = 0;
+      let loaderMinResolve = null;
+      let loaderMinPromise = null;
+
+
       const adminPanelBtn = document.getElementById("adminPanelBtn");
 
       // --- ЭЛЕМЕНТЫ ДЛЯ ВЫБОРА ИСТОЧНИКА ДАННЫХ ---
@@ -1276,14 +1289,192 @@
         });
       }
 
+      const LOADER_STATUS_GROUPS = {
+        start: [
+          "Ищем нужный чат…",
+          "Подключаемся к данным…",
+          "Открываем диалог…",
+          "Запускаем анализ…",
+          "Проверяем доступ к данным…",
+          "Настраиваемся на диалог…",
+          "Кот готовится к работе…",
+          "Открываем канал связи…"
+        ],
+        collect: [
+          "Собираем сообщения…",
+          "Собираем историю…",
+          "Аккуратно собираем историю…",
+          "Перебираем диалог по кусочкам…",
+          "Кот уже листает сообщения…",
+          "Подгружаем сообщения…",
+          "Просматриваем диалог сверху вниз…",
+          "Кот пробегается по переписке…",
+          "Достаём нужные кусочки из истории…",
+          "Сканируем сообщения в поисках смысла…"
+        ],
+        process: [
+          "Раскладываем сообщения по полочкам…",
+          "Отбрасываем лишнее…",
+          "Выбираем важные фрагменты…",
+          "Выделяем ключевые фрагменты…",
+          "Складываем мысли в аккуратные стопки…",
+          "Приводим данные в порядок…",
+          "Сортируем мысли по смыслу…",
+          "Чистим шум из диалога…",
+          "Собираем структуру ответа…",
+          "Выравниваем контекст…"
+        ],
+        analyze: [
+          "Умный анализ в процессе…",
+          "Думаем…",
+          "Думаем, серьёзно думаем…",
+          "Нюхаем, где тут самое важное…",
+          "Формируем смысл…",
+          "Уточняем контекст…",
+          "Сверяем детали…",
+          "Собираем мысли вместе…",
+          "Ждём, пока ИИ посчитает результаты…"
+        ],
+        finish: [
+          "Почти всё готово…",
+          "Почти поймали суть…",
+          "Готовим ответ…",
+          "Формируем ответ…",
+          "Строим ответ по кирпичикам…",
+          "Добавляем последние штрихи…",
+          "Завершаем обработку…",
+          "Упаковываем ответ по конвертикам…"
+        ],
+        trailing: [
+          "Думаем…",
+          "Почти всё готово…",
+          "Формируем ответ…",
+          "Собираем мысли вместе…",
+          "Уточняем контекст…",
+          "Сверяем детали…",
+          "Готовим ответ…",
+          "Почти поймали суть…"
+        ]
+      };
+
+      const STATUS_STEP_DURATION_MS = 1800;
+      const MIN_STATUS_COUNT = 2;
+      const MIN_LOADER_VISIBLE_MS = MIN_STATUS_COUNT * STATUS_STEP_DURATION_MS;
+
+      function randomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+
+      function shuffleArray(arr) {
+        const copy = [...arr];
+        for (let i = copy.length - 1; i > 0; i -= 1) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [copy[i], copy[j]] = [copy[j], copy[i]];
+        }
+        return copy;
+      }
+
+      function pickOne(arr) {
+        return arr[Math.floor(Math.random() * arr.length)];
+      }
+
+      function pickSome(arr, count) {
+        return shuffleArray(arr).slice(0, count);
+      }
+
+      function buildLoaderSequence() {
+        const sequence = [];
+
+        sequence.push(pickOne(LOADER_STATUS_GROUPS.start));
+
+        pickSome(LOADER_STATUS_GROUPS.collect, randomInt(1, 2)).forEach((s) => sequence.push(s));
+        pickSome(LOADER_STATUS_GROUPS.process, randomInt(1, 2)).forEach((s) => sequence.push(s));
+        pickSome(LOADER_STATUS_GROUPS.analyze, randomInt(1, 2)).forEach((s) => sequence.push(s));
+
+        sequence.push(pickOne(LOADER_STATUS_GROUPS.finish));
+
+        return sequence;
+      }
+
+      function renderLoaderStatus(text) {
+        if (!dashboardStatusText) return;
+
+        dashboardStatusText.classList.remove("is-visible");
+        void dashboardStatusText.offsetWidth;
+        dashboardStatusText.textContent = text;
+        dashboardStatusText.classList.add("is-visible");
+      }
+
+      function stopLoaderStatuses() {
+        if (loaderStatusTimer) {
+          clearTimeout(loaderStatusTimer);
+          loaderStatusTimer = null;
+        }
+      }
+
+      function startLoaderStatuses() {
+        stopLoaderStatuses();
+
+        loaderSequence = buildLoaderSequence();
+        loaderSequenceIndex = 0;
+
+        const tick = () => {
+          if (!dashboardStatusText) return;
+
+          let nextText = "";
+
+          if (loaderSequenceIndex < loaderSequence.length) {
+            nextText = loaderSequence[loaderSequenceIndex];
+          } else {
+            nextText = pickOne(LOADER_STATUS_GROUPS.trailing);
+          }
+
+          renderLoaderStatus(nextText);
+          loaderSequenceIndex += 1;
+          loaderStatusTimer = setTimeout(tick, STATUS_STEP_DURATION_MS);
+        };
+
+        tick();
+      }
+
+      function resetLoaderState() {
+        stopLoaderStatuses();
+
+        loaderSequence = [];
+        loaderSequenceIndex = 0;
+        loaderShownAt = 0;
+
+        if (dashboardStatusText) {
+          dashboardStatusText.textContent = "";
+          dashboardStatusText.classList.remove("is-visible");
+        }
+
+        loaderMinResolve = null;
+        loaderMinPromise = null;
+      }
+
       function showLoader(show) {
         if (!loader) return;
 
         if (show) {
           initDashboardLottie();
+
+          loaderShownAt = Date.now();
+          loaderMinPromise = new Promise((resolve) => {
+            loaderMinResolve = resolve;
+          });
+
           loader.style.display = "flex";
+          startLoaderStatuses();
+
+          setTimeout(() => {
+            if (typeof loaderMinResolve === "function") {
+              loaderMinResolve();
+            }
+          }, MIN_LOADER_VISIBLE_MS);
         } else {
           loader.style.display = "none";
+          resetLoaderState();
         }
       }
 
@@ -2364,6 +2555,10 @@ if (runSubscriptionsBtn) {
                 body: formData,
               });
 
+              if (loaderMinPromise) {
+                await loaderMinPromise;
+              }
+
               renderResult(data, JSON.stringify(data, null, 2));
               return;
             }
@@ -2392,6 +2587,10 @@ if (runSubscriptionsBtn) {
                 body: JSON.stringify(payload),
               });
 
+              if (loaderMinPromise) {
+                await loaderMinPromise;
+              }
+
               renderResult(data, JSON.stringify(data, null, 2));
               return;
             }
@@ -2419,8 +2618,13 @@ if (runSubscriptionsBtn) {
                 body: JSON.stringify(payload),
               });
 
+              if (loaderMinPromise) {
+                await loaderMinPromise;
+              }
+
               renderResult(data, JSON.stringify(data, null, 2));
               return;
+
             }
 
             // 3️⃣ НИЧЕГО НЕ ВЫБРАНО
