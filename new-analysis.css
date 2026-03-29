@@ -129,8 +129,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  transform: translateX(-22px);
-  margin-bottom: -10px;
+  transform: translateX(-24px);
+  margin-bottom: -12px;
 }
 
 .dashboard-status-text {
@@ -138,12 +138,12 @@ body {
   margin-top: 3px;
   padding: 0 8px;
   font-size: 15px;
-  font-weight: 300;
+  font-weight: 350;
   line-height: 1.4;
-  color: rgba(78, 78, 78, 0.92);
+  color: rgba(68, 68, 68, 0.92);
   letter-spacing: 0.01em;
   opacity: 0;
-  transform: translateY(20px);
+  transform: translateY(24px);
 
   text-shadow:
     0 0 0 rgba(255, 166, 77, 0),
