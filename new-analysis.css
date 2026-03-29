@@ -137,10 +137,10 @@ body {
   min-height: 18px;
   margin-top: 3px;
   padding: 0 8px;
-  font-size: 16px;
-  font-weight: 400;
+  font-size: 15px;
+  font-weight: 300;
   line-height: 1.4;
-  color: rgba(67, 66, 66, 0.92);
+  color: rgba(78, 78, 78, 0.92);
   letter-spacing: 0.01em;
   opacity: 0;
   transform: translateY(20px);
