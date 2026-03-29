@@ -133,7 +133,7 @@ body {
 }
 
 .dashboard-status-text {
-  min-height: 30px;
+  min-height: 18px;
   margin-top: 3px;
   padding: 0 8px;
   font-size: 16px;
