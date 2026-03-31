@@ -497,6 +497,12 @@ function setGuest() {
 
   document.body.classList.add("user-not-auth");
   applyPhoneCountryFromCurrentUser();
+
+    window.dispatchEvent(
+    new CustomEvent("cotel-auth-changed", {
+      detail: { user: null }
+    })
+  );
 }
 
 function setUser(user) {
@@ -537,6 +543,13 @@ function setUser(user) {
     language: currentUser.language,
     language_source: currentUser.language_source || "auto"
   });
+
+    window.dispatchEvent(
+    new CustomEvent("cotel-auth-changed", {
+      detail: { user: currentUser }
+    })
+  );
+  
 }
 
 function setAvatar(email) {

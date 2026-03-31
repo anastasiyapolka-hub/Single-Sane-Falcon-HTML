@@ -602,16 +602,35 @@
                     <label class="sidebar-field-label" for="">
                       Активный чат
                     </label>
-                   <input
-                    id="activeChatInput"
-                    type="text"
-                    class="sidebar-text-input"
-                    placeholder="Введите ссылку или название чата…"
-                  />
-                  
-                  <!-- Список чатов -->
-                  <div id="myChatsList" class="sidebar-chat-list" aria-label="Список чатов"></div>
+                    <input
+                      id="activeChatInput"
+                      type="text"
+                      class="sidebar-text-input"
+                      placeholder="Введите ссылку или название чата…"
+                    />
 
+                    <div id="chatHistoryBlock" class="sidebar-history-block hidden">
+                      <button
+                        id="chatHistoryToggle"
+                        type="button"
+                        class="sidebar-history-toggle"
+                        aria-expanded="true"
+                      >
+                        <span>История</span>
+                        <span id="chatHistoryToggleIcon">▾</span>
+                      </button>
+
+                      <div id="chatHistoryBody" class="sidebar-history-body">
+                        <div
+                          id="chatHistoryList"
+                          class="sidebar-chat-list sidebar-chat-history-list"
+                          aria-label="История чатов"
+                        ></div>
+                      </div>
+                    </div>
+
+<!-- Список чатов -->
+<div id="myChatsList" class="sidebar-chat-list" aria-label="Список чатов"></div>
                   </div>
                 </details>
               </div>
@@ -972,6 +991,12 @@
       const activeChatInput = document.getElementById("activeChatInput");
       const queryDaysInput = document.getElementById("queryDaysInput");
 
+      const chatHistoryBlock = document.getElementById("chatHistoryBlock");
+      const chatHistoryToggle = document.getElementById("chatHistoryToggle");
+      const chatHistoryToggleIcon = document.getElementById("chatHistoryToggleIcon");
+      const chatHistoryBody = document.getElementById("chatHistoryBody");
+      const chatHistoryList = document.getElementById("chatHistoryList");
+
       // --- Подписки ---
       const addSubscriptionBtn = document.getElementById("addSubscriptionBtn");
       const subscriptionCreateBlock = document.getElementById("subscriptionCreateBlock");
@@ -1011,10 +1036,21 @@
 
 
       let cachedChats = []; // [{id,title,type,username}]
+      let cachedChatHistory = [];
+      let isChatHistoryExpanded = true;
 
-      bootstrapTelegramState();
+      bootstrapTelegramState().finally(() => {
+        loadChatHistory();
+      });
+      window.addEventListener("cotel-auth-changed", () => {
+        loadChatHistory();
+      });
 
       activeChatInput?.addEventListener("input", filterChatsByInput);
+
+      chatHistoryToggle?.addEventListener("click", () => {
+        setChatHistoryExpanded(!isChatHistoryExpanded);
+      });
 
       queryInput?.addEventListener("input", autoResizeQueryInput);
       autoResizeQueryInput();
@@ -1027,6 +1063,152 @@
       adminPanelBtn?.addEventListener("click", () => {
         window.location.href = "/admin-service-accounts.html";
       });
+
+
+      function getCurrentHistorySourceMode() {
+        if (dataSourcePublicRadio?.checked) return "service";
+        if (dataSourceAccountRadio?.checked) return "personal";
+        return null;
+      }
+
+      function escapeHtml(value) {
+        return String(value ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;");
+      }
+
+      async function apiGetChatHistory(sourceMode, limit = 30) {
+        const params = new URLSearchParams({
+          source_mode: sourceMode,
+          limit: String(limit),
+        });
+
+        return await apiFetch(`/chat-history?${params.toString()}`, {
+          method: "GET",
+        });
+      }
+
+      async function apiDeleteChatHistoryItem(historyId) {
+        return await apiFetch(`/chat-history/${encodeURIComponent(historyId)}`, {
+          method: "DELETE",
+        });
+      }
+
+      function setChatHistoryExpanded(expanded) {
+        isChatHistoryExpanded = !!expanded;
+
+        if (chatHistoryBody) {
+          chatHistoryBody.classList.toggle("hidden", !isChatHistoryExpanded);
+        }
+
+        if (chatHistoryToggle) {
+          chatHistoryToggle.setAttribute("aria-expanded", isChatHistoryExpanded ? "true" : "false");
+        }
+
+        if (chatHistoryToggleIcon) {
+          chatHistoryToggleIcon.textContent = isChatHistoryExpanded ? "▾" : "▸";
+        }
+      }
+
+      function renderChatHistory(items) {
+        cachedChatHistory = Array.isArray(items) ? items : [];
+
+        if (!chatHistoryBlock || !chatHistoryList) return;
+
+        if (!cachedChatHistory.length) {
+          chatHistoryBlock.classList.add("hidden");
+          chatHistoryList.innerHTML = "";
+          return;
+        }
+
+        chatHistoryBlock.classList.remove("hidden");
+
+        chatHistoryList.innerHTML = cachedChatHistory.map((item) => {
+          const title = escapeHtml(item.chat_title || item.chat_ref || "Без названия");
+          const chatRef = escapeHtml(item.chat_ref || "");
+          const id = Number(item.id);
+
+          return `
+            <div class="sidebar-history-item" data-history-id="${id}" data-chat-ref="${chatRef}">
+              <button
+                type="button"
+                class="sidebar-chat-item sidebar-history-link"
+                title="${title}"
+                data-chat-ref="${chatRef}"
+              >
+                ${title}
+              </button>
+              <button
+                type="button"
+                class="sidebar-history-remove"
+                title="Удалить из истории"
+                aria-label="Удалить из истории"
+                data-history-id="${id}"
+              >
+                ✕
+              </button>
+            </div>
+          `;
+        }).join("");
+
+        chatHistoryList.querySelectorAll(".sidebar-history-link").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const chatRef = btn.getAttribute("data-chat-ref") || "";
+            if (activeChatInput) {
+              activeChatInput.value = chatRef;
+              activeChatInput.dispatchEvent(new Event("input", { bubbles: true }));
+            }
+          });
+        });
+
+        chatHistoryList.querySelectorAll(".sidebar-history-remove").forEach((btn) => {
+          btn.addEventListener("click", async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const historyId = btn.getAttribute("data-history-id");
+            if (!historyId) return;
+
+            try {
+              await apiDeleteChatHistoryItem(historyId);
+              await loadChatHistory();
+            } catch (err) {
+              const msg =
+                err?.detail?.detail ||
+                err?.detail?.message ||
+                err?.detail ||
+                err?.message ||
+                "Не удалось удалить запись из истории.";
+              alert(msg);
+            }
+          });
+        });
+
+        setChatHistoryExpanded(isChatHistoryExpanded);
+      }
+
+      async function loadChatHistory() {
+        const sourceMode = getCurrentHistorySourceMode();
+
+        if (!sourceMode) {
+          renderChatHistory([]);
+          return;
+        }
+
+        try {
+          const data = await apiGetChatHistory(sourceMode, 30);
+          renderChatHistory(Array.isArray(data?.items) ? data.items : []);
+        } catch (err) {
+          if (err?.status === 401) {
+            renderChatHistory([]);
+            return;
+          }
+          console.warn("Chat history load failed:", err);
+          renderChatHistory([]);
+        }
+      }
 
       function autoResizeQueryInput() {
         if (!queryInput) return;
@@ -1488,11 +1670,15 @@
       }
 
       // слушаем переключение источника данных
-      dataSourceFileRadio?.addEventListener("change", updateDataSourceUI);
-      dataSourceAccountRadio?.addEventListener("change", updateDataSourceUI);
-      dataSourcePublicRadio?.addEventListener("change", updateDataSourceUI);
-      dataSourceBotRadio?.addEventListener("change", updateDataSourceUI);
+      function handleDataSourceChange() {
+        updateDataSourceUI();
+        loadChatHistory();
+      }
 
+      dataSourceFileRadio?.addEventListener("change", handleDataSourceChange);
+      dataSourceAccountRadio?.addEventListener("change", handleDataSourceChange);
+      dataSourcePublicRadio?.addEventListener("change", handleDataSourceChange);
+      dataSourceBotRadio?.addEventListener("change", handleDataSourceChange);
 
       tgQrStartBtn?.addEventListener("click", startQrLogin);
       tgQrRestartBtn?.addEventListener("click", startQrLogin);
@@ -1728,6 +1914,8 @@
             setTgState("phone");
             setTelegramConnectionStatus(false, null);
             tgStatusMessage.textContent = "Сессия завершена.";
+            await loadChatHistory();
+
           } catch (err) {
             const msg = err?.detail?.detail || err?.detail || err?.message || "Не удалось завершить сессию.";
             tgStatusMessage.textContent = "Ошибка: " + msg;
@@ -2560,6 +2748,7 @@ if (runSubscriptionsBtn) {
               }
 
               renderResult(data, JSON.stringify(data, null, 2));
+              await loadChatHistory();
               return;
             }
 
@@ -2592,6 +2781,7 @@ if (runSubscriptionsBtn) {
               }
 
               renderResult(data, JSON.stringify(data, null, 2));
+              await loadChatHistory();
               return;
             }
 
@@ -2623,6 +2813,7 @@ if (runSubscriptionsBtn) {
               }
 
               renderResult(data, JSON.stringify(data, null, 2));
+              await loadChatHistory();
               return;
 
             }

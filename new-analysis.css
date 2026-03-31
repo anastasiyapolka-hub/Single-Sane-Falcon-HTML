@@ -1222,6 +1222,73 @@ body.user-not-auth.sidebar-collapsed #sidebarUserArea .auth-open-btn .expanded-o
   display: none !important;
 }
 
+/* === История чатов === */
+
+.sidebar-history-block {
+  margin-top: 8px;
+}
+
+.sidebar-history-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 2px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.sidebar-history-toggle:hover {
+  color: #111827;
+}
+
+.sidebar-history-body.hidden {
+  display: none !important;
+}
+
+.sidebar-chat-history-list {
+  margin-top: 6px;
+  max-height: 180px;
+}
+
+.sidebar-history-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sidebar-history-link {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: left;
+  background: transparent;
+  border: none;
+}
+
+.sidebar-history-remove {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.sidebar-history-remove:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
 
 
 /* === MOBILE FIX: рабочая область должна оставаться видимой справа === */
