@@ -139,7 +139,7 @@ body {
   padding: 0 8px;
   font-size: 15px;
   font-weight: 350;
-  line-height: 1.4;
+  line-height: 1.45;
   color: rgba(68, 68, 68, 0.92);
   letter-spacing: 0.01em;
   opacity: 0;
@@ -237,9 +237,7 @@ body {
 
 
 .analysis-disclaimer {
-  font-size: 12px;
-  color: rgba(0, 0, 0, 0.6);
-  margin-top: 8px;
+  display: none !important;
 }
 
 .dashboard-main {
@@ -1148,6 +1146,11 @@ body.sidebar-collapsed {
   word-break: break-word;
 }
 
+#runSubscriptionsBtn,
+#dispatchBotBtn {
+  display: none !important;
+}
+
 /* === Неавторизованный пользователь: размытая левая панель + CTA по центру === */
 
 body.user-not-auth .dashboard-sidebar {
@@ -1218,6 +1221,8 @@ body.user-not-auth .dashboard-sidebar.collapsed #sidebarUserArea .auth-open-btn 
 body.user-not-auth.sidebar-collapsed #sidebarUserArea .auth-open-btn .expanded-only {
   display: none !important;
 }
+
+
 
 /* === MOBILE FIX: рабочая область должна оставаться видимой справа === */
 @media (max-width: 900px) {
