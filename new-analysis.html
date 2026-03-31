@@ -594,19 +594,17 @@
               <div class="sidebar-section">
                 <details id="myChatsSection" open>
                   <summary>
-                    <span>Мои чаты</span>
+                    <span>Запросы к чатам</span>
                     <span>▾</span>
                   </summary>
           
                   <div class="sidebar-section-body">
-                    <label class="sidebar-field-label" for="">
-                      Активный чат
-                    </label>
+                    
                     <input
                       id="activeChatInput"
                       type="text"
                       class="sidebar-text-input"
-                      placeholder="Введите ссылку или название чата…"
+                      placeholder="Введите чат для запроса…"
                     />
 
                     <div id="chatHistoryBlock" class="sidebar-history-block hidden">
@@ -629,8 +627,26 @@
                       </div>
                     </div>
 
-<!-- Список чатов -->
-<div id="myChatsList" class="sidebar-chat-list" aria-label="Список чатов"></div>
+                    <!-- Список чатов -->
+                    <div id="availableChatsBlock" class="sidebar-history-block hidden">
+                      <button
+                        id="availableChatsToggle"
+                        type="button"
+                        class="sidebar-history-toggle"
+                        aria-expanded="true"
+                      >
+                        <span>Мои чаты и каналы</span>
+                        <span id="availableChatsToggleIcon">▾</span>
+                      </button>
+
+                      <div id="availableChatsBody" class="sidebar-history-body">
+                        <div
+                          id="myChatsList"
+                          class="sidebar-chat-list sidebar-chat-history-list"
+                          aria-label="Список чатов"
+                        ></div>
+                      </div>
+                    </div>
                   </div>
                 </details>
               </div>
@@ -639,7 +655,7 @@
               <div class="sidebar-section">
                 <details id="mySubscriptionsSection" open>
                   <summary>
-                    <span>Мои подписки</span>
+                    <span>Подписки</span>
                     <span>▾</span>
                   </summary>
           
@@ -997,6 +1013,11 @@
       const chatHistoryBody = document.getElementById("chatHistoryBody");
       const chatHistoryList = document.getElementById("chatHistoryList");
 
+      const availableChatsBlock = document.getElementById("availableChatsBlock");
+      const availableChatsToggle = document.getElementById("availableChatsToggle");
+      const availableChatsToggleIcon = document.getElementById("availableChatsToggleIcon");
+      const availableChatsBody = document.getElementById("availableChatsBody");
+
       // --- Подписки ---
       const addSubscriptionBtn = document.getElementById("addSubscriptionBtn");
       const subscriptionCreateBlock = document.getElementById("subscriptionCreateBlock");
@@ -1038,6 +1059,7 @@
       let cachedChats = []; // [{id,title,type,username}]
       let cachedChatHistory = [];
       let isChatHistoryExpanded = true;
+      let isAvailableChatsExpanded = true;
 
       bootstrapTelegramState().finally(() => {
         loadChatHistory();
@@ -1050,6 +1072,10 @@
 
       chatHistoryToggle?.addEventListener("click", () => {
         setChatHistoryExpanded(!isChatHistoryExpanded);
+      });
+
+      availableChatsToggle?.addEventListener("click", () => {
+        setAvailableChatsExpanded(!isAvailableChatsExpanded);
       });
 
       queryInput?.addEventListener("input", autoResizeQueryInput);
@@ -1109,6 +1135,22 @@
 
         if (chatHistoryToggleIcon) {
           chatHistoryToggleIcon.textContent = isChatHistoryExpanded ? "▾" : "▸";
+        }
+      }
+
+      function setAvailableChatsExpanded(expanded) {
+        isAvailableChatsExpanded = !!expanded;
+
+        if (availableChatsBody) {
+          availableChatsBody.classList.toggle("hidden", !isAvailableChatsExpanded);
+        }
+
+        if (availableChatsToggle) {
+          availableChatsToggle.setAttribute("aria-expanded", isAvailableChatsExpanded ? "true" : "false");
+        }
+
+        if (availableChatsToggleIcon) {
+          availableChatsToggleIcon.textContent = isAvailableChatsExpanded ? "▾" : "▸";
         }
       }
 
@@ -1958,29 +2000,33 @@
 
       function renderChatsList(list) {
         if (!myChatsList) return;
-      
-        if (!list || list.length === 0) {
+
+        const items = Array.isArray(list) ? list : [];
+
+        if (!items.length) {
           myChatsList.innerHTML = "";
+          if (availableChatsBlock) availableChatsBlock.classList.add("hidden");
           return;
         }
-      
-        myChatsList.innerHTML = list
+
+        if (availableChatsBlock) availableChatsBlock.classList.remove("hidden");
+
+        myChatsList.innerHTML = items
           .map((c) => {
-            // “идентификатор”, который будем подставлять в activeChatInput:
-            // если есть username -> @username, иначе -> numeric id
             const linkValue = c.username ? `@${c.username}` : String(c.id || "");
             const safeTitle = (c.title || "Без названия").replace(/</g, "&lt;").replace(/>/g, "&gt;");
             return `<div class="sidebar-chat-item" data-link="${linkValue}" title="${safeTitle}">${safeTitle}</div>`;
           })
           .join("");
-      
-        // клик по строке
+
         myChatsList.querySelectorAll(".sidebar-chat-item").forEach((el) => {
           el.addEventListener("click", () => {
             const link = el.getAttribute("data-link") || "";
             if (activeChatInput) activeChatInput.value = link;
           });
         });
+
+        setAvailableChatsExpanded(isAvailableChatsExpanded);
       }
       
       function renderSubChatsList(list) {

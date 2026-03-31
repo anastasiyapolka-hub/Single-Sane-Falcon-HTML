@@ -1253,7 +1253,8 @@ body.user-not-auth.sidebar-collapsed #sidebarUserArea .auth-open-btn .expanded-o
 
 .sidebar-chat-history-list {
   margin-top: 6px;
-  max-height: 180px;
+  max-height: 320px;
+  overflow-y: auto;
 }
 
 .sidebar-history-item {
