@@ -1240,7 +1240,7 @@ body.user-not-auth.sidebar-collapsed #sidebarUserArea .auth-open-btn .expanded-o
   cursor: pointer;
   font-size: 0.82rem;
   font-weight: 600;
-  color: #4b5563;
+  color: #464f5c;
 }
 
 .sidebar-history-toggle:hover {
