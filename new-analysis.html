@@ -565,30 +565,7 @@
                 </details>
               </div>
 
-              <!-- НАСТРОЙКИ ЗАПРОСА -->
-              <div class="sidebar-section" id="querySettingsSection">
-                <details>
-                  <summary>
-                    <span>Настройки запроса</span>
-                    <span>▾</span>
-                  </summary>
               
-                  <div class="sidebar-section-body">
-                    <div class="sidebar-field">
-                      <label for="queryDaysInput">Период (дней)</label>
-                      <input
-                        id="queryDaysInput"
-                        type="number"
-                        class="sidebar-text-input"
-                        min="1"
-                        max="365"
-                        value="7"
-                      />
-                    </div>
-                  </div>
-                </details>
-              </div>
-
                 
                <!-- 2. МОИ ЧАТЫ -->
               <div class="sidebar-section">
@@ -606,6 +583,32 @@
                       class="sidebar-text-input"
                       placeholder="Введите чат для запроса…"
                     />
+
+                    <div id="querySettingsInlineBlock" class="sidebar-history-block">
+                      <button
+                        id="querySettingsInlineToggle"
+                        type="button"
+                        class="sidebar-history-toggle"
+                        aria-expanded="false"
+                      >
+                        <span>Настройки запроса</span>
+                        <span id="querySettingsInlineToggleIcon">▸</span>
+                      </button>
+
+                      <div id="querySettingsInlineBody" class="sidebar-history-body hidden">
+                        <div class="sidebar-inline-setting-row">
+                          <label for="queryDaysInput" class="sidebar-inline-setting-label">Период, дней:</label>
+                          <input
+                            id="queryDaysInput"
+                            type="number"
+                            class="sidebar-inline-setting-input"
+                            min="1"
+                            max="365"
+                            value="7"
+                          />
+                        </div>
+                      </div>
+                    </div>
 
                     <div id="chatHistoryBlock" class="sidebar-history-block hidden">
                       <button
@@ -1018,6 +1021,11 @@
       const availableChatsToggleIcon = document.getElementById("availableChatsToggleIcon");
       const availableChatsBody = document.getElementById("availableChatsBody");
 
+      const querySettingsInlineBlock = document.getElementById("querySettingsInlineBlock");
+      const querySettingsInlineToggle = document.getElementById("querySettingsInlineToggle");
+      const querySettingsInlineToggleIcon = document.getElementById("querySettingsInlineToggleIcon");
+      const querySettingsInlineBody = document.getElementById("querySettingsInlineBody");
+
       // --- Подписки ---
       const addSubscriptionBtn = document.getElementById("addSubscriptionBtn");
       const subscriptionCreateBlock = document.getElementById("subscriptionCreateBlock");
@@ -1060,6 +1068,7 @@
       let cachedChatHistory = [];
       let isChatHistoryExpanded = true;
       let isAvailableChatsExpanded = true;
+      let isQuerySettingsInlineExpanded = false;
 
       bootstrapTelegramState().finally(() => {
         loadChatHistory();
@@ -1076,6 +1085,10 @@
 
       availableChatsToggle?.addEventListener("click", () => {
         setAvailableChatsExpanded(!isAvailableChatsExpanded);
+      });
+
+      querySettingsInlineToggle?.addEventListener("click", () => {
+        setQuerySettingsInlineExpanded(!isQuerySettingsInlineExpanded);
       });
 
       queryInput?.addEventListener("input", autoResizeQueryInput);
@@ -1102,6 +1115,9 @@
         return "personal";
       }
 
+      function getOppositeSubscriptionSourceMode() {
+        return getCurrentSubscriptionSourceMode() === "service" ? "personal" : "service";
+      }
       function getCurrentSubscriptionChatCandidates() {
         const mode = getCurrentSubscriptionSourceMode();
 
@@ -1125,6 +1141,51 @@
           .replaceAll('"', "&quot;");
       }
 
+function normalizeSubscriptionUiError(err) {
+  const raw =
+    err?.detail?.message ||
+    err?.detail?.detail ||
+    (typeof err?.detail === "string" ? err.detail : "") ||
+    err?.message ||
+    String(err || "");
+
+  const msg = String(raw || "");
+
+  if (msg.includes("CHAT_PRIVATE_OR_NO_ACCESS")) {
+    return "Этот чат недоступен для чтения под служебным аккаунтом. Подключите личный Telegram или выберите публичный чат.";
+  }
+
+  if (msg.includes("PUBLIC_CHAT_NOT_FOUND")) {
+    return "Чат или канал не найден. Проверьте ссылку, username или chat id.";
+  }
+
+  if (msg.includes("INVITE_LINK_INVALID_OR_EXPIRED")) {
+    return "Ссылка-приглашение недействительна или истекла.";
+  }
+
+  if (msg.includes("JOIN_REQUEST_SENT")) {
+    return "Для этого чата отправлена заявка на вступление. Он станет доступен только после одобрения.";
+  }
+
+  if (msg.includes("SERVICE_ACCOUNT_CHANNEL_LIMIT")) {
+    return "Служебные аккаунты временно достигли лимита Telegram на вступление в каналы. Попробуйте позже.";
+  }
+
+  if (msg.includes("FLOOD_WAIT")) {
+    return "Telegram временно ограничил доступ для служебного аккаунта. Попробуйте позже.";
+  }
+
+  if (msg.includes("TELEGRAM_NOT_AUTHORIZED")) {
+    return "Сначала подключите ваш личный Telegram-аккаунт.";
+  }
+
+  if (msg.includes("CHAT_RESOLVE_FAILED")) {
+    return "Не удалось открыть чат. Проверьте ссылку, username или доступ к нему.";
+  }
+
+  return msg || "Не удалось выполнить операцию с подпиской.";
+}
+      
       async function apiGetChatHistory(sourceMode, limit = 30) {
         const params = new URLSearchParams({
           source_mode: sourceMode,
@@ -1171,6 +1232,25 @@
 
         if (availableChatsToggleIcon) {
           availableChatsToggleIcon.textContent = isAvailableChatsExpanded ? "▾" : "▸";
+        }
+      }
+
+      function setQuerySettingsInlineExpanded(expanded) {
+        isQuerySettingsInlineExpanded = !!expanded;
+
+        if (querySettingsInlineBody) {
+          querySettingsInlineBody.classList.toggle("hidden", !isQuerySettingsInlineExpanded);
+        }
+
+        if (querySettingsInlineToggle) {
+          querySettingsInlineToggle.setAttribute(
+            "aria-expanded",
+            isQuerySettingsInlineExpanded ? "true" : "false"
+          );
+        }
+
+        if (querySettingsInlineToggleIcon) {
+          querySettingsInlineToggleIcon.textContent = isQuerySettingsInlineExpanded ? "▾" : "▸";
         }
       }
 
@@ -2198,129 +2278,228 @@
         }
       }
 
-      function renderSubscriptions(list) {
-        if (!subscriptionsList) return;
-
-        const subs = Array.isArray(list) ? list : [];
-
-        if (!subs.length) {
-          subscriptionsList.innerHTML = "";
-          return;
+      async function apiSwitchSubscriptionMode(subscriptionId, targetSourceMode) {
+        try {
+          return await apiFetch(`/subscriptions/${encodeURIComponent(subscriptionId)}/switch-mode`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              target_source_mode: targetSourceMode
+            })
+          });
+        } catch (e) {
+          const msg =
+            e?.detail?.message ||
+            e?.detail?.detail ||
+            e?.detail ||
+            e?.message ||
+            "SUBSCRIPTION_SWITCH_MODE_FAILED";
+          throw new Error(typeof msg === "string" ? msg : JSON.stringify(msg));
         }
-
-        subscriptionsList.innerHTML = subs.map((s) => {
-          const safeName = String(s.name || "Подписка")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;");
-
-          // status: active/paused/error (пока бэк может отдавать active; остальное на будущее)
-          const status = String(s.status || (s.is_active ? "active" : "paused")).toLowerCase();
-
-          let dotClass = "subscription-status-dot";
-          if (status === "paused") dotClass += " is-paused";
-          if (status === "error") dotClass += " is-error";
-
-          const freqText = minutesToHuman(s.frequency_minutes);
-
-          return `
-            <div class="subscription-item" data-sub-id="${s.id || ""}" title="${safeName}">
-              <span class="${dotClass}"></span>
-              <span class="subscription-name">${safeName}</span>
-
-              <div class="subscription-actions-mini" aria-label="Действия подписки">
-                <button class="subscription-action-btn sub-btn-pause" type="button" title="Приостановить">⏸</button>
-                <button class="subscription-action-btn sub-btn-play"  type="button" title="Включить">▶</button>
-                 <button class="subscription-action-btn sub-btn-edit"  title="Редактировать">✎</button>
-                <button class="subscription-action-btn sub-btn-del"   type="button" title="Удалить">✕</button>
-              </div>
-            </div>
-          `;
-        }).join("");
-
-        // Заглушки действий (пока без API)
-        subscriptionsList.querySelectorAll(".sub-btn-pause").forEach((btn) => {
-          btn.addEventListener("click", (e) => {
-            e.preventDefault(); e.stopPropagation();
-            alert("MVP: позже добавим API паузы подписки.");
-          });
-        });
-
-        subscriptionsList.querySelectorAll(".sub-btn-play").forEach((btn) => {
-          btn.addEventListener("click", (e) => {
-            e.preventDefault(); e.stopPropagation();
-            alert("MVP: позже добавим API включения подписки.");
-          });
-        });
-
-        subscriptionsList.querySelectorAll(".sub-btn-del").forEach((btn) => {
-          btn.addEventListener("click", async (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-
-            const item = btn.closest(".subscription-item");
-            const subId = item?.getAttribute("data-sub-id");
-
-            if (!subId) return;
-
-            const ok = confirm("Удалить подписку?");
-            if (!ok) return;
-
-            try {
-              await apiDeleteSubscription(subId);
-
-              // 1) удалить строку из списка без перезагрузки
-              item?.remove();
-
-              // 2) если это была последняя — очистить контейнер
-              if (!subscriptionsList.querySelector(".subscription-item")) {
-                subscriptionsList.innerHTML = "";
-              }
-            } catch (err) {
-              alert("Ошибка удаления: " + (err?.message || String(err)));
-            }
-          });
-        });
-
-        // Пауза
-        subscriptionsList.querySelectorAll(".sub-btn-pause").forEach((btn) => {
-          btn.addEventListener("click", async (e) => {
-            e.stopPropagation();
-            const id = btn.closest(".subscription-item")?.dataset.subId;
-            if (!id) return;
-
-            await updateSubscriptionActive(id, false);
-          });
-        });
-
-        // Возобновление
-        subscriptionsList.querySelectorAll(".sub-btn-play").forEach((btn) => {
-          btn.addEventListener("click", async (e) => {
-            e.stopPropagation();
-            const id = btn.closest(".subscription-item")?.dataset.subId;
-            if (!id) return;
-
-            await updateSubscriptionActive(id, true);
-          });
-        });
-
-        subscriptionsList.querySelectorAll(".sub-btn-edit").forEach((btn) => {
-          btn.addEventListener("click", async (e) => {
-            e.stopPropagation();
-            const id = btn.closest(".subscription-item")?.dataset.subId;
-            if (!id) return;
-
-            await openEditSubscription(id);
-          });
-        });
-
-
       }
 
-      async function refreshSubscriptions() {
+      function renderSubscriptions(currentList, otherList) {
+  if (!subscriptionsList) return;
+
+  const currentSubs = Array.isArray(currentList) ? currentList : [];
+  const otherSubs = Array.isArray(otherList) ? otherList : [];
+
+  if (!currentSubs.length && !otherSubs.length) {
+    subscriptionsList.innerHTML = "";
+    return;
+  }
+
+  function escapeSubName(value) {
+    return String(value || "Подписка")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function getStatusDotClass(s) {
+    const status = String(s.status || (s.is_active ? "active" : "paused")).toLowerCase();
+    let dotClass = "subscription-status-dot";
+    if (status === "paused") dotClass += " is-paused";
+    if (status === "error") dotClass += " is-error";
+    return dotClass;
+  }
+
+  function renderCurrentCard(s) {
+    const safeName = escapeSubName(s.name);
+
+    return `
+      <div class="subscription-item" data-sub-id="${s.id || ""}" title="${safeName}">
+        <span class="${getStatusDotClass(s)}"></span>
+        <span class="subscription-name">${safeName}</span>
+
+        <div class="subscription-actions-mini" aria-label="Действия подписки">
+          <button class="subscription-action-btn sub-btn-pause" type="button" title="Приостановить">⏸</button>
+          <button class="subscription-action-btn sub-btn-play" type="button" title="Включить">▶</button>
+          <button class="subscription-action-btn sub-btn-edit" type="button" title="Редактировать">✎</button>
+          <button class="subscription-action-btn sub-btn-del" type="button" title="Удалить">✕</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderOtherCard(s) {
+    const safeName = escapeSubName(s.name);
+
+    return `
+      <div class="subscription-item subscription-item--inactive" data-sub-id="${s.id || ""}" title="${safeName}">
+        <span class="${getStatusDotClass(s)}"></span>
+        <span class="subscription-name">${safeName}</span>
+
+        <div class="subscription-actions-mini" aria-label="Действия подписки из другого режима">
+          <button
+            class="subscription-action-btn sub-btn-switch"
+            type="button"
+            title="Активировать в текущем режиме"
+          >⇄</button>
+          <button
+            class="subscription-action-btn sub-btn-del-other"
+            type="button"
+            title="Удалить"
+          >✕</button>
+        </div>
+      </div>
+    `;
+  }
+
+  let html = "";
+
+  if (currentSubs.length) {
+    html += `
+      <div class="subscriptions-group">
+        <div class="subscriptions-group-title">Активные в этом режиме</div>
+        <div class="subscriptions-group-list">
+          ${currentSubs.map(renderCurrentCard).join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  if (otherSubs.length) {
+    html += `
+      <div class="subscriptions-group subscriptions-group--other">
+        <div class="subscriptions-group-title">Из другого режима</div>
+        <div class="subscriptions-group-note">
+          Эти подписки созданы в другом режиме и пока не активны здесь.
+        </div>
+        <div class="subscriptions-group-list">
+          ${otherSubs.map(renderOtherCard).join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  subscriptionsList.innerHTML = html;
+
+  // ===== текущий режим =====
+
+  subscriptionsList.querySelectorAll(".sub-btn-del").forEach((btn) => {
+    btn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const item = btn.closest(".subscription-item");
+      const subId = item?.getAttribute("data-sub-id");
+      if (!subId) return;
+
+      const ok = confirm("Удалить подписку?");
+      if (!ok) return;
+
+      try {
+        await apiDeleteSubscription(subId);
+        await refreshSubscriptions();
+      } catch (err) {
+        alert("Ошибка удаления: " + normalizeSubscriptionUiError(err));
+      }
+    });
+  });
+
+  subscriptionsList.querySelectorAll(".sub-btn-pause").forEach((btn) => {
+    btn.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      const id = btn.closest(".subscription-item")?.dataset.subId;
+      if (!id) return;
+      await updateSubscriptionActive(id, false);
+    });
+  });
+
+  subscriptionsList.querySelectorAll(".sub-btn-play").forEach((btn) => {
+    btn.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      const id = btn.closest(".subscription-item")?.dataset.subId;
+      if (!id) return;
+      await updateSubscriptionActive(id, true);
+    });
+  });
+
+  subscriptionsList.querySelectorAll(".sub-btn-edit").forEach((btn) => {
+    btn.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      const id = btn.closest(".subscription-item")?.dataset.subId;
+      if (!id) return;
+      await openEditSubscription(id);
+    });
+  });
+
+  // ===== другой режим =====
+
+  subscriptionsList.querySelectorAll(".sub-btn-del-other").forEach((btn) => {
+    btn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const item = btn.closest(".subscription-item");
+      const subId = item?.getAttribute("data-sub-id");
+      if (!subId) return;
+
+      const ok = confirm("Удалить подписку?");
+      if (!ok) return;
+
+      try {
+        await apiDeleteSubscription(subId);
+        await refreshSubscriptions();
+      } catch (err) {
+        alert("Ошибка удаления: " + normalizeSubscriptionUiError(err));
+      }
+    });
+  });
+
+  subscriptionsList.querySelectorAll(".sub-btn-switch").forEach((btn) => {
+    btn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const item = btn.closest(".subscription-item");
+      const subId = item?.getAttribute("data-sub-id");
+      if (!subId) return;
+
+      const targetMode = getCurrentSubscriptionSourceMode();
+
+      try {
+        await apiSwitchSubscriptionMode(subId, targetMode);
+        await refreshSubscriptions();
+        await loadChatHistory();
+      } catch (err) {
+        alert("Ошибка активации подписки: " + normalizeSubscriptionUiError(err));
+      }
+    });
+  });
+}
+
+     async function refreshSubscriptions() {
         try {
-          const mode = getCurrentSubscriptionSourceMode();
-          const subs = await apiGetSubscriptions(mode);
-          renderSubscriptions(subs);
+          const currentMode = getCurrentSubscriptionSourceMode();
+          const otherMode = getOppositeSubscriptionSourceMode();
+
+          const [currentSubs, otherSubs] = await Promise.all([
+            apiGetSubscriptions(currentMode),
+            apiGetSubscriptions(otherMode)
+          ]);
+
+          renderSubscriptions(currentSubs, otherSubs);
         } catch (e) {
           console.warn("Subscriptions load failed:", e.message);
         }
@@ -2452,8 +2631,7 @@
 
       async function openEditSubscription(id) {
         try {
-          const resp = await apiFetch(`/subscriptions/${id}`);
-          const sub = await resp.json();
+          const sub = await apiFetch(`/subscriptions/${id}`);
 
           editingSubscriptionId = id;
 
@@ -2568,8 +2746,8 @@
         createSubscriptionBtn.textContent = "Создать подписку";
         
       } catch (e) {
-        const msg = String(e.message || "");
-        if (msg.includes("422")) {
+        const msg = normalizeSubscriptionUiError(e);
+        if (String(msg).includes("422")) {
           subCreateStatus.textContent = "Проверь поля формы (ошибка валидации).";
         } else {
           subCreateStatus.textContent = "Ошибка: " + msg;

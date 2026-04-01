@@ -1292,6 +1292,95 @@ body.user-not-auth.sidebar-collapsed #sidebarUserArea .auth-open-btn .expanded-o
 }
 
 
+.subscriptions-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.subscriptions-group + .subscriptions-group {
+  margin-top: 10px;
+}
+
+.subscriptions-group-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #6b7280;
+  padding: 2px 4px 0;
+}
+
+.subscriptions-group-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.subscription-item--inactive {
+  opacity: 0.52;
+  background: #f9fafb;
+}
+
+.subscription-item--inactive .subscription-name {
+  color: #6b7280;
+}
+
+.subscription-item--inactive .subscription-status-dot {
+  opacity: 0.7;
+}
+
+.sub-btn-switch {
+  opacity: 1 !important;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  color: #111827;
+}
+
+.sub-btn-switch:hover {
+  background: #f3f4f6;
+}
+
+.sub-btn-del-other {
+  opacity: 1 !important;
+}
+
+
+.sidebar-inline-setting-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 2px 2px;
+}
+
+.sidebar-inline-setting-label {
+  font-size: 0.82rem;
+  color: #4b5563;
+  white-space: nowrap;
+}
+
+.sidebar-inline-setting-input {
+  width: 84px;
+  min-width: 84px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  font-size: 0.9rem;
+  background: #ffffff;
+}
+
+.sidebar-inline-setting-input:focus {
+  outline: none;
+  border-color: #6b7280;
+  box-shadow: 0 0 0 1px rgba(107, 114, 128, 0.25);
+}
+
+.subscriptions-group-note {
+  margin-top: 2px;
+  padding: 0 4px;
+  font-size: 0.8rem;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
 /* === MOBILE FIX: рабочая область должна оставаться видимой справа === */
 @media (max-width: 900px) {
   :root {
