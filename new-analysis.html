@@ -1097,6 +1097,26 @@
         return null;
       }
 
+      function getCurrentSubscriptionSourceMode() {
+        if (dataSourcePublicRadio?.checked) return "service";
+        return "personal";
+      }
+
+      function getCurrentSubscriptionChatCandidates() {
+        const mode = getCurrentSubscriptionSourceMode();
+
+        if (mode === "service") {
+          return (cachedChatHistory || []).map((item) => ({
+            id: item.chat_id || item.id,
+            title: item.chat_title || item.chat_ref || "Без названия",
+            username: item.chat_username || null,
+            chat_ref: item.chat_ref || "",
+          }));
+        }
+
+        return Array.isArray(cachedChats) ? cachedChats : [];
+      }
+
       function escapeHtml(value) {
         return String(value ?? "")
           .replaceAll("&", "&amp;")
@@ -1712,9 +1732,11 @@
       }
 
       // слушаем переключение источника данных
-      function handleDataSourceChange() {
+      async function handleDataSourceChange() {
         updateDataSourceUI();
-        loadChatHistory();
+        await loadChatHistory();
+        renderSubChatsList(getCurrentSubscriptionChatCandidates());
+        await refreshSubscriptions();
       }
 
       dataSourceFileRadio?.addEventListener("change", handleDataSourceChange);
@@ -2028,19 +2050,26 @@
 
         setAvailableChatsExpanded(isAvailableChatsExpanded);
       }
-      
+
       function renderSubChatsList(list) {
         if (!subChatsList) return;
 
-        if (!list || list.length === 0) {
+        const items = Array.isArray(list) ? list : [];
+
+        if (!items.length) {
           subChatsList.innerHTML = "";
           return;
         }
 
-        subChatsList.innerHTML = list
+        subChatsList.innerHTML = items
           .map((c) => {
-            const linkValue = c.username ? `@${c.username}` : String(c.id || "");
-            const safeTitle = (c.title || "Без названия").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            const linkValue =
+              c.chat_ref
+                ? String(c.chat_ref)
+                : (c.username ? `@${c.username}` : String(c.id || ""));
+            const safeTitle = (c.title || "Без названия")
+              .replace(/</g, "&lt;")
+              .replace(/>/g, "&gt;");
             return `<div class="sidebar-chat-item" data-link="${linkValue}" title="${safeTitle}">${safeTitle}</div>`;
           })
           .join("");
@@ -2085,15 +2114,20 @@
 
       subChatInput?.addEventListener("input", () => {
         const q = (subChatInput.value || "").trim().toLowerCase();
+        const source = getCurrentSubscriptionChatCandidates();
+
         if (!q) {
-          renderSubChatsList(cachedChats);
+          renderSubChatsList(source);
           return;
         }
-        const filtered = cachedChats.filter((c) => {
+
+        const filtered = source.filter((c) => {
           const t = (c.title || "").toLowerCase();
           const u = (c.username || "").toLowerCase();
-          return t.includes(q) || u.includes(q.replace("@", ""));
+          const r = (c.chat_ref || "").toLowerCase();
+          return t.includes(q) || u.includes(q.replace("@", "")) || r.includes(q);
         });
+
         renderSubChatsList(filtered);
       });
 
@@ -2123,18 +2157,22 @@
           return `${n} мин`;
       }
 
-      async function apiGetSubscriptions() {
-        try {
-          const data = await apiFetch("/subscriptions", {
-            method: "GET"
-          });
+     async function apiGetSubscriptions(sourceMode) {
+      try {
+        const params = new URLSearchParams();
+        if (sourceMode) params.set("source_mode", sourceMode);
 
-          return Array.isArray(data) ? data : [];
-        } catch (e) {
-          const msg = e?.detail?.detail || e?.detail || e?.message || "SUBSCRIPTIONS_LOAD_FAILED";
-          throw new Error(msg);
-        }
+        const suffix = params.toString() ? `?${params.toString()}` : "";
+        const data = await apiFetch(`/subscriptions${suffix}`, {
+          method: "GET"
+        });
+
+        return Array.isArray(data) ? data : [];
+      } catch (e) {
+        const msg = e?.detail?.detail || e?.detail?.message || e?.detail || e?.message || "SUBSCRIPTIONS_LOAD_FAILED";
+        throw new Error(msg);
       }
+    }
 
       async function apiCreateSubscription(payload) {
         try {
@@ -2280,10 +2318,10 @@
 
       async function refreshSubscriptions() {
         try {
-          const subs = await apiGetSubscriptions();
+          const mode = getCurrentSubscriptionSourceMode();
+          const subs = await apiGetSubscriptions(mode);
           renderSubscriptions(subs);
         } catch (e) {
-          // На MVP не спамим ошибками, но можно вывести в консоль
           console.warn("Subscriptions load failed:", e.message);
         }
       }
@@ -2419,6 +2457,16 @@
 
           editingSubscriptionId = id;
 
+          if (sub.source_mode === "service" && dataSourcePublicRadio) {
+            dataSourcePublicRadio.checked = true;
+          }
+          if (sub.source_mode === "personal" && dataSourceAccountRadio) {
+            dataSourceAccountRadio.checked = true;
+          }
+          updateDataSourceUI();
+          await loadChatHistory();
+          renderSubChatsList(getCurrentSubscriptionChatCandidates());
+
           // заполняем форму
           subNameInput.value = sub.name || "";
           subChatInput.value = sub.chat_ref || "";
@@ -2449,16 +2497,15 @@
           const connected = await isBotConnected();
 
           if (!connected) {
-            openModal();     // показать инструкцию “нажми /start”
+            openModal();
             return;
           }
 
           showSubscriptionForm(true);
           resetSubscriptionForm();
           setPeriodOptionsForType((subTypeSelect?.value || "events").trim());
-          renderSubChatsList(cachedChats);
+          renderSubChatsList(getCurrentSubscriptionChatCandidates());
         } catch (e) {
-          // если бэк недоступен — лучше показать модалку, чем “ничего”
           openModal();
         }
       });
@@ -2469,67 +2516,66 @@
       });
 
      createSubscriptionBtn?.addEventListener("click", async () => {
-  if (!subCreateStatus) return;
+      if (!subCreateStatus) return;
 
-  const name = (subNameInput?.value || "").trim();
-  const chat_ref = (subChatInput?.value || "").trim();
-  const periodVal = (subPeriodSelect?.value || "1h").trim();
-  const prompt = (subPromptInput?.value || "").trim();
-  const subTypeSelect = document.getElementById("subTypeSelect");
-  const subscriptionType = (subTypeSelect?.value || "events");
+      const name = (subNameInput?.value || "").trim();
+      const chat_ref = (subChatInput?.value || "").trim();
+      const periodVal = (subPeriodSelect?.value || "1h").trim();
+      const prompt = (subPromptInput?.value || "").trim();
+      const subTypeSelect = document.getElementById("subTypeSelect");
+      const subscriptionType = (subTypeSelect?.value || "events");
 
-  if (!name) { subCreateStatus.textContent = "Введите имя подписки."; return; }
-  if (!chat_ref) { subCreateStatus.textContent = "Выберите чат/канал или вставьте ссылку."; return; }
-  if (!prompt) { subCreateStatus.textContent = "Введите текст запроса для подписки."; return; }
+      if (!name) { subCreateStatus.textContent = "Введите имя подписки."; return; }
+      if (!chat_ref) { subCreateStatus.textContent = "Выберите чат/канал или вставьте ссылку."; return; }
+      if (!prompt) { subCreateStatus.textContent = "Введите текст запроса для подписки."; return; }
 
-  const frequency_minutes = periodToMinutes(periodVal);
+      const frequency_minutes = periodToMinutes(periodVal);
 
-  // Текст статуса зависит от режима: создание или редактирование
-  const isEdit = Boolean(editingSubscriptionId);
-  subCreateStatus.textContent = isEdit ? "Сохранение изменений…" : "Создание подписки…";
+      // Текст статуса зависит от режима: создание или редактирование
+      const isEdit = Boolean(editingSubscriptionId);
+      subCreateStatus.textContent = isEdit ? "Сохранение изменений…" : "Создание подписки…";
 
-  const payload = {
-    name,
-    source_mode: "personal",
-    chat_ref,
-    frequency_minutes,
-    prompt,
-    is_active: true,
-    subscription_type: subscriptionType
-  };
+      const payload = {
+        name,
+        source_mode: getCurrentSubscriptionSourceMode(),
+        chat_ref,
+        frequency_minutes,
+        prompt,
+        is_active: true,
+        subscription_type: subscriptionType
+      };
 
-  try {
-    if (isEdit) {
-      // UPDATE
-      await apiFetch(`/subscriptions/${editingSubscriptionId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json", "Accept": "application/json" },
-        body: JSON.stringify(payload)
-      });
-      subCreateStatus.textContent = "Изменения сохранены.";
-    } else {
-      // CREATE
-      await apiCreateSubscription(payload);
-      subCreateStatus.textContent = "Подписка создана.";
-    }
+      try {
+        if (isEdit) {
+          // UPDATE
+          await apiFetch(`/subscriptions/${editingSubscriptionId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json", "Accept": "application/json" },
+            body: JSON.stringify(payload)
+          });
+          subCreateStatus.textContent = "Изменения сохранены.";
+        } else {
+          // CREATE
+          await apiCreateSubscription(payload);
+          subCreateStatus.textContent = "Подписка создана.";
+        }
 
-    // сбрасываем режим редактирования и UI
-    editingSubscriptionId = null;
-    createSubscriptionBtn.textContent = "Создать подписку";
-
-    showSubscriptionForm(false);
-
-    // обновить список
-    await refreshSubscriptions();
-  } catch (e) {
-    const msg = String(e.message || "");
-    if (msg.includes("422")) {
-      subCreateStatus.textContent = "Проверь поля формы (ошибка валидации).";
-    } else {
-      subCreateStatus.textContent = "Ошибка: " + msg;
-    }
-  }
-});
+        await refreshSubscriptions();
+        await loadChatHistory();
+        showSubscriptionForm(false);
+        resetSubscriptionForm();
+        editingSubscriptionId = null;
+        createSubscriptionBtn.textContent = "Создать подписку";
+        
+      } catch (e) {
+        const msg = String(e.message || "");
+        if (msg.includes("422")) {
+          subCreateStatus.textContent = "Проверь поля формы (ошибка валидации).";
+        } else {
+          subCreateStatus.textContent = "Ошибка: " + msg;
+        }
+      }
+    });
 
 
       async function apiRunSubscriptions() {
