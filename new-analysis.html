@@ -1031,6 +1031,7 @@
       // --- Подписки ---
       const addSubscriptionBtn = document.getElementById("addSubscriptionBtn");
       const subscriptionCreateBlock = document.getElementById("subscriptionCreateBlock");
+      const subscriptionFormTitle = subscriptionCreateBlock?.querySelector("h3");
       const subNameInput = document.getElementById("subNameInput");
       const subChatInput = document.getElementById("subChatInput");
       const subChatsList = document.getElementById("subChatsList");
@@ -2662,6 +2663,20 @@
         out.innerHTML = html;
       }
 
+      function setSubscriptionFormMode(isEdit) {
+        if (subscriptionFormTitle) {
+          subscriptionFormTitle.textContent = isEdit
+            ? "Редактирование подписки"
+            : "Создание новой подписки";
+        }
+
+        if (createSubscriptionBtn) {
+          createSubscriptionBtn.textContent = isEdit
+            ? "Сохранить изменения"
+            : "Создать подписку";
+        }
+      }
+
       function showSubscriptionForm(show) {
         if (!subscriptionCreateBlock) return;
         subscriptionCreateBlock.style.display = show ? "block" : "none";
@@ -2677,6 +2692,7 @@
           subPromptInput.value = "";
           autoResizeTextarea(subPromptInput);
         }
+        setSubscriptionFormMode(false);
       }
 
       function setPeriodOptionsForType(type) {
@@ -2732,7 +2748,8 @@
           subNameInput.value = sub.name || "";
           subChatInput.value = sub.chat_ref || "";
           subPromptInput.value = sub.prompt || "";
-
+          autoResizeTextarea(subPromptInput);
+          
           // тип подписки
           const subType = (sub.subscription_type || "events").trim().toLowerCase();
           if (subTypeSelect) {
@@ -2743,9 +2760,9 @@
           // period
           subPeriodSelect.value = frequencyMinutesToPeriodValue(sub.frequency_minutes, subType);
 
-          showSubscriptionForm(true);
+          setSubscriptionFormMode(true);
+          showSubscriptionForm(true);   
 
-          createSubscriptionBtn.textContent = "Сохранить изменения";
         } catch (e) {
           alert("Ошибка загрузки подписки");
         }
