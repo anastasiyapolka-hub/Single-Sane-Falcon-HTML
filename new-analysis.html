@@ -12,6 +12,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta charset="utf-8" />
     <meta property="twitter:card" content="summary_large_image" />
+    <script>
+      document.documentElement.classList.add("cotel-preboot");
+    </script>
 
     <style data-tag="reset-style-sheet">
       html {  line-height: 1.15;}body {  margin: 0;}* {  box-sizing: border-box;  border-width: 0;  border-style: solid;  -webkit-font-smoothing: antialiased;}p,li,ul,pre,div,h1,h2,h3,h4,h5,h6,figure,blockquote,figcaption {  margin: 0;  padding: 0;}button {  background-color: transparent;}button,input,optgroup,select,textarea {  font-family: inherit;  font-size: 100%;  line-height: 1.15;  margin: 0;}button,select {  text-transform: none;}button,[type="button"],[type="reset"],[type="submit"] {  -webkit-appearance: button;  color: inherit;}button::-moz-focus-inner,[type="button"]::-moz-focus-inner,[type="reset"]::-moz-focus-inner,[type="submit"]::-moz-focus-inner {  border-style: none;  padding: 0;}button:-moz-focus,[type="button"]:-moz-focus,[type="reset"]:-moz-focus,[type="submit"]:-moz-focus {  outline: 1px dotted ButtonText;}a {  color: inherit;  text-decoration: inherit;}pre {  white-space: normal;}input {  padding: 2px 4px;}img {  display: block;}details {  display: block;  margin: 0;  padding: 0;}summary::-webkit-details-marker {  display: none;}[data-thq="accordion"] [data-thq="accordion-content"] {  max-height: 0;  overflow: hidden;  transition: max-height 0.3s ease-in-out;  padding: 0;}[data-thq="accordion"] details[data-thq="accordion-trigger"][open] + [data-thq="accordion-content"] {  max-height: 1000vh;}details[data-thq="accordion-trigger"][open] summary [data-thq="accordion-icon"] {  transform: rotate(180deg);}html { scroll-behavior: smooth  }
@@ -382,8 +385,7 @@
                         type="radio"
                         name="dataSource"
                         id="dataSourceAccount"
-                        value="account"
-                        checked
+                        value="account"                        
                       />
                       <span>Мой аккаунт Telegram</span>
                     </label>
@@ -597,7 +599,7 @@
 
                       <div id="querySettingsInlineBody" class="sidebar-history-body hidden">
                         <div class="sidebar-inline-setting-row">
-                          <label for="queryDaysInput" class="sidebar-inline-setting-label">Период, дней:</label>
+                          <label for="queryDaysInput" class="sidebar-inline-setting-label">Период анализа истории, дней:</label>
                           <input
                             id="queryDaysInput"
                             type="number"
@@ -1051,6 +1053,17 @@
       const myChatsList = document.getElementById("myChatsList");
       const sidebarResizer = document.getElementById("sidebarResizer");
 
+
+      const DATA_SOURCE_STORAGE_KEY = "cotel_data_source_mode";
+      let authBootstrapReady = false;
+      let dashboardBootstrapReady = false;
+
+      function finishPageBootstrapIfReady() {
+        if (authBootstrapReady && dashboardBootstrapReady) {
+          document.documentElement.classList.remove("cotel-preboot");
+        }
+      }
+
       async function isBotConnected() {
         try {
           const data = await apiFetch("/tg/bot/link/status", {
@@ -1062,19 +1075,29 @@
         }
       }
 
-
-
       let cachedChats = []; // [{id,title,type,username}]
       let cachedChatHistory = [];
       let isChatHistoryExpanded = true;
       let isAvailableChatsExpanded = true;
       let isQuerySettingsInlineExpanded = false;
 
-      bootstrapTelegramState().finally(() => {
-        loadChatHistory();
+      bootstrapTelegramState().finally(async () => {
+        await loadChatHistory();
+        await refreshSubscriptions();
+        dashboardBootstrapReady = true;
+        finishPageBootstrapIfReady();
       });
-      window.addEventListener("cotel-auth-changed", () => {
-        loadChatHistory();
+
+      setTimeout(() => {
+        authBootstrapReady = true;
+        finishPageBootstrapIfReady();
+      }, 1200);
+
+      window.addEventListener("cotel-auth-changed", async () => {
+        authBootstrapReady = true;
+        await loadChatHistory();
+        await refreshSubscriptions();
+        finishPageBootstrapIfReady();
       });
 
       activeChatInput?.addEventListener("input", filterChatsByInput);
@@ -1103,6 +1126,26 @@
         window.location.href = "/admin-service-accounts.html";
       });
 
+      function setSelectedDataSourceMode(mode) {
+        if (mode === "file" && dataSourceFileRadio) dataSourceFileRadio.checked = true;
+        else if (mode === "public" && dataSourcePublicRadio) dataSourcePublicRadio.checked = true;
+        else if (mode === "bot" && dataSourceBotRadio) dataSourceBotRadio.checked = true;
+        else if (dataSourceAccountRadio) dataSourceAccountRadio.checked = true;
+      }
+
+      function getSelectedDataSourceMode() {
+        const checked = document.querySelector('input[name="dataSource"]:checked');
+        return checked?.value || "account";
+      }
+
+      function restoreSelectedDataSourceMode() {
+        const saved = localStorage.getItem(DATA_SOURCE_STORAGE_KEY);
+        setSelectedDataSourceMode(saved || "account");
+      }
+
+      function persistSelectedDataSourceMode() {
+        localStorage.setItem(DATA_SOURCE_STORAGE_KEY, getSelectedDataSourceMode());
+      }
 
       function getCurrentHistorySourceMode() {
         if (dataSourcePublicRadio?.checked) return "service";
@@ -1141,51 +1184,77 @@
           .replaceAll('"', "&quot;");
       }
 
-function normalizeSubscriptionUiError(err) {
-  const raw =
-    err?.detail?.message ||
-    err?.detail?.detail ||
-    (typeof err?.detail === "string" ? err.detail : "") ||
-    err?.message ||
-    String(err || "");
+      function normalizeSubscriptionUiError(err) {
+        const detail = err?.detail;
 
-  const msg = String(raw || "");
+        if (Array.isArray(detail)) {
+          return detail
+            .map((item) => {
+              const loc = Array.isArray(item?.loc) ? item.loc.join(".") : "";
+              const msg = item?.msg || "Ошибка валидации";
+              return loc ? `${loc}: ${msg}` : msg;
+            })
+            .join("; ");
+        }
 
-  if (msg.includes("CHAT_PRIVATE_OR_NO_ACCESS")) {
-    return "Этот чат недоступен для чтения под служебным аккаунтом. Подключите личный Telegram или выберите публичный чат.";
-  }
+        if (detail && typeof detail === "object") {
+          if (typeof detail.message === "string" && detail.message.trim()) {
+            return detail.message;
+          }
+          if (typeof detail.detail === "string" && detail.detail.trim()) {
+            return detail.detail;
+          }
+          try {
+            return JSON.stringify(detail);
+          } catch {
+            return "Не удалось выполнить операцию с подпиской.";
+          }
+        }
 
-  if (msg.includes("PUBLIC_CHAT_NOT_FOUND")) {
-    return "Чат или канал не найден. Проверьте ссылку, username или chat id.";
-  }
+        const raw =
+          err?.detail?.message ||
+          err?.detail?.detail ||
+          (typeof err?.detail === "string" ? err.detail : "") ||
+          err?.message ||
+          String(err || "");
 
-  if (msg.includes("INVITE_LINK_INVALID_OR_EXPIRED")) {
-    return "Ссылка-приглашение недействительна или истекла.";
-  }
+        const msg = String(raw || "");
 
-  if (msg.includes("JOIN_REQUEST_SENT")) {
-    return "Для этого чата отправлена заявка на вступление. Он станет доступен только после одобрения.";
-  }
+        if (msg.includes("CHAT_PRIVATE_OR_NO_ACCESS")) {
+          return "Этот чат недоступен для чтения под служебным аккаунтом. Подключите личный Telegram или выберите публичный чат.";
+        }
 
-  if (msg.includes("SERVICE_ACCOUNT_CHANNEL_LIMIT")) {
-    return "Служебные аккаунты временно достигли лимита Telegram на вступление в каналы. Попробуйте позже.";
-  }
+        if (msg.includes("PUBLIC_CHAT_NOT_FOUND")) {
+          return "Чат или канал не найден. Проверьте ссылку, username или chat id.";
+        }
 
-  if (msg.includes("FLOOD_WAIT")) {
-    return "Telegram временно ограничил доступ для служебного аккаунта. Попробуйте позже.";
-  }
+        if (msg.includes("INVITE_LINK_INVALID_OR_EXPIRED")) {
+          return "Ссылка-приглашение недействительна или истекла.";
+        }
 
-  if (msg.includes("TELEGRAM_NOT_AUTHORIZED")) {
-    return "Сначала подключите ваш личный Telegram-аккаунт.";
-  }
+        if (msg.includes("JOIN_REQUEST_SENT")) {
+          return "Для этого чата отправлена заявка на вступление. Он станет доступен только после одобрения.";
+        }
 
-  if (msg.includes("CHAT_RESOLVE_FAILED")) {
-    return "Не удалось открыть чат. Проверьте ссылку, username или доступ к нему.";
-  }
+        if (msg.includes("SERVICE_ACCOUNT_CHANNEL_LIMIT")) {
+          return "Служебные аккаунты временно достигли лимита Telegram на вступление в каналы. Попробуйте позже.";
+        }
 
-  return msg || "Не удалось выполнить операцию с подпиской.";
-}
-      
+        if (msg.includes("FLOOD_WAIT")) {
+          return "Telegram временно ограничил доступ для служебного аккаунта. Попробуйте позже.";
+        }
+
+        if (msg.includes("TELEGRAM_NOT_AUTHORIZED")) {
+          return "Сначала подключите ваш личный Telegram-аккаунт.";
+        }
+
+        if (msg.includes("CHAT_RESOLVE_FAILED")) {
+          return "Не удалось открыть чат. Проверьте ссылку, username или доступ к нему.";
+        }
+
+        return msg || "Не удалось выполнить операцию с подпиской.";
+      }
+            
       async function apiGetChatHistory(sourceMode, limit = 30) {
         const params = new URLSearchParams({
           source_mode: sourceMode,
@@ -1581,10 +1650,7 @@ function normalizeSubscriptionUiError(err) {
           setTgState("phone");
           setTelegramConnectionStatus(false, null);
 
-          if (dataSourcePublicRadio) {
-            dataSourcePublicRadio.checked = true;
-          }
-        
+          restoreSelectedDataSourceMode();
           updateDataSourceUI();
         }
       }
@@ -1805,14 +1871,13 @@ function normalizeSubscriptionUiError(err) {
       // по умолчанию прячем котика
       showLoader(false);
 
-      // по умолчанию обновляем UI по выбранному источнику
-      updateDataSourceUI();    
-      if (dataSourceAccountRadio?.checked) {
-        updateDataSourceUI();
-      }
+      // восстановить выбранный режим из localStorage до первой отрисовки
+      restoreSelectedDataSourceMode();
+      updateDataSourceUI();
 
       // слушаем переключение источника данных
       async function handleDataSourceChange() {
+        persistSelectedDataSourceMode();
         updateDataSourceUI();
         await loadChatHistory();
         renderSubChatsList(getCurrentSubscriptionChatCandidates());
@@ -2237,6 +2302,23 @@ function normalizeSubscriptionUiError(err) {
           return `${n} мин`;
       }
 
+      function frequencyMinutesToPeriodValue(minutes, type) {
+        const m = Number(minutes);
+
+        if (type === "digest") {
+          if (m === 360) return "6h";
+          if (m === 720) return "12h";
+          if (m === 1440) return "1d";
+          return "6h";
+        }
+
+        if (m === 30) return "30m";
+        if (m === 60) return "1h";
+        if (m === 180) return "3h";
+        if (m === 360) return "6h";
+        return "1h";
+      }
+
      async function apiGetSubscriptions(sourceMode) {
       try {
         const params = new URLSearchParams();
@@ -2589,7 +2671,8 @@ function normalizeSubscriptionUiError(err) {
       function resetSubscriptionForm() {
         if (subNameInput) subNameInput.value = "";
         if (subChatInput) subChatInput.value = "";
-        if (subPeriodSelect) subPeriodSelect.value = "1h";
+        if (subTypeSelect) subTypeSelect.value = "events";
+        setPeriodOptionsForType("events");
         if (subPromptInput) {
           subPromptInput.value = "";
           autoResizeTextarea(subPromptInput);
@@ -2650,15 +2733,15 @@ function normalizeSubscriptionUiError(err) {
           subChatInput.value = sub.chat_ref || "";
           subPromptInput.value = sub.prompt || "";
 
+          // тип подписки
+          const subType = (sub.subscription_type || "events").trim().toLowerCase();
+          if (subTypeSelect) {
+            subTypeSelect.value = subType;
+          }
+          setPeriodOptionsForType(subType);
+
           // period
-          const minutes = String(sub.frequency_minutes);
-          subPeriodSelect.value =
-            minutes === "10"   ? "10m" :
-            minutes === "30"   ? "30m" :
-            minutes === "60"   ? "1h" :
-            minutes === "180"  ? "3h" :
-            minutes === "360"  ? "6h" :
-            minutes === "1440" ? "1d" : "1h";
+          subPeriodSelect.value = frequencyMinutesToPeriodValue(sub.frequency_minutes, subType);
 
           showSubscriptionForm(true);
 

@@ -1530,3 +1530,45 @@ body.user-not-auth.sidebar-collapsed #sidebarUserArea .auth-open-btn .expanded-o
     opacity: 1;
   }
 }
+
+html.cotel-preboot #sidebarUserArea,
+html.cotel-preboot #tgAuthBlock,
+html.cotel-preboot #telegramStatusSection,
+html.cotel-preboot #chatHistoryBlock,
+html.cotel-preboot #availableChatsBlock,
+html.cotel-preboot #subscriptionsList,
+html.cotel-preboot #subscriptionCreateBlock {
+  visibility: hidden;
+}
+
+html.cotel-preboot .dashboard-sidebar {
+  overflow: hidden;
+}
+
+.subscription-item--inactive {
+  background: #f9fafb;
+}
+
+.subscription-item--inactive .subscription-name,
+.subscription-item--inactive .subscription-status-dot {
+  opacity: 0.52;
+}
+
+.subscription-item--inactive .subscription-actions-mini,
+.subscription-item--inactive .subscription-action-btn,
+.subscription-item--inactive .sub-btn-switch,
+.subscription-item--inactive .sub-btn-del-other {
+  opacity: 1 !important;
+  color: #374151 !important;
+}
+
+.subscription-item--inactive .sub-btn-switch,
+.subscription-item--inactive .sub-btn-del-other {
+  border-color: rgba(0, 0, 0, 0.12);
+  background: #ffffff;
+}
+
+.subscription-item--inactive .sub-btn-switch:hover,
+.subscription-item--inactive .sub-btn-del-other:hover {
+  background: #f3f4f6;
+}
