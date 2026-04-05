@@ -1091,10 +1091,16 @@
 
         try {
           restoreSelectedDataSourceMode();
-          updateDataSourceUI();
 
           await bootstrapTelegramState();
           await loadChatHistory();
+
+          // После того как telegram state и history уже известны —
+          // один раз рисуем UI в финальной конфигурации
+          updateDataSourceUI();
+          renderChatsList(cachedChats);
+          renderSubChatsList(getCurrentSubscriptionChatCandidates());
+
           await refreshSubscriptions();
         } finally {
           authBootstrapReady = true;
@@ -1106,6 +1112,7 @@
       window.addEventListener("cotel-auth-changed", async () => {
         if (!pageBootstrapStarted) return;
         await loadChatHistory();
+        renderSubChatsList(getCurrentSubscriptionChatCandidates());
         await refreshSubscriptions();
       });
 
@@ -1643,28 +1650,17 @@
         const displayName = getTelegramDisplayName(data);
 
         cachedChats = chats;
-        renderChatsList(cachedChats);
 
-        // НЕ переключаем режим принудительно на personal
-        // Просто оставляем тот режим, который уже был восстановлен из localStorage.
         setTgState("connected");
         setTelegramConnectionStatus(true, displayName);
-
-        renderSubChatsList(getCurrentSubscriptionChatCandidates());
       } catch (e) {
         cachedChats = [];
-        renderChatsList([]);
 
-        // Telegram не подключён, но режим пользователя всё равно не ломаем.
         setTgState("phone");
         setTelegramConnectionStatus(false, null);
-
-        renderSubChatsList(getCurrentSubscriptionChatCandidates());
       }
     }
-
-
-      
+     
 
       window.cotelRefreshTelegramState = async function () {
         await bootstrapTelegramState();
