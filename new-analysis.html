@@ -1083,24 +1083,33 @@
       let isAvailableChatsExpanded = true;
       let isQuerySettingsInlineExpanded = false;
 
-      bootstrapTelegramState().finally(async () => {
-        await loadChatHistory();
-        await refreshSubscriptions();
-        dashboardBootstrapReady = true;
-        finishPageBootstrapIfReady();
-      });
+      let pageBootstrapStarted = false;
 
-      setTimeout(() => {
-        authBootstrapReady = true;
-        finishPageBootstrapIfReady();
-      }, 1200);
+      async function initializeDashboardPage() {
+        if (pageBootstrapStarted) return;
+        pageBootstrapStarted = true;
+
+        try {
+          restoreSelectedDataSourceMode();
+          updateDataSourceUI();
+
+          await bootstrapTelegramState();
+          await loadChatHistory();
+          await refreshSubscriptions();
+        } finally {
+          authBootstrapReady = true;
+          dashboardBootstrapReady = true;
+          finishPageBootstrapIfReady();
+        }
+      }
 
       window.addEventListener("cotel-auth-changed", async () => {
-        authBootstrapReady = true;
+        if (!pageBootstrapStarted) return;
         await loadChatHistory();
         await refreshSubscriptions();
-        finishPageBootstrapIfReady();
       });
+
+      initializeDashboardPage();
 
       activeChatInput?.addEventListener("input", filterChatsByInput);
 
@@ -1626,36 +1635,33 @@
 
       
       
-      async function bootstrapTelegramState() {
-        try {
-          const data = await apiFetch("/tg/chats", { method: "GET" });
+    async function bootstrapTelegramState() {
+      try {
+        const data = await apiFetch("/tg/chats", { method: "GET" });
 
-          const chats = Array.isArray(data?.chats) ? data.chats : [];
-          const displayName = getTelegramDisplayName(data);
+        const chats = Array.isArray(data?.chats) ? data.chats : [];
+        const displayName = getTelegramDisplayName(data);
 
-          cachedChats = chats;
-          renderChatsList(cachedChats);
-          renderSubChatsList(cachedChats);
+        cachedChats = chats;
+        renderChatsList(cachedChats);
 
-          setTgState("connected");
-          setTelegramConnectionStatus(true, displayName);
+        // НЕ переключаем режим принудительно на personal
+        // Просто оставляем тот режим, который уже был восстановлен из localStorage.
+        setTgState("connected");
+        setTelegramConnectionStatus(true, displayName);
 
-          if (dataSourceAccountRadio) {
-            dataSourceAccountRadio.checked = true;
-          }
+        renderSubChatsList(getCurrentSubscriptionChatCandidates());
+      } catch (e) {
+        cachedChats = [];
+        renderChatsList([]);
 
-          await refreshSubscriptions();
-        } catch (e) {
-          cachedChats = [];
-          renderChatsList([]);
-          renderSubChatsList([]);
-          setTgState("phone");
-          setTelegramConnectionStatus(false, null);
+        // Telegram не подключён, но режим пользователя всё равно не ломаем.
+        setTgState("phone");
+        setTelegramConnectionStatus(false, null);
 
-          restoreSelectedDataSourceMode();
-          updateDataSourceUI();
-        }
+        renderSubChatsList(getCurrentSubscriptionChatCandidates());
       }
+    }
 
 
       
@@ -2764,6 +2770,7 @@
           if (sub.source_mode === "personal" && dataSourceAccountRadio) {
             dataSourceAccountRadio.checked = true;
           }
+          persistSelectedDataSourceMode();
           updateDataSourceUI();
           await loadChatHistory();
           renderSubChatsList(getCurrentSubscriptionChatCandidates());
