@@ -275,13 +275,24 @@ body {
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 0 20px 16px 20px;
+  padding: 0 20px 28px 20px;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
 }
 
 #sidebarContent {
   display: flex;
   flex-direction: column;
   min-height: auto;
+}
+
+.subscription-block {
+  margin-bottom: 12px;
+  scroll-margin-bottom: 20px;
+}
+
+.sidebar-subscriptions-body {
+  min-height: 0;
 }
 
 :root {

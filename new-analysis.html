@@ -1052,6 +1052,7 @@
       const sidebar = document.querySelector(".dashboard-sidebar");
       const sidebarToggle = document.getElementById("sidebarToggle");
       const myChatsList = document.getElementById("myChatsList");
+      const sidebarScrollArea = document.querySelector(".sidebar-scroll-area");
       const sidebarResizer = document.getElementById("sidebarResizer");
 
 
@@ -2677,6 +2678,29 @@
         }
       }
 
+      function scrollSubscriptionFormIntoView() {
+        if (!subscriptionCreateBlock || !sidebarScrollArea) return;
+
+        requestAnimationFrame(() => {
+          const blockTop = subscriptionCreateBlock.offsetTop;
+          const blockBottom = blockTop + subscriptionCreateBlock.offsetHeight;
+          const visibleTop = sidebarScrollArea.scrollTop;
+          const visibleBottom = visibleTop + sidebarScrollArea.clientHeight;
+
+          if (blockBottom > visibleBottom) {
+            sidebarScrollArea.scrollTo({
+              top: blockBottom - sidebarScrollArea.clientHeight + 16,
+              behavior: "smooth",
+            });
+          } else if (blockTop < visibleTop) {
+            sidebarScrollArea.scrollTo({
+              top: Math.max(0, blockTop - 12),
+              behavior: "smooth",
+            });
+          }
+        });
+      }
+
       function showSubscriptionForm(show) {
         if (!subscriptionCreateBlock) return;
         subscriptionCreateBlock.style.display = show ? "block" : "none";
@@ -2749,7 +2773,7 @@
           subChatInput.value = sub.chat_ref || "";
           subPromptInput.value = sub.prompt || "";
           autoResizeTextarea(subPromptInput);
-          
+
           // тип подписки
           const subType = (sub.subscription_type || "events").trim().toLowerCase();
           if (subTypeSelect) {
@@ -2762,6 +2786,7 @@
 
           setSubscriptionFormMode(true);
           showSubscriptionForm(true);   
+          scrollSubscriptionFormIntoView();
 
         } catch (e) {
           alert("Ошибка загрузки подписки");
@@ -2783,6 +2808,7 @@
           resetSubscriptionForm();
           setPeriodOptionsForType((subTypeSelect?.value || "events").trim());
           renderSubChatsList(getCurrentSubscriptionChatCandidates());
+          scrollSubscriptionFormIntoView();
         } catch (e) {
           openModal();
         }
