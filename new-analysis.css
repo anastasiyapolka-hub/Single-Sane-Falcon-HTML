@@ -1327,31 +1327,31 @@ body.user-not-auth.sidebar-collapsed #sidebarUserArea .auth-open-btn .expanded-o
 }
 
 .subscription-item--inactive {
-  opacity: 0.52;
   background: #f9fafb;
 }
 
-.subscription-item--inactive .subscription-name {
-  color: #6b7280;
-}
-
+.subscription-item--inactive .subscription-name,
 .subscription-item--inactive .subscription-status-dot {
-  opacity: 0.7;
+  opacity: 0.52;
 }
 
-.sub-btn-switch {
+.subscription-item--inactive .subscription-actions-mini,
+.subscription-item--inactive .subscription-action-btn,
+.subscription-item--inactive .sub-btn-switch,
+.subscription-item--inactive .sub-btn-del-other {
   opacity: 1 !important;
+}
+
+.subscription-item--inactive .sub-btn-switch,
+.subscription-item--inactive .sub-btn-del-other {
   background: #ffffff;
   border: 1px solid #d1d5db;
-  color: #111827;
+  color: #374151 !important;
 }
 
-.sub-btn-switch:hover {
+.subscription-item--inactive .sub-btn-switch:hover,
+.subscription-item--inactive .sub-btn-del-other:hover {
   background: #f3f4f6;
-}
-
-.sub-btn-del-other {
-  opacity: 1 !important;
 }
 
 
