@@ -1557,3 +1557,40 @@ html.cotel-preboot .sidebar-scroll-area {
   overflow: hidden !important;
 }
 
+.sidebar-boot-loader {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  background: #F3F4F6;
+  pointer-events: none;
+}
+
+html.cotel-preboot .sidebar-boot-loader {
+  display: flex;
+}
+
+.sidebar-boot-loader__spinner {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 3px solid rgba(17, 24, 39, 0.14);
+  border-top-color: #6b7280;
+  animation: sidebarBootSpin 0.8s linear infinite;
+}
+
+.sidebar-boot-loader__text {
+  font-size: 0.88rem;
+  color: #6b7280;
+  line-height: 1.2;
+}
+
+@keyframes sidebarBootSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
