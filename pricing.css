@@ -68,7 +68,7 @@ body {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 20px;
-  margin-top: 28px;
+  margin-top: 40px;
   align-items: stretch;
 }
 
@@ -77,23 +77,12 @@ body {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 20px;
-  padding: 0; /* убрали, теперь делим на блоки */
+  padding: 0;
   box-shadow: var(--shadow);
   display: flex;
   flex-direction: column;
   min-height: 580px;
-  overflow: hidden; /* важно для склейки с плашкой */
-}
-
-
-.plan-card.featured {
-  transform: translateY(0);
-}
-
-/* убираем абсолютное позиционирование */
-.plan-card.featured .featured-bar {
-  position: relative;
-  top: 0;
+  overflow: visible;
 }
 
 .plan-card.is-active {
@@ -101,8 +90,21 @@ body {
   border-color: rgba(244, 162, 97, 0.7);
 }
 
+.plan-card.featured {
+  overflow: visible;
+}
+
+.featured-badge-wrap {
+  position: absolute;
+  left: -1px;
+  right: -1px;
+  bottom: 100%;
+  margin-bottom: -1px;
+  pointer-events: none;
+}
+
 .featured-bar {
-  height: 44px; /* меньше высота */
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -110,7 +112,9 @@ body {
   color: #ffffff;
   font-size: 14px;
   font-weight: 700;
-  border-bottom: 1px solid var(--border);
+  border: 1px solid var(--dark-bar);
+  border-bottom: none;
+  border-radius: 20px 20px 0 0;
 }
 
 .plan-top {
@@ -120,7 +124,6 @@ body {
   gap: 10px;
 }
 
-/* строка: название + цена */
 .plan-header-row {
   display: flex;
   align-items: baseline;
@@ -129,10 +132,9 @@ body {
 }
 
 .plan-name {
-  font-size: 26px; /* было 40 */
+  font-size: 28px;
   font-weight: 700;
   margin: 0;
-  margin-bottom: 14px;
 }
 
 .plan-name-free {
@@ -147,9 +149,8 @@ body {
   color: var(--plan-pro);
 }
 
-/* цена справа */
 .plan-price {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 700;
   color: var(--accent);
   text-align: right;
@@ -157,26 +158,23 @@ body {
 }
 
 .plan-price span {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
   color: var(--muted);
 }
 
-/* тёмная линия после цены */
 .plan-divider {
   height: 1px;
   background: rgba(47, 47, 47, 0.5);
   margin-top: 6px;
 }
 
-/* описание */
 .plan-desc {
   color: var(--muted);
   font-size: 14px;
   line-height: 1.45;
 }
 
-/* ===== FEATURES ===== */
 .plan-features {
   list-style: none;
   padding: 0 20px;
@@ -191,7 +189,6 @@ body {
   color: var(--text);
 }
 
-/* ===== FOOTER ===== */
 .plan-footer {
   margin-top: 20px;
   padding: 0 20px 20px;
@@ -251,7 +248,7 @@ body {
 @media (max-width: 980px) {
   .plans-grid {
     grid-template-columns: 1fr;
-    gap: 26px;
+    gap: 28px;
     margin-top: 72px;
   }
 
@@ -259,10 +256,14 @@ body {
     min-height: auto;
   }
 
+  .featured-badge-wrap {
+    margin-bottom: -1px;
+  }
+
   .featured-bar {
-    top: -52px;
-    height: 50px;
-    font-size: 15px;
+    height: 44px;
+    font-size: 14px;
+    border-radius: 18px 18px 0 0;
   }
 }
 
@@ -280,19 +281,35 @@ body {
   }
 
   .plan-name {
-    font-size: 34px;
+    font-size: 24px;
   }
 
   .plan-price {
-    font-size: 36px;
+    font-size: 24px;
+  }
+
+  .plan-price span {
+    font-size: 14px;
   }
 
   .plan-card {
-    padding: 20px;
+    padding: 0;
     border-radius: 18px;
   }
 
   .featured-bar {
     border-radius: 18px 18px 0 0;
+  }
+
+  .plan-top {
+    padding: 16px 18px 12px;
+  }
+
+  .plan-features {
+    padding: 0 18px;
+  }
+
+  .plan-footer {
+    padding: 0 18px 18px;
   }
 }
