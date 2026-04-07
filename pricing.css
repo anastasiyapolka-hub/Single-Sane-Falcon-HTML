@@ -77,16 +77,23 @@ body {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 20px;
-  padding: 24px;
+  padding: 0; /* убрали, теперь делим на блоки */
   box-shadow: var(--shadow);
   display: flex;
   flex-direction: column;
   min-height: 580px;
-  overflow: visible;
+  overflow: hidden; /* важно для склейки с плашкой */
 }
+
 
 .plan-card.featured {
   transform: translateY(0);
+}
+
+/* убираем абсолютное позиционирование */
+.plan-card.featured .featured-bar {
+  position: relative;
+  top: 0;
 }
 
 .plan-card.is-active {
@@ -95,32 +102,36 @@ body {
 }
 
 .featured-bar {
-  position: absolute;
-  top: -58px;
-  left: -1px;
-  right: -1px;
-  height: 56px;
+  height: 44px; /* меньше высота */
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--dark-bar);
   color: #ffffff;
-  border: 1px solid var(--dark-bar);
-  border-bottom: none;
-  border-radius: 20px 20px 0 0;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: 0.01em;
+  border-bottom: 1px solid var(--border);
 }
 
 .plan-top {
-  margin-bottom: 18px;
+  padding: 18px 20px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* строка: название + цена */
+.plan-header-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .plan-name {
-  font-size: 40px;
-  line-height: 1;
-  font-weight: 750;
+  font-size: 26px; /* было 40 */
+  font-weight: 700;
+  margin: 0;
   margin-bottom: 14px;
 }
 
@@ -136,29 +147,39 @@ body {
   color: var(--plan-pro);
 }
 
+/* цена справа */
 .plan-price {
-  font-size: 42px;
-  font-weight: 800;
-  margin-bottom: 8px;
+  font-size: 24px;
+  font-weight: 700;
   color: var(--accent);
+  text-align: right;
+  white-space: nowrap;
 }
 
 .plan-price span {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
   color: var(--muted);
-  margin-left: 4px;
 }
 
+/* тёмная линия после цены */
+.plan-divider {
+  height: 1px;
+  background: rgba(47, 47, 47, 0.5);
+  margin-top: 6px;
+}
+
+/* описание */
 .plan-desc {
   color: var(--muted);
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.45;
 }
 
+/* ===== FEATURES ===== */
 .plan-features {
   list-style: none;
-  padding: 0;
+  padding: 0 20px;
   margin: 0;
   flex: 1;
 }
@@ -170,8 +191,10 @@ body {
   color: var(--text);
 }
 
+/* ===== FOOTER ===== */
 .plan-footer {
-  margin-top: 24px;
+  margin-top: 20px;
+  padding: 0 20px 20px;
 }
 
 .plan-btn {
