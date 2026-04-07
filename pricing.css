@@ -1,18 +1,19 @@
 :root {
   --bg: #ffffff;
   --card: #f3f4f6;
-  --card-2: #fff3e8;
+  --card-active: #fff3e8;
   --text: #2f2f2f;
   --muted: #6b7280;
   --border: rgba(47, 47, 47, 0.18);
   --accent: #f4a261;
   --accent-2: #f6b37a;
-  --success: #7acb7a;
   --shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 
   --plan-free: #7acb7a;
   --plan-basic: #5b8def;
   --plan-pro: #e06666;
+
+  --dark-bar: #2f2f2f;
 }
 
 * {
@@ -22,7 +23,7 @@
 body {
   margin: 0;
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: #ffffff;
+  background: var(--bg);
   color: var(--text);
 }
 
@@ -68,6 +69,7 @@ body {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 20px;
   margin-top: 28px;
+  align-items: stretch;
 }
 
 .plan-card {
@@ -79,25 +81,36 @@ body {
   box-shadow: var(--shadow);
   display: flex;
   flex-direction: column;
-  min-height: 520px;
+  min-height: 580px;
+  overflow: visible;
 }
 
 .plan-card.featured {
-  background: #fff3e8;
-  border-color: rgba(244, 162, 97, 0.6);
-  transform: translateY(-4px);
+  transform: translateY(0);
 }
 
-.badge {
+.plan-card.is-active {
+  background: var(--card-active);
+  border-color: rgba(244, 162, 97, 0.7);
+}
+
+.featured-bar {
   position: absolute;
-  top: 14px;
-  right: 14px;
-  background: var(--accent);
-  color: var(--text);
-  font-size: 12px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-weight: 600;
+  top: -58px;
+  left: -1px;
+  right: -1px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--dark-bar);
+  color: #ffffff;
+  border: 1px solid var(--dark-bar);
+  border-bottom: none;
+  border-radius: 20px 20px 0 0;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
 }
 
 .plan-top {
@@ -105,9 +118,10 @@ body {
 }
 
 .plan-name {
-  font-size: 20px;
-  font-weight: 700;
-  margin-bottom: 8px;
+  font-size: 40px;
+  line-height: 1;
+  font-weight: 750;
+  margin-bottom: 14px;
 }
 
 .plan-name-free {
@@ -139,6 +153,7 @@ body {
 .plan-desc {
   color: var(--muted);
   font-size: 15px;
+  line-height: 1.45;
 }
 
 .plan-features {
@@ -169,11 +184,12 @@ body {
   cursor: pointer;
   background: var(--accent);
   color: var(--text);
-  transition: 0.2s ease;
+  transition: background 0.2s ease, transform 0.2s ease;
 }
 
 .plan-btn:hover {
   background: var(--accent-2);
+  transform: translateY(-1px);
 }
 
 .plan-btn.current {
@@ -181,6 +197,7 @@ body {
   color: var(--text);
   border: 1px solid rgba(244, 162, 97, 0.5);
   cursor: default;
+  transform: none;
 }
 
 .pricing-notes {
@@ -211,13 +228,48 @@ body {
 @media (max-width: 980px) {
   .plans-grid {
     grid-template-columns: 1fr;
+    gap: 26px;
+    margin-top: 72px;
   }
 
-  .plan-card.featured {
-    transform: none;
+  .plan-card {
+    min-height: auto;
+  }
+
+  .featured-bar {
+    top: -52px;
+    height: 50px;
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 640px) {
+  .pricing-page {
+    padding: 28px 16px 44px;
   }
 
   .pricing-header h1 {
     font-size: 32px;
+  }
+
+  .subtitle {
+    font-size: 15px;
+  }
+
+  .plan-name {
+    font-size: 34px;
+  }
+
+  .plan-price {
+    font-size: 36px;
+  }
+
+  .plan-card {
+    padding: 20px;
+    border-radius: 18px;
+  }
+
+  .featured-bar {
+    border-radius: 18px 18px 0 0;
   }
 }
