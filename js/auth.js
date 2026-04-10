@@ -943,6 +943,7 @@ function formatSubscriptionFrequency(minutes) {
 
 function setPlanUsageSnapshot(snapshot) {
   currentPlanUsage = snapshot || null;
+  window.currentPlanUsage = currentPlanUsage;
 }
 
 async function fetchPlanUsageSnapshot() {
@@ -960,10 +961,15 @@ function applyUsageFromPayload(payload) {
   if (payload && payload.usage) {
     setPlanUsageSnapshot(payload.usage.plan ? payload.usage : payload);
     renderProfileLimits();
+
+    if (typeof window.cotelRefreshLimitBoundControls === "function") {
+      window.cotelRefreshLimitBoundControls();
+    }
   }
 }
 
 window.cotelApplyUsageFromPayload = applyUsageFromPayload;
+window.cotelRefreshPlanUsageSnapshot = fetchPlanUsageSnapshot;
 
 function renderProfileLimits() {
   const plan = currentPlanUsage?.plan || null;

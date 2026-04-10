@@ -1105,6 +1105,12 @@
           renderSubChatsList(getCurrentSubscriptionChatCandidates());
 
           await refreshSubscriptions();
+
+          if (typeof window.cotelRefreshPlanUsageSnapshot === "function") {
+            await window.cotelRefreshPlanUsageSnapshot();
+          }
+          refreshLimitBoundControls();
+               
         } finally {
           authBootstrapReady = true;
           dashboardBootstrapReady = true;
@@ -1142,6 +1148,11 @@
         const t = (subTypeSelect.value || "events").trim();
         setPeriodOptionsForType(t);
       });
+
+      queryDaysInput?.addEventListener("change", clampQueryDaysByPlan);
+      queryDaysInput?.addEventListener("blur", clampQueryDaysByPlan);
+
+      window.cotelRefreshLimitBoundControls = refreshLimitBoundControls;
 
       adminPanelBtn?.addEventListener("click", () => {
         window.location.href = "/admin-service-accounts.html";
@@ -2724,37 +2735,144 @@
         setSubscriptionFormMode(false);
       }
 
-      function setPeriodOptionsForType(type) {
-        if (!subPeriodSelect) return;
-
-        const optsByType = {
-          events: [
-            { v: "30m", t: "1 раз в 30 минут" },
-            { v: "1h",  t: "1 раз в час" },
-            { v: "3h",  t: "1 раз в 3 часа" },
-            { v: "6h",  t: "1 раз в 6 часов" },
-          ],
-          digest: [
-            { v: "6h",  t: "1 раз в 6 часов" },
-            { v: "12h", t: "1 раз в 12 часов" },
-            { v: "1d",  t: "1 раз в день" },
-          ],
-        };
-
-        const list = optsByType[type] || optsByType.events;
-
-        subPeriodSelect.innerHTML = list
-          .map((o) => `<option value="${o.v}">${o.t}</option>`)
-          .join("");
-
-        // дефолт
-        subPeriodSelect.value = list[0]?.v || "1h";
-      }
 
       function autoResizeTextarea(el) {
         if (!el) return;
         el.style.height = "auto";
         el.style.height = Math.min(el.scrollHeight, 420) + "px";
+      }
+
+      function getCurrentPlanSnapshot() {
+        return window.currentPlanUsage || null;
+      }
+
+      function getPlanInfo() {
+        return getCurrentPlanSnapshot()?.plan || null;
+      }
+
+      function getUsageInfo() {
+        return getCurrentPlanSnapshot()?.usage || null;
+      }
+
+      function formatFrequencyLabel(minutes) {
+        const value = Number(minutes || 0);
+        if (!value) return "—";
+        if (value < 60) return `1 раз в ${value} минут`;
+        if (value % 60 === 0) {
+          const hours = value / 60;
+          return hours === 1 ? "1 раз в 1 час" : `1 раз в ${hours} часа`;
+        }
+        return `1 раз в ${value} минут`;
+      }
+
+      function clampQueryDaysByPlan() {
+        const plan = getPlanInfo();
+        if (!plan || !queryDaysInput) return;
+
+        const maxDays = Number(plan.qa_history_days || 7);
+        queryDaysInput.max = String(maxDays);
+
+        let current = parseInt(queryDaysInput.value || "7", 10);
+        if (!Number.isFinite(current) || current < 1) current = 1;
+
+        if (current > maxDays) {
+          queryDaysInput.value = String(maxDays);
+        }
+      }
+
+      function getAvailablePeriodOptionsByPlan(subscriptionType) {
+        const plan = getPlanInfo();
+        const minMinutes = Number(plan?.min_subscription_interval_minutes || 60);
+
+        const allByType = {
+          events: [
+            { v: "30m", t: "1 раз в 30 минут", m: 30 },
+            { v: "1h",  t: "1 раз в 1 час", m: 60 },
+            { v: "3h",  t: "1 раз в 3 часа", m: 180 },
+            { v: "6h",  t: "1 раз в 6 часов", m: 360 },
+          ],
+          digest: [
+            { v: "6h",  t: "1 раз в 6 часов", m: 360 },
+            { v: "12h", t: "1 раз в 12 часов", m: 720 },
+            { v: "1d",  t: "1 раз в 1 день", m: 1440 },
+          ],
+        };
+
+        const source = allByType[subscriptionType] || allByType.events;
+        return source.filter((item) => item.m >= minMinutes);
+      }
+
+      function setPeriodOptionsForType(type) {
+        if (!subPeriodSelect) return;
+
+        const list = getAvailablePeriodOptionsByPlan(type);
+
+        subPeriodSelect.innerHTML = list
+          .map((o) => `<option value="${o.v}">${o.t}</option>`)
+          .join("");
+
+        subPeriodSelect.value = list[0]?.v || "";
+      }
+
+      function refreshLimitBoundControls() {
+        clampQueryDaysByPlan();
+
+        const type = (subTypeSelect?.value || "events").trim();
+        setPeriodOptionsForType(type);
+      }
+
+      function extractBackendErrorCode(err) {
+        return err?.detail?.code || err?.detail?.detail?.code || "";
+      }
+
+      function extractBackendErrorMessage(err) {
+        return (
+          err?.detail?.message ||
+          err?.detail?.detail?.message ||
+          err?.detail?.detail ||
+          (typeof err?.detail === "string" ? err.detail : "") ||
+          err?.message ||
+          "Неизвестная ошибка"
+        );
+      }
+
+      function normalizePlanErrorMessage(err) {
+        const code = extractBackendErrorCode(err);
+        const detail = err?.detail || {};
+
+        if (code === "PLAN_HISTORY_LIMIT_EXCEEDED") {
+          return `Ваш тариф позволяет анализировать не более ${detail?.plan_limit_days ?? "—"} дней истории.`;
+        }
+
+        if (code === "PLAN_DAILY_QA_LIMIT_REACHED") {
+          return "Дневной лимит запросов исчерпан.";
+        }
+
+        if (code === "PLAN_MONTHLY_QA_LIMIT_REACHED") {
+          return "Месячный лимит запросов исчерпан.";
+        }
+
+        if (code === "PLAN_ACTIVE_SUBSCRIPTIONS_LIMIT_REACHED") {
+          return "Достигнут лимит активных подписок по тарифу.";
+        }
+
+        if (code === "PLAN_SUBSCRIPTION_FREQUENCY_TOO_HIGH") {
+          return `Ваш тариф не позволяет такую частоту. Минимально допустимо: ${detail?.min_subscription_interval_minutes ?? "—"} минут.`;
+        }
+
+        if (code === "FREE_TRIAL_SUBSCRIPTIONS_ALREADY_USED") {
+          return "Пробный доступ к подпискам уже использован. Перейдите на платный тариф.";
+        }
+
+        if (code === "TRIAL_SUBSCRIPTION_DELETE_FORBIDDEN") {
+          return "Trial-подписки нельзя удалять вручную.";
+        }
+
+        if (code === "TRIAL_SUBSCRIPTION_EXPIRED") {
+          return "Срок trial-подписки истёк. Перейдите на платный тариф.";
+        }
+
+        return extractBackendErrorMessage(err);
       }
 
       async function openEditSubscription(id) {
@@ -2856,19 +2974,24 @@
       };
 
       try {
+        let responseData = null;
+
         if (isEdit) {
-          // UPDATE
-          await apiFetch(`/subscriptions/${editingSubscriptionId}`, {
+          responseData = await apiFetch(`/subscriptions/${editingSubscriptionId}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json", "Accept": "application/json" },
             body: JSON.stringify(payload)
           });
           subCreateStatus.textContent = "Изменения сохранены.";
         } else {
-          // CREATE
-          await apiCreateSubscription(payload);
+          responseData = await apiCreateSubscription(payload);
           subCreateStatus.textContent = "Подписка создана.";
         }
+
+        if (typeof window.cotelRefreshPlanUsageSnapshot === "function") {
+          await window.cotelRefreshPlanUsageSnapshot();
+        }
+        refreshLimitBoundControls();
 
         await refreshSubscriptions();
         await loadChatHistory();
@@ -2878,7 +3001,7 @@
         createSubscriptionBtn.textContent = "Создать подписку";
         
       } catch (e) {
-        const msg = normalizeSubscriptionUiError(e);
+        const msg = normalizePlanErrorMessage(e);
         if (String(msg).includes("422")) {
           subCreateStatus.textContent = "Проверь поля формы (ошибка валидации).";
         } else {
@@ -2915,14 +3038,19 @@
           });
 
           await refreshSubscriptions();
+
+          if (typeof window.cotelRefreshPlanUsageSnapshot === "function") {
+            await window.cotelRefreshPlanUsageSnapshot();
+          }
+          refreshLimitBoundControls();
         } catch (e) {
-          alert("Ошибка изменения статуса подписки");
+          alert(normalizePlanErrorMessage(e));
         }
       }
 
 
       // ===== Запуск подписок (кнопка) =====
-const runSubscriptionsBtn = document.getElementById("runSubscriptionsBtn");
+      const runSubscriptionsBtn = document.getElementById("runSubscriptionsBtn");
 
       async function runSubscriptions() {
         try {
@@ -3226,13 +3354,8 @@ if (runSubscriptionsBtn) {
 
             // 3️⃣ НИЧЕГО НЕ ВЫБРАНО
             alert("Выберите источник данных.");
-         } catch (err) {
-          const msg =
-            err?.detail?.message ||
-            err?.detail?.detail ||
-            (typeof err?.detail === "string" ? err.detail : "") ||
-            err?.message ||
-            String(err);
+        } catch (err) {
+          const msg = normalizePlanErrorMessage(err);
 
           if (resultDiv) {
             resultDiv.textContent = "Ошибка запроса: " + msg;
