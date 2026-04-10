@@ -234,8 +234,9 @@ body.user-not-auth .sidebar-user-area .auth-open-btn {
   color: #374151;
 }
 
-.auth-modal-content input,
-.auth-modal-content select {
+.auth-modal-content input:not([type="checkbox"]):not([type="radio"]),
+.auth-modal-content select,
+.auth-modal-content textarea {
   width: 100%;
   border: 1px solid #d1d5db;
   border-radius: 12px;
@@ -1330,6 +1331,8 @@ text-decoration: underline;
   justify-content: flex-start;
   gap: 12px;
   flex-wrap: nowrap;
+  width: 100%;
+  min-width: 0;
 }
 
 .profile-settings-copy {
