@@ -811,9 +811,7 @@ text-decoration: underline;
   box-shadow: 0 0 0 2px rgba(198, 40, 40, 0.10);
 }
 
-.profile-modal-header {
-  gap: 16px;
-}
+
 
 .profile-layout {
   display: grid;
@@ -1007,14 +1005,6 @@ text-decoration: underline;
   width: min(92vw, 720px);
 }
 
-.profile-modal-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 18px;
-  padding-right: 34px;
-}
 
 .profile-header-actions {
   display: flex;
@@ -1175,8 +1165,8 @@ text-decoration: underline;
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 18px;
-  padding-right: 52px;
-  min-height: 56px;
+  padding-right: 72px;
+  min-height: 64px;
 }
 
 .profile-modal-topline {
@@ -1223,11 +1213,11 @@ text-decoration: underline;
 }
 
 #profile-modal .auth-modal-close {
-  width: 36px;
-  height: 36px;
-  font-size: 34px;
+  width: 40px;
+  height: 40px;
+  font-size: 38px;
   line-height: 1;
-  top: 22px;
+  top: 34px;
   right: 22px;
   display: inline-flex;
   align-items: center;
@@ -1327,18 +1317,18 @@ text-decoration: underline;
 }
 
 .profile-settings-block {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  padding: 16px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
 }
 
 .profile-settings-row {
   display: flex;
   align-items: flex-start;
-  justify-content: flex-start;
-  gap: 12px;
-  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: nowrap;
 }
 
 .profile-settings-copy {
@@ -1346,6 +1336,7 @@ text-decoration: underline;
   flex-direction: column;
   gap: 4px;
   min-width: 0;
+  flex: 1 1 auto;
 }
 
 .profile-settings-title-inline {
@@ -1366,7 +1357,7 @@ text-decoration: underline;
   height: 18px;
   accent-color: #111827;
   flex: 0 0 auto;
-  margin-top: 2px;
+  margin-top: 6px;
 }
 
 .profile-settings-actions {
@@ -1474,5 +1465,28 @@ text-decoration: underline;
 
   .profile-settings-actions {
     grid-template-columns: 1fr;
+  }
+}
+
+.profile-static-value {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  padding: 12px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 24px;
+  background: #ffffff;
+  color: #111827;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 760px) {
+  #profile-modal .auth-modal-close {
+    top: 24px;
+    right: 16px;
+  }
+
+  .profile-settings-row {
+    flex-wrap: wrap;
   }
 }

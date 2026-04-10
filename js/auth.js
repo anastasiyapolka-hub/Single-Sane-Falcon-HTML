@@ -1100,6 +1100,11 @@ async function openProfileModal() {
     currentUser.language || getEffectiveLanguage(currentUser)
   );
 
+  const ultraSecureLogoutEl = byId("ultra-secure-logout");
+  if (ultraSecureLogoutEl) {
+    ultraSecureLogoutEl.checked = false;
+  }
+
   byId("profile-email-header").textContent = email;
   byId("profile-email-static").textContent = email;
   byId("profile-avatar-img").src = avatarSrc;
@@ -1151,6 +1156,7 @@ async function openProfileModal() {
 
 async function handleSaveProfile() {
   if (!currentUser) return;
+  if (!profileIsDirty) return;
 
   const language = normalizeLanguage(byId("profile-language")?.value || "en");
   const phone =
@@ -1200,7 +1206,15 @@ async function handleSaveProfile() {
   }
 }
 
-function closeProfileModal() {
+function closeProfileModal(force = false) {
+  if (!force && profileIsDirty) {
+    const shouldSave = window.confirm("Сохранить внесённые изменения?");
+    if (shouldSave) {
+      handleSaveProfile();
+      return;
+    }
+  }
+
   byId("profile-modal")?.classList.add("hidden");
   profileIsDirty = false;
   profileInitialState = null;
