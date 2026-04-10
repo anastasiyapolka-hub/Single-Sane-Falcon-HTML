@@ -1,4 +1,5 @@
 let currentUser = null;
+let currentPlanUsage = null;
 let registerEmail = null;
 let pendingEmail = null;
 let profilePhoneIti = null;
@@ -872,12 +873,21 @@ function bindAuthUi() {
   });
 
   byId("change-password-btn")?.addEventListener("click", () => {
-    alert("Смену пароля подключим позже.");
+    alert("Смену пароля подключим следующим этапом.");
+  });
+
+  byId("delete-profile-btn")?.addEventListener("click", () => {
+    alert("Удаление профиля подключим следующим этапом.");
+  });
+
+  document.querySelectorAll(".profile-tab-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      switchProfileTab(btn.dataset.profileTab);
+    });
   });
 
   byId("profile-language")?.addEventListener("change", handleProfileLanguageChange);
   byId("save-profile-btn")?.addEventListener("click", handleSaveProfile);
-
   byId("auth-modal")?.addEventListener("click", (e) => {
     const content = document.querySelector(".auth-modal-content");
 
@@ -914,6 +924,96 @@ function bindAuthUi() {
   });
 }
 
+function formatSubscriptionFrequency(minutes) {
+  const value = Number(minutes || 0);
+
+  if (!value) return "—";
+  if (value < 60) return `не чаще 1 раза в ${value} мин`;
+  if (value % 60 === 0) {
+    const hours = value / 60;
+    return hours === 1
+      ? "не чаще 1 раза в 1 час"
+      : `не чаще 1 раза в ${hours} ч`;
+  }
+
+  return `не чаще 1 раза в ${value} мин`;
+}
+
+function setPlanUsageSnapshot(snapshot) {
+  currentPlanUsage = snapshot || null;
+}
+
+async function fetchPlanUsageSnapshot() {
+  try {
+    const snapshot = await apiFetch("/account/plan-usage", { method: "GET" });
+    setPlanUsageSnapshot(snapshot);
+    return snapshot;
+  } catch (err) {
+    console.warn("Plan usage load failed", err);
+    return null;
+  }
+}
+
+function applyUsageFromPayload(payload) {
+  if (payload && payload.usage) {
+    setPlanUsageSnapshot(payload.usage.plan ? payload.usage : payload);
+    renderProfileLimits();
+  }
+}
+
+window.cotelApplyUsageFromPayload = applyUsageFromPayload;
+
+function renderProfileLimits() {
+  const plan = currentPlanUsage?.plan || null;
+  const usage = currentPlanUsage?.usage || null;
+
+  if (!plan || !usage) return;
+
+  const setText = (id, value) => {
+    const el = byId(id);
+    if (el) el.textContent = String(value ?? "—");
+  };
+
+  setText("profile-limit-daily-used", usage.daily_used ?? 0);
+  setText("profile-limit-daily-total", plan.daily_qa_limit ?? 0);
+
+  setText("profile-limit-monthly-used", usage.monthly_used ?? 0);
+  setText("profile-limit-monthly-total", plan.monthly_qa_limit ?? 0);
+
+  setText("profile-limit-subs-used", usage.active_subscriptions ?? 0);
+  setText("profile-limit-subs-total", plan.max_active_subscriptions ?? 0);
+
+  setText("profile-limit-history-days", plan.qa_history_days ?? 0);
+
+  const frequencyEl = byId("profile-limit-frequency-text");
+  if (frequencyEl) {
+    frequencyEl.textContent = formatSubscriptionFrequency(plan.min_subscription_interval_minutes);
+  }
+
+  const chatHistoryEl = byId("profile-limit-chat-history");
+  if (chatHistoryEl) {
+    chatHistoryEl.textContent = plan.has_chat_history ? "доступна" : "недоступна";
+  }
+
+  setText("profile-limit-trial-used", usage.trial_subscriptions_total ?? 0);
+  setText("profile-limit-trial-total", plan.trial_subscription_limit ?? 0);
+
+  const trialCard = byId("profile-trial-card");
+  if (trialCard) {
+    trialCard.style.display = String(plan.code || "").toLowerCase() === "free" ? "" : "none";
+  }
+}
+
+function switchProfileTab(tabName) {
+  document.querySelectorAll(".profile-tab-btn").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.profileTab === tabName);
+  });
+
+  document.querySelectorAll(".profile-tab-panel").forEach((panel) => {
+    panel.classList.toggle("active", panel.dataset.profilePanel === tabName);
+  });
+}
+
 function initCookieBanner() {
   const banner = byId("cookie-banner");
   const btn = byId("cookie-accept-btn");
@@ -930,12 +1030,13 @@ function initCookieBanner() {
   });
 }
 
-function openProfileModal() {
+async function openProfileModal() {
   if (!currentUser) return;
 
   const email = currentUser.email || "—";
   const plan = String(currentUser.plan || "free").toLowerCase();
   const avatarSrc = byId("user-avatar-img")?.src || "/images/cats/cat-1.jpg";
+
   const countryObj = COUNTRY_LIST.find(
     (country) => country.code === (currentUser.country_code || "")
   );
@@ -949,6 +1050,7 @@ function openProfileModal() {
   );
 
   byId("profile-email-header").textContent = email;
+  byId("profile-email-static").textContent = email;
   byId("profile-avatar-img").src = avatarSrc;
   byId("profile-country").textContent = countryValue;
 
@@ -973,6 +1075,10 @@ function openProfileModal() {
       switcher.querySelector(".plan-free")?.classList.add("active");
     }
   }
+
+  await fetchPlanUsageSnapshot();
+  renderProfileLimits();
+  switchProfileTab("limits");
 
   byId("profile-modal")?.classList.remove("hidden");
 

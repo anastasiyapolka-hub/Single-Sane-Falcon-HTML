@@ -3069,6 +3069,10 @@ if (runSubscriptionsBtn) {
       function renderResult(payload, rawText) {
         let text = "";
 
+        if (typeof window.cotelApplyUsageFromPayload === "function") {
+          window.cotelApplyUsageFromPayload(payload);
+        }
+
         if (payload?.summary) {
           text += payload.summary + "\n\n";
         }
@@ -3404,50 +3408,110 @@ if (runSubscriptionsBtn) {
       <div class="auth-modal-backdrop"></div>
 
       <div class="auth-modal-content profile-modal-content">
-        <button id="profile-modal-close" class="auth-modal-close" type="button">×</button>
+        
+        <button id="profile-modal-close" class="auth-modal-close" type="button" aria-label="Закрыть">
+          ×
+        </button>
 
-        <div class="auth-modal-header profile-modal-header">
+        <div class="profile-modal-header">
           <div class="profile-modal-topline">
-            <img id="profile-avatar-img" class="user-avatar-img profile-header-avatar" src="images/cats/cat-1.jpg" alt="Аватар">
-            <div id="profile-email-header" class="profile-email-header">—</div>
+            <img id="profile-avatar-img" class="profile-header-avatar" src="images/cats/cat-1.jpg" alt="Аватар" />
+            <div class="profile-email-header" id="profile-email-header">—</div>
           </div>
-          <div class="auth-header-divider"></div>
+
+          <div class="profile-header-actions">
+            <button id="save-profile-btn" type="button" class="profile-save-btn profile-save-btn--header">
+              Сохранить изменения
+            </button>
+          </div>
         </div>
 
-        <div class="profile-layout">
-          <div class="profile-column profile-column-main">
-            <div class="profile-block">
-              <div class="profile-plan-section">
-                <div class="profile-section-label">Тариф</div>
+        <div class="profile-plan-card">
+          <div class="profile-plan-switcher" id="profile-plan-switcher" data-plan="free">
+            <span class="plan-chip plan-free">Free</span>
+            <span class="plan-divider">/</span>
+            <span class="plan-chip plan-basic">Basic</span>
+            <span class="plan-divider">/</span>
+            <span class="plan-chip plan-pro">Pro</span>
+          </div>
 
-                <div class="profile-plan-card">
-                  <div id="profile-plan-switcher" class="profile-plan-switcher" data-plan="free">
-                    <span class="plan-chip plan-free active">Free</span>
-                    <span class="plan-divider">|</span>
-                    <span class="plan-chip plan-basic">Basic</span>
-                    <span class="plan-divider">|</span>
-                    <span class="plan-chip plan-pro">Pro</span>
-                  </div>
+          <button id="change-plan-btn" type="button" class="profile-plan-btn">
+            Сменить тариф
+          </button>
+        </div>
 
-                  <button id="change-plan-btn" type="button" class="profile-plan-btn">
-                    Сменить тариф
-                  </button>
+        <div class="profile-tabs">
+          <button type="button" class="profile-tab-btn active" data-profile-tab="limits">Лимиты</button>
+          <button type="button" class="profile-tab-btn" data-profile-tab="personal">Личные данные</button>
+          <button type="button" class="profile-tab-btn" data-profile-tab="settings">Настройки профиля</button>
+        </div>
+
+        <div class="profile-tab-panels">
+          <!-- LIMITS -->
+          <div class="profile-tab-panel active" data-profile-panel="limits">
+            <div class="profile-limits-grid">
+              <div class="profile-limit-card">
+                <div class="profile-limit-card-title">Запросы сегодня</div>
+                <div class="profile-limit-card-value">
+                  <span id="profile-limit-daily-used">0</span>
+                  <span class="profile-limit-sep">/</span>
+                  <span id="profile-limit-daily-total">0</span>
                 </div>
               </div>
 
-              <div class="profile-limits-section">
-                <div class="profile-section-label">Лимиты</div>
-
-                <div class="profile-limits-card">
-                  <div class="profile-limit-row">
-                    <span>Количество запросов:</span>
-                    <strong>30 в месяц</strong>
-                  </div>
-                  <div class="profile-limit-row">
-                    <span>Количество подписок:</span>
-                    <strong>3 активные</strong>
-                  </div>
+              <div class="profile-limit-card">
+                <div class="profile-limit-card-title">Запросы в месяц</div>
+                <div class="profile-limit-card-value">
+                  <span id="profile-limit-monthly-used">0</span>
+                  <span class="profile-limit-sep">/</span>
+                  <span id="profile-limit-monthly-total">0</span>
                 </div>
+              </div>
+
+              <div class="profile-limit-card">
+                <div class="profile-limit-card-title">Активные подписки</div>
+                <div class="profile-limit-card-value">
+                  <span id="profile-limit-subs-used">0</span>
+                  <span class="profile-limit-sep">/</span>
+                  <span id="profile-limit-subs-total">0</span>
+                </div>
+              </div>
+
+              <div class="profile-limit-card">
+                <div class="profile-limit-card-title">Глубина анализа истории</div>
+                <div class="profile-limit-card-text">
+                  до <span id="profile-limit-history-days">0</span> дней
+                </div>
+              </div>
+
+              <div class="profile-limit-card">
+                <div class="profile-limit-card-title">Минимальная частота подписки</div>
+                <div class="profile-limit-card-text" id="profile-limit-frequency-text">—</div>
+              </div>
+
+              <div class="profile-limit-card">
+                <div class="profile-limit-card-title">История чатов и каналов</div>
+                <div class="profile-limit-card-text" id="profile-limit-chat-history">—</div>
+              </div>
+
+              <div class="profile-limit-card" id="profile-trial-card">
+                <div class="profile-limit-card-title">Trial-подписки</div>
+                <div class="profile-limit-card-text">
+                  <span id="profile-limit-trial-used">0</span>
+                  <span class="profile-limit-sep">/</span>
+                  <span id="profile-limit-trial-total">0</span>
+                  использовано
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PERSONAL -->
+          <div class="profile-tab-panel" data-profile-panel="personal">
+            <div class="profile-block">
+              <div class="profile-field">
+                <label>Email</label>
+                <div id="profile-email-static" class="profile-static-value">—</div>
               </div>
 
               <div class="profile-field">
@@ -3462,19 +3526,12 @@ if (runSubscriptionsBtn) {
                   Необязательно. Используется для удобного входа в Telegram.
                 </p>
               </div>
-
-              <div class="profile-links">
-                <button id="change-password-btn" type="button" class="auth-link-btn">Сменить пароль</button>
-              </div>
             </div>
           </div>
 
-          <div class="profile-layout-divider" aria-hidden="true"></div>
-
-          <div class="profile-column profile-column-settings">
+          <!-- SETTINGS -->
+          <div class="profile-tab-panel" data-profile-panel="settings">
             <div class="profile-settings-block">
-              <div class="profile-settings-title">Настройки профиля</div>
-
               <div class="profile-field">
                 <label for="profile-language">Язык интерфейса</label>
                 <select id="profile-language">
@@ -3490,15 +3547,15 @@ if (runSubscriptionsBtn) {
                   <small>При выходе из CoTel также завершать Telegram-сессию</small>
                 </span>
               </label>
+
+              <div class="profile-settings-actions">
+                <button id="change-password-btn" type="button" class="auth-link-btn">Сменить пароль</button>
+                <button id="delete-profile-btn" type="button" class="auth-link-btn profile-danger-btn">Удалить профиль</button>
+              </div>
             </div>
           </div>
-
-          <div class="profile-actions-row">
-            <button id="save-profile-btn" type="button" class="profile-save-btn">
-              Сохранить изменения
-            </button>
-          </div>
-        </div>
+        </div>     
+             
       </div>
     </div>
 
