@@ -3531,6 +3531,7 @@ if (runSubscriptionsBtn) {
 
           <!-- SETTINGS -->
           <div class="profile-tab-panel" data-profile-panel="settings">
+            
             <div class="profile-settings-block">
               <div class="profile-field">
                 <label for="profile-language">Язык интерфейса</label>
@@ -3540,19 +3541,28 @@ if (runSubscriptionsBtn) {
                 </select>
               </div>
 
-              <label class="profile-checkbox-row">
-                <input id="ultra-secure-logout" type="checkbox" />
-                <span>
-                  Повышенная безопасность
-                  <small>При выходе из CoTel также завершать Telegram-сессию</small>
-                </span>
-              </label>
+              <div class="profile-settings-row">
+                <div class="profile-settings-copy">
+                  <div class="profile-settings-title-inline">Повышенная безопасность</div>
+                  <div class="profile-settings-help-inline">
+                    При выходе из CoTel также завершать активную Telegram-сессию
+                  </div>
+                </div>
+
+                <input id="ultra-secure-logout" class="profile-settings-check" type="checkbox" />
+              </div>
 
               <div class="profile-settings-actions">
-                <button id="change-password-btn" type="button" class="auth-link-btn">Сменить пароль</button>
-                <button id="delete-profile-btn" type="button" class="auth-link-btn profile-danger-btn">Удалить профиль</button>
+                <button id="change-password-btn" type="button" class="profile-action-btn">
+                  Сменить пароль
+                </button>
+
+                <button id="delete-profile-btn" type="button" class="profile-action-btn profile-danger-btn">
+                  Удалить профиль
+                </button>
               </div>
             </div>
+
           </div>
         </div>     
              

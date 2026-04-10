@@ -1,5 +1,7 @@
 let currentUser = null;
 let currentPlanUsage = null;
+let profileInitialState = null;
+let profileIsDirty = false;
 let registerEmail = null;
 let pendingEmail = null;
 let profilePhoneIti = null;
@@ -1014,6 +1016,55 @@ function switchProfileTab(tabName) {
   });
 }
 
+function captureProfileFormState() {
+  const language = byId("profile-language")?.value || "en";
+  const ultraSecureLogout = !!byId("ultra-secure-logout")?.checked;
+
+  let phone = "";
+  const phoneInput = byId("profile-phone");
+  if (phoneInput) {
+    phone = getNormalizedPhoneFromInstance(profilePhoneIti, phoneInput) || "";
+  }
+
+  return {
+    language,
+    ultraSecureLogout,
+    phone,
+  };
+}
+
+function updateProfileDirtyState() {
+  const modal = byId("profile-modal");
+  if (!modal || !profileInitialState) return;
+
+  const currentState = captureProfileFormState();
+
+  profileIsDirty =
+    currentState.language !== profileInitialState.language ||
+    currentState.ultraSecureLogout !== profileInitialState.ultraSecureLogout ||
+    currentState.phone !== profileInitialState.phone;
+
+  modal.classList.toggle("profile-dirty", profileIsDirty);
+}
+
+function resetProfileDirtyState() {
+  profileInitialState = captureProfileFormState();
+  profileIsDirty = false;
+  byId("profile-modal")?.classList.remove("profile-dirty");
+}
+
+function bindProfileDirtyWatchers() {
+  byId("profile-language")?.addEventListener("change", updateProfileDirtyState);
+  byId("ultra-secure-logout")?.addEventListener("change", updateProfileDirtyState);
+
+  const phoneInput = byId("profile-phone");
+  if (phoneInput) {
+    phoneInput.addEventListener("input", updateProfileDirtyState);
+    phoneInput.addEventListener("change", updateProfileDirtyState);
+    phoneInput.addEventListener("blur", updateProfileDirtyState);
+  }
+}
+
 function initCookieBanner() {
   const banner = byId("cookie-banner");
   const btn = byId("cookie-accept-btn");
@@ -1082,7 +1133,7 @@ async function openProfileModal() {
 
   byId("profile-modal")?.classList.remove("hidden");
 
-  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
     initProfilePhoneInput();
 
     if (profilePhoneIti) {
@@ -1092,6 +1143,9 @@ async function openProfileModal() {
         profilePhoneIti.setCountry(getDefaultPhoneCountryIso2());
       }
     }
+
+    bindProfileDirtyWatchers();
+    resetProfileDirtyState();
   });
 }
 
@@ -1115,6 +1169,8 @@ async function handleSaveProfile() {
     });
 
     setUser(updatedUser);
+
+    resetProfileDirtyState();
 
     const tgPhoneInput = document.getElementById("tgPhoneInput");
     if (
@@ -1146,6 +1202,9 @@ async function handleSaveProfile() {
 
 function closeProfileModal() {
   byId("profile-modal")?.classList.add("hidden");
+  profileIsDirty = false;
+  profileInitialState = null;
+  byId("profile-modal")?.classList.remove("profile-dirty");
 }
 
 async function handleProfileLanguageChange() {
