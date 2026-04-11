@@ -914,14 +914,20 @@ text-decoration: underline;
 }
 
 .plan-chip {
-  font-size: 0.95rem;
+  font-size: 1.08rem;
   font-weight: 500;
   color: #6b7280;
+  line-height: 1; /* важно для выравнивания */
+  display: inline-flex;
+  align-items: center;
 }
 
 .plan-chip.active {
-  font-size: 1.08rem;
+  font-size: 1.20rem;
   font-weight: 800;
+  line-height: 1; /* важно для выравнивания */
+  display: inline-flex;
+  align-items: center;
 }
 
 .plan-free.active {
@@ -938,6 +944,9 @@ text-decoration: underline;
 
 .plan-divider {
   color: #9ca3af;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
 }
 
 .profile-plan-btn {

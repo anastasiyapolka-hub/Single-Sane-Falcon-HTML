@@ -18,7 +18,7 @@
 
     <section class="plans-grid">
       <!-- FREE -->
-      <article class="plan-card is-active">
+      <article class="plan-card is-active" data-plan-card="free">
         <div class="plan-top">
           <div class="plan-header-row">
             <div class="plan-name plan-name-free">Free</div>
@@ -39,12 +39,12 @@
         </ul>
 
         <div class="plan-footer">
-          <button class="plan-btn current" disabled>Текущий тариф</button>
+          <button class="plan-btn current" data-plan-btn="free" disabled>Текущий тариф</button>
         </div>
       </article>
 
       <!-- BASIC -->
-      <article class="plan-card featured">
+      <article class="plan-card featured" data-plan-card="basic">
         <div class="featured-badge-wrap">
           <div class="featured-bar">Рекомендуем</div>
         </div>
@@ -71,12 +71,12 @@
         </ul>
 
         <div class="plan-footer">
-          <button class="plan-btn">Выбрать Basic</button>
+          <button class="plan-btn" data-plan-btn="basic">Выбрать Basic</button>
         </div>
       </article>
 
       <!-- PRO -->
-      <article class="plan-card">
+      <article class="plan-card" data-plan-card="pro">
         <div class="plan-top">
           <div class="plan-header-row">
             <div class="plan-name plan-name-pro">Pro</div>
@@ -99,7 +99,7 @@
         </ul>
 
         <div class="plan-footer">
-          <button class="plan-btn">Выбрать Pro</button>
+          <button class="plan-btn" data-plan-btn="pro">Выбрать Pro</button>
         </div>
       </article>
     </section>
@@ -123,5 +123,128 @@
       </p>
     </section>
   </div>
+
+  <div id="plan-success-modal" class="plan-success-modal hidden">
+  <div class="plan-success-backdrop"></div>
+  <div class="plan-success-card">
+    <button id="plan-success-close" class="plan-success-close" type="button" aria-label="Закрыть">×</button>
+    <h2 id="plan-success-title">Тариф успешно изменён</h2>
+    <p id="plan-success-text">Желаем приятной и эффективной работы с CoTel!</p>
+    <button id="plan-success-ok" type="button" class="plan-success-btn">Перейти в сервис</button>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", async () => {
+    const planCards = Array.from(document.querySelectorAll("[data-plan-card]"));
+    const planButtons = Array.from(document.querySelectorAll("[data-plan-btn]"));
+
+    const successModal = document.getElementById("plan-success-modal");
+    const successTitle = document.getElementById("plan-success-title");
+    const successText = document.getElementById("plan-success-text");
+    const successClose = document.getElementById("plan-success-close");
+    const successOk = document.getElementById("plan-success-ok");
+
+    function setCurrentPlanUi(planCode) {
+      const normalized = String(planCode || "free").toLowerCase();
+
+      planCards.forEach((card) => {
+        const isCurrent = card.dataset.planCard === normalized;
+        card.classList.toggle("is-active", isCurrent);
+      });
+
+      planButtons.forEach((btn) => {
+        const plan = btn.dataset.planBtn;
+        const isCurrent = plan === normalized;
+
+        btn.disabled = isCurrent;
+        btn.classList.toggle("current", isCurrent);
+
+        if (isCurrent) {
+          btn.textContent = "Текущий тариф";
+        } else if (plan === "basic") {
+          btn.textContent = "Выбрать Basic";
+        } else if (plan === "pro") {
+          btn.textContent = "Выбрать Pro";
+        } else {
+          btn.textContent = "Выбрать Free";
+        }
+      });
+    }
+
+    function openSuccessModal(planCode) {
+      const titleMap = {
+        free: "Тариф успешно изменён на Free",
+        basic: "Тариф успешно изменён на Basic",
+        pro: "Тариф успешно изменён на Pro",
+      };
+
+      successTitle.textContent = titleMap[String(planCode || "").toLowerCase()] || "Тариф успешно изменён";
+      successText.textContent = "Желаем приятной и эффективной работы с CoTel.";
+      successModal.classList.remove("hidden");
+    }
+
+    function closeSuccessModal() {
+      successModal.classList.add("hidden");
+      window.location.href = "/new-analysis.html";
+    }
+
+    successClose?.addEventListener("click", closeSuccessModal);
+    successOk?.addEventListener("click", closeSuccessModal);
+
+    async function loadCurrentUserPlan() {
+      const me = await apiFetch("/auth/me", { method: "GET" });
+      setCurrentPlanUi(me?.plan || "free");
+      return me;
+    }
+
+    async function switchPlan(targetPlan) {
+      const result = await apiFetch("/account/change-plan", {
+        method: "POST",
+        body: JSON.stringify({
+          target_plan: targetPlan
+        })
+      });
+
+      setCurrentPlanUi(result?.user?.plan || targetPlan);
+      openSuccessModal(result?.user?.plan || targetPlan);
+    }
+
+    try {
+      await loadCurrentUserPlan();
+    } catch (err) {
+      const msg =
+        err?.detail?.message ||
+        err?.detail?.detail?.message ||
+        err?.detail?.detail ||
+        (typeof err?.detail === "string" ? err.detail : "") ||
+        err?.message ||
+        "Не удалось загрузить текущий тариф.";
+      alert(msg);
+    }
+
+    planButtons.forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const targetPlan = btn.dataset.planBtn;
+        if (!targetPlan || btn.disabled) return;
+
+        try {
+          await switchPlan(targetPlan);
+        } catch (err) {
+          const msg =
+            err?.detail?.message ||
+            err?.detail?.detail?.message ||
+            err?.detail?.detail ||
+            (typeof err?.detail === "string" ? err.detail : "") ||
+            err?.message ||
+            "Не удалось изменить тариф.";
+          alert(msg);
+        }
+      });
+    });
+  });
+</script>
+
 </body>
 </html>

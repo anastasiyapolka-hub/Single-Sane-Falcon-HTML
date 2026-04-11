@@ -2784,6 +2784,15 @@
         return getCurrentPlanSnapshot()?.usage || null;
       }
 
+      function updateChatHistoryAvailability() {
+        const plan = getPlanInfo();
+        const hasHistory = !!plan?.has_chat_history;
+
+        if (chatHistoryBlock) {
+          chatHistoryBlock.style.display = hasHistory ? "" : "none";
+        }
+      }
+
       function formatFrequencyLabel(minutes) {
         const value = Number(minutes || 0);
         if (!value) return "—";
@@ -2851,6 +2860,7 @@
         setPeriodOptionsForType(type);
 
         updateSubscriptionsUiAvailability();
+        updateChatHistoryAvailability();
       }
 
       function canAddSubscriptionByPlan() {
