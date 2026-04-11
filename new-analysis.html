@@ -2418,24 +2418,44 @@
   function getStatusDotClass(s) {
     const status = String(s.status || (s.is_active ? "active" : "paused")).toLowerCase();
     let dotClass = "subscription-status-dot";
+
     if (status === "paused") dotClass += " is-paused";
     if (status === "error") dotClass += " is-error";
+    if (status === "trial_expired") dotClass += " is-error";
+
     return dotClass;
+  }
+
+  function getSubscriptionStatusTitle(s) {
+    const status = String(s.status || (s.is_active ? "active" : "paused")).toLowerCase();
+
+    if (status === "trial_expired") {
+      return "Пробный период подписки завершён";
+    }
+    if (status === "paused") {
+      return "Подписка на паузе";
+    }
+    if (status === "error") {
+      return "Ошибка подписки";
+    }
+    return "Подписка активна";
   }
 
   function renderCurrentCard(s) {
     const safeName = escapeSubName(s.name);
+    const planCode = String(getPlanInfo()?.code || "").toLowerCase();
+    const canDelete = planCode !== "free";
 
     return `
       <div class="subscription-item" data-sub-id="${s.id || ""}" title="${safeName}">
-        <span class="${getStatusDotClass(s)}"></span>
+        <span class="${getStatusDotClass(s)}" title="${getSubscriptionStatusTitle(s)}"></span>
         <span class="subscription-name">${safeName}</span>
 
         <div class="subscription-actions-mini" aria-label="Действия подписки">
           <button class="subscription-action-btn sub-btn-pause" type="button" title="Приостановить">⏸</button>
           <button class="subscription-action-btn sub-btn-play" type="button" title="Включить">▶</button>
           <button class="subscription-action-btn sub-btn-edit" type="button" title="Редактировать">✎</button>
-          <button class="subscription-action-btn sub-btn-del" type="button" title="Удалить">✕</button>
+          ${canDelete ? `<button class="subscription-action-btn sub-btn-del" type="button" title="Удалить">✕</button>` : ``}
         </div>
       </div>
     `;
@@ -2446,7 +2466,7 @@
 
     return `
       <div class="subscription-item subscription-item--inactive" data-sub-id="${s.id || ""}" title="${safeName}">
-        <span class="${getStatusDotClass(s)}"></span>
+        <span class="${getStatusDotClass(s)}" title="${getSubscriptionStatusTitle(s)}"></span>
         <span class="subscription-name">${safeName}</span>
 
         <div class="subscription-actions-mini" aria-label="Действия подписки из другого режима">
@@ -2511,8 +2531,13 @@
       try {
         await apiDeleteSubscription(subId);
         await refreshSubscriptions();
+
+        if (typeof window.cotelRefreshPlanUsageSnapshot === "function") {
+          await window.cotelRefreshPlanUsageSnapshot();
+        }
+        refreshLimitBoundControls();
       } catch (err) {
-        alert("Ошибка удаления: " + normalizeSubscriptionUiError(err));
+        alert("Ошибка удаления: " + normalizePlanErrorMessage(err));
       }
     });
   });
@@ -2561,8 +2586,13 @@
       try {
         await apiDeleteSubscription(subId);
         await refreshSubscriptions();
+
+        if (typeof window.cotelRefreshPlanUsageSnapshot === "function") {
+          await window.cotelRefreshPlanUsageSnapshot();
+        }
+        refreshLimitBoundControls();
       } catch (err) {
-        alert("Ошибка удаления: " + normalizeSubscriptionUiError(err));
+        alert("Ошибка удаления: " + normalizePlanErrorMessage(err));
       }
     });
   });
@@ -2819,6 +2849,82 @@
 
         const type = (subTypeSelect?.value || "events").trim();
         setPeriodOptionsForType(type);
+
+        updateSubscriptionsUiAvailability();
+      }
+
+      function canAddSubscriptionByPlan() {
+        const plan = getPlanInfo();
+        const usage = getUsageInfo();
+
+        if (!plan || !usage) return true;
+
+        const active = Number(usage.active_subscriptions || 0);
+        const max = Number(plan.max_active_subscriptions || 0);
+
+        if (!Number.isFinite(max) || max <= 0) return false;
+        return active < max;
+      }
+
+      function isFreeTrialExhausted() {
+        const plan = getPlanInfo();
+        const usage = getUsageInfo();
+
+        if (!plan || String(plan.code || "").toLowerCase() !== "free") return false;
+
+        const used = Number(usage.trial_subscriptions_total || 0);
+        const total = Number(plan.trial_subscription_limit || 0);
+
+        return total > 0 && used >= total;
+      }
+
+      function getSubscriptionsLimitUiMessage() {
+        const plan = getPlanInfo();
+        const usage = getUsageInfo();
+
+        if (!plan || !usage) return "";
+
+        const planCode = String(plan.code || "").toLowerCase();
+        const active = Number(usage.active_subscriptions || 0);
+        const max = Number(plan.max_active_subscriptions || 0);
+
+        if (planCode === "free" && isFreeTrialExhausted()) {
+          return "Действие пробных подписок завершено. Обновите тариф, чтобы продолжить пользоваться подписками.";
+        }
+
+        if (active >= max && max > 0) {
+          return "Достигнут лимит активных подписок по вашему тарифу. Приостановите одну из текущих подписок или обновите тариф.";
+        }
+
+        return "";
+      }
+
+      function updateSubscriptionsUiAvailability() {
+        const canAdd = canAddSubscriptionByPlan();
+        const message = getSubscriptionsLimitUiMessage();
+
+        if (addSubscriptionBtn) {
+          addSubscriptionBtn.style.display = canAdd ? "" : "none";
+        }
+
+        if (!subscriptionsList) return;
+
+        let note = document.getElementById("subscriptionsLimitNote");
+        if (!note && subscriptionsList.parentElement) {
+          note = document.createElement("p");
+          note.id = "subscriptionsLimitNote";
+          note.className = "tg-status";
+          subscriptionsList.parentElement.insertBefore(note, subscriptionsList);
+        }
+
+        if (note) {
+          note.textContent = message;
+          note.style.display = message ? "block" : "none";
+        }
+
+        if (!canAdd && subscriptionCreateBlock) {
+          subscriptionCreateBlock.style.display = "none";
+        }
       }
 
       function extractBackendErrorCode(err) {
@@ -2921,6 +3027,10 @@
       
       addSubscriptionBtn?.addEventListener("click", async () => {
         try {
+          if (!canAddSubscriptionByPlan()) {
+            subCreateStatus.textContent = getSubscriptionsLimitUiMessage();
+            return;
+          }
           const connected = await isBotConnected();
 
           if (!connected) {
