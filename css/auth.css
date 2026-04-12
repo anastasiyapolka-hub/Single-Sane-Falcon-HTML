@@ -908,7 +908,7 @@ text-decoration: underline;
 
 .profile-plan-switcher {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 8px;
   flex-wrap: wrap;
 }
@@ -917,17 +917,15 @@ text-decoration: underline;
   font-size: 0.98rem;
   font-weight: 500;
   color: #6b7280;
-  line-height: 1; /* важно для выравнивания */
-  display: inline-flex;
-  align-items: center;
+  line-height: 1;
+  display: block;
 }
 
 .plan-chip.active {
   font-size: 1.60rem;
   font-weight: 800;
-  line-height: 1; /* важно для выравнивания */
-  display: inline-flex;
-  align-items: center;
+  line-height: 1;
+  display: block;
 }
 
 .plan-free.active {
@@ -942,12 +940,9 @@ text-decoration: underline;
   color: #dc2626;
 }
 
-
-
 .plan-divider {
   color: #9ca3af;
-  display: inline-flex;
-  align-items: center;
+  display: block;
   line-height: 1;
 }
 
