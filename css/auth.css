@@ -942,6 +942,11 @@ text-decoration: underline;
   color: #dc2626;
 }
 
+.plan-card.is-active .plan-name {
+  font-size: 48px; /* было 28px → стало почти в 2 раза больше */
+  line-height: 1.1;
+}
+
 .plan-divider {
   color: #9ca3af;
   display: inline-flex;
