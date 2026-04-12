@@ -926,6 +926,7 @@ text-decoration: underline;
   font-weight: 800;
   line-height: 1;
   display: block;
+  transform: translateY(2px);
 }
 
 .plan-free.active {
