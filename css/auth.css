@@ -943,7 +943,7 @@ text-decoration: underline;
 }
 
 .plan-card.is-active .plan-name {
-  font-size: 48px; /* было 28px → стало почти в 2 раза больше */
+  font-size: 70px; /* было 28px → стало почти в 2 раза больше */
   line-height: 1.1;
 }
 
