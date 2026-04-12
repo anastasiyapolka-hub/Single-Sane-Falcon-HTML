@@ -923,7 +923,7 @@ text-decoration: underline;
 }
 
 .plan-chip.active {
-  font-size: 1.20rem;
+  font-size: 1.60rem;
   font-weight: 800;
   line-height: 1; /* важно для выравнивания */
   display: inline-flex;
@@ -942,10 +942,7 @@ text-decoration: underline;
   color: #dc2626;
 }
 
-.plan-card.is-active .plan-name {
-  font-size: 70px; /* было 28px → стало почти в 2 раза больше */
-  line-height: 1.1;
-}
+
 
 .plan-divider {
   color: #9ca3af;
