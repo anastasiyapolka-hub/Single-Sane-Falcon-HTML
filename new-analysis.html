@@ -2355,16 +2355,11 @@
     }
 
       async function apiCreateSubscription(payload) {
-        try {
-          return await apiFetch("/subscriptions", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "Accept": "application/json" },
-            body: JSON.stringify(payload)
-          });
-        } catch (e) {
-          const msg = e?.detail?.detail || e?.detail || e?.message || "SUBSCRIPTION_CREATE_FAILED";
-          throw new Error(msg);
-        }
+        return await apiFetch("/subscriptions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Accept": "application/json" },
+          body: JSON.stringify(payload)
+        });
       }
 
       async function apiDeleteSubscription(subscriptionId) {
@@ -2399,21 +2394,21 @@
       }
 
       function renderSubscriptions(currentList, otherList) {
-  if (!subscriptionsList) return;
+        if (!subscriptionsList) return;
 
-  const currentSubs = Array.isArray(currentList) ? currentList : [];
-  const otherSubs = Array.isArray(otherList) ? otherList : [];
+        const currentSubs = Array.isArray(currentList) ? currentList : [];
+        const otherSubs = Array.isArray(otherList) ? otherList : [];
 
-  if (!currentSubs.length && !otherSubs.length) {
-    subscriptionsList.innerHTML = "";
-    return;
-  }
+        if (!currentSubs.length && !otherSubs.length) {
+          subscriptionsList.innerHTML = "";
+          return;
+        }
 
-  function escapeSubName(value) {
-    return String(value || "Подписка")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
-  }
+        function escapeSubName(value) {
+          return String(value || "Подписка")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+        }
 
   function getStatusDotClass(s) {
     const status = String(s.status || (s.is_active ? "active" : "paused")).toLowerCase();
@@ -2868,6 +2863,15 @@
         const usage = getUsageInfo();
 
         if (!plan || !usage) return true;
+
+        const planCode = String(plan.code || "").toLowerCase();
+
+        // Для Free правило жёстче:
+        // можно создать не больше общего числа trial-подписок по тарифу,
+        // даже если часть из них стоит на паузе.
+        if (planCode === "free" && isFreeTrialExhausted()) {
+          return false;
+        }
 
         const active = Number(usage.active_subscriptions || 0);
         const max = Number(plan.max_active_subscriptions || 0);
