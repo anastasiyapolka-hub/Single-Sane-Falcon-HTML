@@ -1104,11 +1104,11 @@
           renderChatsList(cachedChats);
           renderSubChatsList(getCurrentSubscriptionChatCandidates());
 
-          await refreshSubscriptions();
-
           if (typeof window.cotelRefreshPlanUsageSnapshot === "function") {
             await window.cotelRefreshPlanUsageSnapshot();
           }
+
+          await refreshSubscriptions();
           refreshLimitBoundControls();
                
         } finally {
@@ -1120,9 +1120,15 @@
 
       window.addEventListener("cotel-auth-changed", async () => {
         if (!pageBootstrapStarted) return;
+
+        if (typeof window.cotelRefreshPlanUsageSnapshot === "function") {
+          await window.cotelRefreshPlanUsageSnapshot();
+        }
+
         await loadChatHistory();
         renderSubChatsList(getCurrentSubscriptionChatCandidates());
         await refreshSubscriptions();
+        refreshLimitBoundControls();
       });
 
       initializeDashboardPage();
@@ -2405,16 +2411,16 @@
             .replace(/>/g, "&gt;");
         }
 
-  function getStatusDotClass(s) {
-    const status = String(s.status || (s.is_active ? "active" : "paused")).toLowerCase();
-    let dotClass = "subscription-status-dot";
+        function getStatusDotClass(s) {
+          const status = String(s.status || (s.is_active ? "active" : "paused")).toLowerCase();
+          let dotClass = "subscription-status-dot";
 
-    if (status === "paused") dotClass += " is-paused";
-    if (status === "error") dotClass += " is-error";
-    if (status === "trial_expired") dotClass += " is-error";
+          if (status === "paused") dotClass += " is-paused";
+          if (status === "error") dotClass += " is-error";
+          if (status === "trial_expired") dotClass += " is-error";
 
-    return dotClass;
-  }
+          return dotClass;
+        }
 
   function getSubscriptionStatusTitle(s) {
     const status = String(s.status || (s.is_active ? "active" : "paused")).toLowerCase();
@@ -2612,21 +2618,25 @@
   });
 }
 
-     async function refreshSubscriptions() {
-        try {
-          const currentMode = getCurrentSubscriptionSourceMode();
-          const otherMode = getOppositeSubscriptionSourceMode();
-
-          const [currentSubs, otherSubs] = await Promise.all([
-            apiGetSubscriptions(currentMode),
-            apiGetSubscriptions(otherMode)
-          ]);
-
-          renderSubscriptions(currentSubs, otherSubs);
-        } catch (e) {
-          console.warn("Subscriptions load failed:", e.message);
-        }
+  async function refreshSubscriptions() {
+    try {
+      if (typeof window.cotelRefreshPlanUsageSnapshot === "function") {
+        await window.cotelRefreshPlanUsageSnapshot();
       }
+
+      const currentMode = getCurrentSubscriptionSourceMode();
+      const otherMode = getOppositeSubscriptionSourceMode();
+
+      const [currentSubs, otherSubs] = await Promise.all([
+        apiGetSubscriptions(currentMode),
+        apiGetSubscriptions(otherMode)
+      ]);
+
+      renderSubscriptions(currentSubs, otherSubs);
+    } catch (e) {
+      console.warn("Subscriptions load failed:", e.message);
+    }
+  }
 
       function renderRunSubscriptionsToWorkArea(data) {
         const out = document.getElementById("analysisResult");
