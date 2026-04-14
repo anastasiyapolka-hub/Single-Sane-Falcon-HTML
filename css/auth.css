@@ -1505,3 +1505,12 @@ text-decoration: underline;
     margin-top: 2px;
   }
 }
+
+.profile-field .auth-note {
+  margin-top: 6px;
+}
+
+#register-timezone,
+#profile-timezone {
+  background: #ffffff;
+}

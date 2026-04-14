@@ -3605,6 +3605,14 @@ if (runSubscriptionsBtn) {
           </div>
 
           <div class="auth-field">
+            <label for="register-timezone">Часовой пояс</label>
+            <select id="register-timezone"></select>
+            <p class="auth-note">
+              Часовой пояс влияет на отображаемое время в уведомлениях CoTel и в интервалах работы подписок.
+            </p>
+          </div>
+
+          <div class="auth-field">
             <label for="register-password">Пароль</label>
             <div class="password-input-wrap">
               <input id="register-password" type="password" placeholder="Придумайте пароль">
@@ -3779,6 +3787,14 @@ if (runSubscriptionsBtn) {
               </div>
 
               <div class="profile-field">
+                <label for="profile-timezone">Часовой пояс</label>
+                <select id="profile-timezone"></select>
+                <p class="auth-note">
+                  Часовой пояс влияет на отображаемое время в уведомлениях CoTel и в интервалах работы подписок.
+                </p>
+              </div>
+
+              <div class="profile-field">
                 <label for="profile-phone">Телефон</label>
                 <input id="profile-phone" type="text" placeholder="+7..." />
                 <p class="profile-help-text">
@@ -3806,7 +3822,9 @@ if (runSubscriptionsBtn) {
                 <label for="ultra-secure-logout" class="profile-settings-copy">
                   <div class="profile-settings-title-inline">Повышенная безопасность</div>
                   <div class="profile-settings-help-inline">
-                    При выходе из CoTel также завершать активную Telegram-сессию
+                    <p class="auth-note">
+                      При выходе из CoTel сервис также завершит активную Telegram-сессию, привязанную к вашему аккаунту.
+                    </p>
                   </div>
                 </label>
               </div>

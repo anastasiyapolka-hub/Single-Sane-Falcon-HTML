@@ -69,6 +69,18 @@ const COUNTRY_LIST = [
   { code: "RU", name_en: "Russia", name_ru: "Россия" }
 ];
 
+const TIMEZONE_OPTIONS = [
+  { value: "UTC", label: "UTC — UTC+0" },
+  { value: "Europe/Moscow", label: "Moscow — UTC+3" },
+  { value: "Asia/Tbilisi", label: "Tbilisi — UTC+4" },
+  { value: "Europe/Berlin", label: "Berlin — UTC+1" },
+  { value: "Europe/London", label: "London — UTC+0" },
+  { value: "Europe/Paris", label: "Paris — UTC+1" },
+  { value: "Asia/Tokyo", label: "Tokyo — UTC+9" },
+  { value: "America/New_York", label: "New York — UTC-5" },
+  { value: "America/Los_Angeles", label: "Los Angeles — UTC-8" },
+];
+
 function normalizeLanguage(value) {
   return String(value || "").toLowerCase().startsWith("ru") ? "ru" : "en";
 }
@@ -238,6 +250,31 @@ function normalizeCountryIso2(code) {
   );
 
   return exists ? normalized : "ru";
+}
+
+function detectBrowserTimezone() {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+  } catch {
+    return "UTC";
+  }
+}
+
+function normalizeTimezone(value) {
+  const raw = String(value || "").trim();
+  const exists = TIMEZONE_OPTIONS.some((tz) => tz.value === raw);
+  return exists ? raw : "UTC";
+}
+
+function buildTimezoneOptions(selectId, selectedValue = "UTC") {
+  const select = byId(selectId);
+  if (!select) return;
+
+  const normalized = normalizeTimezone(selectedValue);
+
+  select.innerHTML = TIMEZONE_OPTIONS.map(
+    (tz) => `<option value="${tz.value}" ${tz.value === normalized ? "selected" : ""}>${tz.label}</option>`
+  ).join("");
 }
 
 function getDefaultPhoneCountryIso2() {
@@ -677,6 +714,7 @@ async function handleRegister() {
   const email = byId("register-email").value.trim().toLowerCase();
   const countryName = byId("register-country")?.value.trim() || "";
   const countryMatch = findCountryByName(countryName);
+  const timezone = normalizeTimezone(byId("register-timezone")?.value || detectBrowserTimezone());
   const password = byId("register-password").value;
   const password2 = byId("register-password2").value;
 
@@ -701,6 +739,7 @@ async function handleRegister() {
 
   saveUserLocalPrefs(email, {
     country_code: countryMatch.code,
+    timezone,
     language: autoLanguage,
     language_source: "auto"
   });
@@ -713,6 +752,7 @@ async function handleRegister() {
         password,
         password_confirm: password2,
         country_code: countryMatch.code,
+        timezone,
         language: autoLanguage,
         language_source: "auto"
       })
@@ -1044,6 +1084,7 @@ function switchProfileTab(tabName) {
 
 function captureProfileFormState() {
   const language = byId("profile-language")?.value || "en";
+  const timezone = normalizeTimezone(byId("profile-timezone")?.value || "UTC");
   const ultraSecureLogout = !!byId("ultra-secure-logout")?.checked;
 
   let phone = "";
@@ -1054,6 +1095,7 @@ function captureProfileFormState() {
 
   return {
     language,
+    timezone,
     ultraSecureLogout,
     phone,
   };
@@ -1067,6 +1109,7 @@ function updateProfileDirtyState() {
 
   profileIsDirty =
     currentState.language !== profileInitialState.language ||
+    currentState.timezone !== profileInitialState.timezone ||
     currentState.ultraSecureLogout !== profileInitialState.ultraSecureLogout ||
     currentState.phone !== profileInitialState.phone;
 
@@ -1081,6 +1124,7 @@ function resetProfileDirtyState() {
 
 function bindProfileDirtyWatchers() {
   byId("profile-language")?.addEventListener("change", updateProfileDirtyState);
+  byId("profile-timezone")?.addEventListener("change", updateProfileDirtyState);
   byId("ultra-secure-logout")?.addEventListener("change", updateProfileDirtyState);
 
   const phoneInput = byId("profile-phone");
@@ -1128,13 +1172,18 @@ async function openProfileModal() {
 
   const ultraSecureLogoutEl = byId("ultra-secure-logout");
   if (ultraSecureLogoutEl) {
-    ultraSecureLogoutEl.checked = false;
+    ultraSecureLogoutEl.checked = !!currentUser?.logout_revokes_telegram;
   }
 
   byId("profile-email-header").textContent = email;
   byId("profile-email-static").textContent = email;
   byId("profile-avatar-img").src = avatarSrc;
   byId("profile-country").textContent = countryValue;
+
+  buildTimezoneOptions(
+    "profile-timezone",
+    currentUser?.timezone || detectBrowserTimezone()
+  );
 
   const languageSelect = byId("profile-language");
   if (languageSelect) {
@@ -1180,11 +1229,15 @@ async function openProfileModal() {
   });
 }
 
+
 async function handleSaveProfile() {
   if (!currentUser) return;
   if (!profileIsDirty) return;
 
   const language = normalizeLanguage(byId("profile-language")?.value || "en");
+  const timezone = normalizeTimezone(byId("profile-timezone")?.value || "UTC");
+  const logoutRevokesTelegram = !!byId("ultra-secure-logout")?.checked;
+
   const phone =
     typeof window.getProfilePhoneE164 === "function"
       ? window.getProfilePhoneE164()
@@ -1196,6 +1249,8 @@ async function handleSaveProfile() {
       body: JSON.stringify({
         language,
         language_source: "manual",
+        timezone,
+        logout_revokes_telegram: logoutRevokesTelegram,
         phone: phone || null
       })
     });
@@ -1225,6 +1280,11 @@ async function handleSaveProfile() {
 
     if (detail === "PHONE_INVALID") {
       alert("Телефон введён в неверном формате.");
+      return;
+    }
+
+    if (detail === "TIMEZONE_INVALID") {
+      alert("Выбран некорректный часовой пояс.");
       return;
     }
 
@@ -1272,6 +1332,8 @@ async function handleProfileLanguageChange() {
 document.addEventListener("DOMContentLoaded", () => {
   initLanguagePreference();
   buildCountryOptions();
+  buildTimezoneOptions("register-timezone", detectBrowserTimezone());
+  buildTimezoneOptions("profile-timezone", currentUser?.timezone || detectBrowserTimezone());
   bindCountryField();
   bindAuthUi();
   bindPasswordToggles();
