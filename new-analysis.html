@@ -2363,14 +2363,9 @@
       }
 
       async function apiDeleteSubscription(subscriptionId) {
-        try {
-          return await apiFetch(`/subscriptions/${encodeURIComponent(subscriptionId)}`, {
-            method: "DELETE"
-          });
-        } catch (e) {
-          const msg = e?.detail?.detail || e?.detail || e?.message || "SUBSCRIPTION_DELETE_FAILED";
-          throw new Error(msg);
-        }
+        return await apiFetch(`/subscriptions/${encodeURIComponent(subscriptionId)}`, {
+          method: "DELETE"
+        });
       }
 
       async function apiSwitchSubscriptionMode(subscriptionId, targetSourceMode) {
@@ -2456,8 +2451,10 @@
     `;
   }
 
-  function renderOtherCard(s) {
+    function renderOtherCard(s) {
     const safeName = escapeSubName(s.name);
+    const planCode = String(getPlanInfo()?.code || "").toLowerCase();
+    const canDelete = planCode !== "free";
 
     return `
       <div class="subscription-item subscription-item--inactive" data-sub-id="${s.id || ""}" title="${safeName}">
@@ -2470,11 +2467,12 @@
             type="button"
             title="Активировать в текущем режиме"
           >⇄</button>
+          ${canDelete ? `
           <button
             class="subscription-action-btn sub-btn-del-other"
             type="button"
             title="Удалить"
-          >✕</button>
+          >✕</button>` : ``}
         </div>
       </div>
     `;
@@ -2903,7 +2901,11 @@
         const max = Number(plan.max_active_subscriptions || 0);
 
         if (planCode === "free" && isFreeTrialExhausted()) {
-          return "Действие пробных подписок завершено. Обновите тариф, чтобы продолжить пользоваться подписками.";
+          if (usage.free_trial_expired) {
+            return "Действие пробных подписок завершено. Обновите тариф, чтобы продолжить пользоваться подписками.";
+          }
+
+          return "Лимит пробных подписок исчерпан. Обновите тариф, чтобы создавать новые подписки.";
         }
 
         if (active >= max && max > 0) {

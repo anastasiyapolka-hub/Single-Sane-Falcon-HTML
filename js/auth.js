@@ -1003,12 +1003,32 @@ function renderProfileLimits() {
     chatHistoryEl.textContent = plan.has_chat_history ? "доступна" : "недоступна";
   }
 
-  setText("profile-limit-trial-used", usage.trial_subscriptions_total ?? 0);
-  setText("profile-limit-trial-total", plan.trial_subscription_limit ?? 0);
-
   const trialCard = byId("profile-trial-card");
   if (trialCard) {
-    trialCard.style.display = String(plan.code || "").toLowerCase() === "free" ? "" : "none";
+    trialCard.style.display = "none";
+  }
+
+  let subsNote = byId("profile-limit-subs-note");
+  const subsUsedEl = byId("profile-limit-subs-used");
+  const subsCard = subsUsedEl?.closest(".profile-limit-card");
+
+  if (!subsNote && subsCard) {
+    subsNote = document.createElement("div");
+    subsNote.id = "profile-limit-subs-note";
+    subsNote.className = "profile-limit-card-note";
+    subsCard.appendChild(subsNote);
+  }
+
+  if (subsNote) {
+    const planCode = String(plan.code || "").toLowerCase();
+
+    if (planCode === "free" && usage.free_trial_expired) {
+      subsNote.textContent = "Действие пробных подписок завершено.";
+      subsNote.style.display = "block";
+    } else {
+      subsNote.textContent = "";
+      subsNote.style.display = "none";
+    }
   }
 }
 

@@ -1094,6 +1094,13 @@ text-decoration: underline;
   line-height: 1.45;
 }
 
+.profile-limit-card-note {
+  margin-top: 8px;
+  font-size: 0.82rem;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
 .profile-limit-sep {
   color: #9ca3af;
 }
