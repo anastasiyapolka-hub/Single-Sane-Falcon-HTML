@@ -71,11 +71,13 @@ const COUNTRY_LIST = [
 
 const TIMEZONE_OPTIONS = [
   { value: "UTC", label: "UTC — UTC+0" },
+  { value: "Europe/London", label: "London — UTC+0" },
+  { value: "Europe/Berlin", label: "Berlin — UTC+1" },
+  { value: "Europe/Athens", label: "Athens — UTC+2" },
   { value: "Europe/Moscow", label: "Moscow — UTC+3" },
   { value: "Asia/Tbilisi", label: "Tbilisi — UTC+4" },
-  { value: "Europe/Berlin", label: "Berlin — UTC+1" },
-  { value: "Europe/London", label: "London — UTC+0" },
-  { value: "Europe/Paris", label: "Paris — UTC+1" },
+  { value: "Asia/Karachi", label: "Karachi — UTC+5" },
+  { value: "Asia/Almaty", label: "Almaty — UTC+6" },
   { value: "Asia/Tokyo", label: "Tokyo — UTC+9" },
   { value: "America/New_York", label: "New York — UTC-5" },
   { value: "America/Los_Angeles", label: "Los Angeles — UTC-8" },
