@@ -978,17 +978,16 @@
       let isTelegramConnected = false;
 
       function getTelegramDisplayName(data) {
-        const username =
-          data?.me?.username ||
-          data?.username ||
-          null;
+        const me = data?.me;
+        if (!me) return "Пользователь";
 
+        const username = me.username || null;
         if (username) {
           return username.startsWith("@") ? username : `@${username}`;
         }
 
-        const firstName = data?.me?.first_name || data?.first_name || "";
-        const lastName = data?.me?.last_name || data?.last_name || "";
+        const firstName = me.first_name || "";
+        const lastName = me.last_name || "";
         const fullName = `${firstName} ${lastName}`.trim();
 
         if (fullName) return fullName;
@@ -996,6 +995,7 @@
 
         return "Пользователь";
       }
+
       const tgPhoneInput = document.getElementById("tgPhoneInput");
       const tgSendCodeBtn = document.getElementById("tgSendCodeBtn");
       const tgCodeInput = document.getElementById("tgCodeInput");

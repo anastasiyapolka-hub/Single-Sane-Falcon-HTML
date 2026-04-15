@@ -70,7 +70,7 @@ const COUNTRY_LIST = [
 ];
 
 const TIMEZONE_OPTIONS = [
-  { value: "UTC", label: "UTC — UTC+0" },
+
   { value: "Europe/London", label: "London — UTC+0" },
   { value: "Europe/Berlin", label: "Berlin — UTC+1" },
   { value: "Europe/Athens", label: "Athens — UTC+2" },
