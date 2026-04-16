@@ -2219,6 +2219,11 @@
 
             setTgState("phone");
             setTelegramConnectionStatus(false, null);
+
+            if (typeof window.applyTelegramPhoneFromCurrentUser === "function") {
+              window.applyTelegramPhoneFromCurrentUser();
+            }
+
             tgStatusMessage.textContent = "Сессия завершена.";
             await loadChatHistory();
 

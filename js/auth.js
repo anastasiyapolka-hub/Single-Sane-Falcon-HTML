@@ -381,6 +381,27 @@ function applyPhoneCountryFromCurrentUser() {
   }
 }
 
+function applyTelegramPhoneFromCurrentUser() {
+  const tgPhoneInput = byId("tgPhoneInput");
+  if (!tgPhoneInput) return;
+
+  const phone = (currentUser?.phone || "").trim();
+
+  if (tgPhoneIti) {
+    if (phone) {
+      tgPhoneIti.setNumber(phone);
+    } else {
+      tgPhoneIti.setNumber("");
+      tgPhoneInput.value = "";
+    }
+    return;
+  }
+
+  tgPhoneInput.value = phone;
+}
+
+window.applyTelegramPhoneFromCurrentUser = applyTelegramPhoneFromCurrentUser;
+
 window.getTelegramPhoneE164 = function () {
   return getNormalizedPhoneFromInstance(tgPhoneIti, byId("tgPhoneInput"));
 };
@@ -539,6 +560,7 @@ function setGuest() {
 
   document.body.classList.add("user-not-auth");
   applyPhoneCountryFromCurrentUser();
+  applyTelegramPhoneFromCurrentUser();
 
     window.dispatchEvent(
     new CustomEvent("cotel-auth-changed", {
@@ -574,11 +596,7 @@ function setUser(user) {
   applyLanguageToDocument(currentUser.language);
   setAvatar(currentUser.email || "");
   applyPhoneCountryFromCurrentUser();
-  
-  const tgPhoneInput = byId("tgPhoneInput");
-  if (tgPhoneIti && tgPhoneInput && currentUser?.phone) {
-    tgPhoneIti.setNumber(currentUser.phone);
-  }
+  applyTelegramPhoneFromCurrentUser();
 
   saveUserLocalPrefs(currentUser.email || "", {
     country_code: currentUser.country_code || "",
@@ -1341,6 +1359,7 @@ document.addEventListener("DOMContentLoaded", () => {
   bindPasswordToggles();
 
   initTelegramPhoneInput();
+  applyTelegramPhoneFromCurrentUser();
   bootstrapAuth();
   initCookieBanner();
   
