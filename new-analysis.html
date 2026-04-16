@@ -996,6 +996,56 @@
         return "Пользователь";
       }
 
+      function pemToArrayBuffer(pem) {
+        const base64 = pem
+          .replace("-----BEGIN PUBLIC KEY-----", "")
+          .replace("-----END PUBLIC KEY-----", "")
+          .replace(/\s+/g, "");
+
+        const binary = atob(base64);
+        const bytes = new Uint8Array(binary.length);
+
+        for (let i = 0; i < binary.length; i += 1) {
+          bytes[i] = binary.charCodeAt(i);
+        }
+
+        return bytes.buffer;
+      }
+
+      async function importRsaPublicKey(publicKeyPem) {
+        return await window.crypto.subtle.importKey(
+          "spki",
+          pemToArrayBuffer(publicKeyPem),
+          {
+            name: "RSA-OAEP",
+            hash: "SHA-256",
+          },
+          false,
+          ["encrypt"]
+        );
+      }
+
+      async function encryptTelegramPassword(password, publicKeyPem) {
+        const key = await importRsaPublicKey(publicKeyPem);
+        const encoded = new TextEncoder().encode(password);
+
+        const ciphertext = await window.crypto.subtle.encrypt(
+          {
+            name: "RSA-OAEP",
+          },
+          key,
+          encoded
+        );
+
+        const bytes = new Uint8Array(ciphertext);
+        let binary = "";
+        for (let i = 0; i < bytes.byteLength; i += 1) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+
+        return btoa(binary);
+      }
+
       const tgPhoneInput = document.getElementById("tgPhoneInput");
       const tgSendCodeBtn = document.getElementById("tgSendCodeBtn");
       const tgCodeInput = document.getElementById("tgCodeInput");
@@ -2085,10 +2135,6 @@
       });
 
       tgConfirmPasswordBtn?.addEventListener("click", async () => {
-        const phone =
-          typeof window.getTelegramPhoneE164 === "function"
-            ? window.getTelegramPhoneE164()
-            : (tgPhoneInput?.value || "").trim();
         const password = (tgPasswordInput?.value || "").trim();
 
         if (!password) {
@@ -2096,14 +2142,41 @@
           return;
         }
 
-        tgStatusMessage.textContent = "Подтверждаем пароль...";
+        if (!window.crypto?.subtle) {
+          tgStatusMessage.textContent = "Браузер не поддерживает защищённое шифрование пароля.";
+          return;
+        }
+
+        tgStatusMessage.textContent = "Подготавливаем защищённую отправку пароля...";
 
         try {
+          const enc = await apiFetch("/tg/password_encryption/start", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({}),
+          });
+
+          const contextId = enc?.context_id;
+          const publicKeyPem = enc?.public_key_pem;
+
+          if (!contextId || !publicKeyPem) {
+            throw new Error("ENCRYPTION_CONTEXT_INVALID");
+          }
+
+          const passwordCiphertext = await encryptTelegramPassword(password, publicKeyPem);
+
+          tgStatusMessage.textContent = "Подтверждаем пароль...";
+
           const data = await apiFetch("/tg/confirm_password", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ phone, password }),
+            body: JSON.stringify({
+              encryption_context_id: contextId,
+              password_ciphertext: passwordCiphertext,
+            }),
           });
+
+          if (tgPasswordInput) tgPasswordInput.value = "";
 
           const displayName = getTelegramDisplayName(data);
 
@@ -3608,7 +3681,7 @@ if (runSubscriptionsBtn) {
             <label for="register-timezone">Часовой пояс</label>
             <select id="register-timezone"></select>
             <p class="auth-note">
-              Часовой пояс влияет на отображаемое время в уведомлениях CoTel и в интервалах работы подписок.
+              Часовой пояс влияет на отображаемое время в уведомлениях бота CoTel (функция подписок).
             </p>
           </div>
 
