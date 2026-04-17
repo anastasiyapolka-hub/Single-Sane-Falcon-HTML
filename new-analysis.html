@@ -4088,7 +4088,6 @@ if (runSubscriptionsBtn) {
 
           <!-- SETTINGS -->
           <div class="profile-tab-panel" data-profile-panel="settings">
-            
             <div class="profile-settings-block">
               <div class="profile-field">
                 <label for="profile-language">Язык интерфейса</label>
@@ -4098,17 +4097,24 @@ if (runSubscriptionsBtn) {
                 </select>
               </div>
 
-              <div class="profile-settings-row">
-                <input id="ultra-secure-logout" class="profile-settings-check" type="checkbox" />
+              <div class="profile-field">
+                <label for="profile-default-ai-model">Модель AI по умолчанию</label>
+                <select id="profile-default-ai-model"></select>
+                <p class="profile-help-text">
+                  Используется по умолчанию для анализа запросов и новых подписок. Для Free используется OpenAI.
+                </p>
+              </div>
 
-                <label for="ultra-secure-logout" class="profile-settings-copy">
-                  <div class="profile-settings-title-inline">Повышенная безопасность</div>
-                  <div class="profile-settings-help-inline">
-                    <p class="profile-help-text">
-                      При выходе из CoTel сервис также завершит активную Telegram-сессию, привязанную к вашему аккаунту.
-                    </p>
-                  </div>
-                </label>
+              <div class="profile-field">
+                <label for="ultra-secure-logout">Повышенная безопасность</label>
+
+                <div class="profile-settings-row profile-settings-row--checkbox">
+                  <input id="ultra-secure-logout" class="profile-settings-check" type="checkbox" />
+                </div>
+
+                <p class="profile-help-text">
+                  При выходе из CoTel сервис также завершит активную Telegram-сессию, привязанную к вашему аккаунту.
+                </p>
               </div>
 
               <div class="profile-settings-actions">
@@ -4120,14 +4126,6 @@ if (runSubscriptionsBtn) {
                   Удалить профиль
                 </button>
               </div>
-            </div>
-
-            <div class="profile-field">
-              <label for="profile-default-ai-model">Модель AI по умолчанию</label>
-              <select id="profile-default-ai-model"></select>
-              <p class="profile-help-text">
-                Используется по умолчанию для анализа запросов и новых подписок. Для Free используется OpenAI.
-              </p>
             </div>
           </div>
         </div>     
