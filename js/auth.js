@@ -87,6 +87,52 @@ const TIMEZONE_OPTIONS = [
   { value: "America/Los_Angeles", label: "Los Angeles — UTC-8" },
 ];
 
+const AI_MODEL_OPTIONS = [
+  {
+    value: "openai:gpt-4.1-mini",
+    label: "OpenAI GPT-4.1 mini — быстрый и универсальный анализ"
+  },
+  {
+    value: "anthropic:claude-sonnet-4-6",
+    label: "Claude Sonnet 4.6 — более глубокий анализ длинных обсуждений"
+  },
+];
+
+function normalizeAiModel(value) {
+  const raw = String(value || "").trim().toLowerCase();
+  const exists = AI_MODEL_OPTIONS.some((item) => item.value === raw);
+  return exists ? raw : "openai:gpt-4.1-mini";
+}
+
+function getAllowedAiModelsForPlan(planCode) {
+  const code = String(planCode || "free").trim().toLowerCase();
+  if (code === "free") {
+    return AI_MODEL_OPTIONS.filter((item) => item.value === "openai:gpt-4.1-mini");
+  }
+  return AI_MODEL_OPTIONS.slice();
+}
+
+function buildAiModelOptions(selectId, selectedValue, planCode) {
+  const select = byId(selectId);
+  if (!select) return;
+
+  const options = getAllowedAiModelsForPlan(planCode);
+  const normalized = normalizeAiModel(selectedValue);
+
+  select.innerHTML = options
+    .map(
+      (item) =>
+        `<option value="${item.value}" ${item.value === normalized ? "selected" : ""}>${item.label}</option>`
+    )
+    .join("");
+
+  if (!options.some((item) => item.value === normalized) && options[0]) {
+    select.value = options[0].value;
+  }
+}
+
+window.cotelGetCurrentUser = () => currentUser;
+
 function normalizeLanguage(value) {
   return String(value || "").toLowerCase().startsWith("ru") ? "ru" : "en";
 }
@@ -1360,6 +1406,9 @@ function captureProfileFormState() {
   const language = byId("profile-language")?.value || "en";
   const timezone = normalizeTimezone(byId("profile-timezone")?.value || "UTC");
   const ultraSecureLogout = !!byId("ultra-secure-logout")?.checked;
+  const defaultAiModel = normalizeAiModel(
+    byId("profile-default-ai-model")?.value || "openai:gpt-4.1-mini"
+  );
 
   let phone = "";
   const phoneInput = byId("profile-phone");
@@ -1371,6 +1420,7 @@ function captureProfileFormState() {
     language,
     timezone,
     ultraSecureLogout,
+    defaultAiModel,
     phone,
   };
 }
@@ -1385,6 +1435,7 @@ function updateProfileDirtyState() {
     currentState.language !== profileInitialState.language ||
     currentState.timezone !== profileInitialState.timezone ||
     currentState.ultraSecureLogout !== profileInitialState.ultraSecureLogout ||
+    currentState.defaultAiModel !== profileInitialState.defaultAiModel ||
     currentState.phone !== profileInitialState.phone;
 
   modal.classList.toggle("profile-dirty", profileIsDirty);
@@ -1399,6 +1450,7 @@ function resetProfileDirtyState() {
 function bindProfileDirtyWatchers() {
   byId("profile-language")?.addEventListener("change", updateProfileDirtyState);
   byId("profile-timezone")?.addEventListener("change", updateProfileDirtyState);
+  byId("profile-default-ai-model")?.addEventListener("change", updateProfileDirtyState);
   byId("ultra-secure-logout")?.addEventListener("change", updateProfileDirtyState);
 
   const phoneInput = byId("profile-phone");
@@ -1464,6 +1516,16 @@ async function openProfileModal() {
     languageSelect.value = languageValue;
   }
 
+  const profileAiModelSelect = byId("profile-default-ai-model");
+    if (profileAiModelSelect) {
+      buildAiModelOptions(
+        "profile-default-ai-model",
+        currentUser?.default_ai_model || "openai:gpt-4.1-mini",
+        plan
+      );
+      profileAiModelSelect.disabled = plan === "free";
+    }
+
   const switcher = byId("profile-plan-switcher");
   if (switcher) {
     switcher.setAttribute("data-plan", plan);
@@ -1512,6 +1574,10 @@ async function handleSaveProfile() {
   const timezone = normalizeTimezone(byId("profile-timezone")?.value || "UTC");
   const logoutRevokesTelegram = !!byId("ultra-secure-logout")?.checked;
 
+  const defaultAiModel = normalizeAiModel(
+    byId("profile-default-ai-model")?.value || currentUser?.default_ai_model || "openai:gpt-4.1-mini"
+  );
+
   const phone =
     typeof window.getProfilePhoneE164 === "function"
       ? window.getProfilePhoneE164()
@@ -1525,6 +1591,7 @@ async function handleSaveProfile() {
         language_source: "manual",
         timezone,
         logout_revokes_telegram: logoutRevokesTelegram,
+        default_ai_model: defaultAiModel,
         phone: phone || null
       })
     });

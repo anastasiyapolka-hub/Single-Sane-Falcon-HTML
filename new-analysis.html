@@ -612,6 +612,11 @@
                             value="7"
                           />
                         </div>
+
+                        <div id="queryAiModelRow" class="sidebar-inline-setting-row">
+                          <label for="queryAiModelSelect" class="sidebar-inline-setting-label">Модель AI:</label>
+                          <select id="queryAiModelSelect" class="sidebar-inline-setting-input"></select>
+                        </div>
                       </div>
                     </div>
 
@@ -739,6 +744,14 @@
                           <option value="12h">1 раз в 12 часов (полдня)</option>
                           <option value="1d">1 раз в день</option>
                         </select>
+                      </div>
+
+                      <div id="subAiModelRow" class="tg-field">
+                        <label for="subAiModelSelect">Модель AI</label>
+                        <select id="subAiModelSelect" class="tg-select"></select>
+                        <p class="tg-status">
+                          Эта модель ИИ будет использоваться для данной подписки. Для Free-аккаунтов используется OpenAI.
+                        </p>
                       </div>
 
                       <div class="tg-field">
@@ -1064,6 +1077,8 @@
       // поля для "Мой аккаунт Telegram"
       const activeChatInput = document.getElementById("activeChatInput");
       const queryDaysInput = document.getElementById("queryDaysInput");
+      const queryAiModelRow = document.getElementById("queryAiModelRow");
+      const queryAiModelSelect = document.getElementById("queryAiModelSelect");
 
       const chatHistoryBlock = document.getElementById("chatHistoryBlock");
       const chatHistoryToggle = document.getElementById("chatHistoryToggle");
@@ -1091,6 +1106,8 @@
       const subPeriodSelect = document.getElementById("subPeriodSelect");
       const subTypeSelect = document.getElementById("subTypeSelect");
       const subPromptInput = document.getElementById("subPromptInput");
+      const subAiModelRow = document.getElementById("subAiModelRow");
+      const subAiModelSelect = document.getElementById("subAiModelSelect");
       const createSubscriptionBtn = document.getElementById("createSubscriptionBtn");
       const cancelSubscriptionBtn = document.getElementById("cancelSubscriptionBtn");
       const subCreateStatus = document.getElementById("subCreateStatus");
@@ -2839,6 +2856,11 @@
         if (subChatInput) subChatInput.value = "";
         if (subTypeSelect) subTypeSelect.value = "events";
         setPeriodOptionsForType("events");
+
+        if (subAiModelSelect) {
+          buildAiModelSelect(subAiModelSelect, getDefaultAiModelForUi());
+        }
+
         if (subPromptInput) {
           subPromptInput.value = "";
           autoResizeTextarea(subPromptInput);
@@ -2863,6 +2885,80 @@
 
       function getUsageInfo() {
         return getCurrentPlanSnapshot()?.usage || null;
+      }
+
+      function getCurrentUserForAiUi() {
+        if (typeof window.cotelGetCurrentUser === "function") {
+          return window.cotelGetCurrentUser();
+        }
+        return null;
+      }
+
+      function normalizeAiModelUi(value) {
+        const raw = String(value || "").trim().toLowerCase();
+        const allowed = new Set([
+          "openai:gpt-4.1-mini",
+          "anthropic:claude-sonnet-4-6",
+        ]);
+        return allowed.has(raw) ? raw : "openai:gpt-4.1-mini";
+      }
+
+      function getAiModelOptionsByPlan() {
+        const planCode = String(getPlanInfo()?.code || "free").toLowerCase();
+
+        const base = [
+          {
+            value: "openai:gpt-4.1-mini",
+            label: "OpenAI GPT-4.1 mini — быстрый и универсальный анализ",
+          },
+        ];
+
+        if (planCode !== "free") {
+          base.push({
+            value: "anthropic:claude-sonnet-4-6",
+            label: "Claude Sonnet 4.6 — более глубокий анализ длинных обсуждений",
+          });
+        }
+
+        return base;
+      }
+
+      function buildAiModelSelect(selectEl, selectedValue) {
+        if (!selectEl) return;
+
+        const options = getAiModelOptionsByPlan();
+        const normalized = normalizeAiModelUi(selectedValue);
+
+        selectEl.innerHTML = options
+          .map(
+            (item) =>
+              `<option value="${item.value}" ${item.value === normalized ? "selected" : ""}>${item.label}</option>`
+          )
+          .join("");
+
+        if (!options.some((item) => item.value === normalized) && options[0]) {
+          selectEl.value = options[0].value;
+        }
+      }
+
+      function getDefaultAiModelForUi() {
+        const user = getCurrentUserForAiUi();
+        return normalizeAiModelUi(user?.default_ai_model || "openai:gpt-4.1-mini");
+      }
+
+      function refreshAiModelControls() {
+        const planCode = String(getPlanInfo()?.code || "free").toLowerCase();
+        const defaultAiModel = getDefaultAiModelForUi();
+
+        if (queryAiModelRow) {
+          queryAiModelRow.style.display = planCode === "free" ? "none" : "";
+        }
+        if (subAiModelRow) {
+          subAiModelRow.style.display = planCode === "free" ? "none" : "";
+        }
+
+        buildAiModelSelect(queryAiModelSelect, defaultAiModel);
+        buildAiModelSelect(subAiModelSelect, defaultAiModel);
       }
 
       function updateChatHistoryAvailability() {
@@ -2939,7 +3035,7 @@
 
         const type = (subTypeSelect?.value || "events").trim();
         setPeriodOptionsForType(type);
-
+        refreshAiModelControls();
         updateSubscriptionsUiAvailability();
         updateChatHistoryAvailability();
       }
@@ -3117,7 +3213,10 @@
 
           // period
           subPeriodSelect.value = frequencyMinutesToPeriodValue(sub.frequency_minutes, subType);
-
+          buildAiModelSelect(
+            subAiModelSelect,
+            sub.ai_model || getDefaultAiModelForUi()
+          );
           setSubscriptionFormMode(true);
           showSubscriptionForm(true);   
           scrollSubscriptionFormIntoView();
@@ -3145,6 +3244,7 @@
           showSubscriptionForm(true);
           resetSubscriptionForm();
           setPeriodOptionsForType((subTypeSelect?.value || "events").trim());
+          buildAiModelSelect(subAiModelSelect, getDefaultAiModelForUi());
           renderSubChatsList(getCurrentSubscriptionChatCandidates());
           scrollSubscriptionFormIntoView();
         } catch (e) {
@@ -3183,6 +3283,9 @@
         chat_ref,
         frequency_minutes,
         prompt,
+        ai_model: normalizeAiModelUi(
+          subAiModelSelect?.value || getDefaultAiModelForUi()
+        ),
         is_active: true,
         subscription_type: subscriptionType
       };
@@ -3515,6 +3618,9 @@ if (runSubscriptionsBtn) {
                 chat_link: chatLink,
                 days: days,
                 user_query: query || null,
+                ai_model: normalizeAiModelUi(
+                  queryAiModelSelect?.value || getDefaultAiModelForUi()
+                ),
               };
 
               
@@ -3548,6 +3654,9 @@ if (runSubscriptionsBtn) {
                 chat_link: chatLink,
                 days: days,
                 user_query: query || "",
+                ai_model: normalizeAiModelUi(
+                  queryAiModelSelect?.value || getDefaultAiModelForUi()
+                ),
               };
 
               const data = await apiFetch("/tg/service/analyze_chat", {
@@ -3958,7 +4067,15 @@ if (runSubscriptionsBtn) {
                 <label for="profile-timezone">Часовой пояс</label>
                 <select id="profile-timezone"></select>
                 <p class="auth-note">
-                  Часовой пояс влияет на отображаемое время в уведомлениях CoTel и в интервалах работы подписок.
+                  Часовой пояс влияет на отображаемое время в уведомлениях бота CoTel и в интервалах работы подписок.
+                </p>
+              </div>
+
+              <div class="profile-field">
+                <label for="profile-default-ai-model">Модель AI по умолчанию</label>
+                <select id="profile-default-ai-model"></select>
+                <p class="auth-note">
+                  Используется по умолчанию для анализа запросов и новых подписок. Для Free доступен только OpenAI.
                 </p>
               </div>
 
