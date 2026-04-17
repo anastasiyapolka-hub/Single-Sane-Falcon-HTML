@@ -4053,38 +4053,42 @@ if (runSubscriptionsBtn) {
           <!-- PERSONAL -->
           <div class="profile-tab-panel" data-profile-panel="personal">
             <div class="profile-block">
-              <div class="profile-field">
-                <label>Email</label>
-                <div id="profile-email-static" class="profile-static-value">—</div>
-              </div>
+              <div class="profile-form-scroll">
+                <div class="profile-grid">
+                  <div class="profile-field">
+                    <label>Email</label>
+                    <div id="profile-email-static" class="profile-static-value">—</div>
+                  </div>
 
-              <div class="profile-field">
-                <label>Страна</label>
-                <div id="profile-country" class="profile-static-value">—</div>
-              </div>
+                  <div class="profile-field">
+                    <label for="profile-phone">Телефон</label>
+                    <input id="profile-phone" type="text" placeholder="+7..." />
+                    <p class="profile-help-text">
+                      Необязательно. Используется для удобного входа в Telegram.
+                    </p>
+                  </div>
 
-              <div class="profile-field">
-                <label for="profile-timezone">Часовой пояс</label>
-                <select id="profile-timezone"></select>
-                <p class="auth-note">
-                  Часовой пояс влияет на отображаемое время в уведомлениях бота CoTel и в интервалах работы подписок.
-                </p>
-              </div>
+                  <div class="profile-field">
+                    <label>Страна</label>
+                    <div id="profile-country" class="profile-static-value">—</div>
+                  </div>
 
-              <div class="profile-field">
-                <label for="profile-default-ai-model">Модель AI по умолчанию</label>
-                <select id="profile-default-ai-model"></select>
-                <p class="auth-note">
-                  Используется по умолчанию для анализа запросов и новых подписок. Для Free доступен только OpenAI.
-                </p>
-              </div>
+                  <div class="profile-field">
+                    <label for="profile-timezone">Часовой пояс</label>
+                    <select id="profile-timezone"></select>
+                    <p class="auth-note">
+                      Часовой пояс влияет на отображаемое время в уведомлениях CoTel и в интервалах работы подписок.
+                    </p>
+                  </div>
 
-              <div class="profile-field">
-                <label for="profile-phone">Телефон</label>
-                <input id="profile-phone" type="text" placeholder="+7..." />
-                <p class="profile-help-text">
-                  Необязательно. Используется для удобного входа в Telegram.
-                </p>
+                  <div class="profile-field profile-field-full">
+                    <label for="profile-default-ai-model">Модель AI по умолчанию</label>
+                    <select id="profile-default-ai-model"></select>
+                    <p class="auth-note">
+                      Используется по умолчанию для анализа запросов и новых подписок. Для Free доступен только OpenAI.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
