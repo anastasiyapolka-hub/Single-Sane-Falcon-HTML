@@ -4136,6 +4136,97 @@ if (runSubscriptionsBtn) {
     </div>
 
 
+    <div id="change-password-modal" class="auth-modal hidden">
+      <div class="auth-modal-backdrop"></div>
+      <div class="auth-modal-content">
+        <button id="change-password-modal-close" type="button" class="auth-modal-close" aria-label="Закрыть">×</button>
+
+        <div class="auth-view">
+          <h2>Смена пароля</h2>
+          <p class="auth-note">Введите текущий пароль и задайте новый.</p>
+
+          <div class="auth-field">
+            <label for="change-password-current">Текущий пароль</label>
+            <div class="password-input-wrap">
+              <input id="change-password-current" type="password" placeholder="Введите текущий пароль" />
+              <button
+                type="button"
+                class="password-toggle-btn"
+                data-target="change-password-current"
+                aria-label="Показать пароль"
+                title="Показать пароль"
+              >👁</button>
+            </div>
+          </div>
+
+          <div class="auth-field">
+            <label for="change-password-new">Новый пароль</label>
+            <div class="password-input-wrap">
+              <input id="change-password-new" type="password" placeholder="Введите новый пароль" />
+              <button
+                type="button"
+                class="password-toggle-btn"
+                data-target="change-password-new"
+                aria-label="Показать пароль"
+                title="Показать пароль"
+              >👁</button>
+            </div>
+          </div>
+
+          <div class="auth-field">
+            <label for="change-password-new2">Повторите новый пароль</label>
+            <div class="password-input-wrap">
+              <input id="change-password-new2" type="password" placeholder="Повторите новый пароль" />
+              <button
+                type="button"
+                class="password-toggle-btn"
+                data-target="change-password-new2"
+                aria-label="Показать пароль"
+                title="Показать пароль"
+              >👁</button>
+            </div>
+          </div>
+
+          <button id="change-password-submit" type="button">Сменить пароль</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="delete-account-modal" class="auth-modal hidden">
+      <div class="auth-modal-backdrop"></div>
+      <div class="auth-modal-content">
+        <button id="delete-account-modal-close" type="button" class="auth-modal-close" aria-label="Закрыть">×</button>
+
+        <div class="auth-view">
+          <h2>Удаление профиля</h2>
+          <p class="auth-note">
+            Это действие необратимо. Будут удалены ваши сессии, Telegram-сессия, история чатов, подписки и рабочие данные профиля.
+          </p>
+
+          <div class="auth-field">
+            <label for="delete-account-current-password">Текущий пароль</label>
+            <div class="password-input-wrap">
+              <input id="delete-account-current-password" type="password" placeholder="Введите текущий пароль" />
+              <button
+                type="button"
+                class="password-toggle-btn"
+                data-target="delete-account-current-password"
+                aria-label="Показать пароль"
+                title="Показать пароль"
+              >👁</button>
+            </div>
+          </div>
+
+          <div class="auth-field">
+            <label for="delete-account-confirm-text">Введите DELETE для подтверждения</label>
+            <input id="delete-account-confirm-text" type="text" placeholder="DELETE" />
+          </div>
+
+          <button id="delete-account-submit" type="button" class="profile-danger-btn">Удалить профиль</button>
+        </div>
+      </div>
+    </div>
+
     <div id="cookie-banner" class="cookie-banner hidden">
       <div class="cookie-banner__card">
         <div class="cookie-banner__text">

@@ -1235,12 +1235,18 @@ function bindAuthUi() {
   });
 
   byId("change-password-btn")?.addEventListener("click", () => {
-    alert("Смену пароля подключим следующим этапом.");
+    openChangePasswordModal();
   });
 
   byId("delete-profile-btn")?.addEventListener("click", () => {
-    alert("Удаление профиля подключим следующим этапом.");
+    openDeleteAccountModal();
   });
+
+  byId("change-password-submit")?.addEventListener("click", handleChangePassword);
+  byId("change-password-modal-close")?.addEventListener("click", closeChangePasswordModal);
+
+  byId("delete-account-submit")?.addEventListener("click", handleDeleteAccount);
+  byId("delete-account-modal-close")?.addEventListener("click", closeDeleteAccountModal);
 
   document.querySelectorAll(".profile-tab-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -1275,6 +1281,20 @@ function bindAuthUi() {
 
     if (content && !content.contains(e.target)) {
       closeProfileModal();
+    }
+  });
+
+  byId("change-password-modal")?.addEventListener("click", (e) => {
+    const content = byId("change-password-modal")?.querySelector(".auth-modal-content");
+    if (content && !content.contains(e.target)) {
+      closeChangePasswordModal();
+    }
+  });
+
+  byId("delete-account-modal")?.addEventListener("click", (e) => {
+    const content = byId("delete-account-modal")?.querySelector(".auth-modal-content");
+    if (content && !content.contains(e.target)) {
+      closeDeleteAccountModal();
     }
   });
 
@@ -1647,6 +1667,143 @@ function closeProfileModal(force = false) {
   profileInitialState = null;
   byId("profile-modal")?.classList.remove("profile-dirty");
 }
+
+function openChangePasswordModal() {
+  byId("change-password-current").value = "";
+  byId("change-password-new").value = "";
+  byId("change-password-new2").value = "";
+  byId("change-password-modal")?.classList.remove("hidden");
+}
+
+function closeChangePasswordModal() {
+  byId("change-password-modal")?.classList.add("hidden");
+}
+
+function openDeleteAccountModal() {
+  byId("delete-account-current-password").value = "";
+  byId("delete-account-confirm-text").value = "";
+  byId("delete-account-modal")?.classList.remove("hidden");
+}
+
+function closeDeleteAccountModal() {
+  byId("delete-account-modal")?.classList.add("hidden");
+}
+
+async function handleChangePassword() {
+  const currentPassword = byId("change-password-current")?.value || "";
+  const newPassword = byId("change-password-new")?.value || "";
+  const newPassword2 = byId("change-password-new2")?.value || "";
+
+  if (!currentPassword) {
+    alert("Введите текущий пароль.");
+    return;
+  }
+
+  if (!newPassword || !newPassword2) {
+    alert("Введите новый пароль и подтверждение.");
+    return;
+  }
+
+  try {
+    await apiFetch("/auth/change-password", {
+      method: "POST",
+      body: JSON.stringify({
+        current_password: currentPassword,
+        new_password: newPassword,
+        new_password_confirm: newPassword2,
+      }),
+    });
+
+    closeChangePasswordModal();
+    alert("Пароль успешно изменён.");
+  } catch (err) {
+    const detail = err?.detail?.detail || err?.detail || "";
+
+    if (detail === "CURRENT_PASSWORD_INVALID") {
+      alert("Текущий пароль введён неверно.");
+      return;
+    }
+
+    if (detail === "PASSWORD_MISMATCH") {
+      alert("Новый пароль и подтверждение не совпадают.");
+      return;
+    }
+
+    if (detail === "PASSWORD_TOO_SHORT") {
+      alert("Новый пароль слишком короткий.");
+      return;
+    }
+
+    if (detail === "PASSWORD_TOO_WEAK") {
+      alert("Новый пароль слишком слабый.");
+      return;
+    }
+
+    if (detail === "PASSWORD_SAME_AS_CURRENT") {
+      alert("Новый пароль должен отличаться от текущего.");
+      return;
+    }
+
+    if (detail === "PASSWORD_NOT_SET") {
+      alert("Для этого аккаунта смена пароля недоступна.");
+      return;
+    }
+
+    alert("Не удалось сменить пароль.");
+  }
+}
+
+async function handleDeleteAccount() {
+  const currentPassword = byId("delete-account-current-password")?.value || "";
+  const confirmText = (byId("delete-account-confirm-text")?.value || "").trim();
+
+  if (!currentPassword) {
+    alert("Введите текущий пароль.");
+    return;
+  }
+
+  if (confirmText.toUpperCase() !== "DELETE") {
+    alert('Введите DELETE для подтверждения удаления профиля.');
+    return;
+  }
+
+  try {
+    await apiFetch("/auth/delete-account", {
+      method: "POST",
+      body: JSON.stringify({
+        current_password: currentPassword,
+        confirm_text: confirmText,
+      }),
+    });
+
+    closeDeleteAccountModal();
+    closeProfileModal(true);
+    closeUserDropdown();
+    setGuest();
+
+    alert("Профиль удалён.");
+  } catch (err) {
+    const detail = err?.detail?.detail || err?.detail || "";
+
+    if (detail === "CURRENT_PASSWORD_INVALID") {
+      alert("Текущий пароль введён неверно.");
+      return;
+    }
+
+    if (detail === "DELETE_CONFIRM_TEXT_INVALID") {
+      alert('Введите DELETE для подтверждения удаления профиля.');
+      return;
+    }
+
+    if (detail === "PASSWORD_NOT_SET") {
+      alert("Для этого аккаунта удаление через пароль недоступно.");
+      return;
+    }
+
+    alert("Не удалось удалить профиль.");
+  }
+}
+
 
 async function handleProfileLanguageChange() {
   const select = byId("profile-language");

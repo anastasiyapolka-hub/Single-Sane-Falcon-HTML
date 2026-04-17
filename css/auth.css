@@ -622,7 +622,9 @@ text-decoration: underline;
 #register-submit,
 #verify-submit,
 #reset-request-submit,
-#reset-confirm-submit {
+#reset-confirm-submit,
+#change-password-submit,
+#delete-account-submit {
   background: #111827;
   color: #ffffff;
   border-radius: 12px;
@@ -635,8 +637,18 @@ text-decoration: underline;
 #register-submit:hover,
 #verify-submit:hover,
 #reset-request-submit:hover,
-#reset-confirm-submit:hover {
+#reset-confirm-submit:hover,
+#change-password-submit:hover,
+#delete-account-submit:hover {
   background: #000000;
+}
+
+#delete-account-submit {
+  background: #b91c1c;
+}
+
+#delete-account-submit:hover {
+  background: #991b1b;
 }
 
 .cookie-banner {
