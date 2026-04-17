@@ -3778,7 +3778,7 @@ if (runSubscriptionsBtn) {
         <div id="auth-view-reset-request" class="auth-view hidden">
           <h2>Восстановление пароля</h2>
 
-          <p class="auth-note">
+          <p class="profile-help-text">
             Если аккаунт с такой почтой существует, мы отправим код для сброса пароля.
           </p>
 
@@ -3799,7 +3799,7 @@ if (runSubscriptionsBtn) {
         <div id="auth-view-reset-confirm" class="auth-view hidden">
           <h2>Сброс пароля</h2>
 
-          <p class="auth-note">
+          <p class="profile-help-text">
             Введите код из письма и задайте новый пароль.
           </p>
 
@@ -3876,7 +3876,7 @@ if (runSubscriptionsBtn) {
               autocomplete="country-name"
             >
             <input id="register-country-code" type="hidden">
-            <p class="auth-note">
+            <p class="profile-help-text">
               Выберите страну из списка. Это поле заполняется один раз при регистрации.
             </p>
           </div>
@@ -3884,7 +3884,7 @@ if (runSubscriptionsBtn) {
           <div class="auth-field">
             <label for="register-timezone">Часовой пояс</label>
             <select id="register-timezone"></select>
-            <p class="auth-note">
+            <p class="profile-help-text">
               Часовой пояс влияет на отображаемое время в уведомлениях бота CoTel (функция подписок).
             </p>
           </div>
@@ -4076,18 +4076,11 @@ if (runSubscriptionsBtn) {
                   <div class="profile-field">
                     <label for="profile-timezone">Часовой пояс</label>
                     <select id="profile-timezone"></select>
-                    <p class="auth-note">
+                    <p class="profile-help-text">
                       Часовой пояс влияет на отображаемое время в уведомлениях CoTel и в интервалах работы подписок.
                     </p>
                   </div>
 
-                  <div class="profile-field profile-field-full">
-                    <label for="profile-default-ai-model">Модель AI по умолчанию</label>
-                    <select id="profile-default-ai-model"></select>
-                    <p class="auth-note">
-                      Используется по умолчанию для анализа запросов и новых подписок. Для Free доступен только OpenAI.
-                    </p>
-                  </div>
                 </div>
               </div>
             </div>
@@ -4111,7 +4104,7 @@ if (runSubscriptionsBtn) {
                 <label for="ultra-secure-logout" class="profile-settings-copy">
                   <div class="profile-settings-title-inline">Повышенная безопасность</div>
                   <div class="profile-settings-help-inline">
-                    <p class="auth-note">
+                    <p class="profile-help-text">
                       При выходе из CoTel сервис также завершит активную Telegram-сессию, привязанную к вашему аккаунту.
                     </p>
                   </div>
@@ -4129,6 +4122,13 @@ if (runSubscriptionsBtn) {
               </div>
             </div>
 
+            <div class="profile-field">
+              <label for="profile-default-ai-model">Модель AI по умолчанию</label>
+              <select id="profile-default-ai-model"></select>
+              <p class="profile-help-text">
+                Используется по умолчанию для анализа запросов и новых подписок. Для Free используется OpenAI.
+              </p>
+            </div>
           </div>
         </div>     
              
