@@ -491,6 +491,10 @@ text-decoration: underline;
   line-height: 1.45;
 }
 
+.auth-forgot-row {
+  margin-top: -4px;
+}
+
 .collapsed-only {
   display: none;
 }
@@ -591,7 +595,9 @@ text-decoration: underline;
 #auth-continue-submit,
 #login-submit,
 #register-submit,
-#verify-submit {
+#verify-submit,
+#reset-request-submit,
+#reset-confirm-submit {
   background: #111827;
   color: #ffffff;
   border-radius: 12px;
@@ -602,7 +608,9 @@ text-decoration: underline;
 #auth-continue-submit:hover,
 #login-submit:hover,
 #register-submit:hover,
-#verify-submit:hover {
+#verify-submit:hover,
+#reset-request-submit:hover,
+#reset-confirm-submit:hover {
   background: #000000;
 }
 

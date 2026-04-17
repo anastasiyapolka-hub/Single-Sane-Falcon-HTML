@@ -3654,10 +3654,98 @@ if (runSubscriptionsBtn) {
             <p id="login-password-error" class="auth-inline-error hidden"></p>
           </div>
 
+          <p class="auth-switch-text auth-forgot-row">
+            <button id="forgot-password-btn" type="button" class="auth-link-btn">
+              Забыли пароль?
+            </button>
+          </p>
           <button id="login-submit" type="button">Войти</button>
           <p class="auth-switch-text">
             Нет аккаунта?
             <button id="show-register" type="button" class="auth-link-btn">Зарегистрироваться</button>
+          </p>
+        </div>
+
+        <div id="auth-view-reset-request" class="auth-view hidden">
+          <h2>Восстановление пароля</h2>
+
+          <p class="auth-note">
+            Если аккаунт с такой почтой существует, мы отправим код для сброса пароля.
+          </p>
+
+          <div class="auth-field">
+            <label for="reset-request-email">Email</label>
+            <input id="reset-request-email" type="email" placeholder="you@example.com" />
+          </div>
+
+          <button id="reset-request-submit" type="button">Отправить код</button>
+
+          <p class="auth-switch-text">
+            <button id="reset-request-back" type="button" class="auth-link-btn">
+              Назад ко входу
+            </button>
+          </p>
+        </div>
+
+        <div id="auth-view-reset-confirm" class="auth-view hidden">
+          <h2>Сброс пароля</h2>
+
+          <p class="auth-note">
+            Введите код из письма и задайте новый пароль.
+          </p>
+
+          <div class="auth-field">
+            <label for="reset-confirm-email">Email</label>
+            <input id="reset-confirm-email" type="email" placeholder="you@example.com" />
+          </div>
+
+          <div class="auth-field">
+            <label for="reset-code">Код из письма</label>
+            <input id="reset-code" type="text" placeholder="123456" />
+          </div>
+
+          <div class="auth-field">
+            <label for="reset-new-password">Новый пароль</label>
+            <div class="password-input-wrap">
+              <input id="reset-new-password" type="password" placeholder="Введите новый пароль" />
+              <button
+                type="button"
+                class="password-toggle-btn"
+                data-toggle-password="reset-new-password"
+                aria-label="Показать или скрыть пароль"
+              >
+                👁
+              </button>
+            </div>
+          </div>
+
+          <div class="auth-field">
+            <label for="reset-new-password2">Повторите пароль</label>
+            <div class="password-input-wrap">
+              <input id="reset-new-password2" type="password" placeholder="Повторите новый пароль" />
+              <button
+                type="button"
+                class="password-toggle-btn"
+                data-toggle-password="reset-new-password2"
+                aria-label="Показать или скрыть пароль"
+              >
+                👁
+              </button>
+            </div>
+          </div>
+
+          <button id="reset-confirm-submit" type="button">Сменить пароль</button>
+
+          <p class="auth-switch-text">
+            <button id="reset-resend" type="button" class="auth-link-btn">
+              Отправить код ещё раз
+            </button>
+          </p>
+
+          <p class="auth-switch-text">
+            <button id="reset-confirm-back" type="button" class="auth-link-btn">
+              Назад
+            </button>
           </p>
         </div>
 

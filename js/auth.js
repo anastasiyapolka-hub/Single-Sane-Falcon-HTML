@@ -8,6 +8,10 @@ let profilePhoneIti = null;
 let tgPhoneIti = null;
 let verifyResendCooldownTimer = null;
 let verifyResendCooldownLeft = 0;
+let resetEmail = null;
+let resetResendCooldownTimer = null;
+let resetResendCooldownLeft = 0;
+const RESET_RESEND_COOLDOWN_SEC = 60;
 const VERIFY_RESEND_COOLDOWN_SEC = 60;
 const COTEL_LANG_MANUAL_KEY = "cotel_language_manual";
 const COTEL_LANG_AUTO_KEY = "cotel_language_auto";
@@ -452,6 +456,15 @@ function openAuthModal() {
   byId("auth-modal")?.classList.remove("hidden");
   switchAuthView("start");
   resetAuthForms();
+
+  resetEmail = null;
+  stopResetResendCooldown();
+
+  if (byId("reset-request-email")) byId("reset-request-email").value = "";
+  if (byId("reset-confirm-email")) byId("reset-confirm-email").value = "";
+  if (byId("reset-code")) byId("reset-code").value = "";
+  if (byId("reset-new-password")) byId("reset-new-password").value = "";
+  if (byId("reset-new-password2")) byId("reset-new-password2").value = "";
 }
 
 function closeAuthModal() {
@@ -459,7 +472,14 @@ function closeAuthModal() {
 }
 
 function switchAuthView(view) {
-  ["auth-view-start", "auth-view-login", "auth-view-register", "auth-view-verify"].forEach((id) => {
+  [
+    "auth-view-start",
+    "auth-view-login",
+    "auth-view-register",
+    "auth-view-verify",
+    "auth-view-reset-request",
+    "auth-view-reset-confirm"
+  ].forEach((id) => {
     byId(id)?.classList.add("hidden");
   });
 
@@ -706,6 +726,9 @@ async function handleLogin() {
       await window.cotelRefreshTelegramState();
     }
 
+    resetEmail = null;
+    stopResetResendCooldown();
+
     closeAuthModal();
   } catch (err) {
     const detail = err?.detail?.detail || err?.detail || "";
@@ -829,6 +852,9 @@ async function handleVerify() {
       await window.cotelRefreshTelegramState();
     }
 
+    resetEmail = null;
+    stopResetResendCooldown();
+
     closeAuthModal();
   } catch (err) {
     alert("Неверный или просроченный код.");
@@ -864,6 +890,208 @@ async function handleResendVerifyCode() {
     if (typeof detail === "object" && detail?.code === "RESEND_COOLDOWN") {
       const retryAfter = Number(detail.retry_after_sec || VERIFY_RESEND_COOLDOWN_SEC);
       startVerifyResendCooldown(retryAfter);
+      alert(`Повторная отправка будет доступна через ${retryAfter} сек.`);
+      return;
+    }
+
+    alert("Не удалось отправить код повторно.");
+  }
+}
+
+function updateResetResendButton() {
+  const btn = byId("reset-resend");
+  if (!btn) return;
+
+  if (resetResendCooldownLeft > 0) {
+    btn.disabled = true;
+    btn.textContent = `Отправить код ещё раз (${resetResendCooldownLeft} сек.)`;
+  } else {
+    btn.disabled = false;
+    btn.textContent = "Отправить код ещё раз";
+  }
+}
+
+function stopResetResendCooldown() {
+  if (resetResendCooldownTimer) {
+    clearInterval(resetResendCooldownTimer);
+    resetResendCooldownTimer = null;
+  }
+  resetResendCooldownLeft = 0;
+  updateResetResendButton();
+}
+
+function startResetResendCooldown(seconds = RESET_RESEND_COOLDOWN_SEC) {
+  if (resetResendCooldownTimer) {
+    clearInterval(resetResendCooldownTimer);
+    resetResendCooldownTimer = null;
+  }
+
+  resetResendCooldownLeft = Math.max(0, Number(seconds) || 0);
+  updateResetResendButton();
+
+  if (resetResendCooldownLeft <= 0) return;
+
+  resetResendCooldownTimer = setInterval(() => {
+    resetResendCooldownLeft -= 1;
+
+    if (resetResendCooldownLeft <= 0) {
+      stopResetResendCooldown();
+      return;
+    }
+
+    updateResetResendButton();
+  }, 1000);
+}
+
+async function handlePasswordResetRequest() {
+  const email = byId("reset-request-email")?.value.trim().toLowerCase() || "";
+
+  if (!email) {
+    alert("Введите email.");
+    return;
+  }
+
+  try {
+    await apiFetch("/auth/password-reset/request", {
+      method: "POST",
+      body: JSON.stringify({ email })
+    });
+
+    resetEmail = email;
+
+    const confirmEmail = byId("reset-confirm-email");
+    if (confirmEmail) confirmEmail.value = email;
+
+    switchAuthView("reset-confirm");
+    startResetResendCooldown();
+    alert("Если аккаунт с такой почтой существует, код отправлен.");
+  } catch (err) {
+    const detail = err?.detail?.detail || err?.detail || "";
+
+    if (typeof detail === "object" && detail?.code === "RESET_RESEND_COOLDOWN") {
+      const retryAfter = Number(detail.retry_after_sec || RESET_RESEND_COOLDOWN_SEC);
+      startResetResendCooldown(retryAfter);
+      alert(`Повторная отправка будет доступна через ${retryAfter} сек.`);
+      return;
+    }
+
+    alert("Не удалось отправить код.");
+  }
+}
+
+async function handlePasswordResetConfirm() {
+  const email = byId("reset-confirm-email")?.value.trim().toLowerCase() || resetEmail || "";
+  const code = byId("reset-code")?.value.trim() || "";
+  const newPassword = byId("reset-new-password")?.value || "";
+  const newPassword2 = byId("reset-new-password2")?.value || "";
+
+  if (!email) {
+    alert("Не найден email.");
+    return;
+  }
+
+  if (!code) {
+    alert("Введите код из письма.");
+    return;
+  }
+
+  if (!newPassword || !newPassword2) {
+    alert("Введите новый пароль и подтверждение.");
+    return;
+  }
+
+  try {
+    const user = await apiFetch("/auth/password-reset/confirm", {
+      method: "POST",
+      body: JSON.stringify({
+        email,
+        code,
+        new_password: newPassword,
+        new_password_confirm: newPassword2
+      })
+    });
+
+    setUser(user);
+
+    if (typeof window.cotelRefreshTelegramState === "function") {
+      await window.cotelRefreshTelegramState();
+    }
+
+    stopResetResendCooldown();
+    closeAuthModal();
+  } catch (err) {
+    const detail = err?.detail?.detail || err?.detail || "";
+
+    if (detail === "PASSWORD_MISMATCH") {
+      alert("Пароли не совпадают.");
+      return;
+    }
+
+    if (detail === "PASSWORD_TOO_SHORT") {
+      alert("Пароль слишком короткий.");
+      return;
+    }
+
+    if (detail === "PASSWORD_TOO_WEAK") {
+      alert("Пароль слишком слабый.");
+      return;
+    }
+
+    if (detail === "CODE_EXPIRED") {
+      alert("Код истёк.");
+      return;
+    }
+
+    if (detail === "CODE_ALREADY_USED") {
+      alert("Этот код уже использован.");
+      return;
+    }
+
+    if (detail === "TOO_MANY_ATTEMPTS") {
+      alert("Слишком много неверных попыток. Запросите новый код.");
+      return;
+    }
+
+    if (
+      detail === "CODE_INVALID" ||
+      detail === "CODE_NOT_FOUND" ||
+      detail === "CODE_REQUIRED"
+    ) {
+      alert("Неверный или просроченный код.");
+      return;
+    }
+
+    alert("Не удалось сбросить пароль.");
+  }
+}
+
+async function handleResendPasswordResetCode() {
+  const email =
+    byId("reset-confirm-email")?.value.trim().toLowerCase() ||
+    resetEmail ||
+    "";
+
+  if (!email) {
+    alert("Не найден email для повторной отправки кода.");
+    switchAuthView("start");
+    return;
+  }
+
+  try {
+    await apiFetch("/auth/password-reset/request", {
+      method: "POST",
+      body: JSON.stringify({ email })
+    });
+
+    resetEmail = email;
+    startResetResendCooldown();
+    alert("Новый код отправлен на почту.");
+  } catch (err) {
+    const detail = err?.detail?.detail || err?.detail || "";
+
+    if (typeof detail === "object" && detail?.code === "RESET_RESEND_COOLDOWN") {
+      const retryAfter = Number(detail.retry_after_sec || RESET_RESEND_COOLDOWN_SEC);
+      startResetResendCooldown(retryAfter);
       alert(`Повторная отправка будет доступна через ${retryAfter} сек.`);
       return;
     }
@@ -917,6 +1145,32 @@ function bindAuthUi() {
     e.stopPropagation();
     if (!currentUser) return;
     toggleUserDropdown();
+  });
+
+    byId("forgot-password-btn")?.addEventListener("click", () => {
+    const email = byId("login-email")?.value.trim().toLowerCase() || pendingEmail || "";
+    if (byId("reset-request-email")) {
+      byId("reset-request-email").value = email;
+    }
+    switchAuthView("reset-request");
+  });
+
+  byId("reset-request-submit")?.addEventListener("click", handlePasswordResetRequest);
+
+  byId("reset-request-back")?.addEventListener("click", () => {
+    byId("login-email").value = pendingEmail || byId("reset-request-email")?.value || "";
+    switchAuthView("login");
+  });
+
+  byId("reset-confirm-submit")?.addEventListener("click", handlePasswordResetConfirm);
+  byId("reset-resend")?.addEventListener("click", handleResendPasswordResetCode);
+
+  byId("reset-confirm-back")?.addEventListener("click", () => {
+    if (byId("reset-request-email")) {
+      byId("reset-request-email").value =
+        byId("reset-confirm-email")?.value.trim() || resetEmail || "";
+    }
+    switchAuthView("reset-request");
   });
 
   byId("profile-btn")?.addEventListener("click", () => {
