@@ -1377,10 +1377,12 @@ text-decoration: underline;
   padding: 0;
   flex: 0 0 auto;
   min-width: 0;
-  font-size: 0.96rem;
-  font-weight: 700;
-  color: #111827;
+
+  font-size: 0.9rem;          /* как у label */
+  font-weight: 600;           /* как у label */
+  color: #374151;             /* как у label */
   line-height: 1.2;
+
   white-space: nowrap;
 }
 
