@@ -1341,15 +1341,31 @@ text-decoration: underline;
   gap: 14px;
 }
 
+.profile-settings-check {
+  width: 18px;
+  height: 18px;
+  accent-color: #111827;
+  flex: 0 0 auto;
+  margin: 0;
+}
 
-.profile-settings-row {
+.profile-setting-item {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  gap: 12px;
-  flex-wrap: nowrap;
+  justify-content: space-between;
+  gap: 16px;
   width: 100%;
   min-width: 0;
+  cursor: pointer;
+}
+
+.profile-setting-item__title {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 0.96rem;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.35;
 }
 
 .profile-settings-check {
@@ -1360,16 +1376,8 @@ text-decoration: underline;
   margin: 0;
 }
 
-.profile-settings-inline-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  width: fit-content;
-  max-width: 100%;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #374151;
-  cursor: pointer;
+.profile-setting-item__help {
+  margin-top: 8px;
 }
 
 .profile-field > .profile-help-text {
@@ -1528,4 +1536,19 @@ text-decoration: underline;
 #register-timezone,
 #profile-timezone {
   background: #ffffff;
+}
+
+@media (max-width: 760px) {
+  .profile-setting-item {
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .profile-setting-item__title {
+    line-height: 1.4;
+  }
+
+  .profile-settings-check {
+    margin-top: 2px;
+  }
 }
