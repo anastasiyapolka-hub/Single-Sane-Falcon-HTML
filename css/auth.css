@@ -1341,31 +1341,24 @@ text-decoration: underline;
   gap: 14px;
 }
 
-.profile-settings-check {
-  width: 18px;
-  height: 18px;
-  accent-color: #111827;
-  flex: 0 0 auto;
-  margin: 0;
-}
-
 .profile-setting-item {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+  justify-content: flex-start;
+  gap: 10px;
   width: 100%;
   min-width: 0;
   cursor: pointer;
 }
 
 .profile-setting-item__title {
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   min-width: 0;
   font-size: 0.96rem;
   font-weight: 700;
   color: #111827;
-  line-height: 1.35;
+  line-height: 1.2;
+  white-space: nowrap;
 }
 
 .profile-settings-check {
@@ -1524,9 +1517,6 @@ text-decoration: underline;
     gap: 10px;
   }
 
-  .profile-settings-check {
-    margin-top: 0;
-  }
 }
 
 .profile-field .auth-note {
@@ -1540,15 +1530,16 @@ text-decoration: underline;
 
 @media (max-width: 760px) {
   .profile-setting-item {
-    align-items: flex-start;
-    gap: 12px;
+    align-items: center;
+    gap: 10px;
   }
 
   .profile-setting-item__title {
-    line-height: 1.4;
+    line-height: 1.2;
+    white-space: nowrap;
   }
 
   .profile-settings-check {
-    margin-top: 2px;
+    margin-top: 0;
   }
 }
