@@ -1346,14 +1346,15 @@ text-decoration: underline;
   align-items: center;
   justify-content: flex-start;
   gap: 10px;
-  width: 100%;
-  min-width: 0;
+  width: auto;
+  max-width: 100%;
+  align-self: flex-start;
   cursor: pointer;
 }
 
 .profile-setting-item__title {
-  flex: 0 1 auto;
-  min-width: 0;
+  flex: 0 0 auto;
+  min-width: auto;
   font-size: 0.96rem;
   font-weight: 700;
   color: #111827;
@@ -1367,6 +1368,10 @@ text-decoration: underline;
   accent-color: #111827;
   flex: 0 0 auto;
   margin: 0;
+}
+
+.profile-field.profile-field-full {
+  align-items: flex-start;
 }
 
 .profile-setting-item__help {
@@ -1530,11 +1535,18 @@ text-decoration: underline;
 
 @media (max-width: 760px) {
   .profile-setting-item {
+    display: inline-flex;
     align-items: center;
+    justify-content: flex-start;
     gap: 10px;
+    width: auto;
+    max-width: 100%;
+    align-self: flex-start;
   }
 
   .profile-setting-item__title {
+    flex: 0 0 auto;
+    min-width: auto;
     line-height: 1.2;
     white-space: nowrap;
   }
