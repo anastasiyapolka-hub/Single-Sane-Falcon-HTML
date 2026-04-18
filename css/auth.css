@@ -1352,39 +1352,24 @@ text-decoration: underline;
   min-width: 0;
 }
 
-.profile-settings-row--checkbox {
-  justify-content: flex-start;
-  margin-top: 2px;
-}
-
-.profile-settings-copy {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-  flex: 1 1 auto;
-  cursor: pointer;
-}
-
-.profile-settings-title-inline {
-  font-size: 0.98rem;
-  font-weight: 700;
-  color: #111827;
-  line-height: 1.25;
-}
-
-.profile-settings-help-inline {
-  font-size: 0.88rem;
-  color: #6b7280;
-  line-height: 1.4;
-}
-
 .profile-settings-check {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   accent-color: #111827;
   flex: 0 0 auto;
   margin: 0;
+}
+
+.profile-settings-inline-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  max-width: 100%;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
 }
 
 .profile-field > .profile-help-text {
@@ -1392,10 +1377,8 @@ text-decoration: underline;
 }
 
 .profile-settings-actions {
+  display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
   gap: 12px;
   margin-top: 6px;
 }
@@ -1404,6 +1387,8 @@ text-decoration: underline;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  min-width: 0;
   min-height: 44px;
   padding: 10px 14px;
   border: 1px solid #d1d5db;
