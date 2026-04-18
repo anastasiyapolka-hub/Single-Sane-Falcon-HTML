@@ -998,7 +998,7 @@ text-decoration: underline;
   text-align: center;
 }
 
-.profile-field input {
+.profile-field input:not([type="checkbox"]):not([type="radio"]) {
   width: 100%;
   border: 1px solid #d1d5db;
   border-radius: 12px;
@@ -1341,20 +1341,42 @@ text-decoration: underline;
   gap: 14px;
 }
 
+
+.profile-field.profile-field-full {
+  align-items: flex-start;
+}
+
 .profile-setting-item {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 10px;
-  width: auto;
+  gap: 8px;
+  width: fit-content;
   max-width: 100%;
+  margin: 0;
+  padding: 0;
   align-self: flex-start;
   cursor: pointer;
 }
 
+.profile-settings-check {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  min-height: 18px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  accent-color: #111827;
+  flex: 0 0 18px;
+}
+
 .profile-setting-item__title {
+  margin: 0;
+  padding: 0;
   flex: 0 0 auto;
-  min-width: auto;
+  min-width: 0;
   font-size: 0.96rem;
   font-weight: 700;
   color: #111827;
@@ -1362,21 +1384,10 @@ text-decoration: underline;
   white-space: nowrap;
 }
 
-.profile-settings-check {
-  width: 18px;
-  height: 18px;
-  accent-color: #111827;
-  flex: 0 0 auto;
-  margin: 0;
-}
-
-.profile-field.profile-field-full {
-  align-items: flex-start;
-}
-
 .profile-setting-item__help {
   margin-top: 8px;
 }
+
 
 .profile-field > .profile-help-text {
   margin-top: 6px;
