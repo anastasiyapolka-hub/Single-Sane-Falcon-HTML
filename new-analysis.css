@@ -7,23 +7,23 @@ body {
 .navigation-wrapper {
   display: contents;
 }
- 
+
 .navigation-container1 {
   display: contents;
 }
- 
+
 .navigation-container2 {
   display: none;
 }
- 
+
 .navigation-container3 {
   display: contents;
 }
- 
+
 .navigation-container4 {
   display: none;
 }
- 
+
 .navigation-container5 {
   display: contents;
 }
@@ -37,12 +37,6 @@ body {
   background: transparent !important;
 }
 
-.analysis-controls {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-}
 
 .analysis-controls {
   display: flex;
@@ -352,7 +346,7 @@ body {
   font-size: 16px;
   padding: 0;
   transition: background-color 0.15s ease, transform 0.15s ease;
-  margin-left: auto; 
+  margin-left: auto;
   z-index: 5;
 
 }
@@ -464,7 +458,6 @@ body.user-not-auth #sidebarUserArea .auth-open-btn {
 } */
 
 /* В свернутом состоянии: не убираем из DOM, а “гасим” */
-.dashboard-sidebar.collapsed .sidebar-title,
 .dashboard-sidebar.collapsed #sidebarContent {
   opacity: 0;
   visibility: hidden;
@@ -486,11 +479,6 @@ body.user-not-auth #sidebarUserArea .auth-open-btn {
   justify-content: center;
 }*/
 
-/* Доп. стили для новых полей в блоках "Мои чаты" и "Мои подписки" */
-.sidebar-field-label {
-  font-size: 0.8rem;
-  color: #4b5563;
-}
 
 .sidebar-text-input::placeholder {
   color: #a0a0b4;            /* как у "Введите текст запроса" */
@@ -578,31 +566,6 @@ body.user-not-auth #sidebarUserArea .auth-open-btn {
   max-height: 40vh;
 }
 
-/* Строка чата */
-.sidebar-chat-item {
-  display: block;
-  padding: 8px 10px;
-  border-radius: 10px;
-  cursor: pointer;
-  user-select: none;
-  font-size: 0.9rem;
-  line-height: 1.2;
-}
-
-.sidebar-chat-item:hover {
-  background: #f3f4f6;
-}
-
-.sidebar-chat-item:active {
-  background: #e5e7eb;
-}
-
-/* "Пустой" список */
-.sidebar-chat-empty {
-  padding: 8px 10px;
-  font-size: 0.85rem;
-  color: #6b7280;
-}
 
 /* === Панель ввода: только тонкая рамка, без заливки === */
 .dashboard-input-panel {
@@ -845,7 +808,7 @@ body.sidebar-collapsed {
   align-items: center;
 
   width: 100%;
-  max-width: 220px; 
+  max-width: 220px;
   background: #fff;
   border-radius: 14px;
   padding: 10px;
@@ -1583,11 +1546,6 @@ html.cotel-preboot .sidebar-boot-loader {
   animation: sidebarBootSpin 0.8s linear infinite;
 }
 
-.sidebar-boot-loader__text {
-  font-size: 0.88rem;
-  color: #6b7280;
-  line-height: 1.2;
-}
 
 @keyframes sidebarBootSpin {
   to {
