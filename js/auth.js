@@ -217,12 +217,18 @@ function getEffectiveLanguage(user = null) {
 function initLanguagePreference() {
   const lang = getEffectiveLanguage();
   applyLanguageToDocument(lang);
+  if (window.cotelI18n && typeof window.cotelI18n.changeLanguage === "function") {
+    window.cotelI18n.changeLanguage(lang);
+  }
 }
 
 async function setManualLanguage(lang) {
   const normalized = normalizeLanguage(lang);
   localStorage.setItem(COTEL_LANG_MANUAL_KEY, normalized);
   applyLanguageToDocument(normalized);
+  if (window.cotelI18n && typeof window.cotelI18n.changeLanguage === "function") {
+    window.cotelI18n.changeLanguage(normalized);
+  }
 
   if (currentUser?.email) {
     saveUserLocalPrefs(currentUser.email, {
@@ -660,6 +666,9 @@ function setUser(user) {
   byId("user-plan").textContent = currentUser.plan || "free";
 
   applyLanguageToDocument(currentUser.language);
+  if (window.cotelI18n && typeof window.cotelI18n.changeLanguage === "function") {
+    window.cotelI18n.changeLanguage(currentUser.language);
+  }
   setAvatar(currentUser.email || "");
   applyPhoneCountryFromCurrentUser();
   applyTelegramPhoneFromCurrentUser();
