@@ -797,17 +797,17 @@
 
 
             <div id="sidebarUserArea" class="sidebar-user-area">
-                <button id="auth-open-btn" class="auth-open-btn" type="button" aria-label="Войти/Зарегистрироваться">
-                  <span class="auth-open-btn__text expanded-only">Войти / Регистрация</span>
+                <button id="auth-open-btn" class="auth-open-btn" type="button" aria-label="Войти/Зарегистрироваться" data-i18n-aria-label="auth:header_open_btn.label">
+                  <span class="auth-open-btn__text expanded-only" data-i18n="auth:header_open_btn.text">Войти / Регистрация</span>
                   <span class="auth-open-btn__icon collapsed-only">↪</span>
                 </button>
 
                 <div id="user-profile" class="user-profile hidden">
                   <div id="user-profile-trigger" class="user-profile-trigger">
-                    
+
                     <div class="user-profile-main">
                       <img id="user-avatar-img" class="user-avatar-img" src="images/cats/cat-1.jpg" alt="Аватар">
-                      
+
                       <div class="user-meta expanded-only">
                         <div id="user-email" class="user-email"></div>
                         <div id="user-plan" class="user-plan"></div>
@@ -820,6 +820,8 @@
                       type="button"
                       title="Выйти"
                       aria-label="Выйти"
+                      data-i18n-title="auth:dropdown.quick_logout"
+                      data-i18n-aria-label="auth:dropdown.quick_logout"
                     >
                       ⏻
                     </button>
@@ -827,9 +829,9 @@
                   </div>
 
                   <div id="user-dropdown" class="user-dropdown hidden">
-                    <button id="profile-btn" type="button">Профиль</button>
-                    <button id="help-btn" type="button">Справка</button>
-                    <button id="logout-btn" type="button">Выйти</button>
+                    <button id="profile-btn" type="button" data-i18n="auth:dropdown.profile">Профиль</button>
+                    <button id="help-btn" type="button" data-i18n="auth:dropdown.help">Справка</button>
+                    <button id="logout-btn" type="button" data-i18n="auth:dropdown.logout">Выйти</button>
                   </div>
 
                 </div>
@@ -3726,103 +3728,107 @@ if (runSubscriptionsBtn) {
 
         <div class="auth-modal-header">
           <div class="auth-brand-title">
-            <span class="auth-brand-name">CoTel</span>
-            <span class="auth-brand-subtitle">— AI Copilot for Telegram</span>
+            <span class="auth-brand-name" data-i18n="common:brand.name">CoTel</span>
+            <span class="auth-brand-subtitle" data-i18n="common:brand.tagline">— AI Copilot for Telegram</span>
           </div>
           <div class="auth-header-divider"></div>
         </div>
 
         <div id="auth-view-start" class="auth-view">
-          <h2>Войти / Зарегистрироваться</h2>
+          <h2 data-i18n="auth:start.title">Войти / Зарегистрироваться</h2>
           <div class="auth-field">
-            <label for="auth-email-check">Почта</label>
-            <input id="auth-email-check" type="email" placeholder="name@email.com">
+            <label for="auth-email-check" data-i18n="auth:start.email_label">Почта</label>
+            <input id="auth-email-check" type="email" placeholder="name@email.com" data-i18n-placeholder="auth:start.email_placeholder">
           </div>
-          <button id="auth-continue-submit" type="button">Продолжить</button>
+          <button id="auth-continue-submit" type="button" data-i18n="auth:start.continue">Продолжить</button>
         </div>
 
         <div id="auth-view-login" class="auth-view hidden">
-          <h2>Войти</h2>
+          <h2 data-i18n="auth:login.title">Войти</h2>
           <div class="auth-field">
-            <label for="login-email">Почта</label>
-            <input id="login-email" type="email" placeholder="name@email.com">
+            <label for="login-email" data-i18n="auth:login.email_label">Почта</label>
+            <input id="login-email" type="email" placeholder="name@email.com" data-i18n-placeholder="auth:login.email_placeholder">
           </div>
 
           <div class="auth-field">
-            <label for="login-password">Пароль</label>
+            <label for="login-password" data-i18n="auth:login.password_label">Пароль</label>
             <div class="password-input-wrap">
-              <input id="login-password" type="password" placeholder="Введите пароль">
+              <input id="login-password" type="password" placeholder="Введите пароль" data-i18n-placeholder="auth:login.password_placeholder">
               <button
                 type="button"
                 class="password-toggle-btn"
                 data-target="login-password"
                 aria-label="Показать пароль"
                 title="Показать пароль"
+                data-i18n-aria-label="common:password.show"
+                data-i18n-title="common:password.show"
               >👁</button>
             </div>
             <p id="login-password-error" class="auth-inline-error hidden"></p>
           </div>
 
           <p class="auth-switch-text auth-forgot-row">
-            <button id="forgot-password-btn" type="button" class="auth-link-btn">
+            <button id="forgot-password-btn" type="button" class="auth-link-btn" data-i18n="auth:login.forgot_password">
               Забыли пароль?
             </button>
           </p>
-          <button id="login-submit" type="button">Войти</button>
+          <button id="login-submit" type="button" data-i18n="auth:login.submit">Войти</button>
           <p class="auth-switch-text">
-            Нет аккаунта?
-            <button id="show-register" type="button" class="auth-link-btn">Зарегистрироваться</button>
+            <span data-i18n="auth:login.no_account">Нет аккаунта?</span>
+            <button id="show-register" type="button" class="auth-link-btn" data-i18n="auth:login.register_link">Зарегистрироваться</button>
           </p>
         </div>
 
         <div id="auth-view-reset-request" class="auth-view hidden">
-          <h2>Восстановление пароля</h2>
+          <h2 data-i18n="auth:reset_request.title">Восстановление пароля</h2>
 
-          <p class="profile-help-text">
+          <p class="profile-help-text" data-i18n="auth:reset_request.description">
             Если аккаунт с такой почтой существует, мы отправим код для сброса пароля.
           </p>
 
           <div class="auth-field">
-            <label for="reset-request-email">Email</label>
-            <input id="reset-request-email" type="email" placeholder="you@example.com" />
+            <label for="reset-request-email" data-i18n="auth:reset_request.email_label">Email</label>
+            <input id="reset-request-email" type="email" placeholder="you@example.com" data-i18n-placeholder="auth:reset_request.email_placeholder" />
           </div>
 
-          <button id="reset-request-submit" type="button">Отправить код</button>
+          <button id="reset-request-submit" type="button" data-i18n="auth:reset_request.submit">Отправить код</button>
 
           <p class="auth-switch-text">
-            <button id="reset-request-back" type="button" class="auth-link-btn">
+            <button id="reset-request-back" type="button" class="auth-link-btn" data-i18n="auth:reset_request.back_to_login">
               Назад ко входу
             </button>
           </p>
         </div>
 
         <div id="auth-view-reset-confirm" class="auth-view hidden">
-          <h2>Сброс пароля</h2>
+          <h2 data-i18n="auth:reset_confirm.title">Сброс пароля</h2>
 
-          <p class="profile-help-text">
+          <p class="profile-help-text" data-i18n="auth:reset_confirm.description">
             Введите код из письма и задайте новый пароль.
           </p>
 
           <div class="auth-field">
-            <label for="reset-confirm-email">Email</label>
-            <input id="reset-confirm-email" type="email" placeholder="you@example.com" />
+            <label for="reset-confirm-email" data-i18n="auth:reset_confirm.email_label">Email</label>
+            <input id="reset-confirm-email" type="email" placeholder="you@example.com" data-i18n-placeholder="auth:reset_confirm.email_placeholder" />
           </div>
 
           <div class="auth-field">
-            <label for="reset-code">Код из письма</label>
-            <input id="reset-code" type="text" placeholder="123456" />
+            <label for="reset-code" data-i18n="auth:reset_confirm.code_label">Код из письма</label>
+            <input id="reset-code" type="text" placeholder="123456" data-i18n-placeholder="auth:reset_confirm.code_placeholder" />
           </div>
 
           <div class="auth-field">
-            <label for="reset-new-password">Новый пароль</label>
+            <label for="reset-new-password" data-i18n="auth:reset_confirm.new_password_label">Новый пароль</label>
             <div class="password-input-wrap">
-              <input id="reset-new-password" type="password" placeholder="Введите новый пароль" />
+              <input id="reset-new-password" type="password" placeholder="Введите новый пароль" data-i18n-placeholder="auth:reset_confirm.new_password_placeholder" />
               <button
                 type="button"
                 class="password-toggle-btn"
                 data-target="reset-new-password"
                 aria-label="Показать пароль"
                 title="Показать пароль"
+                data-i18n-aria-label="common:password.show"
+                data-i18n-title="common:password.show"
               >
                 👁
               </button>
@@ -3830,118 +3836,125 @@ if (runSubscriptionsBtn) {
           </div>
 
           <div class="auth-field">
-            <label for="reset-new-password2">Повторите пароль</label>
+            <label for="reset-new-password2" data-i18n="auth:reset_confirm.new_password2_label">Повторите пароль</label>
             <div class="password-input-wrap">
-              <input id="reset-new-password2" type="password" placeholder="Повторите новый пароль" />
+              <input id="reset-new-password2" type="password" placeholder="Повторите новый пароль" data-i18n-placeholder="auth:reset_confirm.new_password2_placeholder" />
               <button
                 type="button"
                 class="password-toggle-btn"
                 data-target="reset-new-password2"
                 aria-label="Показать пароль"
                 title="Показать пароль"
+                data-i18n-aria-label="common:password.show"
+                data-i18n-title="common:password.show"
               >
                 👁
               </button>
             </div>
           </div>
 
-          <button id="reset-confirm-submit" type="button">Сменить пароль</button>
+          <button id="reset-confirm-submit" type="button" data-i18n="auth:reset_confirm.submit">Сменить пароль</button>
 
           <p class="auth-switch-text">
-            <button id="reset-resend" type="button" class="auth-link-btn">
+            <button id="reset-resend" type="button" class="auth-link-btn" data-i18n="auth:reset_confirm.resend">
               Отправить код ещё раз
             </button>
           </p>
 
           <p class="auth-switch-text">
-            <button id="reset-confirm-back" type="button" class="auth-link-btn">
+            <button id="reset-confirm-back" type="button" class="auth-link-btn" data-i18n="auth:reset_confirm.back">
               Назад
             </button>
           </p>
         </div>
 
         <div id="auth-view-register" class="auth-view hidden">
-          <h2>Регистрация</h2>
+          <h2 data-i18n="auth:register.title">Регистрация</h2>
           <div class="auth-field">
-            <label for="register-email">Почта</label>
-            <input id="register-email" type="email" placeholder="name@email.com">
+            <label for="register-email" data-i18n="auth:register.email_label">Почта</label>
+            <input id="register-email" type="email" placeholder="name@email.com" data-i18n-placeholder="auth:register.email_placeholder">
           </div>
           <div class="auth-field">
-            <label for="register-country">Страна</label>
+            <label for="register-country" data-i18n="auth:register.country_label">Страна</label>
             <input
               id="register-country"
               type="text"
               list="country-options"
               placeholder="Начните вводить страну"
+              data-i18n-placeholder="auth:register.country_placeholder"
               autocomplete="country-name"
             >
             <input id="register-country-code" type="hidden">
-            <p class="profile-help-text">
+            <p class="profile-help-text" data-i18n="auth:register.country_help">
               Выберите страну из списка. Это поле заполняется один раз при регистрации.
             </p>
           </div>
 
           <div class="auth-field">
-            <label for="register-timezone">Часовой пояс</label>
+            <label for="register-timezone" data-i18n="auth:register.timezone_label">Часовой пояс</label>
             <select id="register-timezone"></select>
-            <p class="profile-help-text">
+            <p class="profile-help-text" data-i18n="auth:register.timezone_help">
               Часовой пояс влияет на отображаемое время в уведомлениях бота CoTel (функция подписок).
             </p>
           </div>
 
           <div class="auth-field">
-            <label for="register-password">Пароль</label>
+            <label for="register-password" data-i18n="auth:register.password_label">Пароль</label>
             <div class="password-input-wrap">
-              <input id="register-password" type="password" placeholder="Придумайте пароль">
+              <input id="register-password" type="password" placeholder="Придумайте пароль" data-i18n-placeholder="auth:register.password_placeholder">
               <button
                 type="button"
                 class="password-toggle-btn"
                 data-target="register-password"
                 aria-label="Показать пароль"
                 title="Показать пароль"
+                data-i18n-aria-label="common:password.show"
+                data-i18n-title="common:password.show"
               >👁</button>
             </div>
           </div>
 
           <div class="auth-field">
-            <label for="register-password2">Подтверждение пароля</label>
+            <label for="register-password2" data-i18n="auth:register.password2_label">Подтверждение пароля</label>
             <div class="password-input-wrap">
-              <input id="register-password2" type="password" placeholder="Повторите пароль">
+              <input id="register-password2" type="password" placeholder="Повторите пароль" data-i18n-placeholder="auth:register.password2_placeholder">
               <button
                 type="button"
                 class="password-toggle-btn"
                 data-target="register-password2"
                 aria-label="Показать пароль"
                 title="Показать пароль"
+                data-i18n-aria-label="common:password.show"
+                data-i18n-title="common:password.show"
               >👁</button>
             </div>
           </div>
 
 
-          <button id="register-submit" type="button">Зарегистрироваться</button>
+          <button id="register-submit" type="button" data-i18n="auth:register.submit">Зарегистрироваться</button>
           <p class="auth-switch-text">
-            Уже есть аккаунт?
-            <button id="show-login" type="button" class="auth-link-btn">Войти</button>
+            <span data-i18n="auth:register.have_account">Уже есть аккаунт?</span>
+            <button id="show-login" type="button" class="auth-link-btn" data-i18n="auth:register.login_link">Войти</button>
           </p>
         </div>
 
         <div id="auth-view-verify" class="auth-view hidden">
-          <h2>Подтвердите почту</h2>
-          <p class="auth-note">
+          <h2 data-i18n="auth:verify.title">Подтвердите почту</h2>
+          <p class="auth-note" data-i18n="auth:verify.description">
             Мы отправили код подтверждения на вашу почту. Введите его ниже.
           </p>
 
           <div class="auth-field">
-            <label for="verify-code">Код подтверждения</label>
-            <input id="verify-code" type="text" placeholder="123456">
+            <label for="verify-code" data-i18n="auth:verify.code_label">Код подтверждения</label>
+            <input id="verify-code" type="text" placeholder="123456" data-i18n-placeholder="auth:verify.code_placeholder">
           </div>
 
-          
-          <button id="verify-submit" type="button">Подтвердить</button>
-          <button id="verify-resend" type="button" class="secondary-btn">
+
+          <button id="verify-submit" type="button" data-i18n="auth:verify.submit">Подтвердить</button>
+          <button id="verify-resend" type="button" class="secondary-btn" data-i18n="auth:verify.resend">
             Отправить код повторно
           </button>
-          <button id="verify-back" type="button" class="secondary-btn">Назад</button>
+          <button id="verify-back" type="button" class="secondary-btn" data-i18n="auth:verify.back">Назад</button>
         </div>
       </div>
     </div>
@@ -3953,7 +3966,7 @@ if (runSubscriptionsBtn) {
 
       <div class="auth-modal-content profile-modal-content">
         
-        <button id="profile-modal-close" class="auth-modal-close" type="button" aria-label="Закрыть">
+        <button id="profile-modal-close" class="auth-modal-close" type="button" aria-label="Закрыть" data-i18n-aria-label="auth:profile.close_label">
           ×
         </button>
 
@@ -3964,7 +3977,7 @@ if (runSubscriptionsBtn) {
           </div>
 
           <div class="profile-header-actions">
-            <button id="save-profile-btn" type="button" class="profile-save-btn profile-save-btn--header">
+            <button id="save-profile-btn" type="button" class="profile-save-btn profile-save-btn--header" data-i18n="auth:profile.save_btn">
               Сохранить изменения
             </button>
           </div>
@@ -3979,15 +3992,15 @@ if (runSubscriptionsBtn) {
             <span class="plan-chip plan-pro">Pro</span>
           </div>
 
-          <button id="change-plan-btn" type="button" class="profile-plan-btn">
+          <button id="change-plan-btn" type="button" class="profile-plan-btn" data-i18n="auth:profile.change_plan">
             Сменить тариф
           </button>
         </div>
 
         <div class="profile-tabs">
-          <button type="button" class="profile-tab-btn active" data-profile-tab="limits">Лимиты</button>
-          <button type="button" class="profile-tab-btn" data-profile-tab="personal">Личные данные</button>
-          <button type="button" class="profile-tab-btn" data-profile-tab="settings">Настройки профиля</button>
+          <button type="button" class="profile-tab-btn active" data-profile-tab="limits" data-i18n="auth:profile.tabs.limits">Лимиты</button>
+          <button type="button" class="profile-tab-btn" data-profile-tab="personal" data-i18n="auth:profile.tabs.personal">Личные данные</button>
+          <button type="button" class="profile-tab-btn" data-profile-tab="settings" data-i18n="auth:profile.tabs.settings">Настройки профиля</button>
         </div>
 
         <div class="profile-tab-panels">
@@ -3995,7 +4008,7 @@ if (runSubscriptionsBtn) {
           <div class="profile-tab-panel active" data-profile-panel="limits">
             <div class="profile-limits-grid">
               <div class="profile-limit-card">
-                <div class="profile-limit-card-title">Запросы сегодня</div>
+                <div class="profile-limit-card-title" data-i18n="auth:profile.limits.daily">Запросы сегодня</div>
                 <div class="profile-limit-card-value">
                   <span id="profile-limit-daily-used">0</span>
                   <span class="profile-limit-sep">/</span>
@@ -4004,7 +4017,7 @@ if (runSubscriptionsBtn) {
               </div>
 
               <div class="profile-limit-card">
-                <div class="profile-limit-card-title">Запросы в месяц</div>
+                <div class="profile-limit-card-title" data-i18n="auth:profile.limits.monthly">Запросы в месяц</div>
                 <div class="profile-limit-card-value">
                   <span id="profile-limit-monthly-used">0</span>
                   <span class="profile-limit-sep">/</span>
@@ -4013,7 +4026,7 @@ if (runSubscriptionsBtn) {
               </div>
 
               <div class="profile-limit-card">
-                <div class="profile-limit-card-title">Активные подписки</div>
+                <div class="profile-limit-card-title" data-i18n="auth:profile.limits.subscriptions">Активные подписки</div>
                 <div class="profile-limit-card-value">
                   <span id="profile-limit-subs-used">0</span>
                   <span class="profile-limit-sep">/</span>
@@ -4022,29 +4035,29 @@ if (runSubscriptionsBtn) {
               </div>
 
               <div class="profile-limit-card">
-                <div class="profile-limit-card-title">Глубина анализа истории</div>
+                <div class="profile-limit-card-title" data-i18n="auth:profile.limits.history_depth">Глубина анализа истории</div>
                 <div class="profile-limit-card-text">
                   до <span id="profile-limit-history-days">0</span> дней
                 </div>
               </div>
 
               <div class="profile-limit-card">
-                <div class="profile-limit-card-title">Минимальная частота подписки</div>
+                <div class="profile-limit-card-title" data-i18n="auth:profile.limits.min_frequency">Минимальная частота подписки</div>
                 <div class="profile-limit-card-text" id="profile-limit-frequency-text">—</div>
               </div>
 
               <div class="profile-limit-card">
-                <div class="profile-limit-card-title">История чатов и каналов</div>
+                <div class="profile-limit-card-title" data-i18n="auth:profile.limits.chat_history">История чатов и каналов</div>
                 <div class="profile-limit-card-text" id="profile-limit-chat-history">—</div>
               </div>
 
               <div class="profile-limit-card" id="profile-trial-card">
-                <div class="profile-limit-card-title">Trial-подписки</div>
+                <div class="profile-limit-card-title" data-i18n="auth:profile.limits.trial">Trial-подписки</div>
                 <div class="profile-limit-card-text">
                   <span id="profile-limit-trial-used">0</span>
                   <span class="profile-limit-sep">/</span>
                   <span id="profile-limit-trial-total">0</span>
-                  использовано
+                  <span data-i18n="auth:profile.limits.trial_used_suffix">использовано</span>
                 </div>
               </div>
             </div>
@@ -4056,27 +4069,27 @@ if (runSubscriptionsBtn) {
               <div class="profile-form-scroll">
                 <div class="profile-grid">
                   <div class="profile-field">
-                    <label>Email</label>
+                    <label data-i18n="auth:profile.personal.email_label">Email</label>
                     <div id="profile-email-static" class="profile-static-value">—</div>
                   </div>
 
                   <div class="profile-field">
-                    <label for="profile-phone">Телефон</label>
-                    <input id="profile-phone" type="text" placeholder="+7..." />
-                    <p class="profile-help-text">
+                    <label for="profile-phone" data-i18n="auth:profile.personal.phone_label">Телефон</label>
+                    <input id="profile-phone" type="text" placeholder="+7..." data-i18n-placeholder="auth:profile.personal.phone_placeholder" />
+                    <p class="profile-help-text" data-i18n="auth:profile.personal.phone_help">
                       Необязательно. Используется для удобного входа в Telegram.
                     </p>
                   </div>
 
                   <div class="profile-field">
-                    <label>Страна</label>
+                    <label data-i18n="auth:profile.personal.country_label">Страна</label>
                     <div id="profile-country" class="profile-static-value">—</div>
                   </div>
 
                   <div class="profile-field">
-                    <label for="profile-timezone">Часовой пояс</label>
+                    <label for="profile-timezone" data-i18n="auth:profile.personal.timezone_label">Часовой пояс</label>
                     <select id="profile-timezone"></select>
-                    <p class="profile-help-text">
+                    <p class="profile-help-text" data-i18n="auth:profile.personal.timezone_help">
                       Часовой пояс влияет на отображаемое время в уведомлениях CoTel и в интервалах работы подписок.
                     </p>
                   </div>
@@ -4090,7 +4103,7 @@ if (runSubscriptionsBtn) {
           <div class="profile-tab-panel" data-profile-panel="settings">
             <div class="profile-settings-block">
               <div class="profile-field">
-                <label for="profile-language">Язык интерфейса</label>
+                <label for="profile-language" data-i18n="auth:profile.settings.language_label">Язык интерфейса</label>
                 <select id="profile-language">
                   <option value="en">English</option>
                   <option value="ru">Русский</option>
@@ -4098,9 +4111,9 @@ if (runSubscriptionsBtn) {
               </div>
 
               <div class="profile-field">
-                <label for="profile-default-ai-model">Модель AI по умолчанию</label>
+                <label for="profile-default-ai-model" data-i18n="auth:profile.settings.default_ai_model_label">Модель AI по умолчанию</label>
                 <select id="profile-default-ai-model"></select>
-                <p class="profile-help-text">
+                <p class="profile-help-text" data-i18n="auth:profile.settings.default_ai_model_help">
                   Используется по умолчанию для анализа запросов и новых подписок. Для Free используется OpenAI.
                 </p>
               </div>
@@ -4108,20 +4121,20 @@ if (runSubscriptionsBtn) {
               <div class="profile-field profile-field-full">
                 <label for="ultra-secure-logout" class="profile-setting-item">
                   <input id="ultra-secure-logout" class="profile-settings-check" type="checkbox" />
-                  <span class="profile-setting-item__title">Повышенная безопасность</span>
+                  <span class="profile-setting-item__title" data-i18n="auth:profile.settings.ultra_secure_title">Повышенная безопасность</span>
                 </label>
 
-                <p class="profile-help-text profile-setting-item__help">
+                <p class="profile-help-text profile-setting-item__help" data-i18n="auth:profile.settings.ultra_secure_help">
                   При выходе из CoTel сервис также завершит активную Telegram-сессию, привязанную к вашему аккаунту.
                 </p>
               </div>
 
               <div class="profile-settings-actions">
-                <button id="change-password-btn" type="button" class="profile-action-btn">
+                <button id="change-password-btn" type="button" class="profile-action-btn" data-i18n="auth:profile.settings.change_password_btn">
                   Сменить пароль
                 </button>
 
-                <button id="delete-profile-btn" type="button" class="profile-action-btn profile-danger-btn">
+                <button id="delete-profile-btn" type="button" class="profile-action-btn profile-danger-btn" data-i18n="auth:profile.settings.delete_profile_btn">
                   Удалить профиль
                 </button>
               </div>
@@ -4136,55 +4149,61 @@ if (runSubscriptionsBtn) {
     <div id="change-password-modal" class="auth-modal hidden">
       <div class="auth-modal-backdrop"></div>
       <div class="auth-modal-content">
-        <button id="change-password-modal-close" type="button" class="auth-modal-close" aria-label="Закрыть">×</button>
+        <button id="change-password-modal-close" type="button" class="auth-modal-close" aria-label="Закрыть" data-i18n-aria-label="auth:profile.close_label">×</button>
 
         <div class="auth-view">
-          <h2>Смена пароля</h2>
-          <p class="auth-note">Введите текущий пароль и задайте новый.</p>
+          <h2 data-i18n="auth:change_password.title">Смена пароля</h2>
+          <p class="auth-note" data-i18n="auth:change_password.description">Введите текущий пароль и задайте новый.</p>
 
           <div class="auth-field">
-            <label for="change-password-current">Текущий пароль</label>
+            <label for="change-password-current" data-i18n="auth:change_password.current_label">Текущий пароль</label>
             <div class="password-input-wrap">
-              <input id="change-password-current" type="password" placeholder="Введите текущий пароль" />
+              <input id="change-password-current" type="password" placeholder="Введите текущий пароль" data-i18n-placeholder="auth:change_password.current_placeholder" />
               <button
                 type="button"
                 class="password-toggle-btn"
                 data-target="change-password-current"
                 aria-label="Показать пароль"
                 title="Показать пароль"
+                data-i18n-aria-label="common:password.show"
+                data-i18n-title="common:password.show"
               >👁</button>
             </div>
           </div>
 
           <div class="auth-field">
-            <label for="change-password-new">Новый пароль</label>
+            <label for="change-password-new" data-i18n="auth:change_password.new_label">Новый пароль</label>
             <div class="password-input-wrap">
-              <input id="change-password-new" type="password" placeholder="Введите новый пароль" />
+              <input id="change-password-new" type="password" placeholder="Введите новый пароль" data-i18n-placeholder="auth:change_password.new_placeholder" />
               <button
                 type="button"
                 class="password-toggle-btn"
                 data-target="change-password-new"
                 aria-label="Показать пароль"
                 title="Показать пароль"
+                data-i18n-aria-label="common:password.show"
+                data-i18n-title="common:password.show"
               >👁</button>
             </div>
           </div>
 
           <div class="auth-field">
-            <label for="change-password-new2">Повторите новый пароль</label>
+            <label for="change-password-new2" data-i18n="auth:change_password.new2_label">Повторите новый пароль</label>
             <div class="password-input-wrap">
-              <input id="change-password-new2" type="password" placeholder="Повторите новый пароль" />
+              <input id="change-password-new2" type="password" placeholder="Повторите новый пароль" data-i18n-placeholder="auth:change_password.new2_placeholder" />
               <button
                 type="button"
                 class="password-toggle-btn"
                 data-target="change-password-new2"
                 aria-label="Показать пароль"
                 title="Показать пароль"
+                data-i18n-aria-label="common:password.show"
+                data-i18n-title="common:password.show"
               >👁</button>
             </div>
           </div>
 
-          <button id="change-password-submit" type="button">Сменить пароль</button>
+          <button id="change-password-submit" type="button" data-i18n="auth:change_password.submit">Сменить пароль</button>
         </div>
       </div>
     </div>
@@ -4192,34 +4211,36 @@ if (runSubscriptionsBtn) {
     <div id="delete-account-modal" class="auth-modal hidden">
       <div class="auth-modal-backdrop"></div>
       <div class="auth-modal-content">
-        <button id="delete-account-modal-close" type="button" class="auth-modal-close" aria-label="Закрыть">×</button>
+        <button id="delete-account-modal-close" type="button" class="auth-modal-close" aria-label="Закрыть" data-i18n-aria-label="auth:profile.close_label">×</button>
 
         <div class="auth-view">
-          <h2>Удаление профиля</h2>
-          <p class="auth-note">
+          <h2 data-i18n="auth:delete_account.title">Удаление профиля</h2>
+          <p class="auth-note" data-i18n="auth:delete_account.description">
             Это действие необратимо. Будут удалены ваши сессии, Telegram-сессия, история чатов, подписки и рабочие данные профиля.
           </p>
 
           <div class="auth-field">
-            <label for="delete-account-current-password">Текущий пароль</label>
+            <label for="delete-account-current-password" data-i18n="auth:delete_account.current_password_label">Текущий пароль</label>
             <div class="password-input-wrap">
-              <input id="delete-account-current-password" type="password" placeholder="Введите текущий пароль" />
+              <input id="delete-account-current-password" type="password" placeholder="Введите текущий пароль" data-i18n-placeholder="auth:delete_account.current_password_placeholder" />
               <button
                 type="button"
                 class="password-toggle-btn"
                 data-target="delete-account-current-password"
                 aria-label="Показать пароль"
                 title="Показать пароль"
+                data-i18n-aria-label="common:password.show"
+                data-i18n-title="common:password.show"
               >👁</button>
             </div>
           </div>
 
           <div class="auth-field">
-            <label for="delete-account-confirm-text">Введите DELETE для подтверждения</label>
-            <input id="delete-account-confirm-text" type="text" placeholder="DELETE" />
+            <label for="delete-account-confirm-text" data-i18n="auth:delete_account.confirm_text_label">Введите DELETE для подтверждения</label>
+            <input id="delete-account-confirm-text" type="text" placeholder="DELETE" data-i18n-placeholder="auth:delete_account.confirm_text_placeholder" />
           </div>
 
-          <button id="delete-account-submit" type="button" class="profile-danger-btn">Удалить профиль</button>
+          <button id="delete-account-submit" type="button" class="profile-danger-btn" data-i18n="auth:delete_account.submit">Удалить профиль</button>
         </div>
       </div>
     </div>
@@ -4227,25 +4248,32 @@ if (runSubscriptionsBtn) {
     <div id="cookie-banner" class="cookie-banner hidden">
       <div class="cookie-banner__card">
         <div class="cookie-banner__text">
-          <strong>Мы используем cookie 🍪</strong>
-          <p>
+          <strong data-i18n="auth:cookie_banner.title">Мы используем cookie 🍪</strong>
+          <p data-i18n="auth:cookie_banner.text">
             Продолжая пользоваться сайтом, вы соглашаетесь с использованием cookie
             для авторизации и корректной работы сервиса.
           </p>
         </div>
-        <button id="cookie-accept-btn" type="button" class="cookie-banner__btn">
+        <button id="cookie-accept-btn" type="button" class="cookie-banner__btn" data-i18n="auth:cookie_banner.accept">
           Хорошо
         </button>
       </div>
     </div>
 
 <datalist id="country-options"></datalist>
-<div data-i18n="common:test_greeting" id="i18n-test" style="display:none"></div>
 <script src="/js/api.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@26.8.1/build/js/intlTelInput.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/i18next@23.15.1/dist/umd/i18next.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/i18next-http-backend@2.6.2/i18nextHttpBackend.min.js"></script>
 <script src="/js/i18n.js"></script>
+<script>
+  // Make sure the `auth` and `errors` namespaces are loaded on this page.
+  // i18n.js auto-initializes with `common` only; this call extends the
+  // namespace list and is idempotent.
+  if (window.cotelI18n && typeof window.cotelI18n.init === "function") {
+    window.cotelI18n.init({ namespaces: ["common", "auth", "errors"] });
+  }
+</script>
 <script src="/js/auth.js"></script>
   </body>
 </html>

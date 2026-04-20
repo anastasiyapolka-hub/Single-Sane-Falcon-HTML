@@ -17,6 +17,26 @@ const COTEL_LANG_MANUAL_KEY = "cotel_language_manual";
 const COTEL_LANG_AUTO_KEY = "cotel_language_auto";
 const COTEL_USER_PREFS_KEY = "cotel_user_prefs";
 
+/**
+ * Safe translation helper. Returns the translated string if i18next is
+ * loaded and the key resolves; otherwise returns the provided fallback
+ * (usually the original Russian string already shipped). This keeps the
+ * UI working even if /locales/*.json failed to load.
+ *
+ * Usage:
+ *   tAuth("auth:messages.login_failed", "Неверный email или пароль.")
+ *   tAuth("auth:verify.resend_in", "Отправить код повторно через 1:05", { minutes: 1, seconds: "05" })
+ */
+function tAuth(key, fallback, params) {
+  try {
+    if (window.cotelI18n && typeof window.cotelI18n.t === "function") {
+      const value = window.cotelI18n.t(key, params);
+      if (value && value !== key) return value;
+    }
+  } catch (_) { /* ignore */ }
+  return fallback;
+}
+
 const COUNTRY_LIST = [
   { code: "AM", name_en: "Armenia", name_ru: "Армения" },
   { code: "AU", name_en: "Australia", name_ru: "Австралия" },
@@ -481,14 +501,11 @@ function togglePasswordVisibility(button) {
   input.type = isPassword ? "text" : "password";
 
   button.classList.toggle("is-active", isPassword);
-  button.setAttribute(
-    "aria-label",
-    isPassword ? "Скрыть пароль" : "Показать пароль"
-  );
-  button.setAttribute(
-    "title",
-    isPassword ? "Скрыть пароль" : "Показать пароль"
-  );
+  const toggleLabel = isPassword
+    ? tAuth("common:password.hide", "Скрыть пароль")
+    : tAuth("common:password.show", "Показать пароль");
+  button.setAttribute("aria-label", toggleLabel);
+  button.setAttribute("title", toggleLabel);
   button.textContent = isPassword ? "🙈" : "👁";
 
   input.focus();
@@ -570,12 +587,16 @@ function setVerifyResendButtonState() {
 
   if (verifyResendCooldownLeft > 0) {
     const minutes = Math.floor(verifyResendCooldownLeft / 60);
-    const seconds = verifyResendCooldownLeft % 60;
+    const seconds = String(verifyResendCooldownLeft % 60).padStart(2, "0");
     btn.disabled = true;
-    btn.textContent = `Отправить код повторно через ${minutes}:${String(seconds).padStart(2, "0")}`;
+    btn.textContent = tAuth(
+      "auth:verify.resend_in",
+      `Отправить код повторно через ${minutes}:${seconds}`,
+      { minutes: minutes, seconds: seconds }
+    );
   } else {
     btn.disabled = false;
-    btn.textContent = "Отправить код повторно";
+    btn.textContent = tAuth("auth:verify.resend", "Отправить код повторно");
   }
 }
 
@@ -734,7 +755,7 @@ function showLoginError(message) {
 async function handleCheckEmail() {
   const email = byId("auth-email-check").value.trim().toLowerCase();
   if (!email) {
-    alert("Введите почту.");
+    alert(tAuth("auth:messages.login_email_required", "Введите почту."));
     return;
   }
 
@@ -754,7 +775,7 @@ async function handleCheckEmail() {
       switchAuthView("register");
     }
   } catch (err) {
-    alert("Не удалось проверить email.");
+    alert(tAuth("auth:messages.email_check_failed", "Не удалось проверить email."));
   }
 }
 
@@ -765,7 +786,7 @@ async function handleLogin() {
   clearLoginError();
 
   if (!email || !password) {
-    showLoginError("Введите пароль.");
+    showLoginError(tAuth("auth:messages.login_password_required", "Введите пароль."));
     return;
   }
 
@@ -800,11 +821,11 @@ async function handleLogin() {
       detail === "LOGIN_FAILED" ||
       detail === "UNAUTHORIZED"
     ) {
-      showLoginError("Неверный пароль");
+      showLoginError(tAuth("auth:messages.login_failed", "Неверный пароль"));
       return;
     }
 
-    showLoginError("Не удалось войти");
+    showLoginError(tAuth("errors:unknown", "Не удалось войти"));
   }
 }
 
@@ -817,17 +838,17 @@ async function handleRegister() {
   const password2 = byId("register-password2").value;
 
   if (!email || !countryName || !password || !password2) {
-    alert("Заполните все поля.");
+    alert(tAuth("auth:messages.register_email_required", "Заполните все поля."));
     return;
   }
 
   if (!countryMatch) {
-    alert("Выберите страну из списка.");
+    alert(tAuth("auth:messages.register_country_required", "Выберите страну из списка."));
     return;
   }
 
   if (password !== password2) {
-    alert("Пароли не совпадают.");
+    alert(tAuth("auth:messages.register_password_mismatch", "Пароли не совпадают."));
     return;
   }
 
@@ -862,11 +883,11 @@ async function handleRegister() {
   } catch (err) {
     const detail = err?.detail?.detail || err?.detail || "";
     if (detail === "PASSWORD_TOO_SHORT") {
-      alert("Пароль слишком короткий.");
+      alert(tAuth("auth:messages.register_password_short", "Пароль слишком короткий."));
       return;
     }
     if (detail === "PASSWORD_TOO_WEAK") {
-      alert("Пароль слишком слабый.");
+      alert(tAuth("auth:messages.register_password_too_weak", "Пароль слишком слабый."));
       return;
     }
     if (detail === "EMAIL_ALREADY_EXISTS") {
@@ -874,7 +895,7 @@ async function handleRegister() {
       switchAuthView("login");
       return;
     }
-    alert("Ошибка регистрации.");
+    alert(tAuth("auth:messages.register_failed", "Ошибка регистрации."));
   }
 }
 
@@ -882,13 +903,13 @@ async function handleVerify() {
   const code = byId("verify-code").value.trim();
 
   if (!registerEmail) {
-    alert("Не найден email для подтверждения.");
+    alert(tAuth("auth:messages.verify_missing_email", "Не найден email для подтверждения."));
     switchAuthView("start");
     return;
   }
 
   if (!code) {
-    alert("Введите код.");
+    alert(tAuth("auth:messages.verify_code_required", "Введите код."));
     return;
   }
 
@@ -912,13 +933,13 @@ async function handleVerify() {
 
     closeAuthModal();
   } catch (err) {
-    alert("Неверный или просроченный код.");
+    alert(tAuth("auth:messages.verify_failed", "Неверный или просроченный код."));
   }
 }
 
 async function handleResendVerifyCode() {
   if (!registerEmail) {
-    alert("Не найден email для повторной отправки кода.");
+    alert(tAuth("auth:messages.verify_resend_missing_email", "Не найден email для повторной отправки кода."));
     switchAuthView("start");
     return;
   }
@@ -931,25 +952,29 @@ async function handleResendVerifyCode() {
       })
     });
 
-    alert("Новый код отправлен на почту.");
+    alert(tAuth("auth:messages.verify_resent", "Новый код отправлен на почту."));
     startVerifyResendCooldown();
 
   } catch (err) {
     const detail = err?.detail?.detail || err?.detail || "";
 
     if (detail === "EMAIL_ALREADY_VERIFIED") {
-      alert("Почта уже подтверждена.");
+      alert(tAuth("auth:messages.verify_already_verified", "Почта уже подтверждена."));
       return;
     }
 
     if (typeof detail === "object" && detail?.code === "RESEND_COOLDOWN") {
       const retryAfter = Number(detail.retry_after_sec || VERIFY_RESEND_COOLDOWN_SEC);
       startVerifyResendCooldown(retryAfter);
-      alert(`Повторная отправка будет доступна через ${retryAfter} сек.`);
+      alert(tAuth(
+        "auth:messages.verify_resend_cooldown",
+        `Повторная отправка будет доступна через ${retryAfter} сек.`,
+        { seconds: retryAfter }
+      ));
       return;
     }
 
-    alert("Не удалось отправить код повторно.");
+    alert(tAuth("auth:messages.verify_resend_failed", "Не удалось отправить код повторно."));
   }
 }
 
@@ -959,10 +984,14 @@ function updateResetResendButton() {
 
   if (resetResendCooldownLeft > 0) {
     btn.disabled = true;
-    btn.textContent = `Отправить код ещё раз (${resetResendCooldownLeft} сек.)`;
+    btn.textContent = tAuth(
+      "auth:reset_confirm.resend_in",
+      `Отправить код ещё раз (${resetResendCooldownLeft} сек.)`,
+      { seconds: resetResendCooldownLeft }
+    );
   } else {
     btn.disabled = false;
-    btn.textContent = "Отправить код ещё раз";
+    btn.textContent = tAuth("auth:reset_confirm.resend", "Отправить код ещё раз");
   }
 }
 
@@ -1002,7 +1031,7 @@ async function handlePasswordResetRequest() {
   const email = byId("reset-request-email")?.value.trim().toLowerCase() || "";
 
   if (!email) {
-    alert("Введите email.");
+    alert(tAuth("auth:messages.reset_email_required", "Введите email."));
     return;
   }
 
@@ -1019,18 +1048,22 @@ async function handlePasswordResetRequest() {
 
     switchAuthView("reset-confirm");
     startResetResendCooldown();
-    alert("Если аккаунт с такой почтой существует, код отправлен.");
+    alert(tAuth("auth:messages.reset_request_sent", "Если аккаунт с такой почтой существует, код отправлен."));
   } catch (err) {
     const detail = err?.detail?.detail || err?.detail || "";
 
     if (typeof detail === "object" && detail?.code === "RESET_RESEND_COOLDOWN") {
       const retryAfter = Number(detail.retry_after_sec || RESET_RESEND_COOLDOWN_SEC);
       startResetResendCooldown(retryAfter);
-      alert(`Повторная отправка будет доступна через ${retryAfter} сек.`);
+      alert(tAuth(
+        "auth:messages.reset_resend_cooldown",
+        `Повторная отправка будет доступна через ${retryAfter} сек.`,
+        { seconds: retryAfter }
+      ));
       return;
     }
 
-    alert("Не удалось отправить код.");
+    alert(tAuth("auth:messages.reset_request_failed", "Не удалось отправить код."));
   }
 }
 
@@ -1041,17 +1074,17 @@ async function handlePasswordResetConfirm() {
   const newPassword2 = byId("reset-new-password2")?.value || "";
 
   if (!email) {
-    alert("Не найден email.");
+    alert(tAuth("auth:messages.reset_missing_email", "Не найден email."));
     return;
   }
 
   if (!code) {
-    alert("Введите код из письма.");
+    alert(tAuth("auth:messages.reset_code_required", "Введите код из письма."));
     return;
   }
 
   if (!newPassword || !newPassword2) {
-    alert("Введите новый пароль и подтверждение.");
+    alert(tAuth("auth:messages.reset_password_required", "Введите новый пароль и подтверждение."));
     return;
   }
 
@@ -1078,32 +1111,32 @@ async function handlePasswordResetConfirm() {
     const detail = err?.detail?.detail || err?.detail || "";
 
     if (detail === "PASSWORD_MISMATCH") {
-      alert("Пароли не совпадают.");
+      alert(tAuth("auth:messages.reset_password_mismatch", "Пароли не совпадают."));
       return;
     }
 
     if (detail === "PASSWORD_TOO_SHORT") {
-      alert("Пароль слишком короткий.");
+      alert(tAuth("auth:messages.reset_password_short", "Пароль слишком короткий."));
       return;
     }
 
     if (detail === "PASSWORD_TOO_WEAK") {
-      alert("Пароль слишком слабый.");
+      alert(tAuth("auth:messages.register_password_too_weak", "Пароль слишком слабый."));
       return;
     }
 
     if (detail === "CODE_EXPIRED") {
-      alert("Код истёк.");
+      alert(tAuth("auth:messages.reset_expired", "Код истёк."));
       return;
     }
 
     if (detail === "CODE_ALREADY_USED") {
-      alert("Этот код уже использован.");
+      alert(tAuth("auth:messages.reset_already_used", "Этот код уже использован."));
       return;
     }
 
     if (detail === "TOO_MANY_ATTEMPTS") {
-      alert("Слишком много неверных попыток. Запросите новый код.");
+      alert(tAuth("auth:messages.reset_too_many_attempts", "Слишком много неверных попыток. Запросите новый код."));
       return;
     }
 
@@ -1112,11 +1145,11 @@ async function handlePasswordResetConfirm() {
       detail === "CODE_NOT_FOUND" ||
       detail === "CODE_REQUIRED"
     ) {
-      alert("Неверный или просроченный код.");
+      alert(tAuth("auth:messages.reset_invalid_code", "Неверный или просроченный код."));
       return;
     }
 
-    alert("Не удалось сбросить пароль.");
+    alert(tAuth("auth:messages.reset_failed", "Не удалось сбросить пароль."));
   }
 }
 
@@ -1127,7 +1160,7 @@ async function handleResendPasswordResetCode() {
     "";
 
   if (!email) {
-    alert("Не найден email для повторной отправки кода.");
+    alert(tAuth("auth:messages.reset_resend_missing_email", "Не найден email для повторной отправки кода."));
     switchAuthView("start");
     return;
   }
@@ -1140,18 +1173,22 @@ async function handleResendPasswordResetCode() {
 
     resetEmail = email;
     startResetResendCooldown();
-    alert("Новый код отправлен на почту.");
+    alert(tAuth("auth:messages.resend_sent", "Новый код отправлен на почту."));
   } catch (err) {
     const detail = err?.detail?.detail || err?.detail || "";
 
     if (typeof detail === "object" && detail?.code === "RESET_RESEND_COOLDOWN") {
       const retryAfter = Number(detail.retry_after_sec || RESET_RESEND_COOLDOWN_SEC);
       startResetResendCooldown(retryAfter);
-      alert(`Повторная отправка будет доступна через ${retryAfter} сек.`);
+      alert(tAuth(
+        "auth:messages.reset_resend_cooldown",
+        `Повторная отправка будет доступна через ${retryAfter} сек.`,
+        { seconds: retryAfter }
+      ));
       return;
     }
 
-    alert("Не удалось отправить код повторно.");
+    alert(tAuth("auth:messages.resend_failed", "Не удалось отправить код повторно."));
   }
 }
 
@@ -1235,7 +1272,7 @@ function bindAuthUi() {
 
   byId("help-btn")?.addEventListener("click", () => {
     closeUserDropdown();
-    alert("Справку подключим следующим этапом.");
+    alert(tAuth("auth:messages.help_coming_soon", "Справку подключим следующим этапом."));
   });
 
   byId("change-plan-btn")?.addEventListener("click", () => {
@@ -1412,7 +1449,7 @@ function renderProfileLimits() {
     const planCode = String(plan.code || "").toLowerCase();
 
     if (planCode === "free" && usage.free_trial_expired) {
-      subsNote.textContent = "Действие пробных подписок завершено.";
+      subsNote.textContent = tAuth("auth:messages.trials_ended", "Действие пробных подписок завершено.");
       subsNote.style.display = "block";
     } else {
       subsNote.textContent = "";
@@ -1644,27 +1681,27 @@ async function handleSaveProfile() {
     const detail = err?.detail?.detail || err?.detail || "";
 
     if (detail === "PHONE_ALREADY_USED") {
-      alert("Этот номер телефона уже используется в другом аккаунте.");
+      alert(tAuth("auth:messages.profile_phone_in_use", "Этот номер телефона уже используется в другом аккаунте."));
       return;
     }
 
     if (detail === "PHONE_INVALID") {
-      alert("Телефон введён в неверном формате.");
+      alert(tAuth("auth:messages.profile_phone_invalid", "Телефон введён в неверном формате."));
       return;
     }
 
     if (detail === "TIMEZONE_INVALID") {
-      alert("Выбран некорректный часовой пояс.");
+      alert(tAuth("auth:messages.profile_timezone_invalid", "Выбран некорректный часовой пояс."));
       return;
     }
 
-    alert("Не удалось сохранить изменения профиля.");
+    alert(tAuth("auth:messages.profile_save_failed", "Не удалось сохранить изменения профиля."));
   }
 }
 
 function closeProfileModal(force = false) {
   if (!force && profileIsDirty) {
-    const shouldSave = window.confirm("Сохранить внесённые изменения?");
+    const shouldSave = window.confirm(tAuth("auth:messages.delete_confirm_save", "Сохранить внесённые изменения?"));
     if (shouldSave) {
       handleSaveProfile();
       return;
@@ -1704,12 +1741,12 @@ async function handleChangePassword() {
   const newPassword2 = byId("change-password-new2")?.value || "";
 
   if (!currentPassword) {
-    alert("Введите текущий пароль.");
+    alert(tAuth("auth:messages.change_password_current_required", "Введите текущий пароль."));
     return;
   }
 
   if (!newPassword || !newPassword2) {
-    alert("Введите новый пароль и подтверждение.");
+    alert(tAuth("auth:messages.change_password_new_required", "Введите новый пароль и подтверждение."));
     return;
   }
 
@@ -1724,41 +1761,41 @@ async function handleChangePassword() {
     });
 
     closeChangePasswordModal();
-    alert("Пароль успешно изменён.");
+    alert(tAuth("auth:messages.change_password_success", "Пароль успешно изменён."));
   } catch (err) {
     const detail = err?.detail?.detail || err?.detail || "";
 
     if (detail === "CURRENT_PASSWORD_INVALID") {
-      alert("Текущий пароль введён неверно.");
+      alert(tAuth("auth:messages.change_password_wrong_current", "Текущий пароль введён неверно."));
       return;
     }
 
     if (detail === "PASSWORD_MISMATCH") {
-      alert("Новый пароль и подтверждение не совпадают.");
+      alert(tAuth("auth:messages.change_password_new_mismatch", "Новый пароль и подтверждение не совпадают."));
       return;
     }
 
     if (detail === "PASSWORD_TOO_SHORT") {
-      alert("Новый пароль слишком короткий.");
+      alert(tAuth("auth:messages.change_password_new_short", "Новый пароль слишком короткий."));
       return;
     }
 
     if (detail === "PASSWORD_TOO_WEAK") {
-      alert("Новый пароль слишком слабый.");
+      alert(tAuth("auth:messages.change_password_new_too_weak", "Новый пароль слишком слабый."));
       return;
     }
 
     if (detail === "PASSWORD_SAME_AS_CURRENT") {
-      alert("Новый пароль должен отличаться от текущего.");
+      alert(tAuth("auth:messages.change_password_same_as_current", "Новый пароль должен отличаться от текущего."));
       return;
     }
 
     if (detail === "PASSWORD_NOT_SET") {
-      alert("Для этого аккаунта смена пароля недоступна.");
+      alert(tAuth("auth:messages.change_password_not_available", "Для этого аккаунта смена пароля недоступна."));
       return;
     }
 
-    alert("Не удалось сменить пароль.");
+    alert(tAuth("auth:messages.change_password_failed", "Не удалось сменить пароль."));
   }
 }
 
@@ -1767,12 +1804,12 @@ async function handleDeleteAccount() {
   const confirmText = (byId("delete-account-confirm-text")?.value || "").trim();
 
   if (!currentPassword) {
-    alert("Введите текущий пароль.");
+    alert(tAuth("auth:messages.delete_password_required", "Введите текущий пароль."));
     return;
   }
 
   if (confirmText.toUpperCase() !== "DELETE") {
-    alert('Введите DELETE для подтверждения удаления профиля.');
+    alert(tAuth("auth:messages.delete_confirm_required", "Введите DELETE для подтверждения удаления профиля."));
     return;
   }
 
@@ -1790,26 +1827,26 @@ async function handleDeleteAccount() {
     closeUserDropdown();
     setGuest();
 
-    alert("Профиль удалён.");
+    alert(tAuth("auth:messages.delete_success", "Профиль удалён."));
   } catch (err) {
     const detail = err?.detail?.detail || err?.detail || "";
 
     if (detail === "CURRENT_PASSWORD_INVALID") {
-      alert("Текущий пароль введён неверно.");
+      alert(tAuth("auth:messages.delete_wrong_password", "Текущий пароль введён неверно."));
       return;
     }
 
     if (detail === "DELETE_CONFIRM_TEXT_INVALID") {
-      alert('Введите DELETE для подтверждения удаления профиля.');
+      alert(tAuth("auth:messages.delete_confirm_required", "Введите DELETE для подтверждения удаления профиля."));
       return;
     }
 
     if (detail === "PASSWORD_NOT_SET") {
-      alert("Для этого аккаунта удаление через пароль недоступно.");
+      alert(tAuth("auth:messages.delete_not_available", "Для этого аккаунта удаление через пароль недоступно."));
       return;
     }
 
-    alert("Не удалось удалить профиль.");
+    alert(tAuth("auth:messages.delete_failed", "Не удалось удалить профиль."));
   }
 }
 

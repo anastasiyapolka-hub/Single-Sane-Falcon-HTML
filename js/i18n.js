@@ -77,20 +77,29 @@
   }
 
   function init(options) {
-    if (initialized) return initPromise;
-    initialized = true;
-
     const opts = options || {};
-    const namespaces = Array.from(
+    const extraNamespaces = Array.from(
       new Set(DEFAULT_NAMESPACES.concat(opts.namespaces || []))
     );
+
+    // Subsequent init() calls: just load any new namespaces.
+    if (initialized) {
+      return initPromise.then(function () {
+        return i18next.loadNamespaces(extraNamespaces);
+      }).then(function () {
+        applyTranslations(document);
+        return i18next;
+      });
+    }
+
+    initialized = true;
     const startupLang = resolveStartupLanguage();
 
     const config = {
       lng: startupLang,
       fallbackLng: FALLBACK_LANGUAGE,
       supportedLngs: SUPPORTED_LANGUAGES,
-      ns: namespaces,
+      ns: extraNamespaces,
       defaultNS: "common",
       load: "languageOnly",
       backend: {
@@ -171,7 +180,20 @@
           try { params = JSON.parse(rawParams); } catch (_) { /* ignore */ }
         }
 
+        // Check if the namespace for this key is loaded. If not, skip —
+        // this preserves existing fallback text on the page until the
+        // namespace arrives (e.g. async loadNamespaces call).
+        const nsSep = key.indexOf(":");
+        if (nsSep > -1) {
+          const ns = key.slice(0, nsSep);
+          if (!i18next.hasLoadedNamespace(ns)) return;
+        }
+
         const value = i18next.t(key, params);
+
+        // If i18next couldn't resolve the key (returns key unchanged),
+        // skip to preserve the original fallback text rendered in HTML.
+        if (value === key) return;
 
         switch (binding.target) {
           case "text":

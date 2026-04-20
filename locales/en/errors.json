@@ -1,1 +1,15 @@
-{}
+{
+  "network": "Network error. Please check your connection and try again.",
+  "unknown": "Something went wrong. Please try again later.",
+  "unauthorized": "Please sign in to continue.",
+  "forbidden": "You don't have access to this action.",
+  "not_found": "Not found.",
+  "rate_limited": "Too many requests. Please try again later.",
+  "server_error": "Server error. Please try again later.",
+  "validation": {
+    "required": "This field is required.",
+    "email_invalid": "Please enter a valid email address.",
+    "password_too_short": "Password must be at least 8 characters.",
+    "passwords_mismatch": "Passwords do not match."
+  }
+}

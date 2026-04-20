@@ -1,3 +1,31 @@
 {
+  "brand": {
+    "name": "CoTel",
+    "tagline": "— AI Copilot for Telegram"
+  },
+  "actions": {
+    "save": "Save",
+    "save_changes": "Save changes",
+    "cancel": "Cancel",
+    "close": "Close",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "continue": "Continue",
+    "submit": "Submit",
+    "send": "Send",
+    "retry": "Retry",
+    "ok": "OK"
+  },
+  "password": {
+    "show": "Show password",
+    "hide": "Hide password"
+  },
+  "status": {
+    "loading": "Loading…",
+    "saving": "Saving…",
+    "please_wait": "Please wait…"
+  },
+  "avatar_alt": "Avatar",
   "test_greeting": "Hello from i18next"
 }
