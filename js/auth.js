@@ -37,6 +37,10 @@ function tAuth(key, fallback, params) {
   return fallback;
 }
 
+// Neutral alias so other scripts (e.g. inline scripts on the page) can resolve
+// i18n keys without depending on the auth-centric name.
+window.tI18n = tAuth;
+
 const COUNTRY_LIST = [
   { code: "AM", name_en: "Armenia", name_ru: "Армения" },
   { code: "AU", name_en: "Australia", name_ru: "Австралия" },
