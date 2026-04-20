@@ -1,1 +1,99 @@
-{}
+{
+  "sidebar": {
+    "toggle_title": "Свернуть панель",
+    "title": "Рабочая панель",
+    "admin_btn": "Панель администрирования",
+    "resizer_title": "Изменить ширину панели"
+  },
+  "mini_icons": {
+    "data_source": "Источники данных",
+    "telegram": "Telegram",
+    "my_chats": "Мои чаты",
+    "my_subscriptions": "Мои подписки"
+  },
+  "data_source": {
+    "section_title": "Подключение к Telegram",
+    "file": "Файл Telegram (JSON)",
+    "account": "Мой аккаунт Telegram",
+    "public": "Служебный аккаунт CoTel",
+    "bot": "Чат с ботом"
+  },
+  "telegram_auth": {
+    "title": "Авторизация Telegram",
+    "qr_login_btn": "Войти через QR-код",
+    "qr_hint": "Откройте Telegram → Настройки → Устройства → Подключить устройство и сканируйте QR.",
+    "qr_refresh_btn": "Обновить QR",
+    "phone_label": "Телефон",
+    "phone_placeholder": "+7 9ХХ ХХХ-ХХ-ХХ",
+    "send_code_btn": "Получить код в Telegram",
+    "send_code_hint": "Мы отправим код в ваш Telegram-клиент. Мы не сохраняем историю сообщений.",
+    "code_sent_hint": "Мы отправили код в ваш Telegram. Введите его ниже.",
+    "code_label": "Код из Telegram",
+    "code_placeholder": "12345",
+    "confirm_code_btn": "Подтвердить код",
+    "cancel_btn": "Отменить",
+    "password_required_hint": "Для завершения входа требуется пароль Telegram (2FA).",
+    "password_label": "Пароль Telegram",
+    "password_placeholder": "Введите пароль",
+    "confirm_password_btn": "Подтвердить пароль",
+    "connected_prefix": "Подключено к Telegram как"
+  },
+  "telegram_status": {
+    "section_title": "Авторизация в Telegram",
+    "not_connected": "Не подключено",
+    "account_label": "Аккаунт:",
+    "logout_btn": "Завершить сеанс"
+  },
+  "chat_requests": {
+    "section_title": "Запросы к чатам",
+    "active_chat_placeholder": "Введите чат для запроса…",
+    "query_settings_toggle": "Настройки запроса",
+    "history_days_label": "Период анализа истории, дней:",
+    "ai_model_label": "Модель AI:",
+    "history_toggle": "История",
+    "history_aria": "История чатов",
+    "available_chats_toggle": "Мои чаты и каналы",
+    "available_chats_aria": "Список чатов"
+  },
+  "subscriptions": {
+    "section_title": "Подписки",
+    "add_btn_title": "Добавить подписку",
+    "run_btn": "Запустить подписки",
+    "dispatch_bot_btn": "Запустить бота",
+    "list_aria": "Список подписок"
+  },
+  "subscription_form": {
+    "title_create": "Создание новой подписки",
+    "name_label": "Название подписки",
+    "name_placeholder": "Введите имя подписки",
+    "type_label": "Тип подписки",
+    "type_events": "События",
+    "type_digest": "Саммари",
+    "type_help": "События — подписка реагирует на появление объявлений/оповещений по вашему запросу и присылает список конкретных сообщений. Саммари — ИИ подготовит резюме/дайджест/саммари чата за указанный период.",
+    "chat_label": "Чат / канал",
+    "chat_placeholder": "Выберите чат/канал или вставьте ссылку",
+    "private_chat_hint": "Подписка на приватные и личные чаты доступна только при авторизации через ваш личный аккаунт.",
+    "chat_list_aria": "Список чатов для подписки",
+    "period_label": "Период чтения",
+    "period_10m": "1 раз в 10 минут",
+    "period_30m": "1 раз в 30 минут",
+    "period_1h": "1 раз в час",
+    "period_3h": "1 раз в 3 часа",
+    "period_6h": "1 раз в 6 часов",
+    "period_12h": "1 раз в 12 часов (полдня)",
+    "period_1d": "1 раз в день",
+    "ai_model_label": "Модель AI",
+    "ai_model_help": "Эта модель ИИ будет использоваться для данной подписки. Для Free-аккаунтов используется OpenAI.",
+    "prompt_label": "Текст запроса",
+    "prompt_placeholder": "Введите текст запроса для подписки: какую информацию собирать и когда уведомлять",
+    "prompt_help": "Можно использовать ключевые слова или более сложный запрос — анализ выполняется OpenAI.",
+    "create_btn": "Создать подписку",
+    "cancel_btn": "Отмена"
+  },
+  "dashboard": {
+    "upload_btn_title": "Импорт чата",
+    "query_placeholder": "Введите текст запроса",
+    "analyze_btn_title": "Выполнить анализ",
+    "disclaimer": "⚠️ Анализ чата выполняется сторонней моделью ИИ (OpenAI). Не загружайте секретные или конфиденциальные данные."
+  }
+}

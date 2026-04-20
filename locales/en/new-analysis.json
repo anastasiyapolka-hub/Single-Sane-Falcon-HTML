@@ -1,1 +1,99 @@
-{}
+{
+  "sidebar": {
+    "toggle_title": "Collapse panel",
+    "title": "Workspace",
+    "admin_btn": "Admin panel",
+    "resizer_title": "Resize panel"
+  },
+  "mini_icons": {
+    "data_source": "Data sources",
+    "telegram": "Telegram",
+    "my_chats": "My chats",
+    "my_subscriptions": "My subscriptions"
+  },
+  "data_source": {
+    "section_title": "Connect to Telegram",
+    "file": "Telegram file (JSON)",
+    "account": "My Telegram account",
+    "public": "CoTel service account",
+    "bot": "Chat with bot"
+  },
+  "telegram_auth": {
+    "title": "Telegram authentication",
+    "qr_login_btn": "Sign in via QR code",
+    "qr_hint": "Open Telegram \u2192 Settings \u2192 Devices \u2192 Link Desktop Device and scan the QR code.",
+    "qr_refresh_btn": "Refresh QR",
+    "phone_label": "Phone",
+    "phone_placeholder": "+1 555 555-55-55",
+    "send_code_btn": "Get code in Telegram",
+    "send_code_hint": "We'll send a code to your Telegram client. We don't store message history.",
+    "code_sent_hint": "We've sent a code to your Telegram. Enter it below.",
+    "code_label": "Code from Telegram",
+    "code_placeholder": "12345",
+    "confirm_code_btn": "Confirm code",
+    "cancel_btn": "Cancel",
+    "password_required_hint": "A Telegram password (2FA) is required to finish sign-in.",
+    "password_label": "Telegram password",
+    "password_placeholder": "Enter password",
+    "confirm_password_btn": "Confirm password",
+    "connected_prefix": "Connected to Telegram as"
+  },
+  "telegram_status": {
+    "section_title": "Telegram authentication",
+    "not_connected": "Not connected",
+    "account_label": "Account:",
+    "logout_btn": "End session"
+  },
+  "chat_requests": {
+    "section_title": "Chat requests",
+    "active_chat_placeholder": "Enter a chat to query\u2026",
+    "query_settings_toggle": "Query settings",
+    "history_days_label": "History analysis period, days:",
+    "ai_model_label": "AI model:",
+    "history_toggle": "History",
+    "history_aria": "Chat history",
+    "available_chats_toggle": "My chats and channels",
+    "available_chats_aria": "Chat list"
+  },
+  "subscriptions": {
+    "section_title": "Subscriptions",
+    "add_btn_title": "Add subscription",
+    "run_btn": "Run subscriptions",
+    "dispatch_bot_btn": "Launch bot",
+    "list_aria": "Subscriptions list"
+  },
+  "subscription_form": {
+    "title_create": "Create a new subscription",
+    "name_label": "Subscription name",
+    "name_placeholder": "Enter subscription name",
+    "type_label": "Subscription type",
+    "type_events": "Events",
+    "type_digest": "Digest",
+    "type_help": "Events \u2014 subscription reacts to announcements/alerts matching your query and sends the list of specific messages. Digest \u2014 AI prepares a summary/digest of the chat for the given period.",
+    "chat_label": "Chat / channel",
+    "chat_placeholder": "Select a chat/channel or paste a link",
+    "private_chat_hint": "Subscribing to private and personal chats is only available when signed in with your personal Telegram account.",
+    "chat_list_aria": "Chat list for subscription",
+    "period_label": "Read period",
+    "period_10m": "Every 10 minutes",
+    "period_30m": "Every 30 minutes",
+    "period_1h": "Every hour",
+    "period_3h": "Every 3 hours",
+    "period_6h": "Every 6 hours",
+    "period_12h": "Every 12 hours (half a day)",
+    "period_1d": "Once a day",
+    "ai_model_label": "AI model",
+    "ai_model_help": "This AI model will be used for this subscription. Free accounts use OpenAI.",
+    "prompt_label": "Query text",
+    "prompt_placeholder": "Enter the query for the subscription: what information to collect and when to notify",
+    "prompt_help": "You can use keywords or a more complex query \u2014 analysis is performed by OpenAI.",
+    "create_btn": "Create subscription",
+    "cancel_btn": "Cancel"
+  },
+  "dashboard": {
+    "upload_btn_title": "Import chat",
+    "query_placeholder": "Enter query text",
+    "analyze_btn_title": "Run analysis",
+    "disclaimer": "\u26a0\ufe0f Chat analysis is performed by a third-party AI model (OpenAI). Do not upload secret or confidential data."
+  }
+}

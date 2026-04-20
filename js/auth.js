@@ -110,13 +110,20 @@ const TIMEZONE_OPTIONS = [
 const AI_MODEL_OPTIONS = [
   {
     value: "openai:gpt-4.1-mini",
-    label: "OpenAI GPT-4.1 mini — быстрый и универсальный анализ"
+    labelKey: "common:ai_models.openai_gpt_4_1_mini",
+    labelFallback: "OpenAI GPT-4.1 mini — быстрый и универсальный анализ"
   },
   {
     value: "anthropic:claude-sonnet-4-6",
-    label: "Claude Sonnet 4.6 — более глубокий анализ длинных обсуждений"
+    labelKey: "common:ai_models.claude_sonnet_4_6",
+    labelFallback: "Claude Sonnet 4.6 — более глубокий анализ длинных обсуждений"
   },
 ];
+
+function getAiModelLabel(option) {
+  if (!option) return "";
+  return tAuth(option.labelKey, option.labelFallback);
+}
 
 function normalizeAiModel(value) {
   const raw = String(value || "").trim().toLowerCase();
@@ -142,7 +149,7 @@ function buildAiModelOptions(selectId, selectedValue, planCode) {
   select.innerHTML = options
     .map(
       (item) =>
-        `<option value="${item.value}" ${item.value === normalized ? "selected" : ""}>${item.label}</option>`
+        `<option value="${item.value}" ${item.value === normalized ? "selected" : ""}>${getAiModelLabel(item)}</option>`
     )
     .join("");
 
@@ -1355,16 +1362,34 @@ function bindAuthUi() {
 function formatSubscriptionFrequency(minutes) {
   const value = Number(minutes || 0);
 
-  if (!value) return "—";
-  if (value < 60) return `не чаще 1 раза в ${value} мин`;
+  if (!value) return tAuth("auth:profile.limits.frequency_none", "—");
+  if (value < 60) {
+    return tAuth(
+      "auth:profile.limits.frequency_per_minutes",
+      `не чаще 1 раза в ${value} мин`,
+      { value: value }
+    );
+  }
   if (value % 60 === 0) {
     const hours = value / 60;
-    return hours === 1
-      ? "не чаще 1 раза в 1 час"
-      : `не чаще 1 раза в ${hours} ч`;
+    if (hours === 1) {
+      return tAuth(
+        "auth:profile.limits.frequency_per_hour_one",
+        "не чаще 1 раза в 1 час"
+      );
+    }
+    return tAuth(
+      "auth:profile.limits.frequency_per_hours_other",
+      `не чаще 1 раза в ${hours} ч`,
+      { value: hours }
+    );
   }
 
-  return `не чаще 1 раза в ${value} мин`;
+  return tAuth(
+    "auth:profile.limits.frequency_per_minutes",
+    `не чаще 1 раза в ${value} мин`,
+    { value: value }
+  );
 }
 
 function setPlanUsageSnapshot(snapshot) {
@@ -1417,7 +1442,15 @@ function renderProfileLimits() {
   setText("profile-limit-subs-used", usage.active_subscriptions ?? 0);
   setText("profile-limit-subs-total", plan.max_active_subscriptions ?? 0);
 
-  setText("profile-limit-history-days", plan.qa_history_days ?? 0);
+  const historyDays = plan.qa_history_days ?? 0;
+  const historyEl = byId("profile-limit-history-days");
+  if (historyEl) {
+    historyEl.textContent = tAuth(
+      "auth:profile.limits.history_depth_value",
+      `до ${historyDays} дней`,
+      { days: historyDays }
+    );
+  }
 
   const frequencyEl = byId("profile-limit-frequency-text");
   if (frequencyEl) {
@@ -1426,7 +1459,9 @@ function renderProfileLimits() {
 
   const chatHistoryEl = byId("profile-limit-chat-history");
   if (chatHistoryEl) {
-    chatHistoryEl.textContent = plan.has_chat_history ? "доступна" : "недоступна";
+    chatHistoryEl.textContent = plan.has_chat_history
+      ? tAuth("auth:profile.limits.chat_history_available", "доступна")
+      : tAuth("auth:profile.limits.chat_history_unavailable", "недоступна");
   }
 
   const trialCard = byId("profile-trial-card");
@@ -1886,5 +1921,14 @@ document.addEventListener("DOMContentLoaded", () => {
   applyTelegramPhoneFromCurrentUser();
   bootstrapAuth();
   initCookieBanner();
-  
+
+  // Re-render dynamic profile strings (frequency, chat history, history depth)
+  // whenever the interface language changes.
+  if (typeof i18next !== "undefined" && typeof i18next.on === "function") {
+    i18next.on("languageChanged", () => {
+      try {
+        renderProfileLimits();
+      } catch (_) { /* ignore */ }
+    });
+  }
 });

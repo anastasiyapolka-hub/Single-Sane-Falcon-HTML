@@ -199,11 +199,11 @@
                 <div class="navigation__left">
                   <a href="#">
                     <div class="navigation__link">
-                      <span>Новый анализ</span>
+                      <span data-i18n="common:nav.new_analysis">Новый анализ</span>
                     </div>
                   </a>
                   <a href="#">
-                    <div class="navigation__link"><span>История</span></div>
+                    <div class="navigation__link"><span data-i18n="common:nav.history">История</span></div>
                   </a>
                 </div>
 
@@ -222,11 +222,11 @@
 
                 <div class="navigation__right">
                   <a href="#">
-                    <div class="navigation__link"><span>Настройки</span></div>
+                    <div class="navigation__link"><span data-i18n="common:nav.settings">Настройки</span></div>
                   </a>
                   <a href="#">
                     <div class="navigation__link navigation__link--cta">
-                      <span>Попробовать</span>
+                      <span data-i18n="common:nav.try">Попробовать</span>
                     </div>
                   </a>
                 </div>
@@ -244,6 +244,7 @@
                 <button
                   id="navClose"
                   aria-label="Закрыть меню"
+                  data-i18n-aria-label="common:nav.close_menu_aria"
                   class="navigation__overlay-close"
                 >
                   <svg
@@ -266,24 +267,24 @@
               <div class="navigation__overlay-content">
                 <a href="#">
                   <div class="navigation__overlay-link">
-                    <span>Новый анализ</span>
+                    <span data-i18n="common:nav.new_analysis">Новый анализ</span>
                   </div>
                 </a>
                 <a href="#">
                   <div class="navigation__overlay-link">
-                    <span>История</span>
+                    <span data-i18n="common:nav.history">История</span>
                   </div>
                 </a>
                 <a href="#">
                   <div class="navigation__overlay-link">
-                    <span>Настройки</span>
+                    <span data-i18n="common:nav.settings">Настройки</span>
                   </div>
                 </a>
                 <a href="#">
                   <div
                     class="navigation__overlay-link--cta navigation__overlay-link"
                   >
-                    <span>Попробовать</span>
+                    <span data-i18n="common:nav.try">Попробовать</span>
                   </div>
                 </a>
               </div>
@@ -317,10 +318,11 @@
                 class="sidebar-toggle-btn"
                 type="button"
                 title="Свернуть панель"
+                data-i18n-title="new-analysis:sidebar.toggle_title"
               >
               ⚙️
               </button>
-              <span class="sidebar-title">Рабочая панель</span>
+              <span class="sidebar-title" data-i18n="new-analysis:sidebar.title">Рабочая панель</span>
             </div>
 
             <!-- Мини-иконки, которые показываются только в  свернутом состоянии -->
@@ -330,6 +332,7 @@
                 type="button"
                 data-target="dataSourceSection"
                 title="Источники данных"
+                data-i18n-title="new-analysis:mini_icons.data_source"
               >
                 📁
               </button>
@@ -337,6 +340,7 @@
                 class="sidebar-mini-icon-btn"
                 type="button"
                 title="Telegram"
+                data-i18n-title="new-analysis:mini_icons.telegram"
               >
                 <span id="tgMiniStatusDot" class="tg-status-dot tg-status-off"></span>
               </button>
@@ -346,6 +350,7 @@
                 type="button"
                 data-target="myChatsSection"
                 title="Мои чаты"
+                data-i18n-title="new-analysis:mini_icons.my_chats"
               >
                 💬
               </button>
@@ -354,6 +359,7 @@
                 type="button"
                 data-target="mySubscriptionsSection"
                 title="Мои подписки"
+                data-i18n-title="new-analysis:mini_icons.my_subscriptions"
               >
                 ⭐
               </button>
@@ -366,7 +372,7 @@
               <div class="sidebar-section">
                 <details id="dataSourceSection" open>
                   <summary>
-                    <span>Подключение к Telegram</span>
+                    <span data-i18n="new-analysis:data_source.section_title">Подключение к Telegram</span>
                     <span>▾</span>
                   </summary>
 
@@ -379,7 +385,7 @@
                         id="dataSourceFile"
                         value="file"
                       />
-                      <span>Файл Telegram (JSON)</span>
+                      <span data-i18n="new-analysis:data_source.file">Файл Telegram (JSON)</span>
                     </label>
 
                     <!-- 2. Мой аккаунт Telegram -->
@@ -388,9 +394,9 @@
                         type="radio"
                         name="dataSource"
                         id="dataSourceAccount"
-                        value="account"                        
+                        value="account"
                       />
-                      <span>Мой аккаунт Telegram</span>
+                      <span data-i18n="new-analysis:data_source.account">Мой аккаунт Telegram</span>
                     </label>
 
                     <!-- Блок: Авторизация Telegram (появляется под "Мой аккаунт") -->
@@ -399,20 +405,20 @@
                       class="tg-auth-block"
                       style="display: none;"
                     >
-                      <h3>Авторизация Telegram</h3>
+                      <h3 data-i18n="new-analysis:telegram_auth.title">Авторизация Telegram</h3>
 
                       <!-- QR login -->
                       <div id="tgQrBlock" class="tg-qr-block">
-                        <button id="tgQrStartBtn" type="button" class="tg-button">
+                        <button id="tgQrStartBtn" type="button" class="tg-button" data-i18n="new-analysis:telegram_auth.qr_login_btn">
                           Войти через QR-код
                         </button>
 
                         <div id="tgQrArea" class="tg-qr-area" style="display:none;">
                           <div id="tgQrCanvas" class="tg-qr-canvas"></div>
-                          <p id="tgQrHint" class="tg-status">Откройте Telegram → Настройки → Устройства → Подключить устройство и сканируйте QR.</p>
+                          <p id="tgQrHint" class="tg-status" data-i18n="new-analysis:telegram_auth.qr_hint">Откройте Telegram → Настройки → Устройства → Подключить устройство и сканируйте QR.</p>
                           <p id="tgQrStatus" class="tg-status"></p>
 
-                          <button id="tgQrRestartBtn" type="button" class="tg-button" style="display:none;">
+                          <button id="tgQrRestartBtn" type="button" class="tg-button" style="display:none;" data-i18n="new-analysis:telegram_auth.qr_refresh_btn">
                             Обновить QR
                           </button>
                         </div>
@@ -424,22 +430,24 @@
                       <!-- состояние 1: ввод телефона -->
                       <div id="tgStatePhone">
                         <div class="tg-field">
-                          <label for="tgPhoneInput">Телефон</label>
+                          <label for="tgPhoneInput" data-i18n="new-analysis:telegram_auth.phone_label">Телефон</label>
                           <input
                             id="tgPhoneInput"
                             type="text"
                             class="tg-input"
                             placeholder="+7 9ХХ ХХХ-ХХ-ХХ"
+                            data-i18n-placeholder="new-analysis:telegram_auth.phone_placeholder"
                           />
                         </div>
                         <button
                           id="tgSendCodeBtn"
                           type="button"
                           class="tg-button"
+                          data-i18n="new-analysis:telegram_auth.send_code_btn"
                         >
                           Получить код в Telegram
                         </button>
-                        <p class="tg-status">
+                        <p class="tg-status" data-i18n="new-analysis:telegram_auth.send_code_hint">
                           Мы отправим код в ваш Telegram-клиент. Мы не сохраняем
                           историю сообщений.
                         </p>
@@ -447,22 +455,24 @@
 
                       <!-- состояние 2: ввод кода -->
                       <div id="tgStateCode" style="display: none;">
-                        <p class="tg-status">
+                        <p class="tg-status" data-i18n="new-analysis:telegram_auth.code_sent_hint">
                           Мы отправили код в ваш Telegram. Введите его ниже.
                         </p>
                         <div class="tg-field">
-                          <label for="tgCodeInput">Код из Telegram</label>
+                          <label for="tgCodeInput" data-i18n="new-analysis:telegram_auth.code_label">Код из Telegram</label>
                           <input
                             id="tgCodeInput"
                             type="text"
                             class="tg-input"
                             placeholder="12345"
+                            data-i18n-placeholder="new-analysis:telegram_auth.code_placeholder"
                           />
                         </div>
                         <button
                           id="tgConfirmCodeBtn"
                           type="button"
                           class="tg-button"
+                          data-i18n="new-analysis:telegram_auth.confirm_code_btn"
                         >
                           Подтвердить код
                         </button>
@@ -471,6 +481,7 @@
                           type="button"
                           class="tg-button"
                           style="margin-left: 4px;"
+                          data-i18n="new-analysis:telegram_auth.cancel_btn"
                         >
                           Отменить
                         </button>
@@ -478,24 +489,26 @@
 
                       <!-- состояние 2.5: требуется пароль Telegram (2FA) -->
                       <div id="tgStatePassword" style="display: none;">
-                        <p class="tg-status">
+                        <p class="tg-status" data-i18n="new-analysis:telegram_auth.password_required_hint">
                           Для завершения входа требуется пароль Telegram (2FA).
                         </p>
-                      
+
                         <div class="tg-field">
-                          <label for="tgPasswordInput">Пароль Telegram</label>
+                          <label for="tgPasswordInput" data-i18n="new-analysis:telegram_auth.password_label">Пароль Telegram</label>
                           <input
                             id="tgPasswordInput"
                             type="password"
                             class="tg-input"
                             placeholder="Введите пароль"
+                            data-i18n-placeholder="new-analysis:telegram_auth.password_placeholder"
                           />
                         </div>
-                      
+
                         <button
                           id="tgConfirmPasswordBtn"
                           type="button"
                           class="tg-button"
+                          data-i18n="new-analysis:telegram_auth.confirm_password_btn"
                         >
                           Подтвердить пароль
                         </button>
@@ -504,7 +517,7 @@
                       <!-- состояние 3: подключено -->
                       <div id="tgStateConnected" style="display: none;">
                         <p class="tg-status">
-                          Подключено к Telegram как
+                          <span data-i18n="new-analysis:telegram_auth.connected_prefix">Подключено к Telegram как</span>
                           <strong id="tgConnectedUser">@username</strong>.
                         </p>
 
@@ -521,7 +534,7 @@
                         id="dataSourcePublic"
                         value="public"
                       />
-                      <span>Служебный аккаунт CoTel</span>
+                      <span data-i18n="new-analysis:data_source.public">Служебный аккаунт CoTel</span>
                     </label>
 
                     <!-- 4. Чат с ботом -->
@@ -532,7 +545,7 @@
                         id="dataSourceBot"
                         value="bot"
                       />
-                      <span>Чат с ботом</span>
+                      <span data-i18n="new-analysis:data_source.bot">Чат с ботом</span>
                     </label>
                   </div>
                 </details>
@@ -542,18 +555,18 @@
               <div class="sidebar-section" id="telegramStatusSection" style="display:none;">
                 <details open>
                   <summary>
-                    <span>Авторизация в Telegram</span>
+                    <span data-i18n="new-analysis:telegram_status.section_title">Авторизация в Telegram</span>
                     <span>▾</span>
                   </summary>
-              
+
                   <div class="sidebar-section-body">
                     <div class="tg-status-row">
                       <span id="tgStatusDot" class="tg-status-dot tg-status-off"></span>
-                      <span id="tgStatusText">Не подключено</span>
+                      <span id="tgStatusText" data-i18n="new-analysis:telegram_status.not_connected">Не подключено</span>
                     </div>
-              
+
                     <p class="sidebar-hint">
-                      Аккаунт:
+                      <span data-i18n="new-analysis:telegram_status.account_label">Аккаунт:</span>
                       <strong id="tgStatusUsername">—</strong>
                     </p>
 
@@ -562,6 +575,7 @@
                       type="button"
                       class="tg-button"
                       style="margin-top: 8px; display: none;"
+                      data-i18n="new-analysis:telegram_status.logout_btn"
                     >
                       Завершить сеанс
                     </button>
@@ -576,17 +590,18 @@
               <div class="sidebar-section">
                 <details id="myChatsSection" open>
                   <summary>
-                    <span>Запросы к чатам</span>
+                    <span data-i18n="new-analysis:chat_requests.section_title">Запросы к чатам</span>
                     <span>▾</span>
                   </summary>
-          
+
                   <div class="sidebar-section-body">
-                    
+
                     <input
                       id="activeChatInput"
                       type="text"
                       class="sidebar-text-input"
                       placeholder="Введите чат для запроса…"
+                      data-i18n-placeholder="new-analysis:chat_requests.active_chat_placeholder"
                     />
 
                     <div id="querySettingsInlineBlock" class="sidebar-history-block">
@@ -596,13 +611,13 @@
                         class="sidebar-history-toggle"
                         aria-expanded="false"
                       >
-                        <span>Настройки запроса</span>
+                        <span data-i18n="new-analysis:chat_requests.query_settings_toggle">Настройки запроса</span>
                         <span id="querySettingsInlineToggleIcon">▸</span>
                       </button>
 
                       <div id="querySettingsInlineBody" class="sidebar-history-body hidden">
                         <div class="sidebar-inline-setting-row">
-                          <label for="queryDaysInput" class="sidebar-inline-setting-label">Период анализа истории, дней:</label>
+                          <label for="queryDaysInput" class="sidebar-inline-setting-label" data-i18n="new-analysis:chat_requests.history_days_label">Период анализа истории, дней:</label>
                           <input
                             id="queryDaysInput"
                             type="number"
@@ -614,7 +629,7 @@
                         </div>
 
                         <div id="queryAiModelRow" class="sidebar-inline-setting-row">
-                          <label for="queryAiModelSelect" class="sidebar-inline-setting-label">Модель AI:</label>
+                          <label for="queryAiModelSelect" class="sidebar-inline-setting-label" data-i18n="new-analysis:chat_requests.ai_model_label">Модель AI:</label>
                           <select id="queryAiModelSelect" class="sidebar-inline-setting-input"></select>
                         </div>
                       </div>
@@ -627,7 +642,7 @@
                         class="sidebar-history-toggle"
                         aria-expanded="true"
                       >
-                        <span>История</span>
+                        <span data-i18n="new-analysis:chat_requests.history_toggle">История</span>
                         <span id="chatHistoryToggleIcon">▾</span>
                       </button>
 
@@ -636,6 +651,7 @@
                           id="chatHistoryList"
                           class="sidebar-chat-list sidebar-chat-history-list"
                           aria-label="История чатов"
+                          data-i18n-aria-label="new-analysis:chat_requests.history_aria"
                         ></div>
                       </div>
                     </div>
@@ -648,7 +664,7 @@
                         class="sidebar-history-toggle"
                         aria-expanded="true"
                       >
-                        <span>Мои чаты и каналы</span>
+                        <span data-i18n="new-analysis:chat_requests.available_chats_toggle">Мои чаты и каналы</span>
                         <span id="availableChatsToggleIcon">▾</span>
                       </button>
 
@@ -657,6 +673,7 @@
                           id="myChatsList"
                           class="sidebar-chat-list sidebar-chat-history-list"
                           aria-label="Список чатов"
+                          data-i18n-aria-label="new-analysis:chat_requests.available_chats_aria"
                         ></div>
                       </div>
                     </div>
@@ -668,10 +685,10 @@
               <div class="sidebar-section">
                 <details id="mySubscriptionsSection" open>
                   <summary>
-                    <span>Подписки</span>
+                    <span data-i18n="new-analysis:subscriptions.section_title">Подписки</span>
                     <span>▾</span>
                   </summary>
-          
+
                   <div class="sidebar-section-body sidebar-subscriptions-body">
                     <!-- Кнопка добавления -->
                     <button
@@ -679,100 +696,104 @@
                       type="button"
                       class="sidebar-add-subscription-btn"
                       title="Добавить подписку"
+                      data-i18n-title="new-analysis:subscriptions.add_btn_title"
                     >
                       +
                     </button>
-                    <button id="runSubscriptionsBtn" type="button" class="tg-button">
+                    <button id="runSubscriptionsBtn" type="button" class="tg-button" data-i18n="new-analysis:subscriptions.run_btn">
                           Запустить подписки
                     </button>
-                    <button id="dispatchBotBtn" type="button"  class="tg-button">Запустить бота</button>
+                    <button id="dispatchBotBtn" type="button"  class="tg-button" data-i18n="new-analysis:subscriptions.dispatch_bot_btn">Запустить бота</button>
 
                     <!-- Список подписок (пока простая заглушка) -->
-                    <div id="subscriptionsList" class="sidebar-subscriptions-list" aria-label="Список подписок"></div>
+                    <div id="subscriptionsList" class="sidebar-subscriptions-list" aria-label="Список подписок" data-i18n-aria-label="new-analysis:subscriptions.list_aria"></div>
 
                     <!-- Форма создания подписки (скрыта до нажатия +) -->
                     <div id="subscriptionCreateBlock" class="tg-auth-block subscription-block" style="display:none;">
-                      <h3>Создание новой подписки</h3>
+                      <h3 data-i18n="new-analysis:subscription_form.title_create">Создание новой подписки</h3>
 
                       <div class="tg-field">
-                        <label for="subNameInput">Название подписки</label>
+                        <label for="subNameInput" data-i18n="new-analysis:subscription_form.name_label">Название подписки</label>
                         <input
                           id="subNameInput"
                           type="text"
                           class="tg-input"
                           placeholder="Введите имя подписки"
+                          data-i18n-placeholder="new-analysis:subscription_form.name_placeholder"
                         />
                       </div>
 
                       <div class="tg-field">
-                      <label for="subTypeSelect">Тип подписки</label>
+                      <label for="subTypeSelect" data-i18n="new-analysis:subscription_form.type_label">Тип подписки</label>
                       <select id="subTypeSelect" class="tg-select">
-                        <option value="events" selected>События</option>
-                        <option value="digest">Саммари</option>
+                        <option value="events" selected data-i18n="new-analysis:subscription_form.type_events">События</option>
+                        <option value="digest" data-i18n="new-analysis:subscription_form.type_digest">Саммари</option>
                       </select>
                     </div>
-                 
-                      <p class="sidebar-hint subscription-hint">
-                        События - подписка реагирует на появление объявлений/оповещений по вашему запросу и присылает список конкретных сообщений. Саммари - ИИ подготовит резюме/дайджест/саммари чата за указанных период. 
+
+                      <p class="sidebar-hint subscription-hint" data-i18n="new-analysis:subscription_form.type_help">
+                        События - подписка реагирует на появление объявлений/оповещений по вашему запросу и присылает список конкретных сообщений. Саммари - ИИ подготовит резюме/дайджест/саммари чата за указанных период.
                       </p>
 
                       <div class="tg-field">
-                        <label for="subChatInput">Чат / канал</label>
+                        <label for="subChatInput" data-i18n="new-analysis:subscription_form.chat_label">Чат / канал</label>
                         <input
                           id="subChatInput"
                           type="text"
                           class="tg-input"
                           placeholder="Выберите чат/канал или вставьте ссылку"
+                          data-i18n-placeholder="new-analysis:subscription_form.chat_placeholder"
                         />
                       </div>
 
-                      <p class="sidebar-hint subscription-hint">
+                      <p class="sidebar-hint subscription-hint" data-i18n="new-analysis:subscription_form.private_chat_hint">
                         Подписка на приватные и личные чаты доступна только при авторизации через ваш личный аккаунт.
                       </p>
 
                       <!-- Список чатов (как в "Мои чаты") -->
-                      <div id="subChatsList" class="sidebar-chat-list sidebar-chat-list--compact" aria-label="Список чатов для подписки"></div>
+                      <div id="subChatsList" class="sidebar-chat-list sidebar-chat-list--compact" aria-label="Список чатов для подписки" data-i18n-aria-label="new-analysis:subscription_form.chat_list_aria"></div>
 
                       <div class="tg-field">
-                        <label for="subPeriodSelect">Период чтения</label>
+                        <label for="subPeriodSelect" data-i18n="new-analysis:subscription_form.period_label">Период чтения</label>
                         <select id="subPeriodSelect" class="tg-select">
-                          <option value="10m">1 раз в 10 минут</option>
-                          <option value="30m">1 раз в 30 минут</option>
-                          <option value="1h" selected>1 раз в час</option>
-                          <option value="3h">1 раз в 3 часа</option>
-                          <option value="6h">1 раз в 6 часов</option>
-                          <option value="12h">1 раз в 12 часов (полдня)</option>
-                          <option value="1d">1 раз в день</option>
+                          <option value="10m" data-i18n="new-analysis:subscription_form.period_10m">1 раз в 10 минут</option>
+                          <option value="30m" data-i18n="new-analysis:subscription_form.period_30m">1 раз в 30 минут</option>
+                          <option value="1h" selected data-i18n="new-analysis:subscription_form.period_1h">1 раз в час</option>
+                          <option value="3h" data-i18n="new-analysis:subscription_form.period_3h">1 раз в 3 часа</option>
+                          <option value="6h" data-i18n="new-analysis:subscription_form.period_6h">1 раз в 6 часов</option>
+                          <option value="12h" data-i18n="new-analysis:subscription_form.period_12h">1 раз в 12 часов (полдня)</option>
+                          <option value="1d" data-i18n="new-analysis:subscription_form.period_1d">1 раз в день</option>
                         </select>
                       </div>
 
                       <div id="subAiModelRow" class="tg-field">
-                        <label for="subAiModelSelect">Модель AI</label>
+                        <label for="subAiModelSelect" data-i18n="new-analysis:subscription_form.ai_model_label">Модель AI</label>
                         <select id="subAiModelSelect" class="tg-select"></select>
-                        <p class="tg-status">
+                        <p class="tg-status" data-i18n="new-analysis:subscription_form.ai_model_help">
                           Эта модель ИИ будет использоваться для данной подписки. Для Free-аккаунтов используется OpenAI.
                         </p>
                       </div>
 
                       <div class="tg-field">
-                        <label for="subPromptInput">Текст запроса</label>
+                        <label for="subPromptInput" data-i18n="new-analysis:subscription_form.prompt_label">Текст запроса</label>
                         <textarea
                           id="subPromptInput"
                           class="tg-textarea"
                           rows="3"
                           placeholder="Введите текст запроса для подписки: какую информацию собирать и когда уведомлять"
+                          data-i18n-placeholder="new-analysis:subscription_form.prompt_placeholder"
                         ></textarea>
-                        <p class="tg-status">
+                        <p class="tg-status" data-i18n="new-analysis:subscription_form.prompt_help">
                           Можно использовать ключевые слова или более сложный запрос — анализ выполняется OpenAI.
                         </p>
                       </div>
 
                       <div class="subscription-actions">
-                        <button id="createSubscriptionBtn" type="button" class="tg-button">
+                        <button id="createSubscriptionBtn" type="button" class="tg-button" data-i18n="new-analysis:subscription_form.create_btn">
                           Создать подписку
-                        </button>                   
+                        </button>
 
-                        <button id="cancelSubscriptionBtn" type="button" class="tg-button">
+                        <button id="cancelSubscriptionBtn" type="button" class="tg-button" data-i18n="new-analysis:subscription_form.cancel_btn">
                           Отмена
                         </button>
                       </div>
@@ -790,7 +811,7 @@
             </div>
 
             <div class="sidebar-section">
-              <button id="adminPanelBtn" type="button" class="tg-button" style="width:100%;">
+              <button id="adminPanelBtn" type="button" class="tg-button" style="width:100%;" data-i18n="new-analysis:sidebar.admin_btn">
                 Панель администрирования
               </button>
             </div>
@@ -806,7 +827,7 @@
                   <div id="user-profile-trigger" class="user-profile-trigger">
 
                     <div class="user-profile-main">
-                      <img id="user-avatar-img" class="user-avatar-img" src="images/cats/cat-1.jpg" alt="Аватар">
+                      <img id="user-avatar-img" class="user-avatar-img" src="images/cats/cat-1.jpg" alt="Аватар" data-i18n-alt="common:avatar_alt">
 
                       <div class="user-meta expanded-only">
                         <div id="user-email" class="user-email"></div>
@@ -837,7 +858,7 @@
                 </div>
             </div>
             <!-- Resizer -->
-            <div id="sidebarResizer" class="sidebar-resizer" title="Изменить ширину панели"></div>
+            <div id="sidebarResizer" class="sidebar-resizer" title="Изменить ширину панели" data-i18n-title="new-analysis:sidebar.resizer_title"></div>
 
             </aside>
 
@@ -868,6 +889,7 @@
                     class="analysis-icon-button"
                     type="button"
                     title="Импорт чата"
+                    data-i18n-title="new-analysis:dashboard.upload_btn_title"
                   >
                     <!-- reuse SVG загрузки из старой разметки -->
                     <svg
@@ -896,14 +918,16 @@
                     class="analysis-query-input analysis-query-textarea"
                     placeholder="Введите текст запроса"
                     rows="1"
+                    data-i18n-placeholder="new-analysis:dashboard.query_placeholder"
                   ></textarea>
-            
+
                   <!-- Кнопка play -->
                   <button
                     id="analyzeBtn"
                     class="analysis-icon-button analysis-play-button"
                     type="button"
                     title="Выполнить анализ"
+                    data-i18n-title="new-analysis:dashboard.analyze_btn_title"
                   >
                     <svg
                       width="20"
@@ -923,7 +947,7 @@
                 </div>
 
                 <!-- Здесь маленький дисклеймер под панелью ввода -->
-                <p class="analysis-disclaimer">
+                <p class="analysis-disclaimer" data-i18n="new-analysis:dashboard.disclaimer">
                   ⚠️ Анализ чата выполняется сторонней моделью ИИ (OpenAI).
                   Не загружайте секретные или конфиденциальные данные.
                 </p>
@@ -3972,7 +3996,7 @@ if (runSubscriptionsBtn) {
 
         <div class="profile-modal-header">
           <div class="profile-modal-topline">
-            <img id="profile-avatar-img" class="profile-header-avatar" src="images/cats/cat-1.jpg" alt="Аватар" />
+            <img id="profile-avatar-img" class="profile-header-avatar" src="images/cats/cat-1.jpg" alt="Аватар" data-i18n-alt="common:avatar_alt" />
             <div class="profile-email-header" id="profile-email-header">—</div>
           </div>
 
@@ -4036,9 +4060,7 @@ if (runSubscriptionsBtn) {
 
               <div class="profile-limit-card">
                 <div class="profile-limit-card-title" data-i18n="auth:profile.limits.history_depth">Глубина анализа истории</div>
-                <div class="profile-limit-card-text">
-                  до <span id="profile-limit-history-days">0</span> дней
-                </div>
+                <div class="profile-limit-card-text" id="profile-limit-history-days">до 0 дней</div>
               </div>
 
               <div class="profile-limit-card">
@@ -4267,11 +4289,13 @@ if (runSubscriptionsBtn) {
 <script src="https://cdn.jsdelivr.net/npm/i18next-http-backend@2.6.2/i18nextHttpBackend.min.js"></script>
 <script src="/js/i18n.js"></script>
 <script>
-  // Make sure the `auth` and `errors` namespaces are loaded on this page.
-  // i18n.js auto-initializes with `common` only; this call extends the
-  // namespace list and is idempotent.
+  // Make sure the `auth`, `errors`, and `new-analysis` namespaces are loaded
+  // on this page. i18n.js auto-initializes with `common` only; this call
+  // extends the namespace list and is idempotent.
   if (window.cotelI18n && typeof window.cotelI18n.init === "function") {
-    window.cotelI18n.init({ namespaces: ["common", "auth", "errors"] });
+    window.cotelI18n.init({
+      namespaces: ["common", "auth", "errors", "new-analysis"]
+    });
   }
 </script>
 <script src="/js/auth.js"></script>

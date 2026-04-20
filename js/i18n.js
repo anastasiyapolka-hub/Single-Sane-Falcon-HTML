@@ -51,6 +51,7 @@
     { attr: "data-i18n-placeholder", target: "placeholder" },
     { attr: "data-i18n-title",       target: "title" },
     { attr: "data-i18n-aria-label",  target: "aria-label" },
+    { attr: "data-i18n-alt",         target: "alt" },
     { attr: "data-i18n-value",       target: "value" }
   ];
 
@@ -210,6 +211,9 @@
             break;
           case "aria-label":
             node.setAttribute("aria-label", value);
+            break;
+          case "alt":
+            node.setAttribute("alt", value);
             break;
           case "value":
             node.setAttribute("value", value);
