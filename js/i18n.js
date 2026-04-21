@@ -71,8 +71,27 @@
         return normalize(getEffectiveLanguage());
       }
     } catch (err) {
-      // Fall through to browser fallback.
+      // Fall through.
     }
+    // Fallback for pages that don't load auth.js (e.g. pricing.html):
+    // read the same localStorage keys auth.js uses so the manual
+    // language choice is still respected.
+    try {
+      if (typeof localStorage !== "undefined") {
+        const manual = localStorage.getItem("cotel_language_manual");
+        if (manual) return normalize(manual);
+        const auto = localStorage.getItem("cotel_language_auto");
+        if (auto) return normalize(auto);
+        // auth.js also persists a full user_prefs blob with `language`.
+        const rawPrefs = localStorage.getItem("cotel_user_prefs");
+        if (rawPrefs) {
+          try {
+            const prefs = JSON.parse(rawPrefs);
+            if (prefs && prefs.language) return normalize(prefs.language);
+          } catch (_) { /* ignore bad JSON */ }
+        }
+      }
+    } catch (_) { /* ignore storage errors */ }
     const nav = (navigator.language || "").toLowerCase();
     return nav.startsWith("ru") ? "ru" : "en";
   }
