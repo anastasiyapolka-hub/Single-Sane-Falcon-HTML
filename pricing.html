@@ -141,7 +141,7 @@
 <script>
   // Load the `pricing` namespace on top of the default `common` namespace.
   if (window.cotelI18n && typeof window.cotelI18n.init === "function") {
-    window.cotelI18n.init({ namespaces: ["common", "pricing"] });
+    window.cotelI18n.init({ namespaces: ["common", "errors", "pricing"] });
   }
 
   // Safe translator wrapper used across the inline script below.
@@ -251,13 +251,10 @@
     try {
       await loadCurrentUserPlan();
     } catch (err) {
-      const msg =
-        err?.detail?.message ||
-        err?.detail?.detail?.message ||
-        err?.detail?.detail ||
-        (typeof err?.detail === "string" ? err.detail : "") ||
-        err?.message ||
-        tI18n("pricing:errors.load_plan_failed", "Не удалось загрузить текущий тариф.");
+      const fallback = tI18n("pricing:errors.load_plan_failed", "Не удалось загрузить текущий тариф.");
+      const msg = (typeof window.extractBackendErrorMessage === "function")
+        ? window.extractBackendErrorMessage(err, { fallback })
+        : fallback;
       alert(msg);
     }
 
@@ -269,13 +266,10 @@
         try {
           await switchPlan(targetPlan);
         } catch (err) {
-          const msg =
-            err?.detail?.message ||
-            err?.detail?.detail?.message ||
-            err?.detail?.detail ||
-            (typeof err?.detail === "string" ? err.detail : "") ||
-            err?.message ||
-            tI18n("pricing:errors.change_plan_failed", "Не удалось изменить тариф.");
+          const fallback = tI18n("pricing:errors.change_plan_failed", "Не удалось изменить тариф.");
+          const msg = (typeof window.extractBackendErrorMessage === "function")
+            ? window.extractBackendErrorMessage(err, { fallback })
+            : fallback;
           alert(msg);
         }
       });
