@@ -132,6 +132,16 @@
       missingKeyHandler: function (lngs, ns, key) {
         // Surfaces missing keys in the browser console during development.
         // Safe in production: it does not send anything to the server.
+        // Suppress warnings for namespaces that haven't finished loading —
+        // those are race conditions (code runs before async JSON arrives),
+        // not real missing keys. The tI18n() wrapper handles them via
+        // fallback strings, so the UI is unaffected.
+        try {
+          if (i18next && typeof i18next.hasLoadedNamespace === "function") {
+            const lang = Array.isArray(lngs) ? lngs[0] : lngs;
+            if (!i18next.hasLoadedNamespace(ns, { lng: lang })) return;
+          }
+        } catch (_) { /* fall through */ }
         console.warn("[i18n] Missing key:", ns + ":" + key, "lngs=", lngs);
       }
     };
