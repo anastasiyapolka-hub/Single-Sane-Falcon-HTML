@@ -1521,13 +1521,8 @@
               await apiDeleteChatHistoryItem(historyId);
               await loadChatHistory();
             } catch (err) {
-              const msg =
-                err?.detail?.detail ||
-                err?.detail?.message ||
-                err?.detail ||
-                err?.message ||
-                tI18n("new-analysis:chat_history.delete_error", "Не удалось удалить запись из истории.");
-              alert(msg);
+              const fallback = tI18n("new-analysis:chat_history.delete_error", "Не удалось удалить запись из истории.");
+              alert(extractBackendErrorMessage(err) || fallback);
             }
           });
         });
@@ -2146,7 +2141,8 @@
           tgStatusMessage.textContent = tI18n("new-analysis:telegram_auth_dynamic.code_sent", "Код отправлен. Проверьте Telegram.");
           setTgState("code");
         } catch (err) {
-          const msg = err?.detail?.detail || err?.detail || err?.message || tI18n("new-analysis:telegram_auth_dynamic.code_send_failed", "Не удалось отправить код.");
+          const fallback = tI18n("new-analysis:telegram_auth_dynamic.code_send_failed", "Не удалось отправить код.");
+          const msg = extractBackendErrorMessage(err) || fallback;
           tgStatusMessage.textContent = tI18n("new-analysis:telegram_auth_dynamic.error_prefix", "Ошибка:") + " " + msg;
         }
       });
@@ -2180,18 +2176,17 @@
           await loadTelegramChats();
           await refreshSubscriptions();
         } catch (err) {
-          const detail = String(err?.detail?.detail || err?.detail || err?.message || "");
+          const code = extractBackendErrorCode(err);
 
-          if (
-            detail.includes("SESSION_PASSWORD_NEEDED") ||
-            detail.includes("PASSWORD_NEEDED")
-          ) {
+          if (code === "SESSION_PASSWORD_NEEDED" || code === "PASSWORD_NEEDED") {
             tgStatusMessage.textContent = tI18n("new-analysis:telegram_auth_dynamic.password_required_state", "Требуется пароль Telegram (2FA).");
             setTgState("password");
             return;
           }
 
-          tgStatusMessage.textContent = tI18n("new-analysis:telegram_auth_dynamic.error_prefix", "Ошибка:") + " " + (detail || tI18n("new-analysis:telegram_auth_dynamic.code_invalid", "Код неверен."));
+          const fallback = tI18n("new-analysis:telegram_auth_dynamic.code_invalid", "Код неверен.");
+          const msg = extractBackendErrorMessage(err) || fallback;
+          tgStatusMessage.textContent = tI18n("new-analysis:telegram_auth_dynamic.error_prefix", "Ошибка:") + " " + msg;
         }
       });
 
@@ -2247,7 +2242,8 @@
           await loadTelegramChats();
           await refreshSubscriptions();
         } catch (err) {
-          const msg = err?.detail?.detail || err?.detail || err?.message || tI18n("new-analysis:telegram_auth_dynamic.password_confirm_failed", "Не удалось подтвердить пароль.");
+          const fallback = tI18n("new-analysis:telegram_auth_dynamic.password_confirm_failed", "Не удалось подтвердить пароль.");
+          const msg = extractBackendErrorMessage(err) || fallback;
           tgStatusMessage.textContent = tI18n("new-analysis:telegram_auth_dynamic.error_prefix", "Ошибка:") + " " + msg;
         }
       });
@@ -2289,7 +2285,8 @@
             await loadChatHistory();
 
           } catch (err) {
-            const msg = err?.detail?.detail || err?.detail || err?.message || tI18n("new-analysis:telegram_auth_dynamic.session_end_failed", "Не удалось завершить сессию.");
+            const fallback = tI18n("new-analysis:telegram_auth_dynamic.session_end_failed", "Не удалось завершить сессию.");
+            const msg = extractBackendErrorMessage(err) || fallback;
             tgStatusMessage.textContent = tI18n("new-analysis:telegram_auth_dynamic.error_prefix", "Ошибка:") + " " + msg;
           }
         });
@@ -3183,59 +3180,48 @@
         }
       }
 
+      // Shallow accessor preserved for branching logic that key off the code
+      // (e.g. PLAN_HISTORY_LIMIT_EXCEEDED triggers a pricing redirect).
       function extractBackendErrorCode(err) {
-        return err?.detail?.code || err?.detail?.detail?.code || "";
+        if (!err || !err.detail) return "";
+        // Structured detail: { code, ... }
+        if (typeof err.detail === "object") {
+          if (typeof err.detail.code === "string") return err.detail.code;
+          // FastAPI double-wrap: { detail: { code } }
+          if (err.detail.detail && typeof err.detail.detail === "object" &&
+              typeof err.detail.detail.code === "string") {
+            return err.detail.detail.code;
+          }
+          // Plain-string inner detail (auth.py style)
+          if (typeof err.detail.detail === "string" &&
+              /^[A-Z][A-Z0-9_]+$/.test(err.detail.detail.split(":")[0])) {
+            return err.detail.detail.split(":")[0];
+          }
+        }
+        // Top-level plain-string detail
+        if (typeof err.detail === "string" &&
+            /^[A-Z][A-Z0-9_]+$/.test(err.detail.split(":")[0])) {
+          return err.detail.split(":")[0];
+        }
+        return "";
       }
 
+      // Delegate the actual message rendering to the shared helper in api.js,
+      // which knows how to resolve error codes via the errors:backend.*
+      // dictionary, interpolate flat params, and fall back sensibly.
       function extractBackendErrorMessage(err) {
-        return (
-          err?.detail?.message ||
-          err?.detail?.detail?.message ||
-          err?.detail?.detail ||
-          (typeof err?.detail === "string" ? err.detail : "") ||
-          err?.message ||
-          tI18n("new-analysis:subscription_dynamic.unknown_error", "Неизвестная ошибка")
-        );
+        const fallback = tI18n("new-analysis:subscription_dynamic.unknown_error", "Неизвестная ошибка");
+        if (typeof window.extractBackendErrorMessage === "function") {
+          return window.extractBackendErrorMessage(err, { fallback });
+        }
+        return fallback;
       }
 
+      // Plan-specific errors are fully covered by the errors:backend.* dict
+      // (including interpolation of plan_limit_days etc.), so a single call
+      // to the shared extractor does the right thing for all plan codes.
+      // Kept as a named function so existing call sites don't need to change.
       function normalizePlanErrorMessage(err) {
-        const code = extractBackendErrorCode(err);
-        const detail = err?.detail || {};
-
-        if (code === "PLAN_HISTORY_LIMIT_EXCEEDED") {
-          const days = detail?.plan_limit_days ?? "—";
-          return tI18n("new-analysis:plan_errors.history_limit_exceeded", `Ваш тариф позволяет анализировать не более ${days} дней истории.`, { days });
-        }
-
-        if (code === "PLAN_DAILY_QA_LIMIT_REACHED") {
-          return tI18n("new-analysis:plan_errors.daily_qa_limit", "Дневной лимит запросов исчерпан.");
-        }
-
-        if (code === "PLAN_MONTHLY_QA_LIMIT_REACHED") {
-          return tI18n("new-analysis:plan_errors.monthly_qa_limit", "Месячный лимит запросов исчерпан.");
-        }
-
-        if (code === "PLAN_ACTIVE_SUBSCRIPTIONS_LIMIT_REACHED") {
-          return tI18n("new-analysis:plan_errors.active_subscriptions_limit", "Достигнут лимит активных подписок по тарифу.");
-        }
-
-        if (code === "PLAN_SUBSCRIPTION_FREQUENCY_TOO_HIGH") {
-          const minutes = detail?.min_subscription_interval_minutes ?? "—";
-          return tI18n("new-analysis:plan_errors.frequency_too_high", `Ваш тариф не позволяет такую частоту. Минимально допустимо: ${minutes} минут.`, { minutes });
-        }
-
-        if (code === "FREE_TRIAL_SUBSCRIPTIONS_ALREADY_USED") {
-          return tI18n("new-analysis:plan_errors.free_trial_already_used", "Пробный доступ к подпискам уже использован. Перейдите на платный тариф.");
-        }
-
-        if (code === "TRIAL_SUBSCRIPTION_DELETE_FORBIDDEN") {
-          return tI18n("new-analysis:plan_errors.trial_delete_forbidden", "Trial-подписки нельзя удалять вручную.");
-        }
-
-        if (code === "TRIAL_SUBSCRIPTION_EXPIRED") {
-          return tI18n("new-analysis:plan_errors.trial_expired", "Срок trial-подписки истёк. Перейдите на платный тариф.");
-        }
-
         return extractBackendErrorMessage(err);
       }
 
