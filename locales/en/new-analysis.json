@@ -9,29 +9,29 @@
   "telegram_auth_dynamic": {
     "default_user_name": "User",
     "connected": "Connected",
-    "qr_waiting": "Waiting for confirmation in Telegram\u2026",
+    "qr_waiting": "Waiting for confirmation in Telegram…",
     "qr_expired": "The QR code has expired. Refresh the QR.",
     "qr_password_required": "Telegram requested a 2FA password. Enter it below.",
     "connected_ok": "Connected successfully.",
     "error_prefix": "Error:",
     "polling_network_error": "Network error during polling:",
-    "qr_generating": "Generating QR code\u2026",
+    "qr_generating": "Generating QR code…",
     "qr_start_failed": "QR start error: backend did not return a url",
     "network_error_prefix": "Network error:",
     "phone_required": "Enter a phone number.",
-    "sending_code": "Sending code\u2026",
+    "sending_code": "Sending code…",
     "code_sent": "Code sent. Check Telegram.",
     "code_send_failed": "Could not send code.",
     "code_required": "Enter the code from Telegram.",
-    "verifying_code": "Verifying code\u2026",
+    "verifying_code": "Verifying code…",
     "password_required_state": "Telegram password (2FA) is required.",
     "code_invalid": "Invalid code.",
     "password_input_required": "Enter the Telegram password.",
     "password_crypto_unsupported": "Browser does not support secure password encryption.",
-    "password_preparing": "Preparing secure password transmission\u2026",
-    "password_confirming": "Confirming password\u2026",
+    "password_preparing": "Preparing secure password transmission…",
+    "password_confirming": "Confirming password…",
     "password_confirm_failed": "Could not confirm the password.",
-    "ending_session": "Ending session\u2026",
+    "ending_session": "Ending session…",
     "session_ended": "Session ended.",
     "session_end_failed": "Could not end the session.",
     "file_selected": "Selected file: {{name}}"
@@ -52,7 +52,7 @@
   "telegram_auth": {
     "title": "Telegram authentication",
     "qr_login_btn": "Sign in via QR code",
-    "qr_hint": "Open Telegram \u2192 Settings \u2192 Devices \u2192 Link Desktop Device and scan the QR code.",
+    "qr_hint": "Open Telegram → Settings → Devices → Link Desktop Device and scan the QR code.",
     "qr_refresh_btn": "Refresh QR",
     "phone_label": "Phone",
     "phone_placeholder": "+1 555 555-55-55",
@@ -77,7 +77,7 @@
   },
   "chat_requests": {
     "section_title": "Chat requests",
-    "active_chat_placeholder": "Enter a chat to query\u2026",
+    "active_chat_placeholder": "Enter a chat to query…",
     "query_settings_toggle": "Query settings",
     "history_days_label": "History analysis period, days:",
     "ai_model_label": "AI model:",
@@ -100,7 +100,7 @@
     "type_label": "Subscription type",
     "type_events": "Events",
     "type_digest": "Digest",
-    "type_help": "Events \u2014 subscription reacts to announcements/alerts matching your query and sends the list of specific messages. Digest \u2014 AI prepares a summary/digest of the chat for the given period.",
+    "type_help": "Events — subscription reacts to announcements/alerts matching your query and sends the list of specific messages. Digest — AI prepares a summary/digest of the chat for the given period.",
     "chat_label": "Chat / channel",
     "chat_placeholder": "Select a chat/channel or paste a link",
     "private_chat_hint": "Subscribing to private and personal chats is only available when signed in with your personal Telegram account.",
@@ -117,7 +117,7 @@
     "ai_model_help": "This AI model will be used for this subscription. Free accounts use OpenAI.",
     "prompt_label": "Query text",
     "prompt_placeholder": "Enter the query for the subscription: what information to collect and when to notify",
-    "prompt_help": "You can use keywords or a more complex query \u2014 analysis is performed by OpenAI.",
+    "prompt_help": "You can use keywords or a more complex query — analysis is performed by OpenAI.",
     "create_btn": "Create subscription",
     "cancel_btn": "Cancel"
   },
@@ -125,6 +125,219 @@
     "upload_btn_title": "Import chat",
     "query_placeholder": "Enter query text",
     "analyze_btn_title": "Run analysis",
-    "disclaimer": "\u26a0\ufe0f Chat analysis is performed by a third-party AI model (OpenAI). Do not upload secret or confidential data."
+    "disclaimer": "⚠️ Chat analysis is performed by a third-party AI model (OpenAI). Do not upload secret or confidential data."
+  },
+  "subscription_dynamic": {
+    "untitled": "Untitled",
+    "default_name": "Subscription",
+    "validation_error": "Validation error",
+    "operation_failed": "Could not complete the subscription operation.",
+    "unknown_error": "Unknown error",
+    "n_minutes_short": "{{n}} min",
+    "load_error": "Failed to load subscription"
+  },
+  "subscription_status": {
+    "trial_expired": "Trial subscription period ended",
+    "paused": "Subscription paused",
+    "error": "Subscription error",
+    "active": "Subscription active"
+  },
+  "subscription_actions": {
+    "aria_label": "Subscription actions",
+    "aria_label_other": "Actions for subscription from another mode",
+    "pause": "Pause",
+    "resume": "Resume",
+    "edit": "Edit",
+    "delete": "Delete",
+    "activate_current": "Activate in the current mode",
+    "delete_confirm": "Delete subscription?",
+    "delete_error_prefix": "Delete error:",
+    "activate_error_prefix": "Subscription activation error:"
+  },
+  "subscription_groups": {
+    "current_title": "Active in this mode",
+    "other_title": "From another mode",
+    "other_note": "These subscriptions were created in the other mode and are not active here yet."
+  },
+  "subscription_frequency": {
+    "human_10m": "Every 10 minutes",
+    "human_30m": "Every 30 minutes",
+    "human_1h": "Every hour",
+    "human_3h": "Every 3 hours",
+    "human_6h": "Every 6 hours",
+    "human_12h_half_day": "Every 12 hours (half a day)",
+    "human_1d": "Once a day",
+    "per_minutes": "Every {{value}} minutes",
+    "per_hour_one": "Every hour",
+    "per_hours_other": "Every {{hours}} hours"
+  },
+  "chat_errors": {
+    "private_no_access": "This chat is not available for reading under the service account. Connect your personal Telegram or choose a public chat.",
+    "public_not_found": "Chat or channel not found. Check the link, username or chat id.",
+    "invite_invalid": "The invite link is invalid or has expired.",
+    "join_request_sent": "A join request has been sent for this chat. It will become available only after approval.",
+    "service_account_channel_limit": "Service accounts have temporarily reached the Telegram limit for joining channels. Please try again later.",
+    "flood_wait": "Telegram has temporarily limited access for the service account. Please try again later.",
+    "telegram_not_authorized": "Connect your personal Telegram account first.",
+    "resolve_failed": "Could not open the chat. Check the link, username or access."
+  },
+  "plan_limits": {
+    "free_trial_expired_note": "Trial subscriptions have ended. Upgrade your plan to keep using subscriptions.",
+    "free_trial_limit_note": "Trial subscriptions limit reached. Upgrade your plan to create new subscriptions.",
+    "active_limit_note": "You have reached the active subscriptions limit for your plan. Pause one of the current subscriptions or upgrade your plan."
+  },
+  "plan_errors": {
+    "history_limit_exceeded": "Your plan allows analyzing no more than {{days}} days of history.",
+    "daily_qa_limit": "Daily request limit reached.",
+    "monthly_qa_limit": "Monthly request limit reached.",
+    "active_subscriptions_limit": "Active subscriptions limit for your plan has been reached.",
+    "frequency_too_high": "Your plan does not allow this frequency. Minimum allowed: {{minutes}} minutes.",
+    "free_trial_already_used": "Trial subscription access has already been used. Upgrade to a paid plan.",
+    "trial_delete_forbidden": "Trial subscriptions cannot be deleted manually.",
+    "trial_expired": "The trial subscription has expired. Upgrade to a paid plan."
+  },
+  "subscription_form_dynamic": {
+    "title_edit": "Edit subscription",
+    "save_btn": "Save changes",
+    "name_required": "Enter a subscription name.",
+    "chat_required": "Select a chat/channel or paste a link.",
+    "prompt_required": "Enter the query text for the subscription.",
+    "saving": "Saving changes…",
+    "creating": "Creating subscription…",
+    "saved": "Changes saved.",
+    "created": "Subscription created.",
+    "validation_hint": "Check the form fields (validation error)."
+  },
+  "run_subscriptions": {
+    "heading": "Running subscriptions",
+    "status_label": "Status:",
+    "processed_label": "Processed subscriptions:",
+    "checked_messages_label": "Messages checked:",
+    "matches_found_label": "Matches found:",
+    "time_label": "Time:",
+    "seconds_short": "s",
+    "id_label": "ID:",
+    "chat_label": "Chat:",
+    "checked_label": "Checked:",
+    "matches_written_label": "MatchEvents written:",
+    "error_label": "Error:",
+    "llm_response": "LLM response (JSON)",
+    "match_events_header": "MatchEvents",
+    "no_matches_note": "No match_events rows (no matches found or not recorded).",
+    "llm_payload_header": "llm_payload (JSONB)"
+  },
+  "chat_history": {
+    "delete_title": "Remove from history",
+    "delete_aria": "Remove from history",
+    "delete_error": "Could not remove the history item."
+  },
+  "dashboard_dynamic": {
+    "no_data": "No data",
+    "request_error_prefix": "Request error:",
+    "import_json_first": "Please import the Telegram export JSON file first.",
+    "enter_chat_link": "Enter a Telegram chat or channel link.",
+    "enter_public_link": "Enter a public username or link to a public Telegram chat/channel.",
+    "select_data_source": "Select a data source."
+  },
+  "loader_groups": {
+    "start": [
+      "Looking for the right chat…",
+      "Connecting to the data…",
+      "Opening the dialog…",
+      "Starting analysis…",
+      "Checking data access…",
+      "Tuning in to the dialog…",
+      "Cat is getting ready…",
+      "Opening the communication channel…"
+    ],
+    "collect": [
+      "Collecting messages…",
+      "Collecting history…",
+      "Carefully gathering history…",
+      "Going through the dialog piece by piece…",
+      "Cat is flipping through messages…",
+      "Loading messages…",
+      "Scanning the dialog top to bottom…",
+      "Cat is skimming through the conversation…",
+      "Extracting the needed pieces from history…",
+      "Scanning messages for meaning…"
+    ],
+    "process": [
+      "Sorting messages into categories…",
+      "Throwing out the unneeded…",
+      "Picking out important fragments…",
+      "Highlighting key fragments…",
+      "Stacking thoughts into neat piles…",
+      "Putting the data in order…",
+      "Sorting thoughts by meaning…",
+      "Cleaning noise from the dialog…",
+      "Assembling the answer structure…",
+      "Aligning context…"
+    ],
+    "analyze": [
+      "Smart analysis in progress…",
+      "Thinking…",
+      "Thinking, really thinking…",
+      "Sniffing out what matters most…",
+      "Forming the meaning…",
+      "Refining context…",
+      "Checking details…",
+      "Putting thoughts together…",
+      "Waiting for the AI to compute results…"
+    ],
+    "finish": [
+      "Almost done…",
+      "Almost caught the gist…",
+      "Preparing the answer…",
+      "Composing the answer…",
+      "Building the answer brick by brick…",
+      "Adding the final touches…",
+      "Finishing processing…",
+      "Packing the answer into envelopes…"
+    ],
+    "trailing": [
+      "Thinking…",
+      "Almost done…",
+      "Composing the answer…",
+      "Putting thoughts together…",
+      "Refining context…",
+      "Checking details…",
+      "Preparing the answer…",
+      "Almost caught the gist…"
+    ]
+  },
+  "run_subscriptions_dynamic": {
+    "starting": "Running…",
+    "done": "Done.",
+    "run_error_prefix": "Failed to run subscriptions:",
+    "running": "Running…",
+    "error_label_bold": "Error:",
+    "run_response": {
+      "title": "Subscriptions run:",
+      "processed": "Subscriptions processed:",
+      "checked": "Messages checked:",
+      "matches": "Matches found (saved to DB):",
+      "time": "Time:",
+      "seconds_short": "s",
+      "no_match_events_note": "No matches (no new rows saved to DB)",
+      "match_event_label": "MatchEvent",
+      "llm_found": "LLM found:",
+      "confidence": "confidence:",
+      "summary_reason": "summary_reason:",
+      "error_prefix": "Error:",
+      "match_events_section": "MatchEvents (new rows from this run):",
+      "debug_header": "DEBUG: all rows of match_events table (limit 200)"
+    }
+  },
+  "dispatch_bot": {
+    "success_prefix": "Bot sent notifications.",
+    "sent_stats": "Sent={{sent}}, Failed={{failed}}",
+    "time_stats": "Time={{seconds}} s.",
+    "error_prefix": "Dispatch error:"
+  },
+  "bot_connect_modal": {
+    "title": "Connect bot",
+    "text": "To activate the subscriptions engine, please connect the bot to CoTel.",
+    "ok_btn": "Got it"
   }
 }

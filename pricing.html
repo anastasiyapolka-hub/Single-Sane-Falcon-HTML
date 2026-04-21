@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CoTel — Тарифы</title>
+  <title data-i18n="pricing:meta.page_title">CoTel — Тарифы</title>
   <link rel="stylesheet" href="pricing.css" />
 </head>
 <body>
   <div class="pricing-page">
     <header class="pricing-header">
-      <a href="new-analysis.html" class="back-link">← Назад в CoTel</a>
-      <h1>Тарифы CoTel</h1>
-      <p class="subtitle">
+      <a href="new-analysis.html" class="back-link" data-i18n="pricing:header.back_link">← Назад в CoTel</a>
+      <h1 data-i18n="pricing:header.title">Тарифы CoTel</h1>
+      <p class="subtitle" data-i18n="pricing:header.subtitle">
         Выберите подходящий тариф для AI-анализа Telegram-чатов и автоматических подписок.
       </p>
     </header>
@@ -21,57 +21,57 @@
       <article class="plan-card is-active" data-plan-card="free">
         <div class="plan-top">
           <div class="plan-header-row">
-            <div class="plan-name plan-name-free">Free</div>
-            <div class="plan-price">$0<span>/мес</span></div>
+            <div class="plan-name plan-name-free" data-i18n="pricing:plans.free.name">Free</div>
+            <div class="plan-price"><span data-i18n="pricing:plans.free.price">$0</span><span data-i18n="pricing:price_suffix">/мес</span></div>
           </div>
 
           <div class="plan-divider"></div>
 
-          <div class="plan-desc">Для знакомства с сервисом</div>
+          <div class="plan-desc" data-i18n="pricing:plans.free.description">Для знакомства с сервисом</div>
         </div>
 
         <ul class="plan-features">
-          <li>3 запроса в день / 60 запросов в месяц</li>
-          <li>Анализ истории чатов для запросов до 7 дней</li>
-          <li>До 2 trial-подписок</li>
-          <li>Частота анализа подписки не чаще 1 раза в 3 часа</li>
-          <li>Telegram-уведомления</li>
+          <li data-i18n="pricing:plans.free.features.requests">3 запроса в день / 60 запросов в месяц</li>
+          <li data-i18n="pricing:plans.free.features.history_days">Анализ истории чатов для запросов до 7 дней</li>
+          <li data-i18n="pricing:plans.free.features.trial_subs">До 2 trial-подписок</li>
+          <li data-i18n="pricing:plans.free.features.frequency">Частота анализа подписки не чаще 1 раза в 3 часа</li>
+          <li data-i18n="pricing:plans.free.features.notifications">Telegram-уведомления</li>
         </ul>
 
         <div class="plan-footer">
-          <button class="plan-btn current" data-plan-btn="free" disabled>Текущий тариф</button>
+          <button class="plan-btn current" data-plan-btn="free" data-i18n="pricing:current_plan_btn" disabled>Текущий тариф</button>
         </div>
       </article>
 
       <!-- BASIC -->
       <article class="plan-card featured" data-plan-card="basic">
         <div class="featured-badge-wrap">
-          <div class="featured-bar">Рекомендуем</div>
+          <div class="featured-bar" data-i18n="pricing:featured_badge">Рекомендуем</div>
         </div>
 
         <div class="plan-top">
           <div class="plan-header-row">
-            <div class="plan-name plan-name-basic">Basic</div>
-            <div class="plan-price">$9<span>/мес</span></div>
+            <div class="plan-name plan-name-basic" data-i18n="pricing:plans.basic.name">Basic</div>
+            <div class="plan-price"><span data-i18n="pricing:plans.basic.price">$9</span><span data-i18n="pricing:price_suffix">/мес</span></div>
           </div>
 
           <div class="plan-divider"></div>
 
-          <div class="plan-desc">Для регулярного использования</div>
+          <div class="plan-desc" data-i18n="pricing:plans.basic.description">Для регулярного использования</div>
         </div>
 
         <ul class="plan-features">
-          <li>20 запросов в день / 300 запросов в месяц</li>
-          <li>Анализ истории чатов для запросов до 30 дней</li>
-          <li>История чатов и каналов</li>
-          <li>До 5 активных подписок</li>
-          <li>Частота анализа подписки не чаще 1 раза в 1 час</li>
-          <li>Приоритетная обработка подписок</li>
-          <li>Telegram-уведомления</li>
+          <li data-i18n="pricing:plans.basic.features.requests">20 запросов в день / 300 запросов в месяц</li>
+          <li data-i18n="pricing:plans.basic.features.history_days">Анализ истории чатов для запросов до 30 дней</li>
+          <li data-i18n="pricing:plans.basic.features.history_saved">История чатов и каналов</li>
+          <li data-i18n="pricing:plans.basic.features.active_subs">До 5 активных подписок</li>
+          <li data-i18n="pricing:plans.basic.features.frequency">Частота анализа подписки не чаще 1 раза в 1 час</li>
+          <li data-i18n="pricing:plans.basic.features.priority">Приоритетная обработка подписок</li>
+          <li data-i18n="pricing:plans.basic.features.notifications">Telegram-уведомления</li>
         </ul>
 
         <div class="plan-footer">
-          <button class="plan-btn" data-plan-btn="basic">Выбрать Basic</button>
+          <button class="plan-btn" data-plan-btn="basic" data-i18n="pricing:plans.basic.select_btn">Выбрать Basic</button>
         </div>
       </article>
 
@@ -79,46 +79,46 @@
       <article class="plan-card" data-plan-card="pro">
         <div class="plan-top">
           <div class="plan-header-row">
-            <div class="plan-name plan-name-pro">Pro</div>
-            <div class="plan-price">$24<span>/мес</span></div>
+            <div class="plan-name plan-name-pro" data-i18n="pricing:plans.pro.name">Pro</div>
+            <div class="plan-price"><span data-i18n="pricing:plans.pro.price">$24</span><span data-i18n="pricing:price_suffix">/мес</span></div>
           </div>
 
           <div class="plan-divider"></div>
 
-          <div class="plan-desc">Для интенсивной рабочей нагрузки</div>
+          <div class="plan-desc" data-i18n="pricing:plans.pro.description">Для интенсивной рабочей нагрузки</div>
         </div>
 
         <ul class="plan-features">
-          <li>60 запросов в день / 1500 запросов в месяц</li>
-          <li>Анализ истории чатов для запросов до 90 дней</li>
-          <li>История чатов и каналов</li>
-          <li>До 20 активных подписок</li>
-          <li>Частота анализа подписки не чаще 1 раза в 30 минут</li>
-          <li>Приоритетная обработка подписок</li>
-          <li>Telegram-уведомления</li>
+          <li data-i18n="pricing:plans.pro.features.requests">60 запросов в день / 1500 запросов в месяц</li>
+          <li data-i18n="pricing:plans.pro.features.history_days">Анализ истории чатов для запросов до 90 дней</li>
+          <li data-i18n="pricing:plans.pro.features.history_saved">История чатов и каналов</li>
+          <li data-i18n="pricing:plans.pro.features.active_subs">До 20 активных подписок</li>
+          <li data-i18n="pricing:plans.pro.features.frequency">Частота анализа подписки не чаще 1 раза в 30 минут</li>
+          <li data-i18n="pricing:plans.pro.features.priority">Приоритетная обработка подписок</li>
+          <li data-i18n="pricing:plans.pro.features.notifications">Telegram-уведомления</li>
         </ul>
 
         <div class="plan-footer">
-          <button class="plan-btn" data-plan-btn="pro">Выбрать Pro</button>
+          <button class="plan-btn" data-plan-btn="pro" data-i18n="pricing:plans.pro.select_btn">Выбрать Pro</button>
         </div>
       </article>
     </section>
 
     <section class="pricing-notes">
-      <h2>Что считается запросом</h2>
-      <p>
+      <h2 data-i18n="pricing:notes.requests_heading">Что считается запросом</h2>
+      <p data-i18n="pricing:notes.requests_text">
         Запрос — это один запуск анализа чата или канала по пользовательскому вопросу.
         Подписки учитываются отдельно и ограничиваются числом активных подписок, trial-логикой и минимальной частотой проверки.
       </p>
 
-      <h2>Что входит в подписки</h2>
-      <p>
+      <h2 data-i18n="pricing:notes.subscriptions_heading">Что входит в подписки</h2>
+      <p data-i18n="pricing:notes.subscriptions_text">
         Подписка — это периодический AI-анализ новых сообщений в выбранном чате или канале
         по заданной теме с последующим уведомлением в Telegram.
       </p>
 
-      <h2>Важно</h2>
-      <p>
+      <h2 data-i18n="pricing:notes.important_heading">Важно</h2>
+      <p data-i18n="pricing:notes.important_text">
         Тарифы MVP могут быть скорректированы после запуска, когда появятся реальные данные по нагрузке и себестоимости.
       </p>
     </section>
@@ -127,10 +127,10 @@
   <div id="plan-success-modal" class="plan-success-modal hidden">
   <div class="plan-success-backdrop"></div>
   <div class="plan-success-card">
-    <button id="plan-success-close" class="plan-success-close" type="button" aria-label="Закрыть">×</button>
-    <h2 id="plan-success-title">Тариф успешно изменён</h2>
-    <p id="plan-success-text">Желаем приятной и эффективной работы с CoTel!</p>
-    <button id="plan-success-ok" type="button" class="plan-success-btn">Перейти в сервис</button>
+    <button id="plan-success-close" class="plan-success-close" type="button" data-i18n-aria-label="pricing:success_modal.close_aria" aria-label="Закрыть">×</button>
+    <h2 id="plan-success-title" data-i18n="pricing:success_modal.title_generic">Тариф успешно изменён</h2>
+    <p id="plan-success-text" data-i18n="pricing:success_modal.text">Желаем приятной и эффективной работы с CoTel!</p>
+    <button id="plan-success-ok" type="button" class="plan-success-btn" data-i18n="pricing:success_modal.ok_btn">Перейти в сервис</button>
   </div>
 </div>
 
@@ -139,6 +139,22 @@
 <script src="https://cdn.jsdelivr.net/npm/i18next-http-backend@2.6.2/i18nextHttpBackend.min.js"></script>
 <script src="/js/i18n.js"></script>
 <script>
+  // Load the `pricing` namespace on top of the default `common` namespace.
+  if (window.cotelI18n && typeof window.cotelI18n.init === "function") {
+    window.cotelI18n.init({ namespaces: ["common", "pricing"] });
+  }
+
+  // Safe translator wrapper used across the inline script below.
+  function tI18n(key, fallback, params) {
+    try {
+      if (window.cotelI18n && typeof window.cotelI18n.t === "function") {
+        const value = window.cotelI18n.t(key, params);
+        if (value && value !== key) return value;
+      }
+    } catch (_) { /* ignore */ }
+    return fallback;
+  }
+
   document.addEventListener("DOMContentLoaded", async () => {
     const planCards = Array.from(document.querySelectorAll("[data-plan-card]"));
     const planButtons = Array.from(document.querySelectorAll("[data-plan-btn]"));
@@ -165,26 +181,44 @@
         btn.classList.toggle("current", isCurrent);
 
         if (isCurrent) {
-          btn.textContent = "Текущий тариф";
+          btn.textContent = tI18n("pricing:current_plan_btn", "Текущий тариф");
+          btn.setAttribute("data-i18n", "pricing:current_plan_btn");
         } else if (plan === "basic") {
-          btn.textContent = "Выбрать Basic";
+          btn.textContent = tI18n("pricing:plans.basic.select_btn", "Выбрать Basic");
+          btn.setAttribute("data-i18n", "pricing:plans.basic.select_btn");
         } else if (plan === "pro") {
-          btn.textContent = "Выбрать Pro";
+          btn.textContent = tI18n("pricing:plans.pro.select_btn", "Выбрать Pro");
+          btn.setAttribute("data-i18n", "pricing:plans.pro.select_btn");
         } else {
-          btn.textContent = "Выбрать Free";
+          btn.textContent = tI18n("pricing:plans.free.select_btn", "Выбрать Free");
+          btn.setAttribute("data-i18n", "pricing:plans.free.select_btn");
         }
       });
     }
 
     function openSuccessModal(planCode) {
-      const titleMap = {
+      const normalized = String(planCode || "").toLowerCase();
+      const titleKeys = {
+        free: "pricing:success_modal.title_free",
+        basic: "pricing:success_modal.title_basic",
+        pro: "pricing:success_modal.title_pro"
+      };
+      const titleFallbacks = {
         free: "Тариф успешно изменён на Free",
         basic: "Тариф успешно изменён на Basic",
-        pro: "Тариф успешно изменён на Pro",
+        pro: "Тариф успешно изменён на Pro"
       };
 
-      successTitle.textContent = titleMap[String(planCode || "").toLowerCase()] || "Тариф успешно изменён";
-      successText.textContent = "Желаем приятной и эффективной работы с CoTel.";
+      const titleKey = titleKeys[normalized] || "pricing:success_modal.title_generic";
+      const titleFallback = titleFallbacks[normalized] || "Тариф успешно изменён";
+
+      successTitle.textContent = tI18n(titleKey, titleFallback);
+      successTitle.setAttribute("data-i18n", titleKey);
+
+      const textValue = tI18n("pricing:success_modal.text", "Желаем приятной и эффективной работы с CoTel!");
+      successText.textContent = textValue;
+      successText.setAttribute("data-i18n", "pricing:success_modal.text");
+
       successModal.classList.remove("hidden");
     }
 
@@ -223,7 +257,7 @@
         err?.detail?.detail ||
         (typeof err?.detail === "string" ? err.detail : "") ||
         err?.message ||
-        "Не удалось загрузить текущий тариф.";
+        tI18n("pricing:errors.load_plan_failed", "Не удалось загрузить текущий тариф.");
       alert(msg);
     }
 
@@ -241,7 +275,7 @@
             err?.detail?.detail ||
             (typeof err?.detail === "string" ? err.detail : "") ||
             err?.message ||
-            "Не удалось изменить тариф.";
+            tI18n("pricing:errors.change_plan_failed", "Не удалось изменить тариф.");
           alert(msg);
         }
       });

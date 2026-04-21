@@ -1297,9 +1297,10 @@
         const mode = getCurrentSubscriptionSourceMode();
 
         if (mode === "service") {
+          const untitled = tI18n("new-analysis:subscription_dynamic.untitled", "Без названия");
           return (cachedChatHistory || []).map((item) => ({
             id: item.chat_id || item.id,
-            title: item.chat_title || item.chat_ref || "Без названия",
+            title: item.chat_title || item.chat_ref || untitled,
             username: item.chat_username || null,
             chat_ref: item.chat_ref || "",
           }));
@@ -1323,7 +1324,7 @@
           return detail
             .map((item) => {
               const loc = Array.isArray(item?.loc) ? item.loc.join(".") : "";
-              const msg = item?.msg || "Ошибка валидации";
+              const msg = item?.msg || tI18n("new-analysis:subscription_dynamic.validation_error", "Ошибка валидации");
               return loc ? `${loc}: ${msg}` : msg;
             })
             .join("; ");
@@ -1339,7 +1340,7 @@
           try {
             return JSON.stringify(detail);
           } catch {
-            return "Не удалось выполнить операцию с подпиской.";
+            return tI18n("new-analysis:subscription_dynamic.operation_failed", "Не удалось выполнить операцию с подпиской.");
           }
         }
 
@@ -1353,38 +1354,38 @@
         const msg = String(raw || "");
 
         if (msg.includes("CHAT_PRIVATE_OR_NO_ACCESS")) {
-          return "Этот чат недоступен для чтения под служебным аккаунтом. Подключите личный Telegram или выберите публичный чат.";
+          return tI18n("new-analysis:chat_errors.private_no_access", "Этот чат недоступен для чтения под служебным аккаунтом. Подключите личный Telegram или выберите публичный чат.");
         }
 
         if (msg.includes("PUBLIC_CHAT_NOT_FOUND")) {
-          return "Чат или канал не найден. Проверьте ссылку, username или chat id.";
+          return tI18n("new-analysis:chat_errors.public_not_found", "Чат или канал не найден. Проверьте ссылку, username или chat id.");
         }
 
         if (msg.includes("INVITE_LINK_INVALID_OR_EXPIRED")) {
-          return "Ссылка-приглашение недействительна или истекла.";
+          return tI18n("new-analysis:chat_errors.invite_invalid", "Ссылка-приглашение недействительна или истекла.");
         }
 
         if (msg.includes("JOIN_REQUEST_SENT")) {
-          return "Для этого чата отправлена заявка на вступление. Он станет доступен только после одобрения.";
+          return tI18n("new-analysis:chat_errors.join_request_sent", "Для этого чата отправлена заявка на вступление. Он станет доступен только после одобрения.");
         }
 
         if (msg.includes("SERVICE_ACCOUNT_CHANNEL_LIMIT")) {
-          return "Служебные аккаунты временно достигли лимита Telegram на вступление в каналы. Попробуйте позже.";
+          return tI18n("new-analysis:chat_errors.service_account_channel_limit", "Служебные аккаунты временно достигли лимита Telegram на вступление в каналы. Попробуйте позже.");
         }
 
         if (msg.includes("FLOOD_WAIT")) {
-          return "Telegram временно ограничил доступ для служебного аккаунта. Попробуйте позже.";
+          return tI18n("new-analysis:chat_errors.flood_wait", "Telegram временно ограничил доступ для служебного аккаунта. Попробуйте позже.");
         }
 
         if (msg.includes("TELEGRAM_NOT_AUTHORIZED")) {
-          return "Сначала подключите ваш личный Telegram-аккаунт.";
+          return tI18n("new-analysis:chat_errors.telegram_not_authorized", "Сначала подключите ваш личный Telegram-аккаунт.");
         }
 
         if (msg.includes("CHAT_RESOLVE_FAILED")) {
-          return "Не удалось открыть чат. Проверьте ссылку, username или доступ к нему.";
+          return tI18n("new-analysis:chat_errors.resolve_failed", "Не удалось открыть чат. Проверьте ссылку, username или доступ к нему.");
         }
 
-        return msg || "Не удалось выполнить операцию с подпиской.";
+        return msg || tI18n("new-analysis:subscription_dynamic.operation_failed", "Не удалось выполнить операцию с подпиской.");
       }
             
       async function apiGetChatHistory(sourceMode, limit = 30) {
@@ -1469,9 +1470,11 @@
         chatHistoryBlock.classList.remove("hidden");
 
         chatHistoryList.innerHTML = cachedChatHistory.map((item) => {
-          const title = escapeHtml(item.chat_title || item.chat_ref || "Без названия");
+          const title = escapeHtml(item.chat_title || item.chat_ref || tI18n("new-analysis:subscription_dynamic.untitled", "Без названия"));
           const chatRef = escapeHtml(item.chat_ref || "");
           const id = Number(item.id);
+          const removeTitle = escapeHtml(tI18n("new-analysis:chat_history.delete_title", "Удалить из истории"));
+          const removeAria = escapeHtml(tI18n("new-analysis:chat_history.delete_aria", "Удалить из истории"));
 
           return `
             <div class="sidebar-history-item" data-history-id="${id}" data-chat-ref="${chatRef}">
@@ -1486,8 +1489,8 @@
               <button
                 type="button"
                 class="sidebar-history-remove"
-                title="Удалить из истории"
-                aria-label="Удалить из истории"
+                title="${removeTitle}"
+                aria-label="${removeAria}"
                 data-history-id="${id}"
               >
                 ✕
@@ -1523,7 +1526,7 @@
                 err?.detail?.message ||
                 err?.detail ||
                 err?.message ||
-                "Не удалось удалить запись из истории.";
+                tI18n("new-analysis:chat_history.delete_error", "Не удалось удалить запись из истории.");
               alert(msg);
             }
           });
@@ -1797,7 +1800,7 @@
         });
       }
 
-      const LOADER_STATUS_GROUPS = {
+      const LOADER_STATUS_GROUPS_FALLBACK = {
         start: [
           "Ищем нужный чат…",
           "Подключаемся к данным…",
@@ -1864,6 +1867,18 @@
           "Почти поймали суть…"
         ]
       };
+
+      function getLoaderGroup(name) {
+        const fallback = LOADER_STATUS_GROUPS_FALLBACK[name] || [];
+        const translated = tI18n("new-analysis:loader_groups." + name, fallback, { returnObjects: true });
+        return Array.isArray(translated) && translated.length ? translated : fallback;
+      }
+
+      const LOADER_STATUS_GROUPS = new Proxy({}, {
+        get(_, name) {
+          return getLoaderGroup(name);
+        }
+      });
 
       const STATUS_STEP_DURATION_MS = 2000;
       const MIN_STATUS_COUNT = 2;
@@ -2329,7 +2344,7 @@
         myChatsList.innerHTML = items
           .map((c) => {
             const linkValue = c.username ? `@${c.username}` : String(c.id || "");
-            const safeTitle = (c.title || "Без названия").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            const safeTitle = (c.title || tI18n("new-analysis:subscription_dynamic.untitled", "Без названия")).replace(/</g, "&lt;").replace(/>/g, "&gt;");
             return `<div class="sidebar-chat-item" data-link="${linkValue}" title="${safeTitle}">${safeTitle}</div>`;
           })
           .join("");
@@ -2360,7 +2375,7 @@
               c.chat_ref
                 ? String(c.chat_ref)
                 : (c.username ? `@${c.username}` : String(c.id || ""));
-            const safeTitle = (c.title || "Без названия")
+            const safeTitle = (c.title || tI18n("new-analysis:subscription_dynamic.untitled", "Без названия"))
               .replace(/</g, "&lt;")
               .replace(/>/g, "&gt;");
             return `<div class="sidebar-chat-item" data-link="${linkValue}" title="${safeTitle}">${safeTitle}</div>`;
@@ -2440,14 +2455,14 @@
 
       function minutesToHuman(m) {
           const n = Number(m);
-          if (n === 10) return "1 раз в 10 минут";
-          if (n === 30) return "1 раз в 30 минут";
-          if (n === 60) return "1 раз в час";
-          if (n === 180) return "1 раз в 3 часа";
-          if (n === 360) return "1 раз в 6 часов"; 
-          if (n === 720) return "1 раз в 12 часов (полдня)";
-          if (n === 1440) return "1 раз в день";
-          return `${n} мин`;
+          if (n === 10) return tI18n("new-analysis:subscription_frequency.human_10m", "1 раз в 10 минут");
+          if (n === 30) return tI18n("new-analysis:subscription_frequency.human_30m", "1 раз в 30 минут");
+          if (n === 60) return tI18n("new-analysis:subscription_frequency.human_1h", "1 раз в час");
+          if (n === 180) return tI18n("new-analysis:subscription_frequency.human_3h", "1 раз в 3 часа");
+          if (n === 360) return tI18n("new-analysis:subscription_frequency.human_6h", "1 раз в 6 часов");
+          if (n === 720) return tI18n("new-analysis:subscription_frequency.human_12h_half_day", "1 раз в 12 часов (полдня)");
+          if (n === 1440) return tI18n("new-analysis:subscription_frequency.human_1d", "1 раз в день");
+          return tI18n("new-analysis:subscription_dynamic.n_minutes_short", `${n} мин`, { n });
       }
 
       function frequencyMinutesToPeriodValue(minutes, type) {
@@ -2530,7 +2545,7 @@
         }
 
         function escapeSubName(value) {
-          return String(value || "Подписка")
+          return String(value || tI18n("new-analysis:subscription_dynamic.default_name", "Подписка"))
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;");
         }
@@ -2550,15 +2565,15 @@
     const status = String(s.status || (s.is_active ? "active" : "paused")).toLowerCase();
 
     if (status === "trial_expired") {
-      return "Пробный период подписки завершён";
+      return tI18n("new-analysis:subscription_status.trial_expired", "Пробный период подписки завершён");
     }
     if (status === "paused") {
-      return "Подписка на паузе";
+      return tI18n("new-analysis:subscription_status.paused", "Подписка на паузе");
     }
     if (status === "error") {
-      return "Ошибка подписки";
+      return tI18n("new-analysis:subscription_status.error", "Ошибка подписки");
     }
-    return "Подписка активна";
+    return tI18n("new-analysis:subscription_status.active", "Подписка активна");
   }
 
   function renderCurrentCard(s) {
@@ -2566,16 +2581,22 @@
     const planCode = String(getPlanInfo()?.code || "").toLowerCase();
     const canDelete = planCode !== "free";
 
+    const ariaLabel = escapeHtml(tI18n("new-analysis:subscription_actions.aria_label", "Действия подписки"));
+    const titlePause = escapeHtml(tI18n("new-analysis:subscription_actions.pause", "Приостановить"));
+    const titlePlay = escapeHtml(tI18n("new-analysis:subscription_actions.resume", "Включить"));
+    const titleEdit = escapeHtml(tI18n("new-analysis:subscription_actions.edit", "Редактировать"));
+    const titleDelete = escapeHtml(tI18n("new-analysis:subscription_actions.delete", "Удалить"));
+
     return `
       <div class="subscription-item" data-sub-id="${s.id || ""}" title="${safeName}">
         <span class="${getStatusDotClass(s)}" title="${getSubscriptionStatusTitle(s)}"></span>
         <span class="subscription-name">${safeName}</span>
 
-        <div class="subscription-actions-mini" aria-label="Действия подписки">
-          <button class="subscription-action-btn sub-btn-pause" type="button" title="Приостановить">⏸</button>
-          <button class="subscription-action-btn sub-btn-play" type="button" title="Включить">▶</button>
-          <button class="subscription-action-btn sub-btn-edit" type="button" title="Редактировать">✎</button>
-          ${canDelete ? `<button class="subscription-action-btn sub-btn-del" type="button" title="Удалить">✕</button>` : ``}
+        <div class="subscription-actions-mini" aria-label="${ariaLabel}">
+          <button class="subscription-action-btn sub-btn-pause" type="button" title="${titlePause}">⏸</button>
+          <button class="subscription-action-btn sub-btn-play" type="button" title="${titlePlay}">▶</button>
+          <button class="subscription-action-btn sub-btn-edit" type="button" title="${titleEdit}">✎</button>
+          ${canDelete ? `<button class="subscription-action-btn sub-btn-del" type="button" title="${titleDelete}">✕</button>` : ``}
         </div>
       </div>
     `;
@@ -2586,22 +2607,26 @@
     const planCode = String(getPlanInfo()?.code || "").toLowerCase();
     const canDelete = planCode !== "free";
 
+    const ariaLabel = escapeHtml(tI18n("new-analysis:subscription_actions.aria_label_other", "Действия подписки из другого режима"));
+    const titleActivate = escapeHtml(tI18n("new-analysis:subscription_actions.activate_current", "Активировать в текущем режиме"));
+    const titleDelete = escapeHtml(tI18n("new-analysis:subscription_actions.delete", "Удалить"));
+
     return `
       <div class="subscription-item subscription-item--inactive" data-sub-id="${s.id || ""}" title="${safeName}">
         <span class="${getStatusDotClass(s)}" title="${getSubscriptionStatusTitle(s)}"></span>
         <span class="subscription-name">${safeName}</span>
 
-        <div class="subscription-actions-mini" aria-label="Действия подписки из другого режима">
+        <div class="subscription-actions-mini" aria-label="${ariaLabel}">
           <button
             class="subscription-action-btn sub-btn-switch"
             type="button"
-            title="Активировать в текущем режиме"
+            title="${titleActivate}"
           >⇄</button>
           ${canDelete ? `
           <button
             class="subscription-action-btn sub-btn-del-other"
             type="button"
-            title="Удалить"
+            title="${titleDelete}"
           >✕</button>` : ``}
         </div>
       </div>
@@ -2613,7 +2638,7 @@
   if (currentSubs.length) {
     html += `
       <div class="subscriptions-group">
-        <div class="subscriptions-group-title">Активные в этом режиме</div>
+        <div class="subscriptions-group-title">${escapeHtml(tI18n("new-analysis:subscription_groups.current_title", "Активные в этом режиме"))}</div>
         <div class="subscriptions-group-list">
           ${currentSubs.map(renderCurrentCard).join("")}
         </div>
@@ -2624,9 +2649,9 @@
   if (otherSubs.length) {
     html += `
       <div class="subscriptions-group subscriptions-group--other">
-        <div class="subscriptions-group-title">Из другого режима</div>
+        <div class="subscriptions-group-title">${escapeHtml(tI18n("new-analysis:subscription_groups.other_title", "Из другого режима"))}</div>
         <div class="subscriptions-group-note">
-          Эти подписки созданы в другом режиме и пока не активны здесь.
+          ${escapeHtml(tI18n("new-analysis:subscription_groups.other_note", "Эти подписки созданы в другом режиме и пока не активны здесь."))}
         </div>
         <div class="subscriptions-group-list">
           ${otherSubs.map(renderOtherCard).join("")}
@@ -2648,7 +2673,7 @@
       const subId = item?.getAttribute("data-sub-id");
       if (!subId) return;
 
-      const ok = confirm("Удалить подписку?");
+      const ok = confirm(tI18n("new-analysis:subscription_actions.delete_confirm", "Удалить подписку?"));
       if (!ok) return;
 
       try {
@@ -2660,7 +2685,7 @@
         }
         refreshLimitBoundControls();
       } catch (err) {
-        alert("Ошибка удаления: " + normalizePlanErrorMessage(err));
+        alert(tI18n("new-analysis:subscription_actions.delete_error_prefix", "Ошибка удаления:") + " " + normalizePlanErrorMessage(err));
       }
     });
   });
@@ -2703,7 +2728,7 @@
       const subId = item?.getAttribute("data-sub-id");
       if (!subId) return;
 
-      const ok = confirm("Удалить подписку?");
+      const ok = confirm(tI18n("new-analysis:subscription_actions.delete_confirm", "Удалить подписку?"));
       if (!ok) return;
 
       try {
@@ -2715,7 +2740,7 @@
         }
         refreshLimitBoundControls();
       } catch (err) {
-        alert("Ошибка удаления: " + normalizePlanErrorMessage(err));
+        alert(tI18n("new-analysis:subscription_actions.delete_error_prefix", "Ошибка удаления:") + " " + normalizePlanErrorMessage(err));
       }
     });
   });
@@ -2736,7 +2761,7 @@
         await refreshSubscriptions();
         await loadChatHistory();
       } catch (err) {
-        alert("Ошибка активации подписки: " + normalizeSubscriptionUiError(err));
+        alert(tI18n("new-analysis:subscription_actions.activate_error_prefix", "Ошибка активации подписки:") + " " + normalizeSubscriptionUiError(err));
       }
     });
   });
@@ -2772,13 +2797,13 @@
           .replaceAll(">", "&gt;");
 
         let html = "";
-        html += `<h2>Запуск подписок</h2>`;
+        html += `<h2>${esc(tI18n("new-analysis:run_subscriptions.heading", "Запуск подписок"))}</h2>`;
         html += `<div class="run-summary">
-          <div><b>Статус:</b> ${esc(data.status)}</div>
-          <div><b>Обработано подписок:</b> ${esc(data.processed_subscriptions)}</div>
-          <div><b>Проверено сообщений:</b> ${esc(data.checked_messages)}</div>
-          <div><b>Найдено совпадений:</b> ${esc(data.found_matches)}</div>
-          <div><b>Время:</b> ${esc(data.elapsed_seconds)} сек.</div>
+          <div><b>${esc(tI18n("new-analysis:run_subscriptions.status_label", "Статус:"))}</b> ${esc(data.status)}</div>
+          <div><b>${esc(tI18n("new-analysis:run_subscriptions.processed_label", "Обработано подписок:"))}</b> ${esc(data.processed_subscriptions)}</div>
+          <div><b>${esc(tI18n("new-analysis:run_subscriptions.checked_messages_label", "Проверено сообщений:"))}</b> ${esc(data.checked_messages)}</div>
+          <div><b>${esc(tI18n("new-analysis:run_subscriptions.matches_found_label", "Найдено совпадений:"))}</b> ${esc(data.found_matches)}</div>
+          <div><b>${esc(tI18n("new-analysis:run_subscriptions.time_label", "Время:"))}</b> ${esc(data.elapsed_seconds)} ${esc(tI18n("new-analysis:run_subscriptions.seconds_short", "сек."))}</div>
         </div>`;
 
         const results = data.results || [];
@@ -2786,27 +2811,27 @@
           html += `<hr/>`;
           html += `<h3>${esc(r.name || ("Subscription #" + r.subscription_id))}</h3>`;
           html += `<div class="run-sub-meta">
-            <div><b>ID:</b> ${esc(r.subscription_id)}</div>
-            <div><b>Чат:</b> ${esc(r.chat_ref)}</div>
-            <div><b>Статус:</b> ${esc(r.status)}</div>
-            <div><b>Проверено:</b> ${esc(r.checked)}</div>
-            <div><b>Записано MatchEvents:</b> ${esc(r.matches_written)}</div>
-            ${r.error ? `<div class="error"><b>Ошибка:</b> ${esc(r.error)}</div>` : ""}
+            <div><b>${esc(tI18n("new-analysis:run_subscriptions.id_label", "ID:"))}</b> ${esc(r.subscription_id)}</div>
+            <div><b>${esc(tI18n("new-analysis:run_subscriptions.chat_label", "Чат:"))}</b> ${esc(r.chat_ref)}</div>
+            <div><b>${esc(tI18n("new-analysis:run_subscriptions.status_label", "Статус:"))}</b> ${esc(r.status)}</div>
+            <div><b>${esc(tI18n("new-analysis:run_subscriptions.checked_label", "Проверено:"))}</b> ${esc(r.checked)}</div>
+            <div><b>${esc(tI18n("new-analysis:run_subscriptions.matches_written_label", "Записано MatchEvents:"))}</b> ${esc(r.matches_written)}</div>
+            ${r.error ? `<div class="error"><b>${esc(tI18n("new-analysis:run_subscriptions.error_label", "Ошибка:"))}</b> ${esc(r.error)}</div>` : ""}
           </div>`;
 
           // LLM JSON
           html += `<details class="llm-block" ${r.llm_json ? "open" : ""}>
-            <summary><b>Ответ LLM (JSON)</b></summary>
+            <summary><b>${esc(tI18n("new-analysis:run_subscriptions.llm_response", "Ответ LLM (JSON)"))}</b></summary>
             <pre>${esc(JSON.stringify(r.llm_json, null, 2))}</pre>
           </details>`;
 
           // Match Events rows
           const evs = r.match_events || [];
           html += `<details class="match-block" ${evs.length ? "open" : ""}>
-            <summary><b>MatchEvents</b> (${evs.length})</summary>`;
+            <summary><b>${esc(tI18n("new-analysis:run_subscriptions.match_events_header", "MatchEvents"))}</b> (${evs.length})</summary>`;
 
           if (!evs.length) {
-            html += `<div class="muted">Нет строк match_events (совпадений не найдено или запись не произошла).</div>`;
+            html += `<div class="muted">${esc(tI18n("new-analysis:run_subscriptions.no_matches_note", "Нет строк match_events (совпадений не найдено или запись не произошла)."))}</div>`;
           } else {
             for (const ev of evs) {
               html += `<div class="match-row">
@@ -2824,7 +2849,7 @@
                 </div>
 
                 <details class="payload-block">
-                  <summary><b>llm_payload (JSONB)</b></summary>
+                  <summary><b>${esc(tI18n("new-analysis:run_subscriptions.llm_payload_header", "llm_payload (JSONB)"))}</b></summary>
                   <pre>${esc(JSON.stringify(ev.llm_payload, null, 2))}</pre>
                 </details>
               </div>`;
@@ -2840,14 +2865,14 @@
       function setSubscriptionFormMode(isEdit) {
         if (subscriptionFormTitle) {
           subscriptionFormTitle.textContent = isEdit
-            ? "Редактирование подписки"
-            : "Создание новой подписки";
+            ? tI18n("new-analysis:subscription_form_dynamic.title_edit", "Редактирование подписки")
+            : tI18n("new-analysis:subscription_form.title_create", "Создание новой подписки");
         }
 
         if (createSubscriptionBtn) {
           createSubscriptionBtn.textContent = isEdit
-            ? "Сохранить изменения"
-            : "Создать подписку";
+            ? tI18n("new-analysis:subscription_form_dynamic.save_btn", "Сохранить изменения")
+            : tI18n("new-analysis:subscription_form.create_btn", "Создать подписку");
         }
       }
 
@@ -2938,14 +2963,14 @@
         const base = [
           {
             value: "openai:gpt-4.1-mini",
-            label: "OpenAI GPT-4.1 mini — быстрый и универсальный анализ",
+            label: tI18n("common:ai_models.openai_gpt_4_1_mini", "OpenAI GPT-4.1 mini — быстрый и универсальный анализ"),
           },
         ];
 
         if (planCode !== "free") {
           base.push({
             value: "anthropic:claude-sonnet-4-6",
-            label: "Claude Sonnet 4.6 — более глубокий анализ длинных обсуждений",
+            label: tI18n("common:ai_models.claude_sonnet_4_6", "Claude Sonnet 4.6 — более глубокий анализ длинных обсуждений"),
           });
         }
 
@@ -3002,12 +3027,14 @@
       function formatFrequencyLabel(minutes) {
         const value = Number(minutes || 0);
         if (!value) return "—";
-        if (value < 60) return `1 раз в ${value} минут`;
+        if (value < 60) return tI18n("new-analysis:subscription_frequency.per_minutes", `1 раз в ${value} минут`, { value });
         if (value % 60 === 0) {
           const hours = value / 60;
-          return hours === 1 ? "1 раз в 1 час" : `1 раз в ${hours} часа`;
+          return hours === 1
+            ? tI18n("new-analysis:subscription_frequency.per_hour_one", "1 раз в 1 час")
+            : tI18n("new-analysis:subscription_frequency.per_hours_other", `1 раз в ${hours} часа`, { hours });
         }
-        return `1 раз в ${value} минут`;
+        return tI18n("new-analysis:subscription_frequency.per_minutes", `1 раз в ${value} минут`, { value });
       }
 
       function clampQueryDaysByPlan() {
@@ -3031,15 +3058,15 @@
 
         const allByType = {
           events: [
-            { v: "30m", t: "1 раз в 30 минут", m: 30 },
-            { v: "1h",  t: "1 раз в 1 час", m: 60 },
-            { v: "3h",  t: "1 раз в 3 часа", m: 180 },
-            { v: "6h",  t: "1 раз в 6 часов", m: 360 },
+            { v: "30m", t: tI18n("new-analysis:subscription_form.period_30m", "1 раз в 30 минут"), m: 30 },
+            { v: "1h",  t: tI18n("new-analysis:subscription_frequency.per_hour_one", "1 раз в 1 час"), m: 60 },
+            { v: "3h",  t: tI18n("new-analysis:subscription_form.period_3h", "1 раз в 3 часа"), m: 180 },
+            { v: "6h",  t: tI18n("new-analysis:subscription_form.period_6h", "1 раз в 6 часов"), m: 360 },
           ],
           digest: [
-            { v: "6h",  t: "1 раз в 6 часов", m: 360 },
-            { v: "12h", t: "1 раз в 12 часов", m: 720 },
-            { v: "1d",  t: "1 раз в 1 день", m: 1440 },
+            { v: "6h",  t: tI18n("new-analysis:subscription_form.period_6h", "1 раз в 6 часов"), m: 360 },
+            { v: "12h", t: tI18n("new-analysis:subscription_form.period_12h", "1 раз в 12 часов (полдня)"), m: 720 },
+            { v: "1d",  t: tI18n("new-analysis:subscription_form.period_1d", "1 раз в день"), m: 1440 },
           ],
         };
 
@@ -3115,14 +3142,14 @@
 
         if (planCode === "free" && isFreeTrialExhausted()) {
           if (usage.free_trial_expired) {
-            return "Действие пробных подписок завершено. Обновите тариф, чтобы продолжить пользоваться подписками.";
+            return tI18n("new-analysis:plan_limits.free_trial_expired_note", "Действие пробных подписок завершено. Обновите тариф, чтобы продолжить пользоваться подписками.");
           }
 
-          return "Лимит пробных подписок исчерпан. Обновите тариф, чтобы создавать новые подписки.";
+          return tI18n("new-analysis:plan_limits.free_trial_limit_note", "Лимит пробных подписок исчерпан. Обновите тариф, чтобы создавать новые подписки.");
         }
 
         if (active >= max && max > 0) {
-          return "Достигнут лимит активных подписок по вашему тарифу. Приостановите одну из текущих подписок или обновите тариф.";
+          return tI18n("new-analysis:plan_limits.active_limit_note", "Достигнут лимит активных подписок по вашему тарифу. Приостановите одну из текущих подписок или обновите тариф.");
         }
 
         return "";
@@ -3167,7 +3194,7 @@
           err?.detail?.detail ||
           (typeof err?.detail === "string" ? err.detail : "") ||
           err?.message ||
-          "Неизвестная ошибка"
+          tI18n("new-analysis:subscription_dynamic.unknown_error", "Неизвестная ошибка")
         );
       }
 
@@ -3176,35 +3203,37 @@
         const detail = err?.detail || {};
 
         if (code === "PLAN_HISTORY_LIMIT_EXCEEDED") {
-          return `Ваш тариф позволяет анализировать не более ${detail?.plan_limit_days ?? "—"} дней истории.`;
+          const days = detail?.plan_limit_days ?? "—";
+          return tI18n("new-analysis:plan_errors.history_limit_exceeded", `Ваш тариф позволяет анализировать не более ${days} дней истории.`, { days });
         }
 
         if (code === "PLAN_DAILY_QA_LIMIT_REACHED") {
-          return "Дневной лимит запросов исчерпан.";
+          return tI18n("new-analysis:plan_errors.daily_qa_limit", "Дневной лимит запросов исчерпан.");
         }
 
         if (code === "PLAN_MONTHLY_QA_LIMIT_REACHED") {
-          return "Месячный лимит запросов исчерпан.";
+          return tI18n("new-analysis:plan_errors.monthly_qa_limit", "Месячный лимит запросов исчерпан.");
         }
 
         if (code === "PLAN_ACTIVE_SUBSCRIPTIONS_LIMIT_REACHED") {
-          return "Достигнут лимит активных подписок по тарифу.";
+          return tI18n("new-analysis:plan_errors.active_subscriptions_limit", "Достигнут лимит активных подписок по тарифу.");
         }
 
         if (code === "PLAN_SUBSCRIPTION_FREQUENCY_TOO_HIGH") {
-          return `Ваш тариф не позволяет такую частоту. Минимально допустимо: ${detail?.min_subscription_interval_minutes ?? "—"} минут.`;
+          const minutes = detail?.min_subscription_interval_minutes ?? "—";
+          return tI18n("new-analysis:plan_errors.frequency_too_high", `Ваш тариф не позволяет такую частоту. Минимально допустимо: ${minutes} минут.`, { minutes });
         }
 
         if (code === "FREE_TRIAL_SUBSCRIPTIONS_ALREADY_USED") {
-          return "Пробный доступ к подпискам уже использован. Перейдите на платный тариф.";
+          return tI18n("new-analysis:plan_errors.free_trial_already_used", "Пробный доступ к подпискам уже использован. Перейдите на платный тариф.");
         }
 
         if (code === "TRIAL_SUBSCRIPTION_DELETE_FORBIDDEN") {
-          return "Trial-подписки нельзя удалять вручную.";
+          return tI18n("new-analysis:plan_errors.trial_delete_forbidden", "Trial-подписки нельзя удалять вручную.");
         }
 
         if (code === "TRIAL_SUBSCRIPTION_EXPIRED") {
-          return "Срок trial-подписки истёк. Перейдите на платный тариф.";
+          return tI18n("new-analysis:plan_errors.trial_expired", "Срок trial-подписки истёк. Перейдите на платный тариф.");
         }
 
         return extractBackendErrorMessage(err);
@@ -3251,7 +3280,7 @@
           scrollSubscriptionFormIntoView();
 
         } catch (e) {
-          alert("Ошибка загрузки подписки");
+          alert(tI18n("new-analysis:subscription_dynamic.load_error", "Ошибка загрузки подписки"));
         }
       }
 
@@ -3296,15 +3325,17 @@
       const subTypeSelect = document.getElementById("subTypeSelect");
       const subscriptionType = (subTypeSelect?.value || "events");
 
-      if (!name) { subCreateStatus.textContent = "Введите имя подписки."; return; }
-      if (!chat_ref) { subCreateStatus.textContent = "Выберите чат/канал или вставьте ссылку."; return; }
-      if (!prompt) { subCreateStatus.textContent = "Введите текст запроса для подписки."; return; }
+      if (!name) { subCreateStatus.textContent = tI18n("new-analysis:subscription_form_dynamic.name_required", "Введите имя подписки."); return; }
+      if (!chat_ref) { subCreateStatus.textContent = tI18n("new-analysis:subscription_form_dynamic.chat_required", "Выберите чат/канал или вставьте ссылку."); return; }
+      if (!prompt) { subCreateStatus.textContent = tI18n("new-analysis:subscription_form_dynamic.prompt_required", "Введите текст запроса для подписки."); return; }
 
       const frequency_minutes = periodToMinutes(periodVal);
 
       // Текст статуса зависит от режима: создание или редактирование
       const isEdit = Boolean(editingSubscriptionId);
-      subCreateStatus.textContent = isEdit ? "Сохранение изменений…" : "Создание подписки…";
+      subCreateStatus.textContent = isEdit
+        ? tI18n("new-analysis:subscription_form_dynamic.saving", "Сохранение изменений…")
+        : tI18n("new-analysis:subscription_form_dynamic.creating", "Создание подписки…");
 
       const payload = {
         name,
@@ -3328,10 +3359,10 @@
             headers: { "Content-Type": "application/json", "Accept": "application/json" },
             body: JSON.stringify(payload)
           });
-          subCreateStatus.textContent = "Изменения сохранены.";
+          subCreateStatus.textContent = tI18n("new-analysis:subscription_form_dynamic.saved", "Изменения сохранены.");
         } else {
           responseData = await apiCreateSubscription(payload);
-          subCreateStatus.textContent = "Подписка создана.";
+          subCreateStatus.textContent = tI18n("new-analysis:subscription_form_dynamic.created", "Подписка создана.");
         }
 
         if (typeof window.cotelRefreshPlanUsageSnapshot === "function") {
@@ -3344,14 +3375,14 @@
         showSubscriptionForm(false);
         resetSubscriptionForm();
         editingSubscriptionId = null;
-        createSubscriptionBtn.textContent = "Создать подписку";
-        
+        createSubscriptionBtn.textContent = tI18n("new-analysis:subscription_form.create_btn", "Создать подписку");
+
       } catch (e) {
         const msg = normalizePlanErrorMessage(e);
         if (String(msg).includes("422")) {
-          subCreateStatus.textContent = "Проверь поля формы (ошибка валидации).";
+          subCreateStatus.textContent = tI18n("new-analysis:subscription_form_dynamic.validation_hint", "Проверь поля формы (ошибка валидации).");
         } else {
-          subCreateStatus.textContent = "Ошибка: " + msg;
+          subCreateStatus.textContent = tI18n("new-analysis:telegram_auth_dynamic.error_prefix", "Ошибка:") + " " + msg;
         }
       }
     });
@@ -3402,7 +3433,7 @@
         try {
           if (runSubscriptionsBtn) {
             runSubscriptionsBtn.disabled = true;
-            runSubscriptionsBtn.textContent = "Запускаю...";
+            runSubscriptionsBtn.textContent = tI18n("new-analysis:run_subscriptions_dynamic.starting", "Запускаю...");
           }
 
           const data = await apiFetch("/subscriptions/run", {
@@ -3412,15 +3443,15 @@
           if (typeof renderRunSubscriptionsToWorkArea === "function") {
             renderRunSubscriptionsToWorkArea(data);
           } else {
-            alert(data?.ui_message || "Готово.");
+            alert(data?.ui_message || tI18n("new-analysis:run_subscriptions_dynamic.done", "Готово."));
           }
         } catch (e) {
           const msg = e?.detail?.detail || e?.detail || e?.message || String(e);
-          alert(`Ошибка запуска подписок: ${msg}`);
+          alert(tI18n("new-analysis:run_subscriptions_dynamic.run_error_prefix", "Ошибка запуска подписок:") + " " + msg);
         } finally {
           if (runSubscriptionsBtn) {
             runSubscriptionsBtn.disabled = false;
-            runSubscriptionsBtn.textContent = "Запустить подписки";
+            runSubscriptionsBtn.textContent = tI18n("new-analysis:subscriptions.run_btn", "Запустить подписки");
           }
         }
       }
@@ -3452,14 +3483,14 @@ function renderKeyValueBlock(obj) {
 
 function renderMatchEventsTable(matchEvents) {
   if (!Array.isArray(matchEvents) || matchEvents.length === 0) {
-    return `<div style="opacity:.8">Совпадений нет (в БД не записалось новых строк)</div>`;
+    return `<div style="opacity:.8">${escapeHtml(tI18n("new-analysis:run_subscriptions_dynamic.run_response.no_match_events_note", "Совпадений нет (в БД не записалось новых строк)"))}</div>`;
   }
 
   return matchEvents.map(ev => {
     // вывод всех колонок
     return `
       <div style="padding:8px 0; border-top:1px solid rgba(0,0,0,.08)">
-        <div><b>MatchEvent</b> (id=${escapeHtml(ev.id)})</div>
+        <div><b>${escapeHtml(tI18n("new-analysis:run_subscriptions_dynamic.run_response.match_event_label", "MatchEvent"))}</b> (id=${escapeHtml(ev.id)})</div>
         ${renderKeyValueBlock(ev)}
       </div>
     `;
@@ -3467,18 +3498,32 @@ function renderMatchEventsTable(matchEvents) {
 }
 
 function renderRunResponse(data) {
+  const titleLabel = escapeHtml(tI18n("new-analysis:run_subscriptions_dynamic.run_response.title", "Запуск подписок:"));
+  const processedLabel = escapeHtml(tI18n("new-analysis:run_subscriptions_dynamic.run_response.processed", "Подписок обработано:"));
+  const checkedLabel = escapeHtml(tI18n("new-analysis:run_subscriptions_dynamic.run_response.checked", "Проверено сообщений:"));
+  const matchesLabel = escapeHtml(tI18n("new-analysis:run_subscriptions_dynamic.run_response.matches", "Найдено совпадений (записано в БД):"));
+  const timeLabel = escapeHtml(tI18n("new-analysis:run_subscriptions_dynamic.run_response.time", "Время:"));
+  const secondsShort = escapeHtml(tI18n("new-analysis:run_subscriptions_dynamic.run_response.seconds_short", "сек."));
+
   const header = `
     <div style="padding:10px 0">
-      <div><b>Запуск подписок:</b> ${escapeHtml(data.status)}</div>
-      <div><b>Подписок обработано:</b> ${escapeHtml(data.processed_subscriptions)}</div>
-      <div><b>Проверено сообщений:</b> ${escapeHtml(data.checked_messages)}</div>
-      <div><b>Найдено совпадений (записано в БД):</b> ${escapeHtml(data.found_matches)}</div>
-      <div><b>Время:</b> ${escapeHtml(data.elapsed_seconds)} сек.</div>
+      <div><b>${titleLabel}</b> ${escapeHtml(data.status)}</div>
+      <div><b>${processedLabel}</b> ${escapeHtml(data.processed_subscriptions)}</div>
+      <div><b>${checkedLabel}</b> ${escapeHtml(data.checked_messages)}</div>
+      <div><b>${matchesLabel}</b> ${escapeHtml(data.found_matches)}</div>
+      <div><b>${timeLabel}</b> ${escapeHtml(data.elapsed_seconds)} ${secondsShort}</div>
     </div>
   `;
 
+  const llmFoundLabel = escapeHtml(tI18n("new-analysis:run_subscriptions_dynamic.run_response.llm_found", "LLM found:"));
+  const confidenceLabel = escapeHtml(tI18n("new-analysis:run_subscriptions_dynamic.run_response.confidence", "confidence:"));
+  const summaryReasonLabel = escapeHtml(tI18n("new-analysis:run_subscriptions_dynamic.run_response.summary_reason", "summary_reason:"));
+  const errorPrefix = escapeHtml(tI18n("new-analysis:run_subscriptions_dynamic.run_response.error_prefix", "Error:"));
+  const matchEventsSection = escapeHtml(tI18n("new-analysis:run_subscriptions_dynamic.run_response.match_events_section", "MatchEvents (новые строки этого запуска):"));
+  const untitled = tI18n("new-analysis:subscription_dynamic.untitled", "Без названия");
+
   const perSub = (data.results || []).map(sub => {
-    const title = `<div style="margin-top:16px"><b>${escapeHtml(sub.name || "Без названия")}</b></div>`;
+    const title = `<div style="margin-top:16px"><b>${escapeHtml(sub.name || untitled)}</b></div>`;
     const meta = `
       <div style="opacity:.9">
         id=${escapeHtml(sub.subscription_id)} · chat=${escapeHtml(sub.chat_ref)} · status=${escapeHtml(sub.status)}
@@ -3489,17 +3534,17 @@ function renderRunResponse(data) {
 
     const llmInfo = `
       <div style="margin:6px 0; padding:8px; background:rgba(0,0,0,.04); border-radius:8px">
-        <div><b>LLM found:</b> ${escapeHtml(sub.llm_found)}</div>
-        <div><b>confidence:</b> ${escapeHtml(sub.llm_confidence)}</div>
-        <div><b>summary_reason:</b> ${escapeHtml(sub.llm_summary_reason)}</div>
+        <div><b>${llmFoundLabel}</b> ${escapeHtml(sub.llm_found)}</div>
+        <div><b>${confidenceLabel}</b> ${escapeHtml(sub.llm_confidence)}</div>
+        <div><b>${summaryReasonLabel}</b> ${escapeHtml(sub.llm_summary_reason)}</div>
       </div>
     `;
 
-    const error = sub.error ? `<div style="color:#b00020"><b>Error:</b> ${escapeHtml(sub.error)}</div>` : "";
+    const error = sub.error ? `<div style="color:#b00020"><b>${errorPrefix}</b> ${escapeHtml(sub.error)}</div>` : "";
 
     const matchesBlock = `
       <div style="margin-top:6px">
-        <div style="font-weight:600">MatchEvents (новые строки этого запуска):</div>
+        <div style="font-weight:600">${matchEventsSection}</div>
         ${renderMatchEventsTable(sub.match_events)}
       </div>
     `;
@@ -3507,9 +3552,10 @@ function renderRunResponse(data) {
     return `${title}${meta}${error}${llmInfo}${matchesBlock}`;
   }).join("");
 
+  const debugHeader = escapeHtml(tI18n("new-analysis:run_subscriptions_dynamic.run_response.debug_header", "DEBUG: все строки таблицы match_events (limit 200)"));
   const allEvents = `
     <div style="margin-top:18px; padding-top:12px; border-top:2px solid rgba(0,0,0,.12)">
-      <div style="font-weight:700">DEBUG: все строки таблицы match_events (limit 200)</div>
+      <div style="font-weight:700">${debugHeader}</div>
       ${renderMatchEventsTable(data.debug_all_match_events)}
     </div>
   `;
@@ -3523,16 +3569,17 @@ if (runSubscriptionsBtn) {
   runSubscriptionsBtn.addEventListener("click", async () => {
     try {
       runSubscriptionsBtn.disabled = true;
-      runSubscriptionsBtn.textContent = "Запуск…";
+      runSubscriptionsBtn.textContent = tI18n("new-analysis:run_subscriptions_dynamic.running", "Запуск…");
 
       const data = await apiFetch("/subscriptions/run", { method: "POST" });
       analysisResult.innerHTML = renderRunResponse(data);
     } catch (e) {
       const msg = e?.detail?.detail || e?.detail || e?.message || String(e);
-      analysisResult.innerHTML = `<div style="color:#b00020"><b>Ошибка:</b> ${escapeHtml(msg)}</div>`;
+      const errLabel = escapeHtml(tI18n("new-analysis:run_subscriptions_dynamic.error_label_bold", "Ошибка:"));
+      analysisResult.innerHTML = `<div style="color:#b00020"><b>${errLabel}</b> ${escapeHtml(msg)}</div>`;
     } finally {
       runSubscriptionsBtn.disabled = false;
-      runSubscriptionsBtn.textContent = "Запустить подписки";
+      runSubscriptionsBtn.textContent = tI18n("new-analysis:subscriptions.run_btn", "Запустить подписки");
     }
   });
 }
@@ -3556,7 +3603,7 @@ if (runSubscriptionsBtn) {
         }
 
         if (resultDiv) {
-          resultDiv.textContent = text || rawText || "Нет данных";
+          resultDiv.textContent = text || rawText || tI18n("new-analysis:dashboard_dynamic.no_data", "Нет данных");
         }
 
         if (payload?.chat_name) {
@@ -3574,10 +3621,13 @@ if (runSubscriptionsBtn) {
       async function dispatchBot() {
         try {
           const data = await apiFetch("/tg/bot/dispatch", { method: "POST" });
-          alert(`Бот отправил уведомления.\nSent=${data.sent}, Failed=${data.failed}\nВремя=${data.elapsed_seconds} сек.`);
+          const successPrefix = tI18n("new-analysis:dispatch_bot.success_prefix", "Бот отправил уведомления.");
+          const sentStats = tI18n("new-analysis:dispatch_bot.sent_stats", "Sent={{sent}}, Failed={{failed}}", { sent: data.sent, failed: data.failed });
+          const timeStats = tI18n("new-analysis:dispatch_bot.time_stats", "Время={{seconds}} сек.", { seconds: data.elapsed_seconds });
+          alert(`${successPrefix}\n${sentStats}\n${timeStats}`);
         } catch (e) {
           const msg = e?.detail?.detail || e?.detail || e?.message || String(e);
-          alert(`Ошибка dispatch: ${msg}`);
+          alert(tI18n("new-analysis:dispatch_bot.error_prefix", "Ошибка dispatch:") + " " + msg);
         }
       }
 
@@ -3603,7 +3653,7 @@ if (runSubscriptionsBtn) {
               const file = fileInput?.files[0];
 
               if (!file) {
-                alert("Сначала импортируйте JSON-файл экспорта Telegram.");
+                alert(tI18n("new-analysis:dashboard_dynamic.import_json_first", "Сначала импортируйте JSON-файл экспорта Telegram."));
                 showLoader(false);
                 return;
               }
@@ -3638,7 +3688,7 @@ if (runSubscriptionsBtn) {
               const days = parseInt(queryDaysInput?.value || "7", 10);
 
               if (!chatLink) {
-                alert("Введите ссылку на чат или канал Telegram.");
+                alert(tI18n("new-analysis:dashboard_dynamic.enter_chat_link", "Введите ссылку на чат или канал Telegram."));
                 showLoader(false);
                 return;
               }
@@ -3674,7 +3724,7 @@ if (runSubscriptionsBtn) {
               const days = parseInt(queryDaysInput?.value || "7", 10);
 
               if (!chatLink) {
-                alert("Введите публичный username или ссылку на публичный чат/канал Telegram.");
+                alert(tI18n("new-analysis:dashboard_dynamic.enter_public_link", "Введите публичный username или ссылку на публичный чат/канал Telegram."));
                 showLoader(false);
                 return;
               }
@@ -3705,12 +3755,12 @@ if (runSubscriptionsBtn) {
             }
 
             // 3️⃣ НИЧЕГО НЕ ВЫБРАНО
-            alert("Выберите источник данных.");
+            alert(tI18n("new-analysis:dashboard_dynamic.select_data_source", "Выберите источник данных."));
         } catch (err) {
           const msg = normalizePlanErrorMessage(err);
 
           if (resultDiv) {
-            resultDiv.textContent = "Ошибка запроса: " + msg;
+            resultDiv.textContent = tI18n("new-analysis:dashboard_dynamic.request_error_prefix", "Ошибка запроса:") + " " + msg;
           }
         } finally {
           showLoader(false);
@@ -3732,8 +3782,8 @@ if (runSubscriptionsBtn) {
       <!-- Modal: Подключение бота для подписок -->
     <div id="botConnectModal" class="modal-overlay" style="display:none;">
       <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-        <h3 id="modalTitle" class="modal-title">Подключение бота</h3>
-        <p class="modal-text">
+        <h3 id="modalTitle" class="modal-title" data-i18n="new-analysis:bot_connect_modal.title">Подключение бота</h3>
+        <p class="modal-text" data-i18n="new-analysis:bot_connect_modal.text">
           Для активации механизма подписок требуется подключить бота к CoTel.
         </p>
 
@@ -3742,7 +3792,7 @@ if (runSubscriptionsBtn) {
         </a>
 
         <div class="modal-actions">
-          <button id="modalOkBtn" type="button" class="tg-button">Понятно</button>
+          <button id="modalOkBtn" type="button" class="tg-button" data-i18n="new-analysis:bot_connect_modal.ok_btn">Понятно</button>
         </div>
       </div>
     </div>

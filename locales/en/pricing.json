@@ -1,1 +1,79 @@
-{}
+{
+  "meta": {
+    "page_title": "CoTel — Pricing"
+  },
+  "header": {
+    "back_link": "← Back to CoTel",
+    "title": "CoTel pricing",
+    "subtitle": "Pick the plan that fits your AI-powered Telegram chat analysis and automated subscriptions."
+  },
+  "price_suffix": "/mo",
+  "featured_badge": "Recommended",
+  "plans": {
+    "free": {
+      "name": "Free",
+      "price": "$0",
+      "description": "To get started with the service",
+      "features": {
+        "requests": "3 requests per day / 60 requests per month",
+        "history_days": "Chat history analysis for queries up to 7 days",
+        "trial_subs": "Up to 2 trial subscriptions",
+        "frequency": "Subscription analysis no more than once every 3 hours",
+        "notifications": "Telegram notifications"
+      },
+      "select_btn": "Choose Free"
+    },
+    "basic": {
+      "name": "Basic",
+      "price": "$9",
+      "description": "For regular use",
+      "features": {
+        "requests": "20 requests per day / 300 requests per month",
+        "history_days": "Chat history analysis for queries up to 30 days",
+        "history_saved": "Chat and channel history",
+        "active_subs": "Up to 5 active subscriptions",
+        "frequency": "Subscription analysis no more than once every hour",
+        "priority": "Priority subscription processing",
+        "notifications": "Telegram notifications"
+      },
+      "select_btn": "Choose Basic"
+    },
+    "pro": {
+      "name": "Pro",
+      "price": "$24",
+      "description": "For an intensive workload",
+      "features": {
+        "requests": "60 requests per day / 1500 requests per month",
+        "history_days": "Chat history analysis for queries up to 90 days",
+        "history_saved": "Chat and channel history",
+        "active_subs": "Up to 20 active subscriptions",
+        "frequency": "Subscription analysis no more than once every 30 minutes",
+        "priority": "Priority subscription processing",
+        "notifications": "Telegram notifications"
+      },
+      "select_btn": "Choose Pro"
+    }
+  },
+  "current_plan_btn": "Current plan",
+  "notes": {
+    "requests_heading": "What counts as a request",
+    "requests_text": "A request is one run of chat or channel analysis for a user prompt. Subscriptions are tracked separately and limited by the number of active subscriptions, trial logic, and a minimum check frequency.",
+    "subscriptions_heading": "What subscriptions include",
+    "subscriptions_text": "A subscription is a periodic AI analysis of new messages in a chosen chat or channel for a given topic, followed by a Telegram notification.",
+    "important_heading": "Important",
+    "important_text": "MVP pricing may be adjusted after launch once real workload and cost data become available."
+  },
+  "success_modal": {
+    "close_aria": "Close",
+    "title_generic": "Plan successfully changed",
+    "title_free": "Plan successfully changed to Free",
+    "title_basic": "Plan successfully changed to Basic",
+    "title_pro": "Plan successfully changed to Pro",
+    "text": "Enjoy a pleasant and productive experience with CoTel!",
+    "ok_btn": "Open the service"
+  },
+  "errors": {
+    "load_plan_failed": "Failed to load the current plan.",
+    "change_plan_failed": "Failed to change the plan."
+  }
+}
