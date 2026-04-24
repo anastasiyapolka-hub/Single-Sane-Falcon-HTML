@@ -118,6 +118,42 @@
                       <span>Попробовать</span>
                     </div>
                   </a>
+                  <!-- Language switcher (globe icon + dropdown) -->
+                  <div class="lang-switcher">
+                    <button
+                      id="langSwitcherBtn"
+                      type="button"
+                      class="lang-switcher__button"
+                      aria-haspopup="listbox"
+                      aria-expanded="false"
+                      aria-label="Change interface language"
+                      data-i18n-aria-label="common:lang_switcher.button_aria"
+                      title="Interface language"
+                      data-i18n-title="common:lang_switcher.button_title"
+                    >
+                      <img
+                        src="/images/globe-lang.png"
+                        srcset="/images/globe-lang.png 1x, /images/globe-lang@2x.png 2x"
+                        alt="Language"
+                        data-i18n-alt="common:lang_switcher.globe_alt"
+                        class="lang-switcher__globe"
+                        width="26"
+                        height="26"
+                      />
+                    </button>
+                    <ul id="langSwitcherMenu" class="lang-switcher__menu" role="listbox" hidden>
+                      <li role="option">
+                        <button type="button" class="lang-switcher__item" data-lang="en">
+                          <span data-i18n="common:lang_switcher.option_en">English</span>
+                        </button>
+                      </li>
+                      <li role="option">
+                        <button type="button" class="lang-switcher__item" data-lang="ru">
+                          <span data-i18n="common:lang_switcher.option_ru">Русский</span>
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
                 <button
                   id="navToggle"
@@ -1335,5 +1371,6 @@
     <script src="https://cdn.jsdelivr.net/npm/i18next@23.15.1/dist/umd/i18next.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/i18next-http-backend@2.6.2/i18nextHttpBackend.min.js"></script>
     <script src="/js/i18n.js"></script>
+    <script src="/js/lang-switcher.js"></script>
   </body>
 </html>

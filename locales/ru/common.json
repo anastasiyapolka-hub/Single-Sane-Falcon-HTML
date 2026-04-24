@@ -35,6 +35,13 @@
     "try": "Попробовать",
     "close_menu_aria": "Закрыть меню"
   },
+  "lang_switcher": {
+    "button_aria": "Сменить язык интерфейса",
+    "button_title": "Язык интерфейса",
+    "globe_alt": "Язык",
+    "option_en": "English",
+    "option_ru": "Русский"
+  },
   "ai_models": {
     "openai_gpt_4_1_mini": "OpenAI GPT-4.1 mini — быстрый и универсальный анализ",
     "claude_sonnet_4_6": "Claude Sonnet 4.6 — более глубокий анализ длинных обсуждений"
