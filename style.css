@@ -2020,11 +2020,20 @@
 }
 
 /* ---------- Header language switcher (globe icon + dropdown) ---------- */
+/* .lang-switcher is a direct child of .navigation (sibling of .navigation__container).
+   It's absolutely positioned so it shows even when .navigation__right is hidden
+   (new-analysis.html applies display:none !important to .navigation__right) and so
+   it doesn't disturb the centered logo. pointer-events:auto restores clickability
+   on pages where .navigation has pointer-events:none (e.g. new-analysis.css). */
 .lang-switcher {
-  position: relative;
-  margin-left: auto;
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
   align-items: center;
+  pointer-events: auto;
+  z-index: 10;
 }
 
 .lang-switcher__button {
