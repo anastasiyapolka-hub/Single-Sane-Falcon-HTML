@@ -316,10 +316,16 @@ body {
   justify-content: flex-start;
   gap: 8px;
   position: relative;
-  padding: 16px 20px 8px 20px;
-  min-height: 44px;
+  /* Высота согласована с правым хедером (.navigation = ~12px + 28px (лого-кот) + 12px ≈ 52-54px),
+     чтобы разделительные линии под заголовком панели и под CoTel совпадали по уровню. */
+  padding: 12px 20px;
+  min-height: 54px;
   box-sizing: border-box;
   text-align: left;
+  /* Тонкая горизонтальная линия — отделяет заголовок панели от первого блока
+     и совпадает по уровню с border-bottom правого хедера */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  margin-bottom: 12px;
 }
 
 .sidebar-toggle-btn {
@@ -430,19 +436,24 @@ body {
   height: 18px;
 }
 
-/* Контейнер кнопки Telegram — чтобы badge со статусом мог быть позиционирован */
-#tgMiniIconBtn {
-  position: relative;
+/* PNG-иконка в заголовке секции (вместо ▾). Без обводки/круга — просто картинка. */
+.sidebar-section-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  flex-shrink: 0;
+  margin-left: 8px;
+  pointer-events: none; /* клик идёт по всему summary */
+  transition: transform 0.18s ease, opacity 0.15s ease;
 }
 
-/* Маленькая точка-статус подключения Telegram, наложенная на угол иконки */
-.tg-mini-badge {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 8px;
-  height: 8px;
-  box-shadow: 0 0 0 2px #ffffff;
+.sidebar-section details[open] > summary .sidebar-section-icon {
+  /* можно при необходимости отличать состояния — пока без изменений */
+  opacity: 1;
+}
+
+.sidebar-section summary:hover .sidebar-section-icon {
+  transform: scale(1.06);
 }
 
 /* Свернутая панель */
@@ -627,11 +638,13 @@ body.user-not-auth #sidebarUserArea .auth-open-btn {
 
 /* Хедер-обёртка: визуально есть, но клики пропускает (чтобы не ломать sidebar) */
 .navigation {
-  /*top: 0;
-  left: 0;
-  right: 0;
-  background: transparent !important;*/
+  /* Тот же серый, что у левого сайдбара — чтобы шапка визуально была единой
+     полосой, продолжающейся от сайдбара через хедер. */
+  background: #F3F4F6 !important;
   border: 0 !important;
+  /* Тонкая разделительная линия снизу — визуально продолжает border-bottom
+     заголовка рабочей панели. */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
   box-shadow: none !important;
   backdrop-filter: none !important;
   z-index: 100;
@@ -663,6 +676,31 @@ body.user-not-auth #sidebarUserArea .auth-open-btn {
   top: 50% !important;
   transform: translateY(-50%) !important;
   z-index: 210 !important;
+}
+
+/* Глобус-переключатель языка в стиле мини-иконок сайдбара:
+   белый кружочек с лёгкой тенью, единая визуальная система. */
+.navigation .lang-switcher__button {
+  width: 32px;
+  height: 32px;
+  padding: 0 !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08) !important;
+  transition: background-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+.navigation .lang-switcher__button:hover,
+.navigation .lang-switcher__button:focus-visible {
+  background: #f3f4f6 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.12) !important;
+  outline: none;
+}
+
+.navigation .lang-switcher__globe {
+  width: 18px !important;
+  height: 18px !important;
 }
 
 /* Уменьшаем логотип */
