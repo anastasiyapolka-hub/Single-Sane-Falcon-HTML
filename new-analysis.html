@@ -4032,7 +4032,19 @@ if (runSubscriptionsBtn) {
           </div>
 
 
-          <button id="register-submit" type="button" data-i18n="auth:register.submit">Зарегистрироваться</button>
+          <div class="auth-field auth-field--terms">
+            <label class="auth-terms-label" for="register-terms">
+              <input id="register-terms" type="checkbox">
+              <span class="auth-terms-text" data-i18n="auth:register.terms_text">Я ознакомлен(а) с Политикой конфиденциальности и Пользовательским соглашением, принимаю их условия и подтверждаю, что мне исполнилось 16 лет.</span>
+            </label>
+            <p class="auth-terms-links">
+              <a href="/privacy" target="_blank" rel="noopener" data-i18n="auth:register.terms_link_privacy">Политика конфиденциальности</a>
+              <span class="auth-terms-sep">·</span>
+              <a href="/terms" target="_blank" rel="noopener" data-i18n="auth:register.terms_link_tos">Пользовательское соглашение</a>
+            </p>
+          </div>
+
+          <button id="register-submit" type="button" data-i18n="auth:register.submit" disabled>Зарегистрироваться</button>
           <p class="auth-switch-text">
             <span data-i18n="auth:register.have_account">Уже есть аккаунт?</span>
             <button id="show-login" type="button" class="auth-link-btn" data-i18n="auth:register.login_link">Войти</button>

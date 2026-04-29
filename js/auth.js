@@ -588,6 +588,12 @@ function resetAuthForms() {
   pendingEmail = null;
   registerEmail = null;
 
+  // Сбрасываем чекбокс согласия и блокируем кнопку регистрации до новой отметки.
+  const termsCheckbox = byId("register-terms");
+  if (termsCheckbox) termsCheckbox.checked = false;
+  const registerBtn = byId("register-submit");
+  if (registerBtn) registerBtn.disabled = true;
+
   clearLoginError();
   stopVerifyResendCooldown();
 }
@@ -840,6 +846,10 @@ async function handleLogin() {
   }
 }
 
+// Версия комплекта юр. документов (Privacy + ToS), на которую пользователь
+// даёт согласие при регистрации. Обновлять при существенных изменениях документов.
+const TERMS_VERSION = "1.0";
+
 async function handleRegister() {
   const email = byId("register-email").value.trim().toLowerCase();
   const countryName = byId("register-country")?.value.trim() || "";
@@ -847,6 +857,8 @@ async function handleRegister() {
   const timezone = normalizeTimezone(byId("register-timezone")?.value || detectBrowserTimezone());
   const password = byId("register-password").value;
   const password2 = byId("register-password2").value;
+  const termsCheckbox = byId("register-terms");
+  const termsAccepted = !!(termsCheckbox && termsCheckbox.checked);
 
   if (!email || !countryName || !password || !password2) {
     alert(tAuth("auth:messages.register_email_required", "Заполните все поля."));
@@ -860,6 +872,15 @@ async function handleRegister() {
 
   if (password !== password2) {
     alert(tAuth("auth:messages.register_password_mismatch", "Пароли не совпадают."));
+    return;
+  }
+
+  if (!termsAccepted) {
+    alert(tAuth(
+      "auth:messages.register_terms_required",
+      "Чтобы продолжить, подтвердите согласие с Политикой конфиденциальности и Пользовательским соглашением."
+    ));
+    termsCheckbox?.focus();
     return;
   }
 
@@ -884,7 +905,9 @@ async function handleRegister() {
         country_code: countryMatch.code,
         timezone,
         language: autoLanguage,
-        language_source: "auto"
+        language_source: "auto",
+        accepted_terms: true,
+        terms_version: TERMS_VERSION
       })
     });
 
@@ -1220,6 +1243,17 @@ function bindAuthUi() {
   byId("login-submit")?.addEventListener("click", handleLogin);
   byId("login-password")?.addEventListener("input", clearLoginError);
   byId("register-submit")?.addEventListener("click", handleRegister);
+
+  // Активируем кнопку регистрации только когда поставлена галочка согласия с
+  // Privacy + ToS + подтверждением возраста.
+  const registerTermsCheckbox = byId("register-terms");
+  const registerSubmitBtn = byId("register-submit");
+  const syncRegisterSubmitState = () => {
+    if (!registerSubmitBtn) return;
+    registerSubmitBtn.disabled = !(registerTermsCheckbox && registerTermsCheckbox.checked);
+  };
+  registerTermsCheckbox?.addEventListener("change", syncRegisterSubmitState);
+  syncRegisterSubmitState();
   byId("verify-submit")?.addEventListener("click", handleVerify);
   byId("verify-resend")?.addEventListener("click", handleResendVerifyCode);
   
