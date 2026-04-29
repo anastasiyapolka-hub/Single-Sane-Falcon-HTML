@@ -1967,6 +1967,39 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         renderProfileLimits();
       } catch (_) { /* ignore */ }
+
+      // Список стран при регистрации привязан к языку интерфейса. При смене
+      // языка пересобираем datalist (значения <option value>), а если в инпуте
+      // уже введено название страны — заменяем его на эквивалент в новом
+      // языке, чтобы не сбивать ранее сделанный выбор.
+      try {
+        const countryInput = byId("register-country");
+        const previousMatch = countryInput
+          ? findCountryByName(countryInput.value)
+          : null;
+
+        buildCountryOptions();
+
+        if (countryInput && previousMatch) {
+          countryInput.value = getCountryLabel(previousMatch, getCurrentUiLanguage());
+          syncRegisterCountryCode();
+        }
+
+        // В профиле страна показывается как plain-text — обновим её тоже,
+        // если пользователь авторизован.
+        if (currentUser?.country_code) {
+          const countryObj = COUNTRY_LIST.find(
+            (country) => country.code === currentUser.country_code
+          );
+          const profileCountryEl = byId("profile-country");
+          if (countryObj && profileCountryEl) {
+            profileCountryEl.textContent = getCountryLabel(
+              countryObj,
+              getCurrentUiLanguage()
+            );
+          }
+        }
+      } catch (_) { /* ignore */ }
     });
   }
 });
