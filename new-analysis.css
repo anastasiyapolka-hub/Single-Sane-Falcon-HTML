@@ -415,6 +415,36 @@ body {
   transform: translateY(-1px);
 }
 
+/* PNG-иконки внутри мини-кнопок сайдбара и тоггл-кнопки */
+.sidebar-icon-img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  display: block;
+  pointer-events: none; /* клик идёт по родительской кнопке */
+}
+
+/* Шестерёнка на тёмном фоне — иконка чуть меньше, чтобы не упиралась в края */
+.sidebar-icon-img--on-dark {
+  width: 18px;
+  height: 18px;
+}
+
+/* Контейнер кнопки Telegram — чтобы badge со статусом мог быть позиционирован */
+#tgMiniIconBtn {
+  position: relative;
+}
+
+/* Маленькая точка-статус подключения Telegram, наложенная на угол иконки */
+.tg-mini-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 8px;
+  height: 8px;
+  box-shadow: 0 0 0 2px #ffffff;
+}
+
 /* Свернутая панель */
 .dashboard-sidebar.collapsed {
   width: var(--sidebar-collapsed-width) !important;

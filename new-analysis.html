@@ -358,7 +358,7 @@
                 title="Свернуть панель"
                 data-i18n-title="new-analysis:sidebar.toggle_title"
               >
-              ⚙️
+                <img src="images/settings-64.png" alt="" class="sidebar-icon-img sidebar-icon-img--on-dark" />
               </button>
               <span class="sidebar-title" data-i18n="new-analysis:sidebar.title">Рабочая панель</span>
             </div>
@@ -372,15 +372,17 @@
                 title="Источники данных"
                 data-i18n-title="new-analysis:mini_icons.data_source"
               >
-                📁
+                <img src="images/notification-64.png" alt="" class="sidebar-icon-img" />
               </button>
               <button
+                id="tgMiniIconBtn"
                 class="sidebar-mini-icon-btn"
                 type="button"
                 title="Telegram"
                 data-i18n-title="new-analysis:mini_icons.telegram"
               >
-                <span id="tgMiniStatusDot" class="tg-status-dot tg-status-off"></span>
+                <img src="images/connection-64.png" alt="" class="sidebar-icon-img" />
+                <span id="tgMiniStatusDot" class="tg-status-dot tg-status-off tg-mini-badge"></span>
               </button>
 
               <button
@@ -390,7 +392,7 @@
                 title="Мои чаты"
                 data-i18n-title="new-analysis:mini_icons.my_chats"
               >
-                💬
+                <img src="images/ask-question-64.png" alt="" class="sidebar-icon-img" />
               </button>
               <button
                 class="sidebar-mini-icon-btn"
@@ -399,7 +401,7 @@
                 title="Мои подписки"
                 data-i18n-title="new-analysis:mini_icons.my_subscriptions"
               >
-                ⭐
+                <img src="images/favorites-64.png" alt="" class="sidebar-icon-img" />
               </button>
             </div>
 
@@ -1610,6 +1612,13 @@
 
         if (telegramStatusSection) {
           telegramStatusSection.style.display = mode === "account" ? "block" : "none";
+        }
+
+        // Мини-иконка Telegram-авторизации: показывается только когда
+        // выбран "Мой аккаунт Telegram" (mode === "account").
+        const tgMiniIconBtn = document.getElementById("tgMiniIconBtn");
+        if (tgMiniIconBtn) {
+          tgMiniIconBtn.style.display = mode === "account" ? "inline-flex" : "none";
         }
       }
 
