@@ -529,15 +529,20 @@ body {
 
 /* ============================================================ */
 /* ФУТЕР САЙДБАРА (карточка пользователя: аватар + email + plan + quit)
-   Вариант A: прозрачный фон, тонкая серая обводка, скругление 12px,
-   отступ от краёв сайдбара 12px. Без "грязного" персикового фона. */
+   Белая карточка с тонкой серой обводкой, скруглением 12px, отступ
+   от краёв сайдбара 12px. */
 #sidebarUserArea {
-  background: transparent !important;
-  border: 1px solid rgba(15, 23, 42, 0.1) !important;
-  border-radius: 12px !important;
+  /* width фиксируем явно, чтобы карточка точно укладывалась в сайдбар
+     с учётом обоих горизонтальных отступов и не "уезжала" за край из-за
+     ресайзера (он позиционируется absolute и торчит на 6px наружу). */
+  width: calc(100% - 24px);
   margin: 8px 12px 12px 12px;
   padding: 10px 12px !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(15, 23, 42, 0.1) !important;
+  border-radius: 12px !important;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 /* В свёрнутом состоянии сайдбара уменьшаем margin/padding,
@@ -745,7 +750,7 @@ body.user-not-auth #sidebarUserArea .auth-open-btn {
 
 .sidebar-hint {
   font-size: 0.8rem;
-  color: #1F8C82; /* deep teal (затемнённый) — второй акцентный цвет для подсказок/инфо, контраст 4.7:1 на белом */
+  color: #0F766E; /* deep teal (затемнённый) — второй акцентный цвет для подсказок/инфо, контраст 4.7:1 на белом */
   margin-top: 4px;
 }
 
@@ -1115,25 +1120,109 @@ body.sidebar-collapsed {
         margin-bottom: 8px;
 }
 
-/* TG auth block (авторизация Telegram) — тёплый кремовый фон. */
+/* TG auth block / создание подписки — единый стиль:
+   прозрачный фон с тонкой оранжевой обводкой 1px.
+   Внутри блока подгруппы выделяются вертикальной оранжевой линией слева
+   через .tg-group или .tg-field. */
 .tg-auth-block {
-        width: 100% !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-        margin: 6px 0 10px 0;
-        padding: 12px 14px;
-        border-radius: 12px;
-        background: #FFF7F0;
-        border: 1px solid rgba(232, 144, 64, 0.12);
-        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
-  }
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  margin: 6px 0 10px 0;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: transparent;
+  border: 1px solid #FF8D37;
+  box-shadow: none;
+}
 
-/* Форма создания подписки — внешний блок прозрачный с тонкой оранжевой
-   обводкой (визуально выделяет, что это отдельная композиция). */
 .tg-auth-block.subscription-block {
   background: transparent !important;
-  border: 1px solid #FF8D37 !important; /* брендовый оранжевый, тонкая линия */
+  border: 1px solid #FF8D37 !important;
   box-shadow: none !important;
+}
+
+/* .tg-group — подгруппа внутри tg-auth-block: вертикальная оранжевая
+   линия слева, объединяющая кнопку + поле + подсказку под одним блоком */
+.tg-group {
+  border-left: 2px solid #FF8D37;
+  padding: 8px 0 8px 12px;
+  margin-bottom: 20px;
+}
+
+.tg-group:last-child {
+  margin-bottom: 0;
+}
+
+/* Внутри .tg-group поля .tg-field уже без своей оранжевой линии,
+   так как родительская группа её даёт */
+.tg-auth-block:not(.subscription-block) .tg-field {
+  border-left: none;
+  padding-left: 0;
+  margin-bottom: 8px;
+}
+
+/* Кнопки в Telegram-авторизации — графитовые, прямоугольные,
+   на ~половину ширины (но не уже текста) */
+.tg-auth-block:not(.subscription-block) .tg-button {
+  margin-top: 6px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: 1px solid #2A2A2A;
+  background: #2A2A2A;
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  min-width: 50%; /* минимум полблока, но если текст длиннее — расширяется */
+  width: auto;
+  transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.tg-auth-block:not(.subscription-block) .tg-button:hover {
+  background: #3a3a3c;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
+}
+
+.tg-auth-block:not(.subscription-block) .tg-button:active {
+  transform: translateY(0);
+  background: #1f1f20;
+}
+
+/* Заголовок "Авторизация Telegram" внутри блока */
+.tg-auth-block h3 {
+  margin: 0 0 12px 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #2A2A2A;
+}
+
+/* Тонкая горизонтальная линия между блоками .tg-group в Telegram-auth */
+.tg-auth-block:not(.subscription-block) .tg-group:not(:last-child) {
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+}
+
+/* Старый разделитель .tg-qr-divider больше не нужен (заменён border-bottom на .tg-group) */
+.tg-qr-divider {
+  display: none !important;
+}
+
+/* === Форма создания подписки: больше отступов между блоками + горизонтальная
+   линия-разделитель между ними. */
+.subscription-block .tg-field {
+  margin-bottom: 24px; /* 2x от стандартных 12px */
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.subscription-block .tg-field:last-of-type,
+.subscription-block .tg-field:nth-last-of-type(1) {
+  margin-bottom: 16px;
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
 /* По умолчанию (развернуто): контент видим, но появление чуть с задержкой = эффект "ширмы" */
@@ -1605,7 +1694,9 @@ body.user-not-auth.sidebar-collapsed #sidebarUserArea .auth-open-btn .expanded-o
 }
 
 .subscriptions-group + .subscriptions-group {
-  margin-top: 10px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
 }
 
 .subscriptions-group-title {
@@ -1683,8 +1774,43 @@ body.user-not-auth.sidebar-collapsed #sidebarUserArea .auth-open-btn .expanded-o
   margin-top: 2px;
   padding: 0 4px;
   font-size: 0.8rem;
-  color: #6b7280;
+  color: #0F766E; /* единый стиль с .sidebar-hint и .tg-status */
   line-height: 1.4;
+}
+
+/* Подсказки в модалке профиля — тот же teal, что у sidebar-hint */
+.profile-help-text {
+  color: #0F766E;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+/* Кнопка "Сменить тариф" в шапке профиля — графит с белым текстом,
+   тот же стиль, что у "Войти/Регистрация" */
+#change-plan-btn,
+.profile-plan-btn {
+  background: #2A2A2A !important;
+  color: #ffffff !important;
+  border: 1px solid #2A2A2A !important;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+#change-plan-btn:hover,
+.profile-plan-btn:hover {
+  background: #3a3a3c !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
+}
+
+#change-plan-btn:active,
+.profile-plan-btn:active {
+  transform: translateY(0);
+  background: #1f1f20 !important;
 }
 
 /* === MOBILE FIX: рабочая область должна оставаться видимой справа === */

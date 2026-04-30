@@ -123,7 +123,7 @@
 
       .tg-status {
         font-size: 0.8rem;
-        color: #1F8C82; /* deep teal (затемнённый) — второй акцентный цвет для подсказок/инфо, контраст 4.7:1 */
+        color: #0F766E; /* deep teal (затемнённый) — второй акцентный цвет для подсказок/инфо, контраст 4.7:1 */
         margin-top: 4px;
       }
 
@@ -451,10 +451,14 @@
                       <h3 data-i18n="new-analysis:telegram_auth.title">Авторизация Telegram</h3>
 
                       <!-- QR login -->
-                      <div id="tgQrBlock" class="tg-qr-block">
+                      <div id="tgQrBlock" class="tg-qr-block tg-group">
                         <button id="tgQrStartBtn" type="button" class="tg-button" data-i18n="new-analysis:telegram_auth.qr_login_btn">
                           Войти через QR-код
                         </button>
+
+                        <p class="tg-status" data-i18n="new-analysis:telegram_auth.qr_btn_hint">
+                          Откройте приложение Telegram на телефоне и считайте QR-код для быстрого входа без пароля.
+                        </p>
 
                         <div id="tgQrArea" class="tg-qr-area" style="display:none;">
                           <div id="tgQrCanvas" class="tg-qr-canvas"></div>
@@ -465,13 +469,11 @@
                             Обновить QR
                           </button>
                         </div>
-
-                        <div class="tg-qr-divider"></div>
                       </div>
 
 
                       <!-- состояние 1: ввод телефона -->
-                      <div id="tgStatePhone">
+                      <div id="tgStatePhone" class="tg-group">
                         <div class="tg-field">
                           <label for="tgPhoneInput" data-i18n="new-analysis:telegram_auth.phone_label">Телефон</label>
                           <input
@@ -497,7 +499,7 @@
                       </div>
 
                       <!-- состояние 2: ввод кода -->
-                      <div id="tgStateCode" style="display: none;">
+                      <div id="tgStateCode" class="tg-group" style="display: none;">
                         <p class="tg-status" data-i18n="new-analysis:telegram_auth.code_sent_hint">
                           Мы отправили код в ваш Telegram. Введите его ниже.
                         </p>
@@ -531,7 +533,7 @@
                       </div>
 
                       <!-- состояние 2.5: требуется пароль Telegram (2FA) -->
-                      <div id="tgStatePassword" style="display: none;">
+                      <div id="tgStatePassword" class="tg-group" style="display: none;">
                         <p class="tg-status" data-i18n="new-analysis:telegram_auth.password_required_hint">
                           Для завершения входа требуется пароль Telegram (2FA).
                         </p>
@@ -891,11 +893,11 @@
 
                   <div id="user-dropdown" class="user-dropdown hidden">
                     <button id="profile-btn" type="button">
-                      <img src="images/favorites-64.png" alt="" class="user-dropdown-icon" />
+                      <img src="images/doc-50.png" alt="" class="user-dropdown-icon" />
                       <span data-i18n="auth:dropdown.profile">Профиль</span>
                     </button>
                     <button id="help-btn" type="button">
-                      <img src="images/ask-question-64.png" alt="" class="user-dropdown-icon" />
+                      <img src="images/info-64.png" alt="" class="user-dropdown-icon" />
                       <span data-i18n="auth:dropdown.help">Справка</span>
                     </button>
                     <button id="logout-btn" type="button">
