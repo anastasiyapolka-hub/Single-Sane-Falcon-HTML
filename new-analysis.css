@@ -727,15 +727,15 @@ body.user-not-auth #sidebarUserArea .auth-open-btn {
   background: #ef4444; /* красный */
 }
 
-/* Список чатов в блоке "Мои чаты" — прозрачный, без своей плашки,
-   чтобы не было "плашки в плашке" внутри родительского блока. */
+/* Список чатов и история — полупрозрачно-белый, не сливается с родителем
+   (важно когда родитель — кремовый tg-field в форме создания подписки). */
 .sidebar-chat-list {
   margin-top: 10px;
   max-height: 220px;
   overflow-y: auto;
   overflow-x: hidden;
-  border: 1px solid rgba(15, 23, 42, 0.06); /* очень тонкая разделительная рамка */
-  background: transparent;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  background: rgba(255, 255, 255, 0.6);
   border-radius: 12px;
   padding: 6px;
   max-height: 40vh;
@@ -885,12 +885,15 @@ body.user-not-auth #sidebarUserArea .auth-open-btn {
 }
 
 .sidebar-chat-item:hover {
-  background: #f3f4f6;
+  background: rgba(149, 255, 247, 0.32); /* мягкий пепельно-бирюзовый, как у иконок */
+  box-shadow:
+    0 0 0 1px rgba(15, 23, 42, 0.05),
+    0 2px 6px rgba(15, 23, 42, 0.08);
   font-weight: 500;
 }
 
 .sidebar-chat-item:active {
-  background: #e5e7eb;
+  background: rgba(149, 255, 247, 0.5);
 }
 
 /* === Глобальный фон = */
@@ -1059,13 +1062,11 @@ body.sidebar-collapsed {
         box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
   }
 
-/* Форма создания подписки — внешний блок прозрачный с яркой оранжевой
-   обводкой (визуально выделяет, что это отдельная композиция).
-   Внутренние tg-field-блоки сохраняют кремовый фон, поэтому форма
-   читается как "коробочка из карточек". */
+/* Форма создания подписки — внешний блок прозрачный с тонкой оранжевой
+   обводкой (визуально выделяет, что это отдельная композиция). */
 .tg-auth-block.subscription-block {
   background: transparent !important;
-  border: 2px solid #FF8D37 !important; /* брендовый оранжевый — как у иконок */
+  border: 1px solid #FF8D37 !important; /* брендовый оранжевый, тонкая линия */
   box-shadow: none !important;
 }
 
@@ -1191,8 +1192,47 @@ body.sidebar-collapsed {
 .subscription-actions {
   display: flex;
   gap: 8px;
-  align-items: center;
-  margin-top: 6px;
+  align-items: stretch;
+  margin-top: 12px;
+}
+
+/* Кнопки внутри формы создания подписки — графитовые, прямоугольные,
+   одинаковой ширины, на всю ширину блока. В стиле сабмит-кнопок
+   аутентификации (Войти / Зарегистрироваться). */
+.subscription-actions .tg-button {
+  flex: 1 1 0; /* равная ширина */
+  margin-top: 0;
+  padding: 10px 14px;
+  border-radius: 8px; /* прямоугольные, не пилюля */
+  border: 1px solid #2A2A2A;
+  background: #2A2A2A; /* графит */
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.subscription-actions .tg-button:hover {
+  background: #3a3a3c;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
+}
+
+.subscription-actions .tg-button:active {
+  transform: translateY(0);
+  background: #1f1f20;
+}
+
+/* "Отмена" — вторичная: outline-стиль вместо заливки */
+.subscription-actions #cancelSubscriptionBtn {
+  background: transparent;
+  color: #2A2A2A;
+}
+
+.subscription-actions #cancelSubscriptionBtn:hover {
+  background: rgba(15, 23, 42, 0.06);
+  color: #2A2A2A;
 }
 
 /* компактнее список чатов в форме подписки */
@@ -1775,10 +1815,10 @@ html.cotel-preboot .sidebar-boot-loader {
 
 /* ============================================================ */
 /* Вложенные блоки модалки профиля (Лимиты / Личные данные / Настройки) —
-   очень светлый, почти прозрачный тёплый бежевый. Тон в тон с карточкой
-   "Сменить тариф" — спокойный фон под формы. */
+   тот же светлый полупрозрачный серый, что у карточки "Сменить тариф".
+   Спокойный нейтральный фон, не "кричит" своим цветом. */
 .profile-tab-panel {
-  background: #FAF6EE !important;
+  background: rgba(15, 23, 42, 0.04) !important; /* полупрозрачный серый */
   border: 1px solid rgba(15, 23, 42, 0.06) !important;
   border-radius: 12px;
   padding: 16px;

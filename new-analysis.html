@@ -92,8 +92,8 @@
         margin-bottom: 10px;
         padding: 8px 12px;
         border-radius: 10px;
-        background: #FFF7F0; /* тёплый кремовый — внутренние плашки в форме */
-        border: 1px solid rgba(232, 144, 64, 0.10);
+        background: rgba(255, 247, 240, 0.5); /* кремовый, наполовину прозрачный — мягко */
+        border: 1px solid rgba(232, 144, 64, 0.06);
       }
 
 
@@ -887,17 +887,17 @@
                   </div>
 
                   <div id="user-dropdown" class="user-dropdown hidden">
-                    <button id="profile-btn" type="button" data-i18n="auth:dropdown.profile">
+                    <button id="profile-btn" type="button">
                       <img src="images/favorites-64.png" alt="" class="user-dropdown-icon" />
-                      <span>Профиль</span>
+                      <span data-i18n="auth:dropdown.profile">Профиль</span>
                     </button>
-                    <button id="help-btn" type="button" data-i18n="auth:dropdown.help">
+                    <button id="help-btn" type="button">
                       <img src="images/ask-question-64.png" alt="" class="user-dropdown-icon" />
-                      <span>Справка</span>
+                      <span data-i18n="auth:dropdown.help">Справка</span>
                     </button>
-                    <button id="logout-btn" type="button" data-i18n="auth:dropdown.logout">
+                    <button id="logout-btn" type="button">
                       <img src="images/quit-64.png" alt="" class="user-dropdown-icon" />
-                      <span>Выйти</span>
+                      <span data-i18n="auth:dropdown.logout">Выйти</span>
                     </button>
                   </div>
 
