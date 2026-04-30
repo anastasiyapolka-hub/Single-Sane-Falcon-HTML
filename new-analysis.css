@@ -70,6 +70,26 @@ body {
 .analysis-play-button {
   min-width: 40px;
   min-height: 40px;
+  width: 40px;
+  height: 40px;
+  padding: 0 !important;
+  border-radius: 999px !important;
+  background-color: #ffffff !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+
+.analysis-play-button:hover {
+  background-color: #f3f4f6 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.12);
+}
+
+.analysis-play-icon-img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
 }
 
 .analysis-query-input {
@@ -316,10 +336,12 @@ body {
   justify-content: flex-start;
   gap: 8px;
   position: relative;
-  /* Высота согласована с правым хедером (.navigation = ~12px + 28px (лого-кот) + 12px ≈ 52-54px),
-     чтобы разделительные линии под заголовком панели и под CoTel совпадали по уровню. */
-  padding: 12px 20px;
-  min-height: 54px;
+  /* Фиксированная высота 60px — точно совпадает с высотой правого хедера
+     (.navigation), чтобы разделительные линии под "Рабочая панель" и под
+     лого CoTel находились на одном уровне. */
+  height: 60px;
+  min-height: 60px;
+  padding: 0 20px;
   box-sizing: border-box;
   text-align: left;
   /* Тонкая горизонтальная линия — отделяет заголовок панели от первого блока
@@ -636,20 +658,51 @@ body.user-not-auth #sidebarUserArea .auth-open-btn {
   background: transparent !important;
 }
 
-/* Хедер-обёртка: визуально есть, но клики пропускает (чтобы не ломать sidebar) */
+/* Хедер-обёртка: визуально есть, но клики пропускает (чтобы не ломать sidebar).
+   Сам .navigation сделан прозрачным, серый фон + нижняя линия рисуются через
+   псевдоэлемент ::after, который покрывает ТОЛЬКО область справа от сайдбара —
+   чтобы серый фон хедера не наезжал на сам сайдбар при разворачивании. */
 .navigation {
-  /* Тот же серый, что у левого сайдбара — чтобы шапка визуально была единой
-     полосой, продолжающейся от сайдбара через хедер. */
-  background: #F3F4F6 !important;
+  background: transparent !important;
   border: 0 !important;
-  /* Тонкая разделительная линия снизу — визуально продолжает border-bottom
-     заголовка рабочей панели. */
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
   box-shadow: none !important;
   backdrop-filter: none !important;
   z-index: 100;
+  /* Фиксированная высота — согласована с .sidebar-header, чтобы линии под
+     заголовком панели и под лого CoTel совпадали по уровню. */
+  height: 60px !important;
+  min-height: 60px !important;
+  padding: 0 !important;
+  position: relative;
 
   pointer-events: none; /* КЛЮЧЕВОЕ: не перехватываем клики */
+}
+
+/* Серый фон правого хедера — закрывает только зону справа от сайдбара. */
+.navigation::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--sidebar-width, 320px);
+  right: 0;
+  background: #F3F4F6;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  z-index: -1;
+  pointer-events: none;
+  transition: left 240ms cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+/* В свернутом состоянии псевдоэлемент сдвигается до края узкого сайдбара. */
+.new-analysis-container1:has(.dashboard-sidebar.collapsed) .navigation::after {
+  left: var(--sidebar-collapsed-width, 56px);
+}
+
+/* Чтобы дочерние элементы (логотип, lang-switcher) центрировались
+   по новой фиксированной высоте навигации. */
+.navigation .navigation__container {
+  height: 100%;
+  align-items: center;
 }
 
 
