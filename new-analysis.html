@@ -90,9 +90,10 @@
         flex-direction: column;
         gap: 4px;
         margin-bottom: 10px;
-        padding: 6px 8px;
+        padding: 8px 12px;
         border-radius: 10px;
-        background: rgba(255, 255, 255, 0.7); /* лёгкая плашка под полями */
+        background: #FFF7F0; /* тёплый кремовый — внутренние плашки в форме */
+        border: 1px solid rgba(232, 144, 64, 0.10);
       }
 
 
@@ -763,16 +764,15 @@
                       </div>
 
                       <div class="tg-field">
-                      <label for="subTypeSelect" data-i18n="new-analysis:subscription_form.type_label">Тип подписки</label>
-                      <select id="subTypeSelect" class="tg-select">
-                        <option value="events" selected data-i18n="new-analysis:subscription_form.type_events">События</option>
-                        <option value="digest" data-i18n="new-analysis:subscription_form.type_digest">Саммари</option>
-                      </select>
-                    </div>
-
-                      <p class="sidebar-hint subscription-hint" data-i18n="new-analysis:subscription_form.type_help">
-                        События - подписка реагирует на появление объявлений/оповещений по вашему запросу и присылает список конкретных сообщений. Саммари - ИИ подготовит резюме/дайджест/саммари чата за указанных период.
-                      </p>
+                        <label for="subTypeSelect" data-i18n="new-analysis:subscription_form.type_label">Тип подписки</label>
+                        <select id="subTypeSelect" class="tg-select">
+                          <option value="events" selected data-i18n="new-analysis:subscription_form.type_events">События</option>
+                          <option value="digest" data-i18n="new-analysis:subscription_form.type_digest">Саммари</option>
+                        </select>
+                        <p class="sidebar-hint subscription-hint" data-i18n="new-analysis:subscription_form.type_help">
+                          События - подписка реагирует на появление объявлений/оповещений по вашему запросу и присылает список конкретных сообщений. Саммари - ИИ подготовит резюме/дайджест/саммари чата за указанных период.
+                        </p>
+                      </div>
 
                       <div class="tg-field">
                         <label for="subChatInput" data-i18n="new-analysis:subscription_form.chat_label">Чат / канал</label>
@@ -783,14 +783,12 @@
                           placeholder="Выберите чат/канал или вставьте ссылку"
                           data-i18n-placeholder="new-analysis:subscription_form.chat_placeholder"
                         />
+                        <!-- Список чатов (как в "Мои чаты") — внутри блока чат/канал -->
+                        <div id="subChatsList" class="sidebar-chat-list sidebar-chat-list--compact" aria-label="Список чатов для подписки" data-i18n-aria-label="new-analysis:subscription_form.chat_list_aria"></div>
+                        <p class="sidebar-hint subscription-hint" data-i18n="new-analysis:subscription_form.private_chat_hint">
+                          Подписка на приватные и личные чаты доступна только при авторизации через ваш личный аккаунт.
+                        </p>
                       </div>
-
-                      <p class="sidebar-hint subscription-hint" data-i18n="new-analysis:subscription_form.private_chat_hint">
-                        Подписка на приватные и личные чаты доступна только при авторизации через ваш личный аккаунт.
-                      </p>
-
-                      <!-- Список чатов (как в "Мои чаты") -->
-                      <div id="subChatsList" class="sidebar-chat-list sidebar-chat-list--compact" aria-label="Список чатов для подписки" data-i18n-aria-label="new-analysis:subscription_form.chat_list_aria"></div>
 
                       <div class="tg-field">
                         <label for="subPeriodSelect" data-i18n="new-analysis:subscription_form.period_label">Период чтения</label>
@@ -889,9 +887,18 @@
                   </div>
 
                   <div id="user-dropdown" class="user-dropdown hidden">
-                    <button id="profile-btn" type="button" data-i18n="auth:dropdown.profile">Профиль</button>
-                    <button id="help-btn" type="button" data-i18n="auth:dropdown.help">Справка</button>
-                    <button id="logout-btn" type="button" data-i18n="auth:dropdown.logout">Выйти</button>
+                    <button id="profile-btn" type="button" data-i18n="auth:dropdown.profile">
+                      <img src="images/favorites-64.png" alt="" class="user-dropdown-icon" />
+                      <span>Профиль</span>
+                    </button>
+                    <button id="help-btn" type="button" data-i18n="auth:dropdown.help">
+                      <img src="images/ask-question-64.png" alt="" class="user-dropdown-icon" />
+                      <span>Справка</span>
+                    </button>
+                    <button id="logout-btn" type="button" data-i18n="auth:dropdown.logout">
+                      <img src="images/quit-64.png" alt="" class="user-dropdown-icon" />
+                      <span>Выйти</span>
+                    </button>
                   </div>
 
                 </div>

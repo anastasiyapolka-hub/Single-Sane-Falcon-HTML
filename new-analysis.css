@@ -537,6 +537,7 @@ body {
   flex-direction: column;
   gap: 2px;
   padding: 6px;
+  width: 180px; /* компактная ширина — раньше расползалось по контейнеру */
   background: #ffffff;
   border: 1px solid rgba(15, 23, 42, 0.08);
   border-radius: 10px;
@@ -551,6 +552,7 @@ body {
 .navigation .lang-switcher__item {
   display: flex;
   align-items: center;
+  gap: 10px;
   width: 100%;
   padding: 8px 12px;
   border: none !important;
@@ -559,14 +561,19 @@ body {
   font: inherit;
   font-size: 14px !important;
   text-align: left;
+  justify-content: flex-start; /* выравнивание по левому краю */
   color: #2A2A2A !important;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
 }
 
-/* Центрирование текста в меню профиля (там кнопки короткие) */
-#user-dropdown button {
-  justify-content: center;
+/* Иконка слева от названия пункта меню — чуть меньше, чем мини-иконки сайдбара */
+.user-dropdown-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  flex-shrink: 0;
+  pointer-events: none;
 }
 
 #user-dropdown button:hover,
@@ -1039,9 +1046,7 @@ body.sidebar-collapsed {
         margin-bottom: 8px;
 }
 
-/* TG auth block / создание подписки — единый тёплый кремовый фон.
-   Цвет #FFF7F0 — лёгкий персиково-кремовый, гармонирует с оранжевым
-   (родственный тон) и с тёмно-бирюзовым (тёплый/холодный контраст). */
+/* TG auth block (авторизация Telegram) — тёплый кремовый фон. */
 .tg-auth-block {
         width: 100% !important;
         max-width: 100% !important;
@@ -1050,9 +1055,19 @@ body.sidebar-collapsed {
         padding: 12px 14px;
         border-radius: 12px;
         background: #FFF7F0;
-        border: 1px solid rgba(232, 144, 64, 0.12); /* лёгкая оранжевая обводка для связности с акцентом */
+        border: 1px solid rgba(232, 144, 64, 0.12);
         box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
   }
+
+/* Форма создания подписки — внешний блок прозрачный с яркой оранжевой
+   обводкой (визуально выделяет, что это отдельная композиция).
+   Внутренние tg-field-блоки сохраняют кремовый фон, поэтому форма
+   читается как "коробочка из карточек". */
+.tg-auth-block.subscription-block {
+  background: transparent !important;
+  border: 2px solid #FF8D37 !important; /* брендовый оранжевый — как у иконок */
+  box-shadow: none !important;
+}
 
 /* По умолчанию (развернуто): контент видим, но появление чуть с задержкой = эффект "ширмы" */
 .sidebar-title,
@@ -1759,25 +1774,32 @@ html.cotel-preboot .sidebar-boot-loader {
 
 
 /* ============================================================ */
-/* Вложенные блоки модалки профиля (Лимиты / Личные данные / Настройки)
-   и блок настроек безопасности — единый тёплый кремовый фон,
-   тот же что у формы создания подписки (#FFF7F0).
-   Так вся "форма-подобная" поверхность в продукте читается одинаково. */
-.profile-tab-panel,
-.profile-settings-block {
-  background: #FFF7F0 !important;
-  border: 1px solid rgba(232, 144, 64, 0.12) !important;
+/* Вложенные блоки модалки профиля (Лимиты / Личные данные / Настройки) —
+   очень светлый, почти прозрачный тёплый бежевый. Тон в тон с карточкой
+   "Сменить тариф" — спокойный фон под формы. */
+.profile-tab-panel {
+  background: #FAF6EE !important;
+  border: 1px solid rgba(15, 23, 42, 0.06) !important;
   border-radius: 12px;
   padding: 16px;
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
 }
 
 /* В сетке лимитов/данных внутренние карточки оставляем белыми,
-   чтобы не сливались с кремовой подложкой панели */
+   чтобы не сливались с подложкой панели */
 .profile-tab-panel .profile-limits-grid > *,
 .profile-tab-panel .profile-personal-grid > * {
   background: #ffffff;
   border-radius: 8px;
+}
+
+/* Блок "Настройки профиля" (settings) — убираем лишнюю вложенную обёртку,
+   чтобы не было "блока в блоке". Используем только внешний profile-tab-panel. */
+.profile-tab-panel .profile-settings-block {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  box-shadow: none !important;
 }
 
 @keyframes sidebarBootSpin {
