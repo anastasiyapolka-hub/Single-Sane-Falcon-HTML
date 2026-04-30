@@ -478,6 +478,79 @@ body {
   transform: scale(1.06);
 }
 
+/* ============================================================ */
+/* Hover-подсветка иконки Подписок — мягкий пепельно-бирюзовый.
+   Только для кнопки с data-target="mySubscriptionsSection".
+   Цвет — desaturated turquoise с прозрачностью, чтобы не был кислотным. */
+.sidebar-mini-icon-btn[data-target="mySubscriptionsSection"]:hover {
+  background: rgba(149, 255, 247, 0.32) !important;
+  box-shadow: 0 1px 2px rgba(43, 168, 158, 0.18);
+}
+
+/* ============================================================ */
+/* Кнопка "быстрого выхода" в нижней панели сайдбара (с PNG quit-64).
+   Делаем тот же мини-стиль: белый кружочек с лёгкой тенью. */
+#quick-logout-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: none;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+#quick-logout-btn:hover {
+  background: #f3f4f6;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.12);
+}
+
+/* ============================================================ */
+/* Меню профиля (Profile / Help / Sign out) — оранжевая подсветка
+   при наведении, по аналогии с переключателем языка. */
+#user-dropdown {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px;
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+}
+
+#user-dropdown.hidden {
+  display: none;
+}
+
+#user-dropdown button {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  background: #ffffff;
+  border-radius: 6px;
+  font: inherit;
+  text-align: center;
+  color: #2A2A2A;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+#user-dropdown button:hover,
+#user-dropdown button:focus-visible {
+  background: #fff3e8; /* такой же мягкий персиковый, как у lang-switcher */
+  color: #B36019;
+  border-color: rgba(232, 144, 64, 0.35);
+  outline: none;
+}
+
 /* Свернутая панель */
 .dashboard-sidebar.collapsed {
   width: var(--sidebar-collapsed-width) !important;
@@ -658,35 +731,11 @@ body.user-not-auth #sidebarUserArea .auth-open-btn {
   background: transparent !important;
 }
 
-/* Правый хедер: серый по всей ширине с нижней линией.
-   Используем id-селектор `nav#mainNav` для высокой специфичности — иначе
-   фон может перебиваться более общими правилами или браузерным кэшем.
-   z-index НЕ задаём, чтобы навигация не создавала свой стэкинг-контекст
-   и сайдбар (z-index: 10) рисовался ПОВЕРХ хедера в зоне их пересечения.
-   Так как и сайдбар, и хедер одинаково серые (#F3F4F6) — стык невидим. */
-nav#mainNav.navigation,
+/* Этот блок раньше задавал фон/высоту .navigation, но финальные настройки
+   находятся ниже в файле (строка ~871, position: fixed left: var(--sidebar-w)).
+   Чтобы избежать конфликтов, оставляем здесь только pointer-events. */
 .navigation {
-  background: #F3F4F6 !important;
-  border: 0 !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  /* Фиксированная высота 60px — согласована с .sidebar-header, чтобы линии
-     под заголовком панели и под лого CoTel совпадали по уровню. */
-  height: 60px !important;
-  min-height: 60px !important;
-  padding: 0 !important;
-  position: relative; /* для абсолютного позиционирования lang-switcher */
-  z-index: auto; /* НЕ создаём стэкинг-контекст — иначе lang-switcher запирается внутри */
-
   pointer-events: none; /* КЛЮЧЕВОЕ: не перехватываем клики */
-}
-
-/* Чтобы дочерние элементы (логотип, lang-switcher) центрировались
-   по новой фиксированной высоте навигации. */
-.navigation .navigation__container {
-  height: 100%;
-  align-items: center;
 }
 
 
@@ -855,34 +904,44 @@ html, body {
   /* ЭТО ВАЖНО: ширина, от которой будет сдвигаться верхняя полоска */
   --sidebar-w: var(--sidebar-width);
 
-  --topbar-h: 56px;
+  /* Высота верхнего хедера — должна СОВПАДАТЬ с высотой .sidebar-header,
+     чтобы разделительные линии под "Workspace" и под логотипом CoTel
+     находились на одном уровне. */
+  --topbar-h: 60px;
 }
 
 body.sidebar-collapsed {
   --sidebar-w: var(--sidebar-collapsed-width);
 }
 
-/* === Верхняя фиксированная полоса с логотипом === */
-:root {
-  --topbar-h: 56px;  /* высота полоски. уменьшай/увеличивай */
-}
-
-/* Хедер позиционируем над правой колонкой */
+/* === Верхняя фиксированная полоса с логотипом ===
+   Хедер позиционируем СПРАВА от сайдбара (left: var(--sidebar-w)),
+   чтобы он не перекрывал сам сайдбар при сворачивании/разворачивании.
+   При смене состояния сайдбара переменная --sidebar-w меняется через
+   body.sidebar-collapsed → хедер плавно сдвигается. */
 .navigation {
   position: fixed !important;
-  top: 0px !important;                       /* подняли ближе к верху */
+  top: 0 !important;
   left: var(--sidebar-w) !important;
   right: 0 !important;
   height: var(--topbar-h) !important;
   width: auto !important;
 
-  background: rgba(255, 255, 255, 0.72) !important; /* матовая */
-  backdrop-filter: blur(10px) !important;            /* “стекло” */
-  -webkit-backdrop-filter: blur(10px) !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+  /* Тот же серый, что у сайдбара — единая горизонтальная полоса сверху.
+     Без прозрачности и без backdrop-filter, чтобы не было "матового" эффекта
+     и неравномерного цвета. */
+  background: #F3F4F6 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 0 !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: none !important;
 
   z-index: 200 !important;
   pointer-events: none; /* клики пропускаем */
+
+  /* Плавный сдвиг при сворачивании/разворачивании сайдбара */
+  transition: left 240ms cubic-bezier(0.2, 0.9, 0.2, 1);
 }
 
 /* Центрируем контейнер под логотип */
@@ -891,7 +950,7 @@ body.sidebar-collapsed {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  padding: 0 !important; /* ВАЖНО: убирает “толстую” полосу сверху */
+  padding: 0 !important; /* ВАЖНО: убирает "толстую" полосу сверху */
 }
 
 /* 1) ВАЖНО: QR не должен обрезаться родителями */
