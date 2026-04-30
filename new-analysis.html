@@ -439,7 +439,7 @@
                         id="dataSourceAccount"
                         value="account"
                       />
-                      <span data-i18n="new-analysis:data_source.account">Мой аккаунт Telegram</span>
+                      <span data-i18n="new-analysis:data_source.account">Мой аккаунт</span>
                     </label>
 
                     <!-- Блок: Авторизация Telegram (появляется под "Мой аккаунт") -->
@@ -448,15 +448,16 @@
                       class="tg-auth-block"
                       style="display: none;"
                     >
-                      <h3 data-i18n="new-analysis:telegram_auth.title">Авторизация Telegram</h3>
+                      <h3 data-i18n="new-analysis:telegram_auth.title">Авторизация</h3>
 
                       <!-- QR login -->
                       <div id="tgQrBlock" class="tg-qr-block tg-group">
+                        <div class="tg-group-label" data-i18n="new-analysis:telegram_auth.qr_login_label">Вход по QR-коду</div>
                         <button id="tgQrStartBtn" type="button" class="tg-button" data-i18n="new-analysis:telegram_auth.qr_login_btn">
-                          Войти через QR-код
+                          Получить QR-код
                         </button>
 
-                        <p class="tg-status" data-i18n="new-analysis:telegram_auth.qr_btn_hint">
+                        <p class="tg-status tg-status--with-gap" data-i18n="new-analysis:telegram_auth.qr_btn_hint">
                           Откройте приложение Telegram на телефоне и считайте QR-код для быстрого входа без пароля.
                         </p>
 
@@ -610,7 +611,9 @@
                       <span id="tgStatusText" data-i18n="new-analysis:telegram_status.not_connected">Не подключено</span>
                     </div>
 
-                    <p class="sidebar-hint">
+                    <!-- Спрятано через JS — раньше показывало "Аккаунт: —", больше не нужно.
+                         Когда подключено — username показывается прямо в tgStatusText рядом с зелёной точкой. -->
+                    <p id="tgStatusAccountLine" class="sidebar-hint" style="display:none;">
                       <span data-i18n="new-analysis:telegram_status.account_label">Аккаунт:</span>
                       <strong id="tgStatusUsername">—</strong>
                     </p>
@@ -618,8 +621,8 @@
                     <button
                       id="tgLogoutBtnStatus"
                       type="button"
-                      class="tg-button"
-                      style="margin-top: 8px; display: none;"
+                      class="tg-button tg-button--logout"
+                      style="margin-top: 12px; display: none;"
                       data-i18n="new-analysis:telegram_status.logout_btn"
                     >
                       Завершить сеанс
@@ -1654,12 +1657,19 @@
 
         telegramStatusSection.style.display = "block";
 
+        // Строка "Аккаунт: —" больше не показывается — username/статус
+        // сжаты в одну строку рядом с цветной точкой.
+        const accountLine = document.getElementById("tgStatusAccountLine");
+        if (accountLine) accountLine.style.display = "none";
+
         if (isTelegramConnected) {
           const displayName = username || tI18n("new-analysis:telegram_auth_dynamic.default_user_name", "Пользователь");
+          const handle = displayName.startsWith("@") ? displayName : "@" + displayName;
 
           tgStatusDot.classList.remove("tg-status-off");
           tgStatusDot.classList.add("tg-status-on");
-          tgStatusText.textContent = tI18n("new-analysis:telegram_auth_dynamic.connected", "Подключено");
+          // Зелёная точка + @username одной строкой
+          tgStatusText.textContent = handle;
           tgStatusUsername.textContent = displayName;
 
           if (tgConnectedUser) {

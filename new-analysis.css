@@ -1162,15 +1162,15 @@ body.sidebar-collapsed {
   margin-bottom: 8px;
 }
 
-/* Кнопки в Telegram-авторизации — графитовые, прямоугольные,
-   на ~половину ширины (но не уже текста) */
+/* Кнопки в Telegram-авторизации — outline-стиль (прозрачные с тонкой
+   тёмной обводкой). Деликатнее графитовых для светлого интерфейса. */
 .tg-auth-block:not(.subscription-block) .tg-button {
   margin-top: 6px;
   padding: 10px 18px;
   border-radius: 8px;
   border: 1px solid #2A2A2A;
-  background: #2A2A2A;
-  color: #ffffff;
+  background: transparent;
+  color: #2A2A2A;
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
@@ -1180,14 +1180,66 @@ body.sidebar-collapsed {
 }
 
 .tg-auth-block:not(.subscription-block) .tg-button:hover {
-  background: #3a3a3c;
+  background: rgba(15, 23, 42, 0.06);
   transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.10);
 }
 
 .tg-auth-block:not(.subscription-block) .tg-button:active {
   transform: translateY(0);
-  background: #1f1f20;
+  background: rgba(15, 23, 42, 0.10);
+}
+
+/* Кнопка "Завершить сеанс" в блоке статуса Telegram — outline-danger
+   (прозрачный + красная обводка/текст), как "Удалить профиль" в модалке. */
+.tg-button--logout {
+  background: transparent !important;
+  color: #C0392B !important;
+  border: 1px solid #C0392B !important;
+}
+
+.tg-button--logout:hover {
+  background: rgba(192, 57, 43, 0.08) !important;
+}
+
+/* Лейбл над сгруппированным блоком (как над полем .tg-field) */
+.tg-group-label {
+  font-size: 0.85rem;
+  color: #2A2A2A;
+  font-weight: 500;
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* Дополнительный отступ для подсказки под кнопкой (QR) */
+.tg-status--with-gap {
+  margin-top: 14px !important;
+}
+
+/* ============================================================ */
+/* УНИФИЦИРОВАННЫЙ FOCUS STATE для всех инпутов и текстарей.
+   Везде одинаково: тонкая бирюзовая обводка + лёгкая тень. */
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus,
+input[type="tel"]:focus,
+input[type="number"]:focus,
+input[type="search"]:focus,
+input[type="url"]:focus,
+textarea:focus,
+select:focus {
+  outline: none !important;
+  border-color: #95FFF7 !important;
+  box-shadow:
+    0 0 0 3px rgba(149, 255, 247, 0.25),
+    0 1px 3px rgba(15, 23, 42, 0.08) !important;
+}
+
+/* ============================================================ */
+/* Профильное dropdown-меню — z-index выше остальных блоков сайдбара */
+#user-dropdown {
+  position: relative;
+  z-index: 9999;
 }
 
 /* Заголовок "Авторизация Telegram" внутри блока */
