@@ -528,12 +528,14 @@ body {
 }
 
 /* ============================================================ */
-/* Меню профиля (Profile / Help / Sign out) — оранжевая подсветка
-   при наведении, по аналогии с переключателем языка. */
+/* ЕДИНЫЙ СТИЛЬ ВЫПАДАЮЩИХ МЕНЮ
+   Применяется и к меню профиля (Profile/Help/Sign out),
+   и к переключателю языка (English/Русский) — чтобы UI был консистентным.
+   Без обводки у пунктов, единый шрифт, hover: персиковый фон + оранжевый текст. */
 #user-dropdown {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
   padding: 6px;
   background: #ffffff;
   border: 1px solid rgba(15, 23, 42, 0.08);
@@ -545,26 +547,42 @@ body {
   display: none;
 }
 
-#user-dropdown button {
-  display: block;
+#user-dropdown button,
+.navigation .lang-switcher__item {
+  display: flex;
+  align-items: center;
   width: 100%;
   padding: 8px 12px;
-  border: 1px solid rgba(15, 23, 42, 0.06);
-  background: #ffffff;
+  border: none !important;
+  background: transparent !important;
   border-radius: 6px;
   font: inherit;
-  text-align: center;
-  color: #2A2A2A;
+  font-size: 14px !important;
+  text-align: left;
+  color: #2A2A2A !important;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+/* Центрирование текста в меню профиля (там кнопки короткие) */
+#user-dropdown button {
+  justify-content: center;
 }
 
 #user-dropdown button:hover,
-#user-dropdown button:focus-visible {
-  background: #fff3e8; /* такой же мягкий персиковый, как у lang-switcher */
-  color: #B36019;
-  border-color: rgba(232, 144, 64, 0.35);
+#user-dropdown button:focus-visible,
+.navigation .lang-switcher__item:hover,
+.navigation .lang-switcher__item:focus-visible {
+  background: #fff3e8 !important; /* мягкий персиковый */
+  color: #B36019 !important; /* тёмно-оранжевый текст */
   outline: none;
+}
+
+/* Активный язык (выбранный сейчас) — заливка ярче, текст оранжевый */
+.navigation .lang-switcher__item[aria-current="true"] {
+  background: rgba(249, 115, 22, 0.12) !important;
+  color: #c2410c !important;
+  font-weight: 600;
 }
 
 /* Свернутая панель */
@@ -654,29 +672,26 @@ body.user-not-auth #sidebarUserArea .auth-open-btn {
 
 .sidebar-hint {
   font-size: 0.8rem;
-  color: #2BA89E; /* deep teal — второй акцентный цвет для подсказок/инфо */
+  color: #1F8C82; /* deep teal (затемнённый) — второй акцентный цвет для подсказок/инфо, контраст 4.7:1 на белом */
   margin-top: 4px;
 }
 
+/* Кнопка добавления подписки — в едином стиле с мини-иконками сайдбара:
+   белый кружок 32×32, без пунктира, лёгкая тень. */
 .sidebar-add-subscription-btn {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 999px;
-  border: 1px dashed #d1d5db;
-  background: #f9fafb;
+  border: none;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  padding: 0;
   margin: 8px auto 4px;
-  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
-}
-
-.sidebar-add-subscription-btn:hover {
-  background: #f3f4f6;
-  border-color: #9ca3af;
-  transform: translateY(-1px);
+  transition: background-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 /* Статус Telegram */
@@ -705,14 +720,15 @@ body.user-not-auth #sidebarUserArea .auth-open-btn {
   background: #ef4444; /* красный */
 }
 
-/* Список чатов в блоке "Мои чаты" */
+/* Список чатов в блоке "Мои чаты" — прозрачный, без своей плашки,
+   чтобы не было "плашки в плашке" внутри родительского блока. */
 .sidebar-chat-list {
   margin-top: 10px;
-  max-height: 220px;            /* можно 180–320 по вкусу */
-  overflow-y: auto;    /* ← скролл только внутри */
+  max-height: 220px;
+  overflow-y: auto;
   overflow-x: hidden;
-  border: 1px solid #e5e7eb;
-  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.06); /* очень тонкая разделительная рамка */
+  background: transparent;
   border-radius: 12px;
   padding: 6px;
   max-height: 40vh;
@@ -792,11 +808,9 @@ body.user-not-auth #sidebarUserArea .auth-open-btn {
   transition: background-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease !important;
 }
 
-.navigation .lang-switcher__button:hover,
+/* Hover для глобуса задаётся в едином правиле выше (бирюзовый),
+   здесь только outline сбрасываем */
 .navigation .lang-switcher__button:focus-visible {
-  background: #f3f4f6 !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.12) !important;
   outline: none;
 }
 
@@ -1025,7 +1039,9 @@ body.sidebar-collapsed {
         margin-bottom: 8px;
 }
 
-/* TG auth block должен быть строго внутри сайдбара */
+/* TG auth block / создание подписки — единый тёплый кремовый фон.
+   Цвет #FFF7F0 — лёгкий персиково-кремовый, гармонирует с оранжевым
+   (родственный тон) и с тёмно-бирюзовым (тёплый/холодный контраст). */
 .tg-auth-block {
         width: 100% !important;
         max-width: 100% !important;
@@ -1033,8 +1049,8 @@ body.sidebar-collapsed {
         margin: 6px 0 10px 0;
         padding: 12px 14px;
         border-radius: 12px;
-        background: #fdfcf8;
-        border: 1px solid #e5e7eb;
+        background: #FFF7F0;
+        border: 1px solid rgba(232, 144, 64, 0.12); /* лёгкая оранжевая обводка для связности с акцентом */
         box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
   }
 
@@ -1741,6 +1757,28 @@ html.cotel-preboot .sidebar-boot-loader {
   animation: sidebarBootSpin 0.8s linear infinite;
 }
 
+
+/* ============================================================ */
+/* Вложенные блоки модалки профиля (Лимиты / Личные данные / Настройки)
+   и блок настроек безопасности — единый тёплый кремовый фон,
+   тот же что у формы создания подписки (#FFF7F0).
+   Так вся "форма-подобная" поверхность в продукте читается одинаково. */
+.profile-tab-panel,
+.profile-settings-block {
+  background: #FFF7F0 !important;
+  border: 1px solid rgba(232, 144, 64, 0.12) !important;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+/* В сетке лимитов/данных внутренние карточки оставляем белыми,
+   чтобы не сливались с кремовой подложкой панели */
+.profile-tab-panel .profile-limits-grid > *,
+.profile-tab-panel .profile-personal-grid > * {
+  background: #ffffff;
+  border-radius: 8px;
+}
 
 @keyframes sidebarBootSpin {
   to {
