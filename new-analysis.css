@@ -479,12 +479,28 @@ body {
 }
 
 /* ============================================================ */
-/* Hover-подсветка иконки Подписок — мягкий пепельно-бирюзовый.
-   Только для кнопки с data-target="mySubscriptionsSection".
-   Цвет — desaturated turquoise с прозрачностью, чтобы не был кислотным. */
-.sidebar-mini-icon-btn[data-target="mySubscriptionsSection"]:hover {
+/* ЕДИНЫЙ HOVER ДЛЯ ВСЕХ КРУГЛЫХ ИКОНОК-КНОПОК
+   Подсветка — мягкий пепельно-бирюзовый (#95FFF7 с 32% прозрачностью).
+   Плюс тонкая рассеивающаяся тёмная тень вокруг кружка — отделяет иконку
+   от серого фона при наведении.
+   Применяется к:
+   - мини-иконкам в свёрнутом сайдбаре,
+   - переключателю языка (глобус),
+   - кнопке отправки запроса (play),
+   - кнопке добавления подписки (+),
+   - кнопке быстрого выхода (quit). */
+.sidebar-mini-icon-btn:hover,
+.navigation .lang-switcher__button:hover,
+.navigation .lang-switcher__button:focus-visible,
+.analysis-play-button:hover,
+.sidebar-add-subscription-btn:hover,
+#quick-logout-btn:hover {
   background: rgba(149, 255, 247, 0.32) !important;
-  box-shadow: 0 1px 2px rgba(43, 168, 158, 0.18);
+  box-shadow:
+    0 0 0 1px rgba(15, 23, 42, 0.05),    /* тонкое кольцо вокруг кружка */
+    0 4px 10px rgba(15, 23, 42, 0.10),   /* мягкая рассеивающаяся тень */
+    0 1px 2px rgba(43, 168, 158, 0.18) !important; /* лёгкий бирюзовый отблеск */
+  transform: translateY(-1px);
 }
 
 /* ============================================================ */
@@ -638,7 +654,7 @@ body.user-not-auth #sidebarUserArea .auth-open-btn {
 
 .sidebar-hint {
   font-size: 0.8rem;
-  color: #6b7280;
+  color: #2BA89E; /* deep teal — второй акцентный цвет для подсказок/инфо */
   margin-top: 4px;
 }
 

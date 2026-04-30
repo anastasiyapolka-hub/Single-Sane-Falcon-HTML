@@ -119,7 +119,7 @@
 
       .tg-status {
         font-size: 0.8rem;
-        color: #6b7280;
+        color: #2BA89E; /* deep teal — второй акцентный цвет для подсказок/инфо */
         margin-top: 4px;
       }
 
@@ -737,7 +737,7 @@
                       title="Добавить подписку"
                       data-i18n-title="new-analysis:subscriptions.add_btn_title"
                     >
-                      +
+                      <img src="images/add-64.png" alt="" class="sidebar-icon-img" />
                     </button>
                     <button id="runSubscriptionsBtn" type="button" class="tg-button" data-i18n="new-analysis:subscriptions.run_btn">
                           Запустить подписки
@@ -2079,6 +2079,11 @@
           if (sidebar) {
             sidebar.classList.remove("collapsed");
           }
+          // ВАЖНО: синхронизируем body-класс, иначе CSS-переменная --sidebar-w
+          // остаётся равной --sidebar-collapsed-width (56px), и фиксированный
+          // хедер навигации продолжает позиционироваться так, будто сайдбар
+          // свёрнут — это вызывает наложение хедера на сайдбар.
+          document.body.classList.remove("sidebar-collapsed");
           if (sidebarToggle) {
             sidebarToggle.setAttribute("title", tI18n("new-analysis:sidebar.toggle_title", "Свернуть панель"));
           }
