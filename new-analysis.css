@@ -528,6 +528,72 @@ body {
 }
 
 /* ============================================================ */
+/* ФУТЕР САЙДБАРА (карточка пользователя: аватар + email + plan + quit)
+   Вариант A: прозрачный фон, тонкая серая обводка, скругление 12px,
+   отступ от краёв сайдбара 12px. Без "грязного" персикового фона. */
+#sidebarUserArea {
+  background: transparent !important;
+  border: 1px solid rgba(15, 23, 42, 0.1) !important;
+  border-radius: 12px !important;
+  margin: 8px 12px 12px 12px;
+  padding: 10px 12px !important;
+  box-sizing: border-box;
+}
+
+/* В свёрнутом состоянии сайдбара уменьшаем margin/padding,
+   чтобы карточка влезла в узкую полоску */
+.dashboard-sidebar.collapsed #sidebarUserArea,
+body.sidebar-collapsed #sidebarUserArea {
+  margin: 8px 4px 12px 4px !important;
+  padding: 6px !important;
+}
+
+/* Триггер с аватаром/email/plan: горизонтальный flex с gap */
+#user-profile-trigger {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Аватар-кот — круглый, поменьше */
+#sidebarUserArea .user-avatar-img {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 50% !important;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+/* email + plan — компактный блок мелким текстом */
+#sidebarUserArea .user-meta {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  overflow: hidden;
+}
+
+#sidebarUserArea .user-email {
+  font-size: 13px;
+  font-weight: 600;
+  color: #2A2A2A;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#sidebarUserArea .user-plan {
+  font-size: 11px;
+  color: #7A7A7A;
+  text-transform: lowercase;
+  letter-spacing: 0.02em;
+}
+
+/* ============================================================ */
 /* ЕДИНЫЙ СТИЛЬ ВЫПАДАЮЩИХ МЕНЮ
    Применяется и к меню профиля (Profile/Help/Sign out),
    и к переключателю языка (English/Русский) — чтобы UI был консистентным.
