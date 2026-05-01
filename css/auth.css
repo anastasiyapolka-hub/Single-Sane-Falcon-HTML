@@ -157,8 +157,8 @@ body.user-not-auth .sidebar-user-area .auth-open-btn {
 
 .user-dropdown {
   position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  /* left: 50%;
+  transform: translateX(-50%);*/
   bottom: calc(100% + 8px);
   width: min(240px, calc(100% - 24px));
   min-width: 0;
