@@ -31,12 +31,12 @@ button, input, textarea, select, label, h1, h2, h3, h4, h5, h6, p, span, div {
 .tg-status,
 .profile-help-text,
 .subscriptions-group-note {
-  font-family: "Cormorant", Georgia, "Times New Roman", serif !important;
+  font-family: "Cormorant Infant", Georgia, "Times New Roman", serif !important;
   font-style: italic !important;
   font-size: 1.05rem !important;
   font-weight: 500 !important;
   line-height: 1.4 !important;
-  color: #0F766E !important;
+  color: #672f01 !important;
   margin-top: 4px;
 }
 
@@ -1893,14 +1893,6 @@ body.user-not-auth.sidebar-collapsed #sidebarUserArea .auth-open-btn .expanded-o
   outline: none;
   border-color: #6b7280;
   box-shadow: 0 0 0 1px rgba(107, 114, 128, 0.25);
-}
-
-.subscriptions-group-note {
-  margin-top: 2px;
-  padding: 0 4px;
-  font-size: 0.8rem;
-  color: #0F766E; /* единый стиль с .sidebar-hint и .tg-status */
-  line-height: 1.4;
 }
 
 /* Подсказки в модалке профиля — тот же teal, что у sidebar-hint */
