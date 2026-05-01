@@ -8,6 +8,11 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/intl-tel-input@26.8.1/build/css/intlTelInput.css"
     />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Kurenaido&display=swap" rel="stylesheet">
+
     <meta property="og:title" content="New-Analysis - Single Sane Falcon" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta charset="utf-8" />
@@ -60,7 +65,7 @@
         align-items: center;
         justify-content: space-between;
         font-weight: 550;
-        font-size: 1.05rem 
+        font-size: 1.00rem 
       }
 
       .sidebar-section summary::-webkit-details-marker {
@@ -165,10 +170,10 @@
       href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@100;300;400;500;700;800;900&amp;display=swap"
       data-tag="font"
     />
-    <!-- Шрифт подсказок — Cormorant Infant (italic, кириллица) -->
+    <!-- Шрифт подсказок — Zen Kurenaido (выразительный, кириллица) -->
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Infant:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&amp;display=swap"
+      href="https://fonts.googleapis.com/css2?family=Zen+Kurenaido&amp;display=swap"
       data-tag="font"
     />
     <link
@@ -464,30 +469,40 @@
                       <h3 data-i18n="new-analysis:telegram_auth.title">Авторизация</h3>
 
                       <!-- QR login -->
-                      <div id="tgQrBlock" class="tg-qr-block tg-group">
-                        <div class="tg-group-label" data-i18n="new-analysis:telegram_auth.qr_login_label">Вход по QR-коду</div>
-                        <button id="tgQrStartBtn" type="button" class="tg-button" data-i18n="new-analysis:telegram_auth.qr_login_btn">
-                          Получить QR-код
-                        </button>
-
-                        <p class="tg-status tg-status--with-gap" data-i18n="new-analysis:telegram_auth.qr_btn_hint">
-                          Откройте приложение Telegram на телефоне и считайте QR-код для быстрого входа без пароля.
-                        </p>
-
-                        <div id="tgQrArea" class="tg-qr-area" style="display:none;">
-                          <div id="tgQrCanvas" class="tg-qr-canvas"></div>
-                          <p id="tgQrHint" class="tg-status" data-i18n="new-analysis:telegram_auth.qr_hint">Откройте Telegram → Настройки → Устройства → Подключить устройство и сканируйте QR.</p>
-                          <p id="tgQrStatus" class="tg-status"></p>
-
-                          <button id="tgQrRestartBtn" type="button" class="tg-button" style="display:none;" data-i18n="new-analysis:telegram_auth.qr_refresh_btn">
-                            Обновить QR
+                      <details id="tgQrBlock" class="tg-qr-block tg-group tg-group--collapsible" open>
+                        <summary class="tg-group-label">
+                          <span data-i18n="new-analysis:telegram_auth.qr_login_label">Вход по QR-коду</span>
+                          <span class="tg-group-chevron">▾</span>
+                        </summary>
+                        <div class="tg-group-body">
+                          <button id="tgQrStartBtn" type="button" class="tg-button" data-i18n="new-analysis:telegram_auth.qr_login_btn">
+                            Получить QR-код
                           </button>
+
+                          <p id="tgQrInitialHint" class="tg-status tg-status--with-gap" data-i18n="new-analysis:telegram_auth.qr_btn_hint">
+                            Откройте приложение Telegram на телефоне и считайте QR-код для быстрого входа без пароля.
+                          </p>
+
+                          <div id="tgQrArea" class="tg-qr-area" style="display:none;">
+                            <div id="tgQrCanvas" class="tg-qr-canvas"></div>
+                            <p id="tgQrHint" class="tg-status" data-i18n="new-analysis:telegram_auth.qr_hint">Откройте Telegram → Настройки → Устройства → Подключить устройство и сканируйте QR.</p>
+                            <p id="tgQrStatus" class="tg-status"></p>
+
+                            <button id="tgQrRestartBtn" type="button" class="tg-button" style="display:none;" data-i18n="new-analysis:telegram_auth.qr_refresh_btn">
+                              Обновить QR
+                            </button>
+                          </div>
                         </div>
-                      </div>
+                      </details>
 
 
                       <!-- состояние 1: ввод телефона -->
-                      <div id="tgStatePhone" class="tg-group">
+                      <details id="tgStatePhone" class="tg-group tg-group--collapsible" open>
+                        <summary class="tg-group-label">
+                          <span data-i18n="new-analysis:telegram_auth.phone_label">Вход по номеру телефона</span>
+                          <span class="tg-group-chevron">▾</span>
+                        </summary>
+                        <div class="tg-group-body">
                         <div class="tg-field">
                           <label for="tgPhoneInput" data-i18n="new-analysis:telegram_auth.phone_label">Телефон</label>
                           <input
@@ -510,7 +525,8 @@
                           Мы отправим код в ваш Telegram-клиент. Мы не сохраняем
                           историю сообщений.
                         </p>
-                      </div>
+                        </div>
+                      </details>
 
                       <!-- состояние 2: ввод кода -->
                       <div id="tgStateCode" class="tg-group" style="display: none;">
@@ -1793,6 +1809,11 @@
       async function startQrLogin() {
         tgStatusMessage.textContent = "";
         if (tgQrStatus) tgQrStatus.textContent = tI18n("new-analysis:telegram_auth_dynamic.qr_generating", "Генерируем QR-код…");
+        // Прячем стартовую кнопку "Получить QR-код" и подсказку под ней —
+        // они становятся не нужны после генерации QR.
+        if (tgQrStartBtn) tgQrStartBtn.style.display = "none";
+        const tgQrInitialHint = document.getElementById("tgQrInitialHint");
+        if (tgQrInitialHint) tgQrInitialHint.style.display = "none";
         if (tgQrArea) tgQrArea.style.display = "block";
         if (tgQrRestartBtn) tgQrRestartBtn.style.display = "none";
 

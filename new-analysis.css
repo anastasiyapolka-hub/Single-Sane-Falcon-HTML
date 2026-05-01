@@ -1149,13 +1149,15 @@ body.sidebar-collapsed {
   background: rgba(0,0,0,0.06);
 }
 
+/* Область QR-кода — без обводки и без своего фона; границу даёт
+   родительская tg-group через вертикальную оранжевую линию */
 .tg-qr-area {
   margin-top: 10px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  background: rgba(255,255,255,0.7);
-  border: 1px solid #e5e7eb;
-   display: flex;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  border: none;
+  display: flex;
   flex-direction: column;
   align-items: center;
   overflow: visible;
@@ -1297,6 +1299,58 @@ body.sidebar-collapsed {
   font-weight: 500;
   margin-bottom: 8px;
   display: block;
+}
+
+/* ============================================================
+   Сворачиваемые tg-group (используют <details><summary>)
+   Заголовок-summary становится кликабельной полоской.
+   Оранжевая линия слева сохраняется через .tg-group. */
+details.tg-group--collapsible {
+  /* default details has padding-left from tg-group */
+  padding: 6px 0 6px 12px;
+}
+
+details.tg-group--collapsible > summary.tg-group-label {
+  list-style: none; /* убираем дефолтный треугольник */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0;
+  padding: 4px 0;
+  user-select: none;
+}
+
+details.tg-group--collapsible > summary.tg-group-label::-webkit-details-marker {
+  display: none;
+}
+
+/* Шеврон поворачивается при открытии */
+.tg-group-chevron {
+  font-size: 0.85rem;
+  color: #6b7280;
+  transition: transform 0.2s ease;
+  margin-left: 8px;
+}
+
+details.tg-group--collapsible[open] > summary.tg-group-label .tg-group-chevron {
+  transform: rotate(0deg);
+}
+
+details.tg-group--collapsible:not([open]) > summary.tg-group-label .tg-group-chevron {
+  transform: rotate(-90deg);
+}
+
+/* Тело сворачиваемой группы — отступ сверху от заголовка */
+.tg-group-body {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* В свёрнутом состоянии padding-bottom меньше (только заголовок виден) */
+details.tg-group--collapsible:not([open]) {
+  padding-bottom: 6px;
 }
 
 /* Дополнительный отступ для подсказки под кнопкой (QR) */
