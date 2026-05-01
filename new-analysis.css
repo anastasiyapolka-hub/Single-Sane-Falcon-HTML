@@ -1280,23 +1280,51 @@ body.sidebar-collapsed {
   background: rgba(15, 23, 42, 0.10);
 }
 
-/* Кнопка "Завершить сеанс" в блоке статуса Telegram — outline-danger
-   (прозрачный + красная обводка/текст), как "Удалить профиль" в модалке. */
+/* Кнопка "Завершить сеанс" в блоке статуса Telegram —
+   inline с username (зелёная точка + @username + [кнопка]), компактная,
+   outline-danger в стиле "Удалить профиль". */
+.tg-status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tg-status-row #tgStatusText {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .tg-button--logout {
+  flex: 0 0 auto;
+  margin-top: 0 !important;
+  min-width: auto !important;
+  width: auto !important;
+  padding: 6px 14px !important;
+  border-radius: 8px !important;
   background: transparent !important;
   color: #C0392B !important;
   border: 1px solid #C0392B !important;
+  font-size: 0.85rem !important;
+  font-weight: 400 !important;
+  line-height: 1.2 !important;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
 .tg-button--logout:hover {
   background: rgba(192, 57, 43, 0.08) !important;
+  color: #8C2A1F !important;
 }
 
-/* Лейбл над сгруппированным блоком (как над полем .tg-field) */
+/* Лейбл над сгруппированным блоком — как .sidebar-history-toggle
+   (более лёгкий стиль, чем заголовки секций сайдбара) */
 .tg-group-label {
-  font-size: 0.85rem;
-  color: #2A2A2A;
-  font-weight: 500;
+  font-size: 0.82rem;
+  color: #464f5c;
+  font-weight: 600;
   margin-bottom: 8px;
   display: block;
 }
@@ -1306,8 +1334,12 @@ body.sidebar-collapsed {
    Заголовок-summary становится кликабельной полоской.
    Оранжевая линия слева сохраняется через .tg-group. */
 details.tg-group--collapsible {
-  /* default details has padding-left from tg-group */
-  padding: 6px 0 6px 12px;
+  /* Свёрнутое состояние компактнее — уменьшили вертикальный padding */
+  padding: 2px 0 2px 12px;
+}
+
+details.tg-group--collapsible[open] {
+  padding: 6px 0 8px 12px;
 }
 
 details.tg-group--collapsible > summary.tg-group-label {
@@ -1317,7 +1349,7 @@ details.tg-group--collapsible > summary.tg-group-label {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 0;
-  padding: 4px 0;
+  padding: 2px 0;
   user-select: none;
 }
 
@@ -1348,10 +1380,8 @@ details.tg-group--collapsible:not([open]) > summary.tg-group-label .tg-group-che
   flex-direction: column;
 }
 
-/* В свёрнутом состоянии padding-bottom меньше (только заголовок виден) */
-details.tg-group--collapsible:not([open]) {
-  padding-bottom: 6px;
-}
+/* (Старое правило padding-bottom удалено — теперь высота управляется
+    в едином правиле details.tg-group--collapsible выше) */
 
 /* Дополнительный отступ для подсказки под кнопкой (QR) */
 .tg-status--with-gap {

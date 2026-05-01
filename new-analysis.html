@@ -503,8 +503,7 @@
                           <span class="tg-group-chevron">▾</span>
                         </summary>
                         <div class="tg-group-body">
-                        <div class="tg-field">
-                          <label for="tgPhoneInput" data-i18n="new-analysis:telegram_auth.phone_label">Телефон</label>
+                        <div class="tg-field tg-field--no-label">
                           <input
                             id="tgPhoneInput"
                             type="text"
@@ -521,7 +520,7 @@
                         >
                           Получить код в Telegram
                         </button>
-                        <p class="tg-status" data-i18n="new-analysis:telegram_auth.send_code_hint">
+                        <p class="tg-status tg-status--with-gap" data-i18n="new-analysis:telegram_auth.send_code_hint">
                           Мы отправим код в ваш Telegram-клиент. Мы не сохраняем
                           историю сообщений.
                         </p>
@@ -635,9 +634,19 @@
                   </summary>
 
                   <div class="sidebar-section-body">
+                    <!-- Зелёная точка + @username + кнопка "Завершить сеанс" — в одной строке -->
                     <div class="tg-status-row">
                       <span id="tgStatusDot" class="tg-status-dot tg-status-off"></span>
                       <span id="tgStatusText" data-i18n="new-analysis:telegram_status.not_connected">Не подключено</span>
+                      <button
+                        id="tgLogoutBtnStatus"
+                        type="button"
+                        class="tg-button tg-button--logout"
+                        style="display: none;"
+                        data-i18n="new-analysis:telegram_status.logout_btn"
+                      >
+                        Завершить сеанс
+                      </button>
                     </div>
 
                     <!-- Спрятано через JS — раньше показывало "Аккаунт: —", больше не нужно.
@@ -646,16 +655,6 @@
                       <span data-i18n="new-analysis:telegram_status.account_label">Аккаунт:</span>
                       <strong id="tgStatusUsername">—</strong>
                     </p>
-
-                    <button
-                      id="tgLogoutBtnStatus"
-                      type="button"
-                      class="tg-button tg-button--logout"
-                      style="margin-top: 12px; display: none;"
-                      data-i18n="new-analysis:telegram_status.logout_btn"
-                    >
-                      Завершить сеанс
-                    </button>
 
                   </div>
                 </details>
