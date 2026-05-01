@@ -739,20 +739,26 @@ function toggleUserDropdown() {
   // Если меню скрыто — позиционируем рядом с триггером и переносим в body,
   // чтобы оно не обрезалось overflow:hidden у родителей сайдбара.
   if (dd.classList.contains("hidden")) {
-    if (trigger && dd.parentElement !== document.body) {
+    if (trigger) {
       const rect = trigger.getBoundingClientRect();
       const ddWidth = 200;
-      // Открываем меню НАД триггером, прижатым к его левому краю
-      dd.style.position = "fixed";
-      dd.style.bottom = (window.innerHeight - rect.top + 8) + "px";
-      dd.style.left = Math.max(8, rect.left) + "px";
-      dd.style.right = "auto";
-      dd.style.top = "auto";
-      dd.style.width = ddWidth + "px";
-      dd.style.zIndex = "9999";
-      // Переносим в body — escape любых overflow:hidden у предков
-      dd._originalParent = dd.parentElement;
-      document.body.appendChild(dd);
+      // Координаты: над триггером, прижато к его левому краю
+      const leftPx = Math.max(8, Math.min(rect.left, window.innerWidth - ddWidth - 8));
+      const bottomPx = window.innerHeight - rect.top + 8;
+      // Используем setProperty с 'important' — чтобы CSS-правила (включая
+      // !important из стилей) не перебивали наши вычисленные координаты.
+      dd.style.setProperty("position", "fixed", "important");
+      dd.style.setProperty("bottom", bottomPx + "px", "important");
+      dd.style.setProperty("left", leftPx + "px", "important");
+      dd.style.setProperty("right", "auto", "important");
+      dd.style.setProperty("top", "auto", "important");
+      dd.style.setProperty("width", ddWidth + "px", "important");
+      dd.style.setProperty("z-index", "9999", "important");
+      // Переносим в body, если ещё не там — escape любых overflow:hidden у предков
+      if (dd.parentElement !== document.body) {
+        dd._originalParent = dd.parentElement;
+        document.body.appendChild(dd);
+      }
     }
     dd.classList.remove("hidden");
   } else {

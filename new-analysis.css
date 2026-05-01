@@ -35,7 +35,7 @@ button, input, textarea, select, label, h1, h2, h3, h4, h5, h6, p, span, div {
   font-size: 1.05rem !important;
   font-weight: 500 !important;
   line-height: 1.4 !important;
-  color: #672f01 !important;
+  color: #8a3e00 !important;
   margin-top: 4px;
 }
 
@@ -580,21 +580,17 @@ button, input, textarea, select, label, h1, h2, h3, h4, h5, h6, p, span, div {
   flex: 0 0 auto;
 }
 
-/* Контейнер профиля — позиционирующая база для триггера */
+/* Контейнер профиля — позиционирующая база */
 #user-profile {
   position: relative;
 }
 
-/* Dropdown позиционируется FIXED — относительно viewport, чтобы
-   не обрезался overflow: hidden у .dashboard-sidebar и других предков.
-   Открывается над футером, прижат к левому краю сайдбара. */
+/* Позиционирование dropdown полностью контролируется JS
+   (auth.js → toggleUserDropdown). При открытии меню переносится
+   в <body> и получает inline-стили position: fixed + точные координаты.
+   Здесь ставим только z-index как страховку. */
 #user-dropdown {
-  position: fixed !important;
-  bottom: 84px !important; /* над футером (футер ~64px + margin) */
-  left: 16px !important;
-  right: auto !important;
-  width: 200px !important;
-  z-index: 9999 !important;
+  z-index: 9999;
 }
 
 /* В свёрнутом состоянии сайдбара уменьшаем margin/padding,
@@ -1306,12 +1302,8 @@ select:focus {
     0 1px 2px rgba(15, 23, 42, 0.06) !important;
 }
 
-/* ============================================================ */
-/* Профильное dropdown-меню — z-index выше остальных блоков сайдбара */
-#user-dropdown {
-  position: relative;
-  z-index: 9999;
-}
+/* (Дубликат правила для #user-dropdown удалён — позиционирование
+    полностью контролируется JS: см. auth.js → toggleUserDropdown) */
 
 /* Заголовок "Авторизация Telegram" внутри блока */
 .tg-auth-block h3 {
