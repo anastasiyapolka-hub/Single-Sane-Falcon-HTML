@@ -529,12 +529,8 @@ body {
 
 /* ============================================================ */
 /* ФУТЕР САЙДБАРА (карточка пользователя: аватар + email + plan + quit)
-   Белая карточка с тонкой серой обводкой, скруглением 12px, отступ
-   от краёв сайдбара 12px. */
+   Белая карточка с тонкой серой обводкой, скруглением 12px. */
 #sidebarUserArea {
-  /* width фиксируем явно, чтобы карточка точно укладывалась в сайдбар
-     с учётом обоих горизонтальных отступов и не "уезжала" за край из-за
-     ресайзера (он позиционируется absolute и торчит на 6px наружу). */
   width: calc(100% - 24px);
   margin: 8px 12px 12px 12px;
   padding: 10px 12px !important;
@@ -542,7 +538,26 @@ body {
   border: 1px solid rgba(15, 23, 42, 0.1) !important;
   border-radius: 12px !important;
   box-sizing: border-box;
-  overflow: hidden;
+  /* НЕ ставим overflow: hidden — иначе абсолютно позиционированный
+     dropdown профиля (Профиль/Справка/Выйти) обрезается. */
+  overflow: visible;
+  /* НЕ растёт по вертикали при открытом dropdown — он выводится absolute */
+  flex: 0 0 auto;
+}
+
+/* Контейнер профиля — позиционирующая база для dropdown */
+#user-profile {
+  position: relative;
+}
+
+/* Dropdown открывается ВВЕРХ над триггером. Position absolute
+   убирает его из flow, поэтому футер не растягивается вверх. */
+#user-dropdown {
+  position: absolute !important;
+  bottom: calc(100% + 8px) !important;
+  left: 0 !important;
+  right: auto !important;
+  z-index: 9999 !important;
 }
 
 /* В свёрнутом состоянии сайдбара уменьшаем margin/padding,
@@ -1120,25 +1135,34 @@ body.sidebar-collapsed {
         margin-bottom: 8px;
 }
 
-/* TG auth block / создание подписки — единый стиль:
-   прозрачный фон с тонкой оранжевой обводкой 1px.
-   Внутри блока подгруппы выделяются вертикальной оранжевой линией слева
-   через .tg-group или .tg-field. */
+/* TG auth block (блок Telegram-авторизации внутри "Мой аккаунт Telegram")
+   — без обводки, прозрачный. Подгруппы выделяются только вертикальными
+   оранжевыми линиями через .tg-group. */
 .tg-auth-block {
   width: 100% !important;
   max-width: 100% !important;
   box-sizing: border-box !important;
   margin: 6px 0 10px 0;
-  padding: 14px 16px;
-  border-radius: 12px;
+  padding: 6px 0 0 0;
+  border-radius: 0;
   background: transparent;
-  border: 1px solid #FF8D37;
+  border: none;
   box-shadow: none;
 }
 
+/* Заголовок "Авторизация Telegram" — скрыт, лишний */
+.tg-auth-block h3 {
+  display: none;
+}
+
+/* Форма создания подписки — оранжевая обводка остаётся (она нужна
+   как маркер "это отдельная композиция формы") */
 .tg-auth-block.subscription-block {
   background: transparent !important;
   border: 1px solid #FF8D37 !important;
+  border-radius: 12px !important;
+  padding: 14px 16px !important;
+  margin: 6px 0 10px 0 !important;
   box-shadow: none !important;
 }
 
@@ -1218,7 +1242,7 @@ body.sidebar-collapsed {
 
 /* ============================================================ */
 /* УНИФИЦИРОВАННЫЙ FOCUS STATE для всех инпутов и текстарей.
-   Везде одинаково: тонкая бирюзовая обводка + лёгкая тень. */
+   Тонкая бирюзовая обводка — деликатнее, без жирного кольца. */
 input[type="text"]:focus,
 input[type="password"]:focus,
 input[type="email"]:focus,
@@ -1231,8 +1255,8 @@ select:focus {
   outline: none !important;
   border-color: #95FFF7 !important;
   box-shadow:
-    0 0 0 3px rgba(149, 255, 247, 0.25),
-    0 1px 3px rgba(15, 23, 42, 0.08) !important;
+    0 0 0 1.5px rgba(149, 255, 247, 0.4),
+    0 1px 2px rgba(15, 23, 42, 0.06) !important;
 }
 
 /* ============================================================ */
@@ -1454,10 +1478,9 @@ select:focus {
 
 .sidebar-subscriptions-list {
   margin-top: 6px;
-  border: 1px solid #e5e7eb;
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 6px;
+  background: transparent;
+  border: none;
+  padding: 0;
 }
 
 .subscription-item {
@@ -1837,32 +1860,78 @@ body.user-not-auth.sidebar-collapsed #sidebarUserArea .auth-open-btn .expanded-o
   line-height: 1.4;
 }
 
-/* Кнопка "Сменить тариф" в шапке профиля — графит с белым текстом,
-   тот же стиль, что у "Войти/Регистрация" */
+/* Кнопки "Сменить тариф" и "Сохранить изменения" в модалке профиля —
+   единый графитовый стиль с белым текстом, одинаковая высота. */
 #change-plan-btn,
-.profile-plan-btn {
+.profile-plan-btn,
+#save-profile-btn,
+.profile-save-btn {
   background: #2A2A2A !important;
   color: #ffffff !important;
   border: 1px solid #2A2A2A !important;
-  padding: 10px 18px;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 500;
+  padding: 10px 18px !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  border-radius: 8px !important;
+  font-size: 0.9rem !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 #change-plan-btn:hover,
-.profile-plan-btn:hover {
+.profile-plan-btn:hover,
+#save-profile-btn:hover,
+.profile-save-btn:hover {
   background: #3a3a3c !important;
   transform: translateY(-1px);
   box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
 }
 
 #change-plan-btn:active,
-.profile-plan-btn:active {
+.profile-plan-btn:active,
+#save-profile-btn:active,
+.profile-save-btn:active {
   transform: translateY(0);
   background: #1f1f20 !important;
+}
+
+/* ============================================================ */
+/* ВКЛАДКИ В МОДАЛКЕ ПРОФИЛЯ (Лимиты / Личные данные / Настройки)
+   Стиль "tab-pill": активная — оранжевая обводка + лёгкая персиковая
+   заливка + тёмный текст. Неактивные — без обводки, серый текст,
+   при hover — лёгкий персиковый фон. */
+.profile-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.profile-tab-btn {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  color: #6b7280 !important;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.profile-tab-btn:hover {
+  background: rgba(255, 141, 55, 0.06) !important;
+  color: #2A2A2A !important;
+}
+
+.profile-tab-btn.active {
+  border-color: #FF8D37 !important;
+  background: rgba(255, 141, 55, 0.1) !important;
+  color: #2A2A2A !important;
 }
 
 /* === MOBILE FIX: рабочая область должна оставаться видимой справа === */
