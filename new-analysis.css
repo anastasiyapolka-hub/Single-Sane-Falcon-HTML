@@ -17,16 +17,27 @@ button, input, textarea, select, label, h1, h2, h3, h4, h5, h6, p, span, div {
   font-family: inherit;
 }
 
-/* Подсказки — Cormorant курсив (визуальное отличие от обычного текста) */
+/* ============================================================
+   ЕДИНЫЙ СТИЛЬ ВСЕХ ПОДСКАЗОК В ИНТЕРФЕЙСЕ
+   Применяется одинаково везде: в сайдбаре, в формах, в модалке профиля.
+   Чтобы поменять размер/цвет/шрифт всех подсказок сразу — правьте ЭТОТ блок.
+   Используются классы:
+     .sidebar-hint        — общий класс подсказок в сайдбаре
+     .tg-status           — подсказки в Telegram-блоках (формы)
+     .profile-help-text   — подсказки в модалке профиля
+     .subscriptions-group-note — подсказка "Эти подписки созданы в другом режиме…"
+   ============================================================ */
 .sidebar-hint,
 .tg-status,
 .profile-help-text,
 .subscriptions-group-note {
   font-family: "Cormorant", Georgia, "Times New Roman", serif !important;
-  font-style: italic;
-  font-size: 1rem; /* Cormorant визуально меньше — компенсируем размер */
-  font-weight: 500;
-  line-height: 1.4;
+  font-style: italic !important;
+  font-size: 1.05rem !important;
+  font-weight: 500 !important;
+  line-height: 1.4 !important;
+  color: #0F766E !important;
+  margin-top: 4px;
 }
 
 .navigation-wrapper {
@@ -1811,11 +1822,13 @@ body.user-not-auth.sidebar-collapsed #sidebarUserArea .auth-open-btn .expanded-o
   border-top: 1px solid rgba(15, 23, 42, 0.08);
 }
 
+/* Подзаголовки в блоке подписок — единый стиль с .sidebar-history-toggle
+   ("Настройки запроса" / "История" в "Запросы к чатам") */
 .subscriptions-group-title {
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: #6b7280;
-  padding: 2px 4px 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #464f5c;
+  padding: 6px 2px;
 }
 
 .subscriptions-group-list {
@@ -1965,7 +1978,12 @@ body.user-not-auth.sidebar-collapsed #sidebarUserArea .auth-open-btn .expanded-o
 .profile-tabs {
   display: flex;
   gap: 8px;
-  margin-bottom: 4px; /* минимальный воздух между вкладками и панелью */
+  margin-bottom: 1px; /* минимальный воздух между вкладками и панелью */
+}
+
+/* Уменьшаем верхний внутренний отступ панели — вкладки прилегают плотнее */
+.profile-tab-panel {
+  padding-top: 12px !important;
 }
 
 .profile-tab-btn {

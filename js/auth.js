@@ -732,11 +732,45 @@ function setAvatar(email) {
 }
 
 function toggleUserDropdown() {
-  byId("user-dropdown")?.classList.toggle("hidden");
+  const dd = byId("user-dropdown");
+  if (!dd) return;
+  const trigger = byId("user-profile-trigger");
+
+  // Если меню скрыто — позиционируем рядом с триггером и переносим в body,
+  // чтобы оно не обрезалось overflow:hidden у родителей сайдбара.
+  if (dd.classList.contains("hidden")) {
+    if (trigger && dd.parentElement !== document.body) {
+      const rect = trigger.getBoundingClientRect();
+      const ddWidth = 200;
+      // Открываем меню НАД триггером, прижатым к его левому краю
+      dd.style.position = "fixed";
+      dd.style.bottom = (window.innerHeight - rect.top + 8) + "px";
+      dd.style.left = Math.max(8, rect.left) + "px";
+      dd.style.right = "auto";
+      dd.style.top = "auto";
+      dd.style.width = ddWidth + "px";
+      dd.style.zIndex = "9999";
+      // Переносим в body — escape любых overflow:hidden у предков
+      dd._originalParent = dd.parentElement;
+      document.body.appendChild(dd);
+    }
+    dd.classList.remove("hidden");
+  } else {
+    dd.classList.add("hidden");
+    // Возвращаем в исходное место в DOM при закрытии
+    if (dd._originalParent && dd.parentElement !== dd._originalParent) {
+      dd._originalParent.appendChild(dd);
+    }
+  }
 }
 
 function closeUserDropdown() {
-  byId("user-dropdown")?.classList.add("hidden");
+  const dd = byId("user-dropdown");
+  if (!dd) return;
+  dd.classList.add("hidden");
+  if (dd._originalParent && dd.parentElement !== dd._originalParent) {
+    dd._originalParent.appendChild(dd);
+  }
 }
 
 function clearLoginError() {
