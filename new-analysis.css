@@ -2,6 +2,31 @@ html,
 body {
   height: 100%;
   overflow: hidden;
+  /* Основной шрифт интерфейса — M PLUS Rounded 1c, мягкий округлый sans-serif */
+  font-family: "M PLUS Rounded 1c", system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif !important;
+}
+
+/* Перебиваем CSS-переменные шрифтов для этой страницы */
+:root {
+  --font-family-body: "M PLUS Rounded 1c", system-ui, -apple-system, sans-serif;
+  --font-family-heading: "M PLUS Rounded 1c", system-ui, -apple-system, sans-serif;
+}
+
+/* Все текстовые элементы наследуют M PLUS Rounded 1c через body */
+button, input, textarea, select, label, h1, h2, h3, h4, h5, h6, p, span, div {
+  font-family: inherit;
+}
+
+/* Подсказки — Cormorant курсив (визуальное отличие от обычного текста) */
+.sidebar-hint,
+.tg-status,
+.profile-help-text,
+.subscriptions-group-note {
+  font-family: "Cormorant", Georgia, "Times New Roman", serif !important;
+  font-style: italic;
+  font-size: 1rem; /* Cormorant визуально меньше — компенсируем размер */
+  font-weight: 500;
+  line-height: 1.4;
 }
 
 .navigation-wrapper {
@@ -545,18 +570,20 @@ body {
   flex: 0 0 auto;
 }
 
-/* Контейнер профиля — позиционирующая база для dropdown */
+/* Контейнер профиля — позиционирующая база для триггера */
 #user-profile {
   position: relative;
 }
 
-/* Dropdown открывается ВВЕРХ над триггером. Position absolute
-   убирает его из flow, поэтому футер не растягивается вверх. */
+/* Dropdown позиционируется FIXED — относительно viewport, чтобы
+   не обрезался overflow: hidden у .dashboard-sidebar и других предков.
+   Открывается над футером, прижат к левому краю сайдбара. */
 #user-dropdown {
-  position: absolute !important;
-  bottom: calc(100% + 8px) !important;
-  left: 0 !important;
+  position: fixed !important;
+  bottom: 84px !important; /* над футером (футер ~64px + margin) */
+  left: 16px !important;
   right: auto !important;
+  width: 200px !important;
   z-index: 9999 !important;
 }
 
@@ -1150,9 +1177,19 @@ body.sidebar-collapsed {
   box-shadow: none;
 }
 
-/* Заголовок "Авторизация Telegram" — скрыт, лишний */
-.tg-auth-block h3 {
+/* Заголовок "Авторизация Telegram" — скрыт, лишний.
+   ВАЖНО: только в Telegram-auth, НЕ трогаем h3 в форме создания подписки. */
+.tg-auth-block:not(.subscription-block) h3 {
   display: none;
+}
+
+/* Заголовок "Создание новой подписки" — оставляем видимым */
+.tg-auth-block.subscription-block h3 {
+  display: block;
+  margin: 0 0 14px 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #2A2A2A;
 }
 
 /* Форма создания подписки — оранжевая обводка остаётся (она нужна
@@ -1877,10 +1914,30 @@ body.user-not-auth.sidebar-collapsed #sidebarUserArea .auth-open-btn .expanded-o
   font-weight: 500 !important;
   line-height: 1 !important;
   cursor: pointer;
-  display: inline-flex;
   align-items: center;
   justify-content: center;
   transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Сохранить изменения по умолчанию СКРЫТА.
+   Появляется только когда модалка получает класс .profile-dirty
+   (этот класс ставится из JS при изменении полей). */
+#save-profile-btn,
+.profile-save-btn {
+  display: none !important;
+}
+
+.profile-modal.profile-dirty #save-profile-btn,
+.profile-modal.profile-dirty .profile-save-btn,
+#profile-modal.profile-dirty #save-profile-btn,
+#profile-modal.profile-dirty .profile-save-btn {
+  display: inline-flex !important;
+}
+
+/* Дефолтное состояние для остальных кнопок (Сменить тариф) */
+#change-plan-btn,
+.profile-plan-btn {
+  display: inline-flex;
 }
 
 #change-plan-btn:hover,
@@ -1908,7 +1965,7 @@ body.user-not-auth.sidebar-collapsed #sidebarUserArea .auth-open-btn .expanded-o
 .profile-tabs {
   display: flex;
   gap: 8px;
-  margin-bottom: 16px;
+  margin-bottom: 4px; /* минимальный воздух между вкладками и панелью */
 }
 
 .profile-tab-btn {
