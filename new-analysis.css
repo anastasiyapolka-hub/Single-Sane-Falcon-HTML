@@ -1224,11 +1224,11 @@ body.sidebar-collapsed {
   color: #2A2A2A;
 }
 
-/* Форма создания подписки — обводка того же тёмно-оранжевого цвета,
-   что и заголовок чата (визуальная связность между формами/блоками-CTA) */
+/* Форма создания подписки — деликатная тонкая обводка
+   тёмно-оранжевого цвета с прозрачностью, едва заметная. */
 .tg-auth-block.subscription-block {
   background: transparent !important;
-  border: 1px solid #B36019 !important;
+  border: 1px solid rgba(179, 96, 25, 0.35) !important;
   border-radius: 12px !important;
   padding: 14px 16px !important;
   margin: 6px 0 10px 0 !important;
@@ -2030,6 +2030,49 @@ select.sidebar-inline-setting-input {
   width: 100% !important;
   min-width: 0 !important;
   flex: none !important;
+}
+
+/* ============================================================
+   ЕДИНЫЙ СТИЛЬ ВСЕХ ПОЛЕЙ В МОДАЛКЕ ПРОФИЛЯ
+   Принудительно одинаковые: высота 38px, скругление 8px,
+   мягкий прямоугольник. Применяется к input, select И статическим
+   значениям (.profile-static-value, которые рендерятся как div). */
+#profile-modal input,
+#profile-modal select,
+#profile-modal textarea,
+.profile-field input,
+.profile-field select,
+.profile-field textarea,
+.profile-field .profile-static-value {
+  padding: 8px 12px !important;
+  height: 38px !important;
+  min-height: 38px !important;
+  border-radius: 8px !important;
+  border: 1px solid #d1d5db !important;
+  font-size: 0.9rem !important;
+  font-family: inherit !important;
+  background: #ffffff !important;
+  color: #2A2A2A !important;
+  box-sizing: border-box !important;
+  width: 100%;
+  line-height: 22px !important;
+  display: flex;
+  align-items: center;
+}
+
+/* Метки полей в модалке профиля — компактнее */
+.profile-field label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #2A2A2A;
+}
+
+/* Статичные значения (email, страна) визуально такие же как input,
+   но без cursor: text (не редактируется) */
+.profile-field .profile-static-value {
+  cursor: default;
 }
 
 /* Подсказки в модалке профиля — тот же teal, что у sidebar-hint */
