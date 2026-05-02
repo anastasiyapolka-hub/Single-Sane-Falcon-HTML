@@ -128,10 +128,14 @@ button, input, textarea, select, label, h1, h2, h3, h4, h5, h6, p, span, div {
   pointer-events: none;
 }
 
+/* Q&A текстовая область — мягкий прямоугольник со скруглёнными углами.
+   Раньше был border-radius: 999px (овал) — при росте текста края
+   "обрезали" текст. Теперь как у ChatGPT: спокойный прямоугольник,
+   текст всегда виден целиком. */
 .analysis-query-input {
   flex: 1;
-  padding: 10px 16px;
-  border-radius: 999px; /* овал */
+  padding: 12px 18px;
+  border-radius: 16px;
   border: 1px solid #dddce5;
   background-color: #ffffff;
   font-size: 14px;
@@ -143,10 +147,7 @@ button, input, textarea, select, label, h1, h2, h3, h4, h5, h6, p, span, div {
   color: #a0a0b4;
 }
 
-.analysis-query-input:focus {
-  border-color: #6b6bff;
-  box-shadow: 0 0 0 2px rgba(107, 107, 255, 0.15);
-}
+/* :focus стилизуется через общий unified focus state выше */
 
 .dashboard-loader {
   display: none;
@@ -211,18 +212,20 @@ button, input, textarea, select, label, h1, h2, h3, h4, h5, h6, p, span, div {
   white-space: pre-wrap;
 }
 
-/* Полоска с названием чата — тёмно-серая, полупрозрачная,
-   текст молочный, на всю ширину рабочей области */
+/* Полоска с названием чата — в нашем стиле: оранжевая обводка без жирной
+   заливки, тёмно-оранжевый текст. Заметно, но не "кричит". */
 .chat-title-bar {
- display: none;           /* по умолчанию скрыта, JS включает */
-  width: 100%;
-  margin: 0;               /* без внешних отступов */
-  padding: 12px 24px;
+  display: none;           /* по умолчанию скрыта, JS включает */
+  width: auto;
+  margin: 12px 24px 0 24px;
+  padding: 10px 18px;
 
-  background: rgba(0, 0, 0, 0.5);  /* полупрозрачный серый */
-  color: #f7f3ec;                  /* молочный текст */
-  font-size: 18px;
+  background: rgba(255, 141, 55, 0.06);   /* очень светлая персиковая заливка */
+  color: #B36019;                          /* тёмно-оранжевый текст */
+  font-size: 0.95rem;
   font-weight: 600;
+  border: 1px solid #FF8D37;               /* брендовая оранжевая обводка */
+  border-radius: 12px;
   box-sizing: border-box;
 }
 
@@ -652,7 +655,7 @@ body.sidebar-collapsed #sidebarUserArea {
 }
 
 #sidebarUserArea .user-email {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: #2A2A2A;
   white-space: nowrap;
@@ -661,7 +664,7 @@ body.sidebar-collapsed #sidebarUserArea {
 }
 
 #sidebarUserArea .user-plan {
-  font-size: 11px;
+  font-size: 12px;
   color: #7A7A7A;
   text-transform: lowercase;
   letter-spacing: 0.02em;
@@ -692,25 +695,25 @@ body.sidebar-collapsed #sidebarUserArea {
 .navigation .lang-switcher__item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
-  padding: 8px 12px;
+  padding: 10px 14px;
   border: none !important;
   background: transparent !important;
   border-radius: 6px;
   font: inherit;
-  font-size: 14px !important;
+  font-size: 15px !important;
   text-align: left;
-  justify-content: flex-start; /* выравнивание по левому краю */
+  justify-content: flex-start;
   color: #2A2A2A !important;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
 }
 
-/* Иконка слева от названия пункта меню — чуть меньше, чем мини-иконки сайдбара */
+/* Иконка слева от названия пункта меню — как мини-иконки в сайдбаре */
 .user-dropdown-icon {
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   object-fit: contain;
   flex-shrink: 0;
   pointer-events: none;
@@ -1494,19 +1497,51 @@ select:focus {
   margin: 4px 0 10px;
 }
 
-/* select в стиле tg-input */
-.tg-select {
-  padding: 8px 10px;
-  border-radius: 999px;
+/* ============================================================
+   ЕДИНЫЙ СТИЛЬ ДЛЯ ВСЕХ <select> на странице.
+   Кастомная стрелочка через background-image, белый фон,
+   правильные отступы и шрифт. Native option-list стилизуется
+   ограниченно браузером — мы можем задать только cursor / padding.
+   ============================================================ */
+select,
+.tg-select,
+.sidebar-inline-setting-input[name],
+#queryAiModelSelect,
+#subAiModelSelect,
+#subTypeSelect,
+#subPeriodSelect,
+#profile-language {
+  width: 100%;
+  padding: 10px 36px 10px 14px; /* справа отступ под стрелочку */
+  border-radius: 8px !important;
   border: 1px solid #d1d5db;
   font-size: 0.9rem;
-  background: #ffffff;
+  font-family: inherit;
+  background-color: #ffffff;
+  color: #2A2A2A;
   outline: none;
+  cursor: pointer;
+  box-sizing: border-box;
+
+  /* убираем дефолтную стрелочку браузера */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+
+  /* кастомная стрелочка через inline SVG */
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='3 5 6 8 9 5'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px 12px;
 }
 
-.tg-select:focus {
-  border-color: #6b7280;
-  box-shadow: 0 0 0 1px rgba(107, 114, 128, 0.25);
+/* Воздушнее раскрытый список — браузер ограничен в стилизации,
+   но padding/font можно задать */
+select option {
+  padding: 10px 12px;
+  background: #ffffff;
+  color: #2A2A2A;
+  font-size: 0.9rem;
 }
 
 /* textarea авто-рост + стиль как input */
@@ -1983,6 +2018,14 @@ body.user-not-auth.sidebar-collapsed #sidebarUserArea .auth-open-btn .expanded-o
   border: 1px solid #d1d5db;
   font-size: 0.9rem;
   background: #ffffff;
+}
+
+/* SELECT в inline-row занимает всю оставшуюся ширину
+   (а не 84px как у числового поля Период) */
+select.sidebar-inline-setting-input {
+  width: auto !important;
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
 }
 
 .sidebar-inline-setting-input:focus {
