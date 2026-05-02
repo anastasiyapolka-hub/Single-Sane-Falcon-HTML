@@ -212,19 +212,19 @@ button, input, textarea, select, label, h1, h2, h3, h4, h5, h6, p, span, div {
   white-space: pre-wrap;
 }
 
-/* Полоска с названием чата — в нашем стиле: оранжевая обводка без жирной
-   заливки, тёмно-оранжевый текст. Заметно, но не "кричит". */
+/* Полоска с названием чата — в нашем стиле: тонкая обводка цвета текста,
+   светлая персиковая заливка, тёмно-оранжевый текст крупного размера. */
 .chat-title-bar {
   display: none;           /* по умолчанию скрыта, JS включает */
   width: auto;
   margin: 12px 24px 0 24px;
-  padding: 10px 18px;
+  padding: 12px 20px;
 
   background: rgba(255, 141, 55, 0.06);   /* очень светлая персиковая заливка */
   color: #B36019;                          /* тёмно-оранжевый текст */
-  font-size: 0.95rem;
+  font-size: 1.05rem;                      /* как у заголовков секций сайдбара */
   font-weight: 600;
-  border: 1px solid #FF8D37;               /* брендовая оранжевая обводка */
+  border: 1px solid #B36019;               /* обводка того же цвета, что текст */
   border-radius: 12px;
   box-sizing: border-box;
 }
@@ -806,8 +806,8 @@ body.user-not-auth #sidebarUserArea .auth-open-btn {
 }
 .sidebar-text-input {
   width: 100%;
-  padding: 6px 10px;
-  border-radius: 999px;
+  padding: 10px 14px;
+  border-radius: 8px;
   border: 1px solid #d1d5db;
   font-size: 14px;
   font-family: inherit;
@@ -1224,11 +1224,11 @@ body.sidebar-collapsed {
   color: #2A2A2A;
 }
 
-/* Форма создания подписки — оранжевая обводка остаётся (она нужна
-   как маркер "это отдельная композиция формы") */
+/* Форма создания подписки — обводка того же тёмно-оранжевого цвета,
+   что и заголовок чата (визуальная связность между формами/блоками-CTA) */
 .tg-auth-block.subscription-block {
   background: transparent !important;
-  border: 1px solid #FF8D37 !important;
+  border: 1px solid #B36019 !important;
   border-radius: 12px !important;
   padding: 14px 16px !important;
   margin: 6px 0 10px 0 !important;
@@ -1406,8 +1406,8 @@ select:focus {
   outline: none !important;
   border-color: #95FFF7 !important;
   box-shadow:
-    0 0 0 1.5px rgba(149, 255, 247, 0.4),
-    0 1px 2px rgba(15, 23, 42, 0.06) !important;
+    0 0 0 1px rgba(149, 255, 247, 0.5),
+    0 1px 2px rgba(15, 23, 42, 0.05) !important;
 }
 
 /* (Дубликат правила для #user-dropdown удалён — позиционирование
@@ -1547,13 +1547,13 @@ select option {
 /* textarea авто-рост + стиль как input */
 .tg-textarea {
   width: 100%;
-  padding: 10px 12px;
-  border-radius: 14px;
+  padding: 10px 14px;
+  border-radius: 8px;
   border: 1px solid #d1d5db;
   font-size: 0.9rem;
   background: #ffffff;
   outline: none;
-  resize: none;          /* будем растить JS-ом */
+  resize: none;
   line-height: 1.4;
 }
 
@@ -1796,7 +1796,8 @@ select option {
 }
 
 #runSubscriptionsBtn,
-#dispatchBotBtn {
+#dispatchBotBtn,
+#adminPanelBtn {
   display: none !important;
 }
 
@@ -1997,41 +1998,38 @@ body.user-not-auth.sidebar-collapsed #sidebarUserArea .auth-open-btn .expanded-o
 }
 
 
+/* Поля настроек запроса — вертикальный стек: лейбл сверху, инпут на всю
+   ширину снизу. Это "Stripe-стиль" — labelled input стек, который не
+   обрезает лейблы и одинаково выглядит на любой ширине сайдбара. */
 .sidebar-inline-setting-row {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 2px 2px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  padding: 8px 2px;
 }
 
 .sidebar-inline-setting-label {
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   color: #4b5563;
-  white-space: nowrap;
+  font-weight: 500;
 }
 
 .sidebar-inline-setting-input {
-  width: 84px;
-  min-width: 84px;
-  padding: 6px 10px;
-  border-radius: 999px;
+  width: 100%;
+  min-width: 0;
+  padding: 10px 14px;
+  border-radius: 8px;
   border: 1px solid #d1d5db;
   font-size: 0.9rem;
   background: #ffffff;
+  box-sizing: border-box;
 }
 
-/* SELECT в inline-row занимает всю оставшуюся ширину
-   (а не 84px как у числового поля Период) */
 select.sidebar-inline-setting-input {
-  width: auto !important;
+  width: 100% !important;
   min-width: 0 !important;
-  flex: 1 1 auto !important;
-}
-
-.sidebar-inline-setting-input:focus {
-  outline: none;
-  border-color: #6b7280;
-  box-shadow: 0 0 0 1px rgba(107, 114, 128, 0.25);
+  flex: none !important;
 }
 
 /* Подсказки в модалке профиля — тот же teal, что у sidebar-hint */
