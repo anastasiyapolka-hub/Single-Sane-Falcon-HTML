@@ -1355,9 +1355,22 @@ function bindAuthUi() {
     openProfileModal();
   });
 
+  const COTEL_DOCS_URL_EN = "https://cotel.mintlify.app/";
+  const COTEL_DOCS_URL_RU = "https://cotel.mintlify.app/ru";
+
   byId("help-btn")?.addEventListener("click", () => {
     closeUserDropdown();
-    alert(tAuth("auth:messages.help_coming_soon", "Справку подключим следующим этапом."));
+
+    const lang =
+      window.cotelI18n?.getLanguage?.() ||
+      currentUser?.language ||
+      localStorage.getItem(COTEL_LANG_MANUAL_KEY) ||
+      "en";
+
+    const normalizedLang = normalizeLanguage(lang);
+    const docsUrl = normalizedLang === "ru" ? COTEL_DOCS_URL_RU : COTEL_DOCS_URL_EN;
+
+    window.open(docsUrl, "_blank", "noopener,noreferrer");
   });
 
   byId("change-plan-btn")?.addEventListener("click", () => {
