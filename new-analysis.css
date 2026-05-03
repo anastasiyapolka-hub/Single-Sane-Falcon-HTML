@@ -2035,12 +2035,13 @@ select.sidebar-inline-setting-input {
 /* ============================================================
    ЕДИНЫЙ СТИЛЬ ВСЕХ ПОЛЕЙ В МОДАЛКЕ ПРОФИЛЯ
    Принудительно одинаковые: высота 38px, скругление 8px,
-   мягкий прямоугольник. Применяется к input, select И статическим
-   значениям (.profile-static-value, которые рендерятся как div). */
-#profile-modal input,
+   мягкий прямоугольник. Применяется к ТЕКСТОВЫМ input, select И
+   статическим значениям. ИСКЛЮЧАЕТ checkbox / radio — они должны
+   оставаться нативного маленького размера. */
+#profile-modal input:not([type="checkbox"]):not([type="radio"]),
 #profile-modal select,
 #profile-modal textarea,
-.profile-field input,
+.profile-field input:not([type="checkbox"]):not([type="radio"]),
 .profile-field select,
 .profile-field textarea,
 .profile-field .profile-static-value {
@@ -2058,6 +2059,19 @@ select.sidebar-inline-setting-input {
   line-height: 22px !important;
   display: flex;
   align-items: center;
+}
+
+/* Чекбоксы и радио — нативный размер, без растягивания */
+#profile-modal input[type="checkbox"],
+#profile-modal input[type="radio"],
+.profile-field input[type="checkbox"],
+.profile-field input[type="radio"] {
+  width: 16px !important;
+  height: 16px !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  flex: none;
 }
 
 /* Метки полей в модалке профиля — компактнее */
