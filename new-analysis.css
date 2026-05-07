@@ -221,7 +221,7 @@ button, input, textarea, select, label, h1, h2, h3, h4, h5, h6, p, span, div {
   padding: 12px 20px;
 
   background: rgba(255, 141, 55, 0.05);    /* совсем светлая персиковая заливка */
-  color: #0F766E;                           /* deep teal — как у всех подсказок */
+  color: #FF8D37;                           /* ярко-оранжевый */
   font-size: 1.05rem;
   font-weight: 600;
   border: 1px solid rgba(179, 96, 25, 0.35); /* такая же тонкая прозрачная обводка, как у subscription-block */

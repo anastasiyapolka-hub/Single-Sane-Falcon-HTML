@@ -3669,11 +3669,17 @@ if (runSubscriptionsBtn) {
 
       //document.getElementById("runSubscriptionsBtn")?.addEventListener("click", onRunSubscriptionsClick);
 
-      function renderResult(payload, rawText) {
+      function renderResult(payload, rawText, userQuery) {
         let text = "";
 
         if (typeof window.cotelApplyUsageFromPayload === "function") {
           window.cotelApplyUsageFromPayload(payload);
+        }
+
+        // Добавляем исходный вопрос курсивом перед ответом
+        if (userQuery && userQuery.trim()) {
+          text += "_" + userQuery.trim() + "_\n";
+          text += "────────────────────\n\n";
         }
 
         if (payload?.summary) {
@@ -3759,7 +3765,8 @@ if (runSubscriptionsBtn) {
                 await loaderMinPromise;
               }
 
-              renderResult(data, JSON.stringify(data, null, 2));
+              renderResult(data, JSON.stringify(data, null, 2), query);
+              if (queryInput) queryInput.value = "";
               await loadChatHistory();
               return;
             }
@@ -3795,7 +3802,8 @@ if (runSubscriptionsBtn) {
                 await loaderMinPromise;
               }
 
-              renderResult(data, JSON.stringify(data, null, 2));
+              renderResult(data, JSON.stringify(data, null, 2), query);
+              if (queryInput) queryInput.value = "";
               await loadChatHistory();
               return;
             }
@@ -3830,7 +3838,8 @@ if (runSubscriptionsBtn) {
                 await loaderMinPromise;
               }
 
-              renderResult(data, JSON.stringify(data, null, 2));
+              renderResult(data, JSON.stringify(data, null, 2), query);
+              if (queryInput) queryInput.value = "";
               await loadChatHistory();
               return;
 
@@ -3847,6 +3856,30 @@ if (runSubscriptionsBtn) {
         } finally {
           showLoader(false);
         }
+        });
+      }
+
+      // Обработчик Enter и Shift+Enter для queryInput
+      if (queryInput) {
+        queryInput.addEventListener("keydown", async (event) => {
+          // Enter без модификаторов = отправить
+          if (event.key === "Enter" && !event.shiftKey && !event.ctrlKey && !event.metaKey) {
+            event.preventDefault();
+            analyzeBtn?.click();
+          }
+          // Shift+Enter или Ctrl+Enter = новая строка
+          else if (event.key === "Enter" && (event.shiftKey || event.ctrlKey || event.metaKey)) {
+            // Позволяем браузеру добавить новую строку (по умолчанию)
+            // На Mac: Cmd+Enter добавит новую строку
+            // На Windows/Linux: Ctrl+Enter добавит новую строку
+            // Shift+Enter добавит новую строку везде
+          }
+        });
+
+        // Auto-grow textarea
+        queryInput.addEventListener("input", () => {
+          queryInput.style.height = "auto";
+          queryInput.style.height = Math.min(queryInput.scrollHeight, 150) + "px";
         });
       }
     })();
