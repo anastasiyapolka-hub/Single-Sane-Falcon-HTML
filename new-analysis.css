@@ -1516,6 +1516,7 @@ select,
 #subPeriodSelect,
 #profile-language,
 #profile-timezone,
+#profile-default-ai-model,
 #register-timezone {
   width: 100%;
   padding: 10px 36px 10px 14px; /* справа отступ под стрелочку */
