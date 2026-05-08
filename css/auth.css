@@ -851,7 +851,10 @@ text-decoration: underline;
   font-size: 0.95rem;
 }
 
-.profile-field select {
+.profile-field select,
+#profile-timezone,
+#profile-language,
+#register-timezone {
   width: 100%;
   border: 1px solid #d1d5db;
   border-radius: 12px;

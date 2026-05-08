@@ -3670,29 +3670,45 @@ if (runSubscriptionsBtn) {
       //document.getElementById("runSubscriptionsBtn")?.addEventListener("click", onRunSubscriptionsClick);
 
       function renderResult(payload, rawText, userQuery) {
-        let text = "";
-
         if (typeof window.cotelApplyUsageFromPayload === "function") {
           window.cotelApplyUsageFromPayload(payload);
         }
 
-        // Добавляем исходный вопрос курсивом перед ответом
+        if (!resultDiv) return;
+
+        // Очищаем элемент
+        resultDiv.innerHTML = "";
+        resultDiv.className = "dashboard-results-text";
+
+        // Если есть вопрос, добавляем его курсивом с разделителем
         if (userQuery && userQuery.trim()) {
-          text += "_" + userQuery.trim() + "_\n";
-          text += "────────────────────\n\n";
+          const queryEl = document.createElement("div");
+          queryEl.style.fontStyle = "italic";
+          queryEl.style.marginBottom = "8px";
+          queryEl.textContent = userQuery.trim();
+          resultDiv.appendChild(queryEl);
+
+          const dividerEl = document.createElement("div");
+          dividerEl.style.borderBottom = "1px solid #d1d5db";
+          dividerEl.style.marginBottom = "16px";
+          resultDiv.appendChild(dividerEl);
         }
 
+        // Добавляем основной текст
+        let text = "";
         if (payload?.summary) {
           text += payload.summary + "\n\n";
         }
-
         if (payload?.message) {
           text += payload.message;
         }
 
-        if (resultDiv) {
-          resultDiv.textContent = text || rawText || tI18n("new-analysis:dashboard_dynamic.no_data", "Нет данных");
-        }
+        const contentEl = document.createElement("pre");
+        contentEl.style.margin = "0";
+        contentEl.style.whiteSpace = "pre-wrap";
+        contentEl.style.wordWrap = "break-word";
+        contentEl.textContent = text || rawText || tI18n("new-analysis:dashboard_dynamic.no_data", "Нет данных");
+        resultDiv.appendChild(contentEl);
 
         if (payload?.chat_name) {
           const bar = document.getElementById("chatTitleBar");

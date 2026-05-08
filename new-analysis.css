@@ -247,7 +247,11 @@ button, input, textarea, select, label, h1, h2, h3, h4, h5, h6, p, span, div {
   margin-top: 8px;
   padding: 24px;
   white-space: pre-wrap;
-  flex: 0 0 auto;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow-y: auto;
 }
 
 .dashboard-top-block {
@@ -1510,7 +1514,9 @@ select,
 #subAiModelSelect,
 #subTypeSelect,
 #subPeriodSelect,
-#profile-language {
+#profile-language,
+#profile-timezone,
+#register-timezone {
   width: 100%;
   padding: 10px 36px 10px 14px; /* справа отступ под стрелочку */
   border-radius: 8px !important;
