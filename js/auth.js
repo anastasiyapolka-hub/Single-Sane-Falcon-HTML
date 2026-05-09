@@ -1437,11 +1437,15 @@ function bindAuthUi() {
 
   byId("feedback-modal-close")?.addEventListener("click", closeFeedbackModal);
 
+  // Модальное окно обратной связи закрывается ТОЛЬКО по крестику.
+  // Клики вне формы игнорируем, чтобы пользователь случайно не потерял
+  // введённый текст и прикреплённые файлы.
   byId("feedback-modal")?.addEventListener("click", (e) => {
     const content = byId("feedback-modal")?.querySelector(".auth-modal-content");
-    if (content && !content.contains(e.target)) {
-      closeFeedbackModal();
+    if (content && content.contains(e.target)) {
+      e.stopPropagation();
     }
+    // ничего НЕ делаем при клике вне — модалка не закрывается
   });
 
   byId("feedback-attach-btn")?.addEventListener("click", () => {
