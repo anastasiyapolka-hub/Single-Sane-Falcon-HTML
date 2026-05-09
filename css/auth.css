@@ -851,7 +851,7 @@ text-decoration: underline;
   font-size: 0.95rem;
 }
 
-/* Стили для всех select элементов с классом tg-select */
+/* Стили для всех select элементов с классом tg-select - базовый набор */
 .tg-select,
 .profile-field select {
   width: 100%;
@@ -865,17 +865,9 @@ text-decoration: underline;
   outline: none;
   cursor: pointer;
   box-sizing: border-box;
-
-  /* убираем дефолтную стрелочку браузера */
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-
-  /* кастомная стрелочка через inline SVG */
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='3 5 6 8 9 5'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 12px 12px;
 }
 
 .auth-note.auth-country-error,
@@ -1363,21 +1355,16 @@ text-decoration: underline;
 }
 
 /* ===== DROPDOWN ARROWS FIX ===== */
-/* Специальные правила для гарантированного отображения стрелочек в select элементах */
+/* Гарантированное отображение стрелочек во всех select элементах в профиле */
 
-/* Профиль модал селекты */
 #profile-modal select,
 #profile-timezone,
 #profile-language,
 #profile-default-ai-model,
 .profile-field select {
-  appearance: none !important;
-  -webkit-appearance: none !important;
-  -moz-appearance: none !important;
-  background-color: #ffffff !important;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='3 5 6 8 9 5'/></svg>") !important;
   background-repeat: no-repeat !important;
-  background-position: right 10px center !important;
-  background-size: 20px 20px !important;
+  background-position: right 12px center !important;
+  background-size: 12px 12px !important;
   padding-right: 36px !important;
 }
