@@ -851,38 +851,9 @@ text-decoration: underline;
   font-size: 0.95rem;
 }
 
-.profile-field select,
-#profile-timezone,
-#profile-language,
-#register-timezone,
-#profile-default-ai-model {
+/* Стили для select элементов с классом tg-select используются из new-analysis.css */
+.profile-field select {
   width: 100%;
-  border: 1px solid #d1d5db;
-  border-radius: 12px;
-  padding: 12px 36px 12px 14px;
-  font-size: 0.95rem;
-  background-color: #ffffff;
-
-  /* убираем дефолтную стрелочку браузера */
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-
-  /* кастомная стрелочка через inline SVG */
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='3 5 6 8 9 5'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 12px 12px;
-}
-
-
-/* Гарантируем что стрелочки видны во всех селектах в профиль-модале */
-#profile-modal select {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='3 5 6 8 9 5'/></svg>") !important;
-  background-repeat: no-repeat !important;
-  background-position: right 12px center !important;
-  background-size: 12px 12px !important;
-  padding-right: 36px !important;
 }
 
 .auth-note.auth-country-error,

@@ -1511,13 +1511,7 @@ select,
 .tg-select,
 .sidebar-inline-setting-input[name],
 #queryAiModelSelect,
-#subAiModelSelect,
-#subTypeSelect,
-#subPeriodSelect,
-#profile-language,
-#profile-timezone,
-#profile-default-ai-model,
-#register-timezone {
+#subAiModelSelect {
   width: 100%;
   padding: 10px 36px 10px 14px; /* справа отступ под стрелочку */
   border-radius: 8px !important;
