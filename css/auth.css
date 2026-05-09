@@ -261,7 +261,10 @@ body.user-not-auth .sidebar-user-area .auth-open-btn {
   border-radius: 12px;
   padding: 12px 14px;
   font-size: 0.95rem;
-  background: #ffffff;
+  /* Используем background-color, а не shorthand background:.
+     Shorthand сбрасывает background-image, из-за чего у <select>
+     внутри .auth-modal-content исчезала кастомная стрелка. */
+  background-color: #ffffff;
 }
 
 .auth-modal-content .iti {
@@ -273,10 +276,17 @@ body.user-not-auth .sidebar-user-area .auth-open-btn {
   height: 48px;
   border: 1px solid #d1d5db;
   border-radius: 12px;
-  padding: 12px 14px 12px 52px;
+  /* padding-left увеличен, чтобы цифры не наезжали на флаг и стрелку
+     селектора страны (overlay .iti__country-container занимает заметную
+     ширину в intl-tel-input v26). */
+  padding: 12px 14px 12px 84px;
   font-size: 0.95rem;
   background: #ffffff;
   box-sizing: border-box;
+}
+
+.auth-modal-content .iti__country-container {
+  width: auto;
 }
 .auth-modal-content .iti__selected-country-primary {
   height: 48px;
@@ -299,7 +309,9 @@ body.user-not-auth .sidebar-user-area .auth-open-btn {
   height: 48px;
   border: 1px solid #d1d5db;
   border-radius: 24px;
-  padding: 12px 14px 12px 64px;
+  /* padding-left увеличен (было 64px) — флаг + стрелка селектора в
+     intl-tel-input v26 шире, поэтому цифры визуально наезжали на флаг. */
+  padding: 12px 14px 12px 88px;
   font-size: 0.95rem;
   background: #ffffff;
   box-sizing: border-box;
@@ -1358,14 +1370,22 @@ text-decoration: underline;
   cursor: not-allowed;
 }
 
-/* ===== DROPDOWN ARROWS FIX ===== */
-/* Гарантированное отображение стрелочек во всех select элементах в профиле */
+/* ===== DROPDOWN ARROWS FIX =====
+   Гарантированное отображение стрелочек во всех <select> в профиле.
+   Несколько других правил (например, .auth-modal-content select с
+   shorthand background:) ранее затирали background-image, из-за чего
+   стрелка пропадала. Поэтому здесь всё с !important и максимальной
+   спецификой по id модалки. */
 
 #profile-modal select,
-#profile-timezone,
-#profile-language,
-#profile-default-ai-model,
-.profile-field select {
+#profile-modal .profile-field select,
+#profile-modal #profile-timezone,
+#profile-modal #profile-language,
+#profile-modal #profile-default-ai-model {
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  background-color: #ffffff !important;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='3 5 6 8 9 5'/></svg>") !important;
   background-repeat: no-repeat !important;
   background-position: right 12px center !important;

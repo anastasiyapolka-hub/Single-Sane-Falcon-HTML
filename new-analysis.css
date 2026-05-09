@@ -1574,7 +1574,9 @@ select option {
 .tg-field .iti__tel-input {
   width: 100% !important;
   height: 40px;
-  padding: 6px 10px 6px 56px;
+  /* padding-left увеличен (было 56px), чтобы цифры не накладывались
+     на флаг и стрелку селектора страны intl-tel-input v26. */
+  padding: 6px 10px 6px 76px;
   border-radius: 999px;
   border: 1px solid #d1d5db;
   font-size: 0.9rem;
