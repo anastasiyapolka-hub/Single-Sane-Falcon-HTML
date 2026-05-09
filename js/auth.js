@@ -1430,12 +1430,237 @@ function bindAuthUi() {
     }
   });
 
+  byId("feedback-btn")?.addEventListener("click", () => {
+    closeUserDropdown();
+    openFeedbackModal();
+  });
+
+  byId("feedback-modal-close")?.addEventListener("click", closeFeedbackModal);
+
+  byId("feedback-modal")?.addEventListener("click", (e) => {
+    const content = byId("feedback-modal")?.querySelector(".auth-modal-content");
+    if (content && !content.contains(e.target)) {
+      closeFeedbackModal();
+    }
+  });
+
+  byId("feedback-attach-btn")?.addEventListener("click", () => {
+    byId("feedback-files-input")?.click();
+  });
+
+  byId("feedback-files-input")?.addEventListener("change", handleFeedbackFilesSelected);
+  byId("feedback-submit-btn")?.addEventListener("click", handleFeedbackSubmit);
+
   document.addEventListener("click", (e) => {
     const profile = byId("user-profile");
     if (profile && !profile.contains(e.target)) {
       closeUserDropdown();
     }
   });
+}
+
+// =====================================================================
+// Feedback modal
+// =====================================================================
+
+const FEEDBACK_MAX_FILES = 5;
+const FEEDBACK_MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+let feedbackAttachedFiles = [];
+
+function formatFeedbackFileSize(bytes) {
+  if (!bytes && bytes !== 0) return "";
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function setFeedbackError(message) {
+  const errEl = byId("feedback-error");
+  if (!errEl) return;
+  if (message) {
+    errEl.textContent = message;
+    errEl.classList.remove("hidden");
+  } else {
+    errEl.textContent = "";
+    errEl.classList.add("hidden");
+  }
+}
+
+function setFeedbackSuccess(message) {
+  const okEl = byId("feedback-success");
+  if (!okEl) return;
+  if (message) {
+    okEl.textContent = message;
+    okEl.classList.remove("hidden");
+  } else {
+    okEl.textContent = "";
+    okEl.classList.add("hidden");
+  }
+}
+
+function renderFeedbackFilesList() {
+  const listEl = byId("feedback-files-list");
+  if (!listEl) return;
+  listEl.innerHTML = "";
+
+  feedbackAttachedFiles.forEach((file, index) => {
+    const li = document.createElement("li");
+
+    const nameSpan = document.createElement("span");
+    nameSpan.className = "feedback-file-name";
+    nameSpan.textContent = file.name;
+    nameSpan.title = file.name;
+
+    const sizeSpan = document.createElement("span");
+    sizeSpan.className = "feedback-file-size";
+    sizeSpan.textContent = formatFeedbackFileSize(file.size);
+
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className = "feedback-file-remove";
+    removeBtn.setAttribute("aria-label", "×");
+    removeBtn.textContent = "×";
+    removeBtn.addEventListener("click", () => {
+      feedbackAttachedFiles.splice(index, 1);
+      renderFeedbackFilesList();
+    });
+
+    li.appendChild(nameSpan);
+    li.appendChild(sizeSpan);
+    li.appendChild(removeBtn);
+    listEl.appendChild(li);
+  });
+}
+
+function handleFeedbackFilesSelected(event) {
+  setFeedbackError("");
+  const input = event?.target;
+  const picked = input ? Array.from(input.files || []) : [];
+
+  for (const file of picked) {
+    if (feedbackAttachedFiles.length >= FEEDBACK_MAX_FILES) {
+      setFeedbackError(tAuth("auth:feedback.too_many_files", "Можно прикрепить не более 5 файлов."));
+      break;
+    }
+    if (file.size > FEEDBACK_MAX_FILE_SIZE) {
+      setFeedbackError(tAuth(
+        "auth:feedback.file_too_large",
+        `Файл «${file.name}» больше допустимого размера (5 МБ).`,
+        { name: file.name }
+      ));
+      continue;
+    }
+    feedbackAttachedFiles.push(file);
+  }
+
+  // Сбрасываем значение input, чтобы пользователь мог снова выбрать тот же файл
+  if (input) input.value = "";
+  renderFeedbackFilesList();
+}
+
+function openFeedbackModal() {
+  setFeedbackError("");
+  setFeedbackSuccess("");
+  feedbackAttachedFiles = [];
+  renderFeedbackFilesList();
+
+  const subjectEl = byId("feedback-subject");
+  const messageEl = byId("feedback-message");
+  const categoryEl = byId("feedback-category");
+  if (subjectEl) subjectEl.value = "";
+  if (messageEl) messageEl.value = "";
+  if (categoryEl) categoryEl.value = "bug";
+
+  const submitBtn = byId("feedback-submit-btn");
+  if (submitBtn) {
+    submitBtn.disabled = false;
+    submitBtn.textContent = tAuth("auth:feedback.submit", "Отправить");
+  }
+
+  byId("feedback-modal")?.classList.remove("hidden");
+  setTimeout(() => subjectEl?.focus(), 50);
+}
+
+function closeFeedbackModal() {
+  byId("feedback-modal")?.classList.add("hidden");
+  setFeedbackError("");
+  setFeedbackSuccess("");
+  feedbackAttachedFiles = [];
+  const filesInput = byId("feedback-files-input");
+  if (filesInput) filesInput.value = "";
+  renderFeedbackFilesList();
+}
+
+async function handleFeedbackSubmit() {
+  setFeedbackError("");
+  setFeedbackSuccess("");
+
+  const subject = (byId("feedback-subject")?.value || "").trim();
+  const message = (byId("feedback-message")?.value || "").trim();
+  const category = byId("feedback-category")?.value || "other";
+
+  if (!subject) {
+    setFeedbackError(tAuth("auth:feedback.subject_required", "Пожалуйста, укажите заголовок заявки."));
+    byId("feedback-subject")?.focus();
+    return;
+  }
+  if (!message) {
+    setFeedbackError(tAuth("auth:feedback.message_required", "Пожалуйста, опишите ваше обращение."));
+    byId("feedback-message")?.focus();
+    return;
+  }
+
+  const submitBtn = byId("feedback-submit-btn");
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = tAuth("auth:feedback.submitting", "Отправка...");
+  }
+
+  const lang =
+    (window.cotelI18n?.getLanguage?.() ||
+      currentUser?.language ||
+      "ru");
+
+  try {
+    const formData = new FormData();
+    formData.append("subject", subject);
+    formData.append("category", category);
+    formData.append("message", message);
+    formData.append("language", lang);
+    feedbackAttachedFiles.forEach((file) => {
+      formData.append("files", file, file.name);
+    });
+
+    await apiFetch("/feedback", {
+      method: "POST",
+      body: formData,
+    });
+
+    setFeedbackSuccess(tAuth(
+      "auth:feedback.send_success",
+      "Спасибо! Ваша заявка отправлена. Мы свяжемся с вами по почте."
+    ));
+
+    // Очищаем форму, оставляем модалку открытой,
+    // чтобы пользователь увидел сообщение об успехе.
+    feedbackAttachedFiles = [];
+    renderFeedbackFilesList();
+    if (byId("feedback-subject")) byId("feedback-subject").value = "";
+    if (byId("feedback-message")) byId("feedback-message").value = "";
+
+    setTimeout(() => {
+      closeFeedbackModal();
+    }, 1800);
+  } catch (err) {
+    const fallback = tAuth("auth:feedback.send_failed", "Не удалось отправить заявку. Попробуйте позже.");
+    const message = (window.extractBackendErrorMessage && window.extractBackendErrorMessage(err, { fallback })) || fallback;
+    setFeedbackError(message);
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = tAuth("auth:feedback.submit", "Отправить");
+    }
+  }
 }
 
 function formatSubscriptionFrequency(minutes) {

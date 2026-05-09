@@ -934,6 +934,10 @@
                       <img src="images/info-64.png" alt="" class="user-dropdown-icon" />
                       <span data-i18n="auth:dropdown.help">Справка</span>
                     </button>
+                    <button id="feedback-btn" type="button">
+                      <img src="images/ask-question-64.png" alt="" class="user-dropdown-icon" />
+                      <span data-i18n="auth:dropdown.feedback">Обратная связь</span>
+                    </button>
                     <button id="logout-btn" type="button">
                       <img src="images/quit-64.png" alt="" class="user-dropdown-icon" />
                       <span data-i18n="auth:dropdown.logout">Выйти</span>
@@ -4459,6 +4463,95 @@ if (runSubscriptionsBtn) {
           </div>
 
           <button id="delete-account-submit" type="button" class="profile-danger-btn" data-i18n="auth:delete_account.submit">Удалить профиль</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="feedback-modal" class="auth-modal hidden">
+      <div class="auth-modal-backdrop"></div>
+      <div class="auth-modal-content feedback-modal-content">
+        <button id="feedback-modal-close" type="button" class="auth-modal-close" aria-label="Закрыть" data-i18n-aria-label="auth:profile.close_label">×</button>
+
+        <div class="auth-view feedback-view">
+          <h2 data-i18n="auth:feedback.title">Обратная связь</h2>
+          <p class="auth-note" data-i18n="auth:feedback.description">
+            Здесь вы можете оставить заявку на обратную связь, сообщить об ошибке или предложить улучшение функционала.
+          </p>
+
+          <div class="auth-field">
+            <label for="feedback-subject" data-i18n="auth:feedback.subject_label">Заголовок заявки</label>
+            <input
+              id="feedback-subject"
+              type="text"
+              maxlength="200"
+              placeholder="Кратко опишите тему обращения"
+              data-i18n-placeholder="auth:feedback.subject_placeholder"
+            />
+          </div>
+
+          <div class="auth-field">
+            <label for="feedback-category" data-i18n="auth:feedback.category_label">Категория</label>
+            <select id="feedback-category">
+              <option value="bug" data-i18n="auth:feedback.categories.bug">Сообщение об ошибке</option>
+              <option value="improvement" data-i18n="auth:feedback.categories.improvement">Предложение об улучшении</option>
+              <option value="support" data-i18n="auth:feedback.categories.support">Запрос на поддержку</option>
+              <option value="billing" data-i18n="auth:feedback.categories.billing">Спорные вопросы по оплате</option>
+              <option value="account" data-i18n="auth:feedback.categories.account">Вопрос по аккаунту</option>
+              <option value="other" data-i18n="auth:feedback.categories.other">Другое</option>
+            </select>
+          </div>
+
+          <div class="auth-field">
+            <label for="feedback-message" data-i18n="auth:feedback.message_label">Текст обращения</label>
+            <textarea
+              id="feedback-message"
+              rows="6"
+              maxlength="5000"
+              placeholder="Опишите проблему или предложение подробнее"
+              data-i18n-placeholder="auth:feedback.message_placeholder"
+            ></textarea>
+          </div>
+
+          <div class="auth-field feedback-attachments-field">
+            <label data-i18n="auth:feedback.attachments_label">Вложения</label>
+            <div class="feedback-attachments-row">
+              <button
+                id="feedback-attach-btn"
+                type="button"
+                class="feedback-attach-btn"
+                aria-label="Прикрепить файлы"
+                title="Прикрепить файлы"
+                data-i18n-aria-label="auth:feedback.attach_aria"
+                data-i18n-title="auth:feedback.attach_title"
+              >
+                <span class="feedback-attach-icon" aria-hidden="true">📎</span>
+                <span data-i18n="auth:feedback.attach_btn">Прикрепить файлы</span>
+              </button>
+              <input
+                id="feedback-files-input"
+                type="file"
+                multiple
+                hidden
+                accept="image/*,application/pdf,.txt,.log,.json,.csv,.doc,.docx,.xls,.xlsx,.zip"
+              />
+              <span id="feedback-attach-hint" class="feedback-attach-hint" data-i18n="auth:feedback.attach_hint">
+                До 5 файлов, не более 5 МБ каждый.
+              </span>
+            </div>
+            <ul id="feedback-files-list" class="feedback-files-list" aria-live="polite"></ul>
+          </div>
+
+          <div id="feedback-error" class="feedback-error hidden"></div>
+          <div id="feedback-success" class="feedback-success hidden"></div>
+
+          <button
+            id="feedback-submit-btn"
+            type="button"
+            class="feedback-submit-btn"
+            data-i18n="auth:feedback.submit"
+          >
+            Отправить
+          </button>
         </div>
       </div>
     </div>
