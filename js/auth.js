@@ -1413,20 +1413,8 @@ function bindAuthUi() {
 
   byId("profile-modal-close")?.addEventListener("click", closeProfileModal);
 
-  byId("profile-modal")?.addEventListener("click", (e) => {
-    const content = document.querySelector(".profile-modal-content");
-    const insideIntlDropdown =
-      e.target instanceof Element &&
-      !!e.target.closest(".iti, .iti__country-container, .iti__country-list");
-
-    if (insideIntlDropdown) {
-      return;
-    }
-
-    if (content && !content.contains(e.target)) {
-      closeProfileModal();
-    }
-  });
+  // Модальное окно профиля закрывается ТОЛЬКО при клике на крестик
+  // Клики вне модального окна игнорируются, чтобы избежать случайных закрытий
 
   byId("change-password-modal")?.addEventListener("click", (e) => {
     const content = byId("change-password-modal")?.querySelector(".auth-modal-content");

@@ -813,7 +813,7 @@ text-decoration: underline;
 }
 
 .plan-free.active {
-  color: #0ea5e9;
+  color: #95FFF7;
 }
 
 .plan-basic.active {
@@ -851,9 +851,31 @@ text-decoration: underline;
   font-size: 0.95rem;
 }
 
-/* Стили для select элементов с классом tg-select используются из new-analysis.css */
+/* Стили для всех select элементов с классом tg-select */
+.tg-select,
 .profile-field select {
   width: 100%;
+  padding: 10px 36px 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 0.9rem;
+  font-family: inherit;
+  background-color: #ffffff;
+  color: #2A2A2A;
+  outline: none;
+  cursor: pointer;
+  box-sizing: border-box;
+
+  /* убираем дефолтную стрелочку браузера */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+
+  /* кастомная стрелочка через inline SVG */
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='3 5 6 8 9 5'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px 12px;
 }
 
 .auth-note.auth-country-error,
