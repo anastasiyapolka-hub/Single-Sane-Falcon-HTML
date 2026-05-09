@@ -309,12 +309,13 @@ body.user-not-auth .sidebar-user-area .auth-open-btn {
   height: 48px;
   border: 1px solid #d1d5db;
   border-radius: 24px;
-  /* padding-left увеличен (было 64px) — флаг + стрелка селектора в
-     intl-tel-input v26 шире, поэтому цифры визуально наезжали на флаг. */
-  padding: 12px 14px 12px 88px;
-  font-size: 0.95rem;
+  /* padding-left увеличен до 110px — флаг + стрелка селектора в
+     intl-tel-input v26 шире, поэтому цифры нуждаются в большем левом отступе. */
+  padding: 12px 14px 12px 110px;
+  font-size: 0.9rem;
   background: #ffffff;
   box-sizing: border-box;
+  line-height: 1.4;
 }
 
 #profile-modal .profile-field .iti__country-container {
