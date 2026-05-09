@@ -456,6 +456,10 @@ body.user-not-auth .sidebar-user-area .auth-open-btn {
   line-height: 1;
   color: #6b7280;
   cursor: pointer;
+  /* Sticky h2 внутри .auth-modal-content стоит с z-index:10 и фоном white,
+     поэтому без явного z-index крестик закрывается заголовком и визуально
+     пропадает (хотя кликается). Поднимаем его выше шапки. */
+  z-index: 20;
 }
 
 .auth-link-btn,
