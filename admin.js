@@ -700,6 +700,14 @@
 
     document.querySelector('[data-action="sessions-reload"]')?.addEventListener("click", () => loadSessions());
 
+    // Pricing
+    document.querySelector('[data-action="pricing-reload"]')?.addEventListener("click", () => loadPricing());
+    document.querySelector('[data-action="pricing-add"]')?.addEventListener("click", () => openPricingModal(null));
+    document.querySelectorAll('[data-action="pricing-cancel"]').forEach((el) => {
+      el.addEventListener("click", () => closePricingModal());
+    });
+    document.getElementById("pricingForm")?.addEventListener("submit", submitPricingForm);
+
     // Drawer close
     document.getElementById("userDrawerClose")?.addEventListener("click", () => {
       document.getElementById("userDrawer").hidden = true;
