@@ -10,6 +10,7 @@
   "price_suffix": "/мес",
   "featured_badge": "Рекомендуем",
   "plans": {
+    "disabled_btn": "Скоро будет доступно",
     "free": {
       "name": "Free",
       "price": "$0",
@@ -36,7 +37,8 @@
         "priority": "Приоритетная обработка подписок",
         "notifications": "Telegram-уведомления"
       },
-      "select_btn": "Выбрать Basic"
+      "select_btn": "Выбрать Basic",
+      "disabled_btn": "Скоро будет доступно"
     },
     "pro": {
       "name": "Pro",
@@ -51,7 +53,8 @@
         "priority": "Приоритетная обработка подписок",
         "notifications": "Telegram-уведомления"
       },
-      "select_btn": "Выбрать Pro"
+      "select_btn": "Выбрать Pro",
+      "disabled_btn": "Скоро будет доступно"
     }
   },
   "current_plan_btn": "Текущий тариф",

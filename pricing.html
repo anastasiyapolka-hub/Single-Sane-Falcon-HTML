@@ -163,42 +163,59 @@
     const planCards = Array.from(document.querySelectorAll("[data-plan-card]"));
     const planButtons = Array.from(document.querySelectorAll("[data-plan-btn]"));
 
+    const PAID_PLAN_SWITCHING_ENABLED = false;
+    const DISABLED_PAID_PLANS = new Set(["basic", "pro"]);
+
     const successModal = document.getElementById("plan-success-modal");
     const successTitle = document.getElementById("plan-success-title");
     const successText = document.getElementById("plan-success-text");
     const successClose = document.getElementById("plan-success-close");
     const successOk = document.getElementById("plan-success-ok");
 
-    function setCurrentPlanUi(planCode) {
-      const normalized = String(planCode || "free").toLowerCase();
+   function setCurrentPlanUi(planCode) {
+    const normalized = String(planCode || "free").toLowerCase();
 
-      planCards.forEach((card) => {
-        const isCurrent = card.dataset.planCard === normalized;
-        card.classList.toggle("is-active", isCurrent);
-      });
+    planCards.forEach((card) => {
+      const isCurrent = card.dataset.planCard === normalized;
+      card.classList.toggle("is-active", isCurrent);
+    });
 
-      planButtons.forEach((btn) => {
-        const plan = btn.dataset.planBtn;
-        const isCurrent = plan === normalized;
+    planButtons.forEach((btn) => {
+      const plan = btn.dataset.planBtn;
+      const isCurrent = plan === normalized;
+      const isPaidDisabled =
+        !PAID_PLAN_SWITCHING_ENABLED && DISABLED_PAID_PLANS.has(plan);
 
-        btn.disabled = isCurrent;
-        btn.classList.toggle("current", isCurrent);
+      btn.disabled = isCurrent || isPaidDisabled;
+      btn.classList.toggle("current", isCurrent);
+      btn.classList.toggle("plan-btn--disabled", isPaidDisabled && !isCurrent);
 
-        if (isCurrent) {
-          btn.textContent = tI18n("pricing:current_plan_btn", "Текущий тариф");
-          btn.setAttribute("data-i18n", "pricing:current_plan_btn");
-        } else if (plan === "basic") {
-          btn.textContent = tI18n("pricing:plans.basic.select_btn", "Выбрать Basic");
-          btn.setAttribute("data-i18n", "pricing:plans.basic.select_btn");
+      if (isCurrent) {
+        btn.textContent = tI18n("pricing:current_plan_btn", "Текущий тариф");
+        btn.setAttribute("data-i18n", "pricing:current_plan_btn");
+      } else if (isPaidDisabled) {
+        if (plan === "basic") {
+          btn.textContent = tI18n("pricing:plans.basic.disabled_btn", "Скоро будет доступно");
+          btn.setAttribute("data-i18n", "pricing:plans.basic.disabled_btn");
         } else if (plan === "pro") {
-          btn.textContent = tI18n("pricing:plans.pro.select_btn", "Выбрать Pro");
-          btn.setAttribute("data-i18n", "pricing:plans.pro.select_btn");
+          btn.textContent = tI18n("pricing:plans.pro.disabled_btn", "Скоро будет доступно");
+          btn.setAttribute("data-i18n", "pricing:plans.pro.disabled_btn");
         } else {
-          btn.textContent = tI18n("pricing:plans.free.select_btn", "Выбрать Free");
-          btn.setAttribute("data-i18n", "pricing:plans.free.select_btn");
+          btn.textContent = tI18n("pricing:plans.disabled_btn", "Скоро будет доступно");
+          btn.setAttribute("data-i18n", "pricing:plans.disabled_btn");
         }
-      });
-    }
+      } else if (plan === "basic") {
+        btn.textContent = tI18n("pricing:plans.basic.select_btn", "Выбрать Basic");
+        btn.setAttribute("data-i18n", "pricing:plans.basic.select_btn");
+      } else if (plan === "pro") {
+        btn.textContent = tI18n("pricing:plans.pro.select_btn", "Выбрать Pro");
+        btn.setAttribute("data-i18n", "pricing:plans.pro.select_btn");
+      } else {
+        btn.textContent = tI18n("pricing:plans.free.select_btn", "Выбрать Free");
+        btn.setAttribute("data-i18n", "pricing:plans.free.select_btn");
+      }
+    });
+}
 
     function openSuccessModal(planCode) {
       const normalized = String(planCode || "").toLowerCase();
@@ -265,6 +282,10 @@
     planButtons.forEach((btn) => {
       btn.addEventListener("click", async () => {
         const targetPlan = btn.dataset.planBtn;
+
+        if (!PAID_PLAN_SWITCHING_ENABLED && DISABLED_PAID_PLANS.has(targetPlan)) {
+          return;
+        }
         if (!targetPlan || btn.disabled) return;
 
         try {

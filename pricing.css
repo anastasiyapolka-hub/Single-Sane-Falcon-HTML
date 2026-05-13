@@ -408,3 +408,17 @@ body {
 .plan-success-close:hover {
   color: var(--text);
 }
+
+.plan-btn--disabled,
+.plan-btn:disabled.plan-btn--disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  filter: grayscale(0.2);
+  box-shadow: none;
+}
+
+.plan-btn--disabled:hover,
+.plan-btn:disabled.plan-btn--disabled:hover {
+  transform: none;
+  box-shadow: none;
+}

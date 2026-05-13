@@ -10,6 +10,7 @@
   "price_suffix": "/mo",
   "featured_badge": "Recommended",
   "plans": {
+    "disabled_btn": "Coming soon",
     "free": {
       "name": "Free",
       "price": "$0",
@@ -36,7 +37,8 @@
         "priority": "Priority subscription processing",
         "notifications": "Telegram notifications"
       },
-      "select_btn": "Choose Basic"
+      "select_btn": "Choose Basic",
+      "disabled_btn": "Coming soon"
     },
     "pro": {
       "name": "Pro",
@@ -51,7 +53,8 @@
         "priority": "Priority subscription processing",
         "notifications": "Telegram notifications"
       },
-      "select_btn": "Choose Pro"
+      "select_btn": "Choose Pro",
+      "disabled_btn": "Coming soon"
     }
   },
   "current_plan_btn": "Current plan",
