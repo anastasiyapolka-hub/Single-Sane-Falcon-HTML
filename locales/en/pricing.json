@@ -16,7 +16,7 @@
       "price": "$0",
       "description": "To get started with the service",
       "features": {
-        "requests": "3 requests per day / 60 requests per month",
+        "requests": "5 requests per day / 60 requests per month",
         "history_days": "Chat history analysis for queries up to 7 days",
         "trial_subs": "Up to 2 trial subscriptions",
         "frequency": "Subscription analysis no more than once every 3 hours",
