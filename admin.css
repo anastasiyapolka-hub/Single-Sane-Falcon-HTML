@@ -1,0 +1,251 @@
+/* CoTel admin panel — MVP. Plain, dense, readable. */
+
+.admin-body {
+  background: var(--color-surface, #f8fafd);
+  color: var(--color-on-surface, #0b0f12);
+  font-family: "Inter", "Noto Sans", system-ui, sans-serif;
+  font-size: 13px;
+  margin: 0;
+  min-height: 100vh;
+}
+
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  background: #ffffff;
+  border-bottom: 1px solid var(--color-outline, #2e3a45);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.admin-header__title { display: flex; align-items: baseline; gap: 16px; }
+.admin-header__title h1 { font-size: 20px; margin: 0; font-weight: 600; }
+.admin-back-link {
+  color: var(--color-accent, #007e99);
+  font-size: 13px;
+  text-decoration: none;
+}
+.admin-back-link:hover { text-decoration: underline; }
+.admin-header__email {
+  color: var(--color-on-surface-secondary, #52606a);
+  font-size: 13px;
+}
+
+.admin-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 0 24px;
+  background: #ffffff;
+  border-bottom: 1px solid var(--color-outline, #2e3a45);
+  position: sticky;
+  top: 60px;
+  z-index: 9;
+}
+.admin-tab {
+  border: 0;
+  background: transparent;
+  padding: 12px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-on-surface-secondary, #52606a);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+.admin-tab:hover { color: var(--color-on-surface, #0b0f12); }
+.admin-tab.is-active {
+  color: var(--color-on-surface, #0b0f12);
+  border-bottom-color: var(--color-accent, #007e99);
+}
+
+.admin-main { padding: 16px 24px 80px; }
+
+.admin-pane { display: none; }
+.admin-pane.is-active { display: block; }
+
+.admin-pane__controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  background: #ffffff;
+  border-radius: 6px;
+  border: 1px solid var(--color-outline, #2e3a45);
+}
+.admin-pane__count {
+  color: var(--color-on-surface-secondary, #52606a);
+  font-size: 12px;
+  margin-left: auto;
+}
+
+.admin-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--color-on-surface-secondary, #52606a);
+}
+.admin-filter input, .admin-filter select {
+  padding: 4px 8px;
+  border: 1px solid var(--color-outline, #2e3a45);
+  border-radius: 4px;
+  background: #ffffff;
+  color: var(--color-on-surface, #0b0f12);
+  font-size: 12px;
+}
+.admin-filter input { width: 110px; }
+
+.admin-btn {
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: 1px solid var(--color-outline, #2e3a45);
+  background: #ffffff;
+  color: var(--color-on-surface, #0b0f12);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.admin-btn:hover { background: #f0f4f8; }
+.admin-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.admin-btn--ghost { border: 0; background: transparent; font-size: 18px; padding: 4px 10px; }
+
+.admin-table-wrap {
+  overflow-x: auto;
+  background: #ffffff;
+  border: 1px solid var(--color-outline, #2e3a45);
+  border-radius: 6px;
+}
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.admin-table thead {
+  background: #f0f4f8;
+  position: sticky;
+  top: 0;
+}
+.admin-table th, .admin-table td {
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+  vertical-align: top;
+}
+.admin-table th {
+  font-weight: 600;
+  color: var(--color-on-surface-secondary, #52606a);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.admin-table tbody tr:hover { background: #f8fafd; cursor: pointer; }
+.admin-table .num { font-variant-numeric: tabular-nums; text-align: right; }
+.admin-table .muted { color: #a0a8b0; }
+.admin-table .bad { color: #c0392b; font-weight: 600; }
+.admin-table .ok { color: #27ae60; font-weight: 600; }
+
+.admin-table .meta-cell {
+  max-width: 280px;
+  white-space: normal;
+}
+.admin-table .meta-cell details summary {
+  cursor: pointer;
+  color: var(--color-accent, #007e99);
+  font-size: 11px;
+}
+.admin-table .meta-cell pre {
+  background: #f8fafd;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  margin-top: 4px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.admin-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+.admin-pager__info {
+  font-size: 12px;
+  color: var(--color-on-surface-secondary, #52606a);
+}
+
+.admin-section-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 24px 0 8px;
+  color: var(--color-on-surface, #0b0f12);
+}
+
+/* User drawer — slide in from the right */
+.admin-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 640px;
+  max-width: 90vw;
+  background: #ffffff;
+  border-left: 1px solid var(--color-outline, #2e3a45);
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.12);
+  overflow-y: auto;
+  z-index: 100;
+}
+.admin-drawer[hidden] { display: none; }
+.admin-drawer__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-outline, #2e3a45);
+  position: sticky;
+  top: 0;
+  background: #ffffff;
+}
+.admin-drawer__header h2 { font-size: 16px; margin: 0; font-weight: 600; }
+.admin-drawer__body { padding: 16px 20px; }
+.admin-drawer__body h3 {
+  font-size: 13px;
+  margin: 16px 0 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-on-surface-secondary, #52606a);
+}
+.admin-drawer__body h3:first-child { margin-top: 0; }
+.admin-drawer__body .kv {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 4px 12px;
+  font-size: 12px;
+}
+.admin-drawer__body .kv dt {
+  color: var(--color-on-surface-secondary, #52606a);
+  font-weight: 500;
+}
+.admin-drawer__body .kv dd { margin: 0; word-break: break-word; }
+
+.admin-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #0b0f12;
+  color: #ffffff;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  z-index: 200;
+}
+.admin-toast[hidden] { display: none; }
+.admin-toast.is-error { background: #c0392b; }

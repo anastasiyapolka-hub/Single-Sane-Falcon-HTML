@@ -886,9 +886,12 @@
             </div>
             </div>
 
-            <div class="sidebar-section">
+            <div class="sidebar-section" id="adminButtonsBlock" style="display:none;">
               <button id="adminPanelBtn" type="button" class="tg-button" style="width:100%;" data-i18n="new-analysis:sidebar.admin_btn">
-                Панель администрирования
+                Служебные аккаунты
+              </button>
+              <button id="adminCotelBtn" type="button" class="tg-button" style="width:100%;margin-top:8px;">
+                Админка CoTel
               </button>
             </div>
 
@@ -1333,6 +1336,26 @@
       adminPanelBtn?.addEventListener("click", () => {
         window.location.href = "/admin-service-accounts.html";
       });
+
+      const adminCotelBtn = document.getElementById("adminCotelBtn");
+      adminCotelBtn?.addEventListener("click", () => {
+        window.location.href = "/admin.html";
+      });
+
+      // Reveal the admin buttons block only for users in ADMIN_EMAILS.
+      // The /admin/whoami endpoint is non-throwing for non-admins.
+      (async () => {
+        const adminBlock = document.getElementById("adminButtonsBlock");
+        if (!adminBlock) return;
+        try {
+          const res = await apiFetch("/admin/whoami");
+          if (res && res.is_admin) {
+            adminBlock.style.display = "";
+          }
+        } catch (_e) {
+          // 401 / network — keep buttons hidden. Safe default.
+        }
+      })();
 
       function setSelectedDataSourceMode(mode) {
         if (mode === "file" && dataSourceFileRadio) dataSourceFileRadio.checked = true;

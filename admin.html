@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CoTel — Admin</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body class="admin-body">
+  <header class="admin-header">
+    <div class="admin-header__title">
+      <a href="/new-analysis.html" class="admin-back-link">← К анализу</a>
+      <h1>CoTel — Админка</h1>
+    </div>
+    <div class="admin-header__meta">
+      <span id="adminEmailLabel" class="admin-header__email"></span>
+    </div>
+  </header>
+
+  <nav class="admin-tabs" role="tablist">
+    <button class="admin-tab is-active" data-tab="users" role="tab">Users</button>
+    <button class="admin-tab" data-tab="usage" role="tab">Usage / Requests</button>
+    <button class="admin-tab" data-tab="subs" role="tab">Subscriptions</button>
+    <button class="admin-tab" data-tab="sessions" role="tab">Telegram / Sessions</button>
+  </nav>
+
+  <main class="admin-main">
+    <!-- USERS TAB -->
+    <section class="admin-pane is-active" data-pane="users">
+      <div class="admin-pane__controls">
+        <button class="admin-btn" data-action="users-reload">Обновить</button>
+        <span class="admin-pane__count" id="usersCount"></span>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table" id="usersTable">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Email</th>
+              <th>Plan</th>
+              <th>Lang/TZ</th>
+              <th>Created</th>
+              <th>Last login</th>
+              <th>Web/TG/Bot</th>
+              <th>QA today/month</th>
+              <th>QA total ok/fail/rej</th>
+              <th>Subs act/total</th>
+              <th>Last QA</th>
+              <th>Last sub run</th>
+              <th>Cost month/total $</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="admin-pager">
+        <button class="admin-btn" data-action="users-prev">←</button>
+        <span class="admin-pager__info" id="usersPagerInfo"></span>
+        <button class="admin-btn" data-action="users-next">→</button>
+      </div>
+    </section>
+
+    <!-- USAGE TAB -->
+    <section class="admin-pane" data-pane="usage">
+      <div class="admin-pane__controls">
+        <label class="admin-filter">
+          User ID
+          <input type="number" id="usageFilterUserId" placeholder="any" />
+        </label>
+        <label class="admin-filter">
+          Event type
+          <select id="usageFilterEventType">
+            <option value="">(any)</option>
+            <option>qa_request_success</option>
+            <option>qa_request_failed</option>
+            <option>qa_request_rejected</option>
+            <option>subscription_created</option>
+            <option>subscription_updated</option>
+            <option>subscription_resumed</option>
+            <option>subscription_paused</option>
+            <option>subscription_deleted</option>
+            <option>subscription_run_success</option>
+            <option>subscription_run_failed</option>
+            <option>bot_dispatch_success</option>
+            <option>bot_dispatch_failed</option>
+          </select>
+        </label>
+        <button class="admin-btn" data-action="usage-apply">Применить</button>
+        <span class="admin-pane__count" id="usageCount"></span>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table" id="usageTable">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>User</th>
+              <th>Event</th>
+              <th>Status</th>
+              <th>Source</th>
+              <th>Sub ID</th>
+              <th>Model</th>
+              <th>Days/Freq</th>
+              <th>Msgs fetched/llm</th>
+              <th>Tokens in/out</th>
+              <th>Cost $</th>
+              <th>Duration ms</th>
+              <th>Error</th>
+              <th>meta</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="admin-pager">
+        <button class="admin-btn" data-action="usage-prev">←</button>
+        <span class="admin-pager__info" id="usagePagerInfo"></span>
+        <button class="admin-btn" data-action="usage-next">→</button>
+      </div>
+    </section>
+
+    <!-- SUBSCRIPTIONS TAB -->
+    <section class="admin-pane" data-pane="subs">
+      <div class="admin-pane__controls">
+        <button class="admin-btn" data-action="subs-reload">Обновить</button>
+        <span class="admin-pane__count" id="subsCount"></span>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table" id="subsTable">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Owner</th>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Mode</th>
+              <th>Freq min</th>
+              <th>Model</th>
+              <th>Active</th>
+              <th>Status</th>
+              <th>Trial</th>
+              <th>Created</th>
+              <th>Last check</th>
+              <th>Last success</th>
+              <th>Next run</th>
+              <th>Matches / Digests</th>
+              <th>Notify Q/S/F</th>
+              <th>Last run $ / Total $</th>
+              <th>Last error</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="admin-pager">
+        <button class="admin-btn" data-action="subs-prev">←</button>
+        <span class="admin-pager__info" id="subsPagerInfo"></span>
+        <button class="admin-btn" data-action="subs-next">→</button>
+      </div>
+    </section>
+
+    <!-- SESSIONS TAB -->
+    <section class="admin-pane" data-pane="sessions">
+      <div class="admin-pane__controls">
+        <button class="admin-btn" data-action="sessions-reload">Обновить</button>
+      </div>
+
+      <h3 class="admin-section-title">Web sessions</h3>
+      <div class="admin-table-wrap">
+        <table class="admin-table" id="webSessionsTable">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Created</th>
+              <th>Expires</th>
+              <th>Revoked</th>
+              <th>Last seen</th>
+              <th>User agent</th>
+              <th>IP (masked)</th>
+              <th>Active</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <h3 class="admin-section-title">Telegram sessions</h3>
+      <div class="admin-table-wrap">
+        <table class="admin-table" id="tgSessionsTable">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Active</th>
+              <th>Created</th>
+              <th>Updated</th>
+              <th>Last used</th>
+              <th>Revoked</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <h3 class="admin-section-title">Bot links</h3>
+      <div class="admin-table-wrap">
+        <table class="admin-table" id="botLinksTable">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>TG user id</th>
+              <th>TG chat id (masked)</th>
+              <th>Started</th>
+              <th>Blocked</th>
+              <th>Created</th>
+              <th>Updated</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- USER DETAIL DRAWER -->
+  <aside class="admin-drawer" id="userDrawer" hidden>
+    <div class="admin-drawer__header">
+      <h2 id="userDrawerTitle">User</h2>
+      <button class="admin-btn admin-btn--ghost" id="userDrawerClose" aria-label="Close">×</button>
+    </div>
+    <div class="admin-drawer__body" id="userDrawerBody"></div>
+  </aside>
+
+  <div class="admin-toast" id="adminToast" hidden></div>
+
+  <script src="js/api.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
