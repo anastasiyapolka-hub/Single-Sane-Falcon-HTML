@@ -119,6 +119,7 @@
     else if (name === "usage") loadUsage();
     else if (name === "subs") loadSubs();
     else if (name === "sessions") loadSessions();
+    else if (name === "pricing") loadPricing();
   }
 
   // ---------- USERS ----------
@@ -455,6 +456,139 @@
         tbBot.innerHTML = `<tr><td colspan="7" class="muted">No bot links.</td></tr>`;
     } catch (err) {
       handleAdminError(err, "Failed to load sessions");
+    }
+  }
+
+  // ---------- PRICING ----------
+
+  // Editing context. null = "add new model", or {id, ai_model, ...} when editing.
+  let pricingEditing = null;
+
+  async function loadPricing() {
+    const tbl = document.getElementById("pricingTable");
+    const tb = clearTbody(tbl);
+    if (!tb) return;
+    tb.innerHTML = `<tr><td colspan="10" class="muted">Loading…</td></tr>`;
+
+    try {
+      const res = await apiFetch("/admin/pricing");
+      const items = res.items || [];
+      document.getElementById("pricingCount").textContent = `${items.length} rows`;
+
+      tb.innerHTML = "";
+      for (const r of items) {
+        const tr = document.createElement("tr");
+        if (!r.is_active) tr.classList.add("admin-pricing-inactive");
+        tr.appendChild(tdText(r.id, "num"));
+        tr.appendChild(tdText(r.ai_model));
+        tr.appendChild(tdText(fmtCost(r.input_price_per_1m_usd), "num"));
+        tr.appendChild(tdText(fmtCost(r.output_price_per_1m_usd), "num"));
+        tr.appendChild(tdText(r.currency));
+        tr.appendChild(tdText(fmtBool(r.is_active), r.is_active ? "ok" : "muted"));
+        tr.appendChild(tdText(r.note || "—"));
+        tr.appendChild(tdText(r.updated_by_email || (r.updated_by_user_id ? `#${r.updated_by_user_id}` : "—")));
+        tr.appendChild(tdText(fmtDt(r.updated_at)));
+        const editCell = document.createElement("td");
+        const btn = document.createElement("button");
+        btn.className = "admin-btn";
+        btn.textContent = "Edit";
+        btn.addEventListener("click", (e) => { e.stopPropagation(); openPricingModal(r); });
+        editCell.appendChild(btn);
+        tr.appendChild(editCell);
+        tb.appendChild(tr);
+      }
+
+      if (!items.length) {
+        tb.innerHTML = `<tr><td colspan="10" class="muted">Нет строк в llm_pricing. Добавь первую через «+ Добавить модель».</td></tr>`;
+      }
+    } catch (err) {
+      handleAdminError(err, "Failed to load pricing");
+      tb.innerHTML = `<tr><td colspan="10" class="bad">Load failed.</td></tr>`;
+    }
+  }
+
+  function openPricingModal(row) {
+    pricingEditing = row || null;
+    const modal = document.getElementById("pricingModal");
+    const title = document.getElementById("pricingModalTitle");
+    const submit = document.getElementById("pricingSubmitBtn");
+    const aiInput = document.getElementById("pricingFieldAiModel");
+
+    if (row) {
+      title.textContent = `Изменить: ${row.ai_model}`;
+      submit.textContent = "Сохранить";
+      aiInput.value = row.ai_model;
+      aiInput.readOnly = true; // ai_model is the unique key — don't allow renaming via this path
+      document.getElementById("pricingFieldInputPrice").value = row.input_price_per_1m_usd ?? "";
+      document.getElementById("pricingFieldOutputPrice").value = row.output_price_per_1m_usd ?? "";
+      document.getElementById("pricingFieldCurrency").value = row.currency || "USD";
+      document.getElementById("pricingFieldIsActive").checked = !!row.is_active;
+      document.getElementById("pricingFieldNote").value = row.note || "";
+    } else {
+      title.textContent = "Добавить модель";
+      submit.textContent = "Создать";
+      aiInput.value = "";
+      aiInput.readOnly = false;
+      document.getElementById("pricingFieldInputPrice").value = "";
+      document.getElementById("pricingFieldOutputPrice").value = "";
+      document.getElementById("pricingFieldCurrency").value = "USD";
+      document.getElementById("pricingFieldIsActive").checked = true;
+      document.getElementById("pricingFieldNote").value = "";
+    }
+    modal.hidden = false;
+  }
+
+  function closePricingModal() {
+    document.getElementById("pricingModal").hidden = true;
+    pricingEditing = null;
+  }
+
+  async function submitPricingForm(e) {
+    e.preventDefault();
+    const submit = document.getElementById("pricingSubmitBtn");
+    submit.disabled = true;
+
+    const body = {
+      ai_model: document.getElementById("pricingFieldAiModel").value.trim(),
+      input_price_per_1m_usd: Number(document.getElementById("pricingFieldInputPrice").value),
+      output_price_per_1m_usd: Number(document.getElementById("pricingFieldOutputPrice").value),
+      currency: (document.getElementById("pricingFieldCurrency").value || "USD").trim().toUpperCase(),
+      is_active: !!document.getElementById("pricingFieldIsActive").checked,
+      note: document.getElementById("pricingFieldNote").value.trim() || null,
+    };
+
+    try {
+      if (pricingEditing && pricingEditing.id) {
+        // PUT — server ignores ai_model on update; we send only mutable fields
+        const patch = {
+          input_price_per_1m_usd: body.input_price_per_1m_usd,
+          output_price_per_1m_usd: body.output_price_per_1m_usd,
+          currency: body.currency,
+          is_active: body.is_active,
+          note: body.note ?? "",
+        };
+        await apiFetch(`/admin/pricing/${pricingEditing.id}`, {
+          method: "PUT",
+          body: JSON.stringify(patch),
+        });
+        toast("Прайс обновлён. Кэш сброшен.");
+      } else {
+        await apiFetch("/admin/pricing", {
+          method: "POST",
+          body: JSON.stringify(body),
+        });
+        toast("Прайс добавлен. Кэш сброшен.");
+      }
+      closePricingModal();
+      await loadPricing();
+    } catch (err) {
+      if (err && err.status === 409) {
+        toast("Эта модель уже есть. Используй Edit.", true);
+      } else {
+        handleAdminError(err, "Failed to save pricing");
+      }
+    } finally {
+      submit.disabled = false;
     }
   }
 

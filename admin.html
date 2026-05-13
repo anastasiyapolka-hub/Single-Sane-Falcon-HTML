@@ -23,6 +23,7 @@
     <button class="admin-tab" data-tab="usage" role="tab">Usage / Requests</button>
     <button class="admin-tab" data-tab="subs" role="tab">Subscriptions</button>
     <button class="admin-tab" data-tab="sessions" role="tab">Telegram / Sessions</button>
+    <button class="admin-tab" data-tab="pricing" role="tab">Pricing</button>
   </nav>
 
   <main class="admin-main">
@@ -220,6 +221,84 @@
       </div>
     </section>
   </main>
+
+    <!-- PRICING TAB -->
+    <section class="admin-pane" data-pane="pricing">
+      <div class="admin-pane__controls">
+        <button class="admin-btn" data-action="pricing-reload">Обновить</button>
+        <button class="admin-btn" data-action="pricing-add">+ Добавить модель</button>
+        <span class="admin-pane__count" id="pricingCount"></span>
+      </div>
+      <p class="admin-pricing-hint">
+        Цены за 1&nbsp;000&nbsp;000 токенов в USD. После изменения цены кэш стоимости
+        сбрасывается автоматически — новые значения применяются на ближайшем
+        Q&amp;A / запуске подписки. Чтобы прекратить использовать модель
+        в новых расчётах, поставь <code>is_active = false</code> вместо удаления:
+        исторические <code>UsageEvent</code>'ы продолжат ссылаться на этот прайс.
+      </p>
+      <div class="admin-table-wrap">
+        <table class="admin-table" id="pricingTable">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>AI model</th>
+              <th>Input $/1M</th>
+              <th>Output $/1M</th>
+              <th>Currency</th>
+              <th>Active</th>
+              <th>Note</th>
+              <th>Updated by</th>
+              <th>Updated at</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+  <!-- PRICING MODAL -->
+  <div class="admin-modal" id="pricingModal" hidden>
+    <div class="admin-modal__backdrop" data-action="pricing-cancel"></div>
+    <div class="admin-modal__card">
+      <h2 id="pricingModalTitle">Добавить модель</h2>
+      <form id="pricingForm" class="admin-form">
+        <label>
+          AI model slug
+          <input type="text" id="pricingFieldAiModel" required placeholder="openai:gpt-4.1-mini" />
+          <small>Идентичный тому, что используется в <code>llm/models.py</code></small>
+        </label>
+        <div class="admin-form__row">
+          <label>
+            Input $ / 1M токенов
+            <input type="number" step="0.000001" min="0" id="pricingFieldInputPrice" required />
+          </label>
+          <label>
+            Output $ / 1M токенов
+            <input type="number" step="0.000001" min="0" id="pricingFieldOutputPrice" required />
+          </label>
+        </div>
+        <div class="admin-form__row">
+          <label>
+            Currency
+            <input type="text" id="pricingFieldCurrency" value="USD" maxlength="8" />
+          </label>
+          <label class="admin-form__checkbox">
+            <input type="checkbox" id="pricingFieldIsActive" checked />
+            is_active
+          </label>
+        </div>
+        <label>
+          Note (опционально)
+          <textarea id="pricingFieldNote" rows="2" placeholder="Источник прайса, дата проверки, заметки"></textarea>
+        </label>
+        <div class="admin-form__actions">
+          <button type="button" class="admin-btn" data-action="pricing-cancel">Отмена</button>
+          <button type="submit" class="admin-btn admin-btn--primary" id="pricingSubmitBtn">Сохранить</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <!-- USER DETAIL DRAWER -->
   <aside class="admin-drawer" id="userDrawer" hidden>

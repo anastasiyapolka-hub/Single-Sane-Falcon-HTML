@@ -249,3 +249,107 @@
 }
 .admin-toast[hidden] { display: none; }
 .admin-toast.is-error { background: #c0392b; }
+
+/* Pricing tab */
+.admin-pricing-hint {
+  background: #fff8e6;
+  border-left: 3px solid #f0b400;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: #4d3a00;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+.admin-pricing-hint code {
+  background: rgba(0, 0, 0, 0.06);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 11px;
+}
+.admin-btn--primary {
+  background: var(--color-accent, #007e99);
+  color: #ffffff;
+  border-color: var(--color-accent, #007e99);
+}
+.admin-btn--primary:hover { background: #006580; }
+.admin-pricing-inactive { color: #a0a8b0; font-style: italic; }
+
+/* Modal */
+.admin-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.admin-modal[hidden] { display: none; }
+.admin-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(11, 15, 18, 0.55);
+}
+.admin-modal__card {
+  position: relative;
+  background: #ffffff;
+  border-radius: 8px;
+  width: 520px;
+  max-width: 92vw;
+  padding: 24px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.24);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.admin-modal__card h2 {
+  margin: 0 0 16px;
+  font-size: 16px;
+  font-weight: 600;
+}
+.admin-form { display: flex; flex-direction: column; gap: 12px; }
+.admin-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-on-surface-secondary, #52606a);
+}
+.admin-form input[type="text"],
+.admin-form input[type="number"],
+.admin-form textarea {
+  padding: 6px 10px;
+  border: 1px solid var(--color-outline, #2e3a45);
+  border-radius: 4px;
+  background: #ffffff;
+  color: var(--color-on-surface, #0b0f12);
+  font-size: 13px;
+  font-family: inherit;
+}
+.admin-form small {
+  color: var(--color-on-surface-secondary, #52606a);
+  font-weight: 400;
+  font-size: 11px;
+}
+.admin-form small code {
+  background: rgba(0, 0, 0, 0.06);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+.admin-form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.admin-form__checkbox {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 8px !important;
+  margin-top: 18px;
+}
+.admin-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
