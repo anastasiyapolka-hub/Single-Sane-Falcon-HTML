@@ -2039,12 +2039,13 @@ select.sidebar-inline-setting-input {
    ЕДИНЫЙ СТИЛЬ ВСЕХ ПОЛЕЙ В МОДАЛКЕ ПРОФИЛЯ
    Принудительно одинаковые: высота 38px, скругление 8px,
    мягкий прямоугольник. Применяется к ТЕКСТОВЫМ input, select И
-   статическим значениям. ИСКЛЮЧАЕТ checkbox / radio — они должны
-   оставаться нативного маленького размера. */
-#profile-modal input:not([type="checkbox"]):not([type="radio"]),
+   статическим значениям. ИСКЛЮЧАЕТ:
+     - checkbox / radio (нативный маленький размер)
+     - .iti__tel-input (intl-tel-input управляет padding-left под флаг) */
+#profile-modal input:not([type="checkbox"]):not([type="radio"]):not(.iti__tel-input),
 #profile-modal select,
 #profile-modal textarea,
-.profile-field input:not([type="checkbox"]):not([type="radio"]),
+.profile-field input:not([type="checkbox"]):not([type="radio"]):not(.iti__tel-input),
 .profile-field select,
 .profile-field textarea,
 .profile-field .profile-static-value {
@@ -2062,6 +2063,33 @@ select.sidebar-inline-setting-input {
   line-height: 22px !important;
   display: flex;
   align-items: center;
+}
+
+/* Телефонный инпут с intl-tel-input — НЕ трогаем padding-left,
+   его выставляет сама библиотека под ширину флага+кода. Стилизуем
+   только остальное, чтобы выглядело как обычный input. */
+.profile-field input.iti__tel-input,
+#profile-modal input.iti__tel-input {
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+  padding-right: 12px !important;
+  height: 38px !important;
+  min-height: 38px !important;
+  border-radius: 8px !important;
+  border: 1px solid #d1d5db !important;
+  font-size: 0.9rem !important;
+  font-family: inherit !important;
+  background: #ffffff !important;
+  color: #2A2A2A !important;
+  box-sizing: border-box !important;
+  width: 100%;
+}
+
+/* Обёртка .iti (которую вешает intl-tel-input) — на всю ширину */
+.profile-field .iti,
+#profile-modal .iti {
+  width: 100%;
+  display: block;
 }
 
 /* Чекбоксы и радио — нативный размер, без растягивания */
