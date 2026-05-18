@@ -241,6 +241,9 @@
     "enter_public_link": "Введите публичный username или ссылку на публичный чат/канал Telegram.",
     "select_data_source": "Выберите источник данных."
   },
+  "msg_link": {
+    "open_in_telegram": "Открыть в Telegram"
+  },
   "loader_groups": {
     "start": [
       "Ищем нужный чат…",

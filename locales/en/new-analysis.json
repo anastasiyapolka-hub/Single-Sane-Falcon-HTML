@@ -241,6 +241,9 @@
     "enter_public_link": "Enter a public username or link to a public Telegram chat/channel.",
     "select_data_source": "Select a data source."
   },
+  "msg_link": {
+    "open_in_telegram": "Open in Telegram"
+  },
   "loader_groups": {
     "start": [
       "Looking for the right chat…",

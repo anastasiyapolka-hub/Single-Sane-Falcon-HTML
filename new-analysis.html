@@ -3696,6 +3696,93 @@ if (runSubscriptionsBtn) {
 
       //document.getElementById("runSubscriptionsBtn")?.addEventListener("click", onRunSubscriptionsClick);
 
+      // Превращает строку с токенами [msg:42] в массив DOM-нод:
+      // обычный текст → текстовые ноды, токены → <a class="msg-link">.
+      // Если для message_id ссылки нет (приватный чат) — токен
+      // полностью убирается из вывода. Никакого innerHTML — всё через
+      // createElement / appendChild, поэтому XSS-сейф даже если LLM
+      // вернёт что-то странное в тексте.
+      function appendTextWithMsgLinks(parentEl, text, messageLinks) {
+        if (!text) return;
+        // Захватываем опциональный предшествующий пробел в группу 1.
+        // Если для message_id ссылки нет, "съедаем" и токен, и этот
+        // пробел — чтобы в выдаче не оставалось "@bob : \"quote\"".
+        // Если ссылка есть, пробел сохраняем перед иконкой.
+        const re = /(\s?)\[msg:(\d+)\]/g;
+        const tooltipLabel = tI18n("new-analysis:msg_link.open_in_telegram", "Открыть в Telegram");
+        const ariaLabel = tooltipLabel;
+        const links = messageLinks || {};
+
+        let lastIndex = 0;
+        let match;
+        while ((match = re.exec(text)) !== null) {
+          const leadingSpace = match[1] || "";
+          const id = match[2];
+          const url = links[id] || links[Number(id)] || null;
+
+          // Текст до совпадения (без захваченного предшествующего пробела)
+          if (match.index > lastIndex) {
+            parentEl.appendChild(
+              document.createTextNode(text.slice(lastIndex, match.index))
+            );
+          }
+
+          // Если ссылка есть — сохраняем пробел и добавляем иконку.
+          // Если нет — пробел и токен полностью исчезают из вывода.
+          if (url && leadingSpace) {
+            parentEl.appendChild(document.createTextNode(leadingSpace));
+          }
+
+          if (url) {
+            const a = document.createElement("a");
+            a.className = "msg-link";
+            a.href = url;
+            a.target = "_blank";
+            a.rel = "noopener noreferrer";
+            a.title = tooltipLabel;
+            a.setAttribute("aria-label", ariaLabel);
+
+            // Маленькая SVG-иконка "стрелка наружу" — индикатор внешней ссылки.
+            // Цвет берём через currentColor, чтобы CSS .msg-link управлял
+            // как обычным цветом, так и hover-состоянием.
+            const svgNS = "http://www.w3.org/2000/svg";
+            const svg = document.createElementNS(svgNS, "svg");
+            svg.setAttribute("viewBox", "0 0 16 16");
+            svg.setAttribute("fill", "none");
+            svg.setAttribute("stroke", "currentColor");
+            svg.setAttribute("stroke-width", "2");
+            svg.setAttribute("stroke-linecap", "round");
+            svg.setAttribute("stroke-linejoin", "round");
+            svg.classList.add("msg-link__icon");
+            svg.setAttribute("aria-hidden", "true");
+
+            // "↗" — диагональная стрелка из квадрата
+            const path1 = document.createElementNS(svgNS, "path");
+            path1.setAttribute("d", "M6 3h7v7");
+            const path2 = document.createElementNS(svgNS, "path");
+            path2.setAttribute("d", "M13 3 6.5 9.5");
+            const path3 = document.createElementNS(svgNS, "path");
+            path3.setAttribute("d", "M11 9v4H3V5h4");
+            svg.appendChild(path1);
+            svg.appendChild(path2);
+            svg.appendChild(path3);
+
+            a.appendChild(svg);
+            parentEl.appendChild(a);
+          }
+          // если url нет — просто пропускаем токен (без визуального шума)
+
+          lastIndex = match.index + match[0].length;
+        }
+
+        // Хвост после последнего токена
+        if (lastIndex < text.length) {
+          parentEl.appendChild(
+            document.createTextNode(text.slice(lastIndex))
+          );
+        }
+      }
+
       function renderResult(payload, rawText, userQuery) {
         if (typeof window.cotelApplyUsageFromPayload === "function") {
           window.cotelApplyUsageFromPayload(payload);
@@ -3734,7 +3821,18 @@ if (runSubscriptionsBtn) {
         contentEl.style.margin = "0";
         contentEl.style.whiteSpace = "pre-wrap";
         contentEl.style.wordWrap = "break-word";
-        contentEl.textContent = text || rawText || tI18n("new-analysis:dashboard_dynamic.no_data", "Нет данных");
+
+        const fullText = text || rawText || tI18n("new-analysis:dashboard_dynamic.no_data", "Нет данных");
+        const messageLinks = payload?.message_links || null;
+
+        if (messageLinks) {
+          // Безопасно собираем DOM с кликабельными иконками-ссылками
+          appendTextWithMsgLinks(contentEl, fullText, messageLinks);
+        } else {
+          // Файловый режим / fallback — message_links не приходит,
+          // просто рендерим как обычный текст (без токенов в выдаче).
+          contentEl.textContent = fullText;
+        }
         resultDiv.appendChild(contentEl);
 
         if (payload?.chat_name) {
