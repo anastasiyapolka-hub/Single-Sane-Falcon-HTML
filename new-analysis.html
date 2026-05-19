@@ -737,15 +737,31 @@
 
                     <!-- Список чатов -->
                     <div id="availableChatsBlock" class="sidebar-history-block hidden">
-                      <button
-                        id="availableChatsToggle"
-                        type="button"
-                        class="sidebar-history-toggle"
-                        aria-expanded="true"
-                      >
-                        <span data-i18n="new-analysis:chat_requests.available_chats_toggle">Мои чаты и каналы</span>
-                        <span id="availableChatsToggleIcon">▾</span>
-                      </button>
+                      <div class="sidebar-history-block-header">
+                        <button
+                          id="availableChatsToggle"
+                          type="button"
+                          class="sidebar-history-toggle"
+                          aria-expanded="true"
+                        >
+                          <span data-i18n="new-analysis:chat_requests.available_chats_toggle">Мои чаты и каналы</span>
+                          <span id="availableChatsToggleIcon">▾</span>
+                        </button>
+                        <button
+                          id="refreshChatsBtn"
+                          type="button"
+                          class="sidebar-refresh-btn"
+                          title="Обновить структуру папок и чатов из Telegram"
+                          data-i18n-title="new-analysis:chat_requests.refresh_btn_title"
+                          aria-label="Обновить структуру папок и чатов из Telegram"
+                          data-i18n-aria-label="new-analysis:chat_requests.refresh_btn_title"
+                        >
+                          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="sidebar-refresh-btn__icon" aria-hidden="true">
+                            <path d="M13.5 4.5A6 6 0 1 0 14 8"></path>
+                            <path d="M14 2v3h-3"></path>
+                          </svg>
+                        </button>
+                      </div>
 
                       <div id="availableChatsBody" class="sidebar-history-body">
                         <div
@@ -1254,6 +1270,25 @@
       }
 
       let cachedChats = []; // [{id,title,type,username}]
+      let cachedFolders = []; // [{id,title,emoticon,chat_ids:[...]}]
+
+      // Запоминаем свёрнутость папок между перезагрузками страницы.
+      // Ключ: cotel.folderCollapsed.<folder_id> → "1" если свёрнута.
+      // "orphans" — синтетическая папка "Без папки".
+      function isFolderCollapsed(folderId) {
+        try {
+          return localStorage.getItem("cotel.folderCollapsed." + folderId) === "1";
+        } catch { return false; }
+      }
+      function setFolderCollapsed(folderId, collapsed) {
+        try {
+          if (collapsed) {
+            localStorage.setItem("cotel.folderCollapsed." + folderId, "1");
+          } else {
+            localStorage.removeItem("cotel.folderCollapsed." + folderId);
+          }
+        } catch { /* localStorage недоступен — мирно игнорируем */ }
+      }
       let cachedChatHistory = [];
       let isChatHistoryExpanded = true;
       let isAvailableChatsExpanded = true;
@@ -1314,6 +1349,23 @@
 
       availableChatsToggle?.addEventListener("click", () => {
         setAvailableChatsExpanded(!isAvailableChatsExpanded);
+      });
+
+      // Кнопка "Обновить структуру папок и чатов" — ручной триггер
+      // перечитывания /tg/chats. Помимо клика сюда, refresh случается
+      // на загрузке страницы (bootstrapTelegramState) и сразу после
+      // успешной авторизации Telegram (loadTelegramChats в QR/code/
+      // password флоу). Поллинга нет.
+      const refreshChatsBtn = document.getElementById("refreshChatsBtn");
+      refreshChatsBtn?.addEventListener("click", async (e) => {
+        e.stopPropagation(); // чтобы клик не схлопнул блок чатов
+        if (refreshChatsBtn.classList.contains("is-loading")) return;
+        refreshChatsBtn.classList.add("is-loading");
+        try {
+          await loadTelegramChats();
+        } finally {
+          refreshChatsBtn.classList.remove("is-loading");
+        }
       });
 
       querySettingsInlineToggle?.addEventListener("click", () => {
@@ -1877,14 +1929,17 @@
         const data = await apiFetch("/tg/chats", { method: "GET" });
 
         const chats = Array.isArray(data?.chats) ? data.chats : [];
+        const folders = Array.isArray(data?.folders) ? data.folders : [];
         const displayName = getTelegramDisplayName(data);
 
         cachedChats = chats;
+        cachedFolders = folders;
 
         setTgState("connected");
         setTelegramConnectionStatus(true, displayName);
       } catch (e) {
         cachedChats = [];
+        cachedFolders = [];
 
         setTgState("phone");
         setTelegramConnectionStatus(false, null);
@@ -2439,13 +2494,92 @@
           });
 
           cachedChats = Array.isArray(data?.chats) ? data.chats : [];
+          cachedFolders = Array.isArray(data?.folders) ? data.folders : [];
           renderChatsList(cachedChats);
           renderSubChatsList(cachedChats);
         } catch (e) {
           cachedChats = [];
+          cachedFolders = [];
           renderChatsList([]);
           renderSubChatsList([]);
         }
+      }
+
+      // Хелпер: ссылка для chat-item (для подстановки в поле выбранного чата).
+      function chatLinkValue(c) {
+        return c.username ? `@${c.username}` : String(c.id || "");
+      }
+
+      // Создаёт DOM-ноду для одного чата в сайдбаре.
+      function createChatItemEl(chat) {
+        const el = document.createElement("div");
+        el.className = "sidebar-chat-item";
+        const link = chatLinkValue(chat);
+        const title = chat.title || tI18n("new-analysis:subscription_dynamic.untitled", "Без названия");
+        el.setAttribute("data-link", link);
+        el.title = title;
+        el.textContent = title; // textContent — никаких XSS на title из Telegram
+        el.addEventListener("click", () => {
+          if (activeChatInput) activeChatInput.value = link;
+        });
+        return el;
+      }
+
+      // Создаёт DOM-ноду для папки со списком чатов внутри.
+      // chats — массив объектов чата (а не id), уже отфильтрованных
+      // от пропавших/архивных. isOrphans=true для синтетической секции
+      // "Без папки".
+      function createFolderEl({ id, title, emoticon, chats, isOrphans = false }) {
+        const folderEl = document.createElement("div");
+        folderEl.className = "sidebar-folder";
+        if (isOrphans) folderEl.classList.add("sidebar-folder--orphans");
+
+        const collapsed = isFolderCollapsed(id);
+        if (collapsed) folderEl.classList.add("sidebar-folder--collapsed");
+
+        const toggleBtn = document.createElement("button");
+        toggleBtn.type = "button";
+        toggleBtn.className = "sidebar-folder__toggle";
+        toggleBtn.setAttribute("aria-expanded", collapsed ? "false" : "true");
+
+        const chevron = document.createElement("span");
+        chevron.className = "sidebar-folder__chevron";
+        chevron.textContent = collapsed ? "▸" : "▾";
+        toggleBtn.appendChild(chevron);
+
+        if (emoticon) {
+          const emo = document.createElement("span");
+          emo.className = "sidebar-folder__emoji";
+          emo.textContent = emoticon;
+          toggleBtn.appendChild(emo);
+        }
+
+        const titleEl = document.createElement("span");
+        titleEl.className = "sidebar-folder__title";
+        titleEl.textContent = title;
+        toggleBtn.appendChild(titleEl);
+
+        const countEl = document.createElement("span");
+        countEl.className = "sidebar-folder__count";
+        countEl.textContent = String(chats.length);
+        toggleBtn.appendChild(countEl);
+
+        toggleBtn.addEventListener("click", () => {
+          const nowCollapsed = !folderEl.classList.contains("sidebar-folder--collapsed");
+          folderEl.classList.toggle("sidebar-folder--collapsed", nowCollapsed);
+          chevron.textContent = nowCollapsed ? "▸" : "▾";
+          toggleBtn.setAttribute("aria-expanded", nowCollapsed ? "false" : "true");
+          setFolderCollapsed(id, nowCollapsed);
+        });
+
+        folderEl.appendChild(toggleBtn);
+
+        const itemsEl = document.createElement("div");
+        itemsEl.className = "sidebar-folder__items";
+        chats.forEach((chat) => itemsEl.appendChild(createChatItemEl(chat)));
+        folderEl.appendChild(itemsEl);
+
+        return folderEl;
       }
 
       function renderChatsList(list) {
@@ -2461,20 +2595,57 @@
 
         if (availableChatsBlock) availableChatsBlock.classList.remove("hidden");
 
-        myChatsList.innerHTML = items
-          .map((c) => {
-            const linkValue = c.username ? `@${c.username}` : String(c.id || "");
-            const safeTitle = (c.title || tI18n("new-analysis:subscription_dynamic.untitled", "Без названия")).replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            return `<div class="sidebar-chat-item" data-link="${linkValue}" title="${safeTitle}">${safeTitle}</div>`;
-          })
-          .join("");
+        // Если это отфильтрованный (поиском) подсписок чатов, или
+        // у пользователя вообще нет папок — рендерим плоско.
+        // Сравниваем по ссылке: filterChatsByInput передаёт отфильтрованный
+        // массив, в этом случае iter !== cachedChats и нужна плоская выдача.
+        const usingFullList = items === cachedChats;
+        const folders = Array.isArray(cachedFolders) ? cachedFolders : [];
 
-        myChatsList.querySelectorAll(".sidebar-chat-item").forEach((el) => {
-          el.addEventListener("click", () => {
-            const link = el.getAttribute("data-link") || "";
-            if (activeChatInput) activeChatInput.value = link;
-          });
+        myChatsList.innerHTML = "";
+
+        if (!usingFullList || !folders.length) {
+          // Плоский рендер
+          items.forEach((c) => myChatsList.appendChild(createChatItemEl(c)));
+          setAvailableChatsExpanded(isAvailableChatsExpanded);
+          return;
+        }
+
+        // Иерархический рендер. Карта id → чат.
+        const chatsById = new Map();
+        cachedChats.forEach((c) => {
+          if (c && c.id != null) chatsById.set(c.id, c);
         });
+
+        // Множество id, попавших хотя бы в одну папку — для секции "Без папки".
+        const inAnyFolder = new Set();
+
+        folders.forEach((f) => {
+          const chatsInFolder = (f.chat_ids || [])
+            .map((id) => chatsById.get(id))
+            .filter(Boolean);
+          if (!chatsInFolder.length) return; // пустую папку не показываем
+          chatsInFolder.forEach((c) => inAnyFolder.add(c.id));
+          myChatsList.appendChild(createFolderEl({
+            id: f.id,
+            title: f.title,
+            emoticon: f.emoticon,
+            chats: chatsInFolder,
+            isOrphans: false,
+          }));
+        });
+
+        // "Без папки" — всё, что не попало ни в одну пользовательскую папку.
+        const orphans = cachedChats.filter((c) => !inAnyFolder.has(c.id));
+        if (orphans.length) {
+          myChatsList.appendChild(createFolderEl({
+            id: "orphans",
+            title: tI18n("new-analysis:chat_requests.folder_orphans_title", "Без папки"),
+            emoticon: null,
+            chats: orphans,
+            isOrphans: true,
+          }));
+        }
 
         setAvailableChatsExpanded(isAvailableChatsExpanded);
       }

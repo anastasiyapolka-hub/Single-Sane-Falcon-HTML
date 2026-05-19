@@ -86,7 +86,9 @@
     "history_toggle": "History",
     "history_aria": "Chat history",
     "available_chats_toggle": "My chats and channels",
-    "available_chats_aria": "Chat list"
+    "available_chats_aria": "Chat list",
+    "refresh_btn_title": "Refresh folders and chats from Telegram",
+    "folder_orphans_title": "No folder"
   },
   "subscriptions": {
     "section_title": "Subscriptions",

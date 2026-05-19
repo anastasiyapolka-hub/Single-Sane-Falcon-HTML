@@ -1922,6 +1922,17 @@ body.user-not-auth.sidebar-collapsed #sidebarUserArea .auth-open-btn .expanded-o
   margin-top: 8px;
 }
 
+/* Шапка блока: тоггл + опциональная кнопка действия (refresh). */
+.sidebar-history-block-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.sidebar-history-block-header .sidebar-history-toggle {
+  flex: 1;
+  min-width: 0;
+}
+
 .sidebar-history-toggle {
   width: 100%;
   display: flex;
@@ -1939,6 +1950,116 @@ body.user-not-auth.sidebar-collapsed #sidebarUserArea .auth-open-btn .expanded-o
 
 .sidebar-history-toggle:hover {
   color: #111827;
+}
+
+/* Кнопка "Обновить структуру" — рядом с тогглом блока чатов.
+   Тот же визуальный язык, что и у других иконок-кнопок:
+   мягкая бирюзовая подсветка на hover, лёгкий transform. */
+.sidebar-refresh-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: 999px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+.sidebar-refresh-btn:hover,
+.sidebar-refresh-btn:focus-visible {
+  background: rgba(149, 255, 247, 0.32);
+  color: #111827;
+  outline: none;
+  transform: translateY(-1px);
+  box-shadow:
+    0 0 0 1px rgba(15, 23, 42, 0.05),
+    0 2px 6px rgba(15, 23, 42, 0.10),
+    0 1px 2px rgba(43, 168, 158, 0.18);
+}
+.sidebar-refresh-btn__icon {
+  width: 14px;
+  height: 14px;
+  display: block;
+  pointer-events: none;
+}
+.sidebar-refresh-btn.is-loading {
+  pointer-events: none;
+  opacity: 0.7;
+}
+.sidebar-refresh-btn.is-loading .sidebar-refresh-btn__icon {
+  animation: sidebar-refresh-spin 0.9s linear infinite;
+}
+@keyframes sidebar-refresh-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* === Папки (иерархия чатов) === */
+.sidebar-folder {
+  margin-top: 2px;
+}
+.sidebar-folder__toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 5px 6px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #374151;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-align: left;
+  border-radius: 6px;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.sidebar-folder__toggle:hover {
+  background: rgba(149, 255, 247, 0.22);
+  color: #111827;
+}
+.sidebar-folder__chevron {
+  width: 10px;
+  display: inline-block;
+  text-align: center;
+  font-size: 0.75rem;
+  color: #6b7280;
+  transition: transform 0.15s ease;
+}
+.sidebar-folder__title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sidebar-folder__emoji {
+  flex-shrink: 0;
+  font-size: 0.95em;
+  line-height: 1;
+}
+.sidebar-folder__count {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #9ca3af;
+}
+.sidebar-folder__items {
+  padding-left: 14px;
+  margin-bottom: 2px;
+}
+.sidebar-folder--collapsed .sidebar-folder__items {
+  display: none;
+}
+/* "Без папки" — менее акцентный заголовок */
+.sidebar-folder--orphans .sidebar-folder__toggle {
+  color: #6b7280;
+  font-weight: 500;
 }
 
 .sidebar-history-body.hidden {

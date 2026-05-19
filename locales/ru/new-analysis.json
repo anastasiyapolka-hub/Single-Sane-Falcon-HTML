@@ -86,7 +86,9 @@
     "history_toggle": "История",
     "history_aria": "История чатов",
     "available_chats_toggle": "Мои чаты и каналы",
-    "available_chats_aria": "Список чатов"
+    "available_chats_aria": "Список чатов",
+    "refresh_btn_title": "Обновить структуру папок и чатов из Telegram",
+    "folder_orphans_title": "Без папки"
   },
   "subscriptions": {
     "section_title": "Подписки",
