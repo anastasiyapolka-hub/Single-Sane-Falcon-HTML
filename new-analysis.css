@@ -1077,10 +1077,10 @@ html, body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  width: 27px;
+  height: 27px;
   margin: 0 2px;
-  vertical-align: -3px;
+  vertical-align: -7px;
   border-radius: 999px;
   color: #F97316;            /* акцентный оранжевый (tailwind orange-500) */
   text-decoration: none;
@@ -1103,8 +1103,8 @@ html, body {
 }
 
 .msg-link__icon {
-  width: 12px;
-  height: 12px;
+  width: 18px;
+  height: 18px;
   display: block;
   pointer-events: none;
 }
