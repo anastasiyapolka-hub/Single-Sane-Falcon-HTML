@@ -711,7 +711,31 @@
                           <label for="queryAiModelSelect" class="sidebar-inline-setting-label" data-i18n="new-analysis:chat_requests.ai_model_label">Модель AI:</label>
                           <select id="queryAiModelSelect" class="sidebar-inline-setting-input"></select>
                         </div>
+
+                        <div id="queryGroupModeRow" class="sidebar-inline-setting-row">
+                          <label class="sidebar-inline-setting-label" for="queryGroupModeToggle" data-i18n="new-analysis:chat_requests.group_mode_label">
+                            Групповой запрос:
+                          </label>
+                          <span class="group-mode-control">
+                            <input
+                              id="queryGroupModeToggle"
+                              type="checkbox"
+                              class="sidebar-inline-setting-input"
+                            />
+                            <span
+                              class="group-mode-hint"
+                              title="Выполните запрос одновременно к нескольким чатам"
+                              data-i18n-title="new-analysis:chat_requests.group_mode_tooltip"
+                              aria-label="info"
+                            >&#9432;</span>
+                          </span>
+                        </div>
                       </div>
+                    </div>
+
+                    <div id="groupSelectionCounter" class="group-selection-counter hidden">
+                      <span data-i18n="new-analysis:chat_requests.group_counter_label">Выбрано:</span>
+                      <span id="groupSelectionCount">0</span>
                     </div>
 
                     <div id="chatHistoryBlock" class="sidebar-history-block hidden">
@@ -3242,10 +3266,16 @@
       function normalizeAiModelUi(value) {
         const raw = String(value || "").trim().toLowerCase();
         const allowed = new Set([
+          // OpenAI
           "openai:gpt-4.1-mini",
+          "openai:gpt-5.4-mini",
+          "openai:gpt-4.1",
+          // Anthropic
+          "anthropic:claude-haiku-4-5",
           "anthropic:claude-sonnet-4-6",
-          "google:gemini-2.5-flash",
+          // Google
           "google:gemini-3.1-flash-lite",
+          "google:gemini-2.5-flash",
           "google:gemini-3.5-flash",
         ]);
         return allowed.has(raw) ? raw : "openai:gpt-4.1-mini";
@@ -3254,6 +3284,7 @@
       function getAiModelOptionsByPlan() {
         const planCode = String(getPlanInfo()?.code || "free").toLowerCase();
 
+        // Free plan: only the default OpenAI mini.
         const base = [
           {
             value: "openai:gpt-4.1-mini",
@@ -3262,6 +3293,31 @@
         ];
 
         if (planCode !== "free") {
+          // Ordered light → balanced → deep within each provider, providers
+          // grouped: OpenAI → Anthropic → Google. Keep this order stable so
+          // the dropdown ranking matches what users see in pricing/admin.
+
+          // OpenAI: balanced + deep (light already added above)
+          base.push({
+            value: "openai:gpt-5.4-mini",
+            label: tI18n("common:ai_models.openai_gpt_5_4_mini", "OpenAI GPT-5.4 mini — сбалансированный анализ"),
+          });
+          base.push({
+            value: "openai:gpt-4.1",
+            label: tI18n("common:ai_models.openai_gpt_4_1", "OpenAI GPT-4.1 — для длинного контекста и глубокого анализа"),
+          });
+
+          // Anthropic: light + deep
+          base.push({
+            value: "anthropic:claude-haiku-4-5",
+            label: tI18n("common:ai_models.claude_haiku_4_5", "Claude Haiku 4.5 — быстрый и дешёвый анализ"),
+          });
+          base.push({
+            value: "anthropic:claude-sonnet-4-6",
+            label: tI18n("common:ai_models.claude_sonnet_4_6", "Claude Sonnet 4.6 — более глубокий анализ длинных обсуждений"),
+          });
+
+          // Google: light + balanced + deep
           base.push({
             value: "google:gemini-3.1-flash-lite",
             label: tI18n("common:ai_models.google_gemini_3_1_flash_lite", "Google Gemini 3.1 Flash Lite — самая дешёвая, для простых запросов"),
@@ -3273,10 +3329,6 @@
           base.push({
             value: "google:gemini-3.5-flash",
             label: tI18n("common:ai_models.google_gemini_3_5_flash", "Google Gemini 3.5 Flash — премиум интеллект, для сложного анализа"),
-          });
-          base.push({
-            value: "anthropic:claude-sonnet-4-6",
-            label: tI18n("common:ai_models.claude_sonnet_4_6", "Claude Sonnet 4.6 — более глубокий анализ длинных обсуждений"),
           });
         }
 
