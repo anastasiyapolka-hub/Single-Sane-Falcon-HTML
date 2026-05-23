@@ -3245,6 +3245,8 @@
           "openai:gpt-4.1-mini",
           "anthropic:claude-sonnet-4-6",
           "google:gemini-2.5-flash",
+          "google:gemini-3.1-flash-lite",
+          "google:gemini-3.5-flash",
         ]);
         return allowed.has(raw) ? raw : "openai:gpt-4.1-mini";
       }
@@ -3261,8 +3263,16 @@
 
         if (planCode !== "free") {
           base.push({
+            value: "google:gemini-3.1-flash-lite",
+            label: tI18n("common:ai_models.google_gemini_3_1_flash_lite", "Google Gemini 3.1 Flash Lite — самая дешёвая, для простых запросов"),
+          });
+          base.push({
             value: "google:gemini-2.5-flash",
-            label: tI18n("common:ai_models.google_gemini_2_5_flash", "Google Gemini 2.5 Flash — экономичный анализ длинных историй"),
+            label: tI18n("common:ai_models.google_gemini_2_5_flash", "Google Gemini 2.5 Flash — баланс цены и качества, длинный контекст"),
+          });
+          base.push({
+            value: "google:gemini-3.5-flash",
+            label: tI18n("common:ai_models.google_gemini_3_5_flash", "Google Gemini 3.5 Flash — премиум интеллект, для сложного анализа"),
           });
           base.push({
             value: "anthropic:claude-sonnet-4-6",
