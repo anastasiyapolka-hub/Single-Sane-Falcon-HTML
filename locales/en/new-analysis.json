@@ -99,7 +99,9 @@
     "group_summary_title": "Summary",
     "group_status_failed": "failed to load",
     "group_status_empty": "empty",
-    "group_skipped_prefix": "Not included in analysis:"
+    "group_skipped_prefix": "Not included in analysis:",
+    "group_clear_all": "Clear all",
+    "group_remove_one": "Remove from group"
   },
   "subscriptions": {
     "section_title": "Subscriptions",

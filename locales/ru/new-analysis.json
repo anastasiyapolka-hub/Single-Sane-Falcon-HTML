@@ -99,7 +99,9 @@
     "group_summary_title": "Общий вывод",
     "group_status_failed": "не удалось загрузить",
     "group_status_empty": "пусто",
-    "group_skipped_prefix": "Не вошли в анализ:"
+    "group_skipped_prefix": "Не вошли в анализ:",
+    "group_clear_all": "Снять всё",
+    "group_remove_one": "Убрать из группы"
   },
   "subscriptions": {
     "section_title": "Подписки",

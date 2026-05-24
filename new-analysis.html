@@ -712,30 +712,42 @@
                           <select id="queryAiModelSelect" class="sidebar-inline-setting-input"></select>
                         </div>
 
-                        <div id="queryGroupModeRow" class="sidebar-inline-setting-row">
-                          <label class="sidebar-inline-setting-label" for="queryGroupModeToggle" data-i18n="new-analysis:chat_requests.group_mode_label">
-                            Групповой запрос:
-                          </label>
-                          <span class="group-mode-control">
-                            <input
-                              id="queryGroupModeToggle"
-                              type="checkbox"
-                              class="sidebar-inline-setting-input"
-                            />
-                            <span
-                              class="group-mode-hint"
-                              title="Выполните запрос одновременно к нескольким чатам"
-                              data-i18n-title="new-analysis:chat_requests.group_mode_tooltip"
-                              aria-label="info"
-                            >&#9432;</span>
-                          </span>
-                        </div>
                       </div>
                     </div>
 
-                    <div id="groupSelectionCounter" class="group-selection-counter hidden">
-                      <span data-i18n="new-analysis:chat_requests.group_counter_label">Выбрано:</span>
-                      <span id="groupSelectionCount">0</span>
+                    <!-- Group analysis box — wraps the toggle + counter + selected list
+                         in a bordered card so the whole group widget reads as one unit. -->
+                    <div id="groupAnalysisBox" class="group-analysis-box">
+                      <div class="group-analysis-toggle-row">
+                        <label
+                          for="queryGroupModeToggle"
+                          class="group-analysis-toggle-label"
+                          title="Выполните запрос одновременно к нескольким чатам"
+                          data-i18n="new-analysis:chat_requests.group_mode_label"
+                          data-i18n-title="new-analysis:chat_requests.group_mode_tooltip"
+                        >Групповой запрос:</label>
+                        <input
+                          id="queryGroupModeToggle"
+                          type="checkbox"
+                          class="group-analysis-toggle"
+                        />
+                      </div>
+
+                      <div id="groupSelectionCounter" class="group-selection-counter hidden">
+                        <div class="group-selection-counter__header">
+                          <span class="group-selection-counter__title">
+                            <span data-i18n="new-analysis:chat_requests.group_counter_label">Выбрано:</span>
+                            <span id="groupSelectionCount">0</span>
+                          </span>
+                          <button
+                            type="button"
+                            id="groupClearAllBtn"
+                            class="group-clear-all-btn"
+                            data-i18n="new-analysis:chat_requests.group_clear_all"
+                          >Снять всё</button>
+                        </div>
+                        <div id="groupSelectedChatsList" class="group-selected-chats"></div>
+                      </div>
                     </div>
 
                     <div id="chatHistoryBlock" class="sidebar-history-block hidden">
@@ -1081,29 +1093,116 @@
           @keyframes dashboardTailWag { 0%,100% {transform: rotate(-45deg);} 50% {transform: rotate(-25deg);} }
           @keyframes dashboardPulse { 0%,100% {opacity: 1;} 50% {opacity: 0.5;} }
 
-          /* ===== Group analysis mode ===== */
-          .group-mode-control { display: inline-flex; align-items: center; gap: 6px; }
-          .group-mode-hint {
-            display: inline-block;
-            width: 16px; height: 16px;
-            text-align: center;
-            font-size: 12px;
-            color: #888;
-            cursor: help;
-            border-radius: 50%;
-            line-height: 16px;
+          /* ===== Group analysis mode — teal palette ===== */
+          /* Palette matches the landing page (deep teal + mint, not blue). */
+          .group-analysis-box,
+          .group-result-summary,
+          .group-result-section,
+          .group-selection-counter,
+          .sidebar-chat-item--selected {
+            --cotel-teal-dark: #1d6a72;     /* accent text / link */
+            --cotel-teal-mid: #4cb89a;      /* mint accent (border-left, badge bg) */
+            --cotel-teal-border: #c8dfd9;   /* thin border around blocks */
+            --cotel-teal-bg-light: #e8f4ef; /* counter / summary background */
+            --cotel-teal-bg-selected: #d8eee6; /* selected chat row in tree */
           }
+
+          /* Wrapper around the entire group widget (toggle + counter + selected list).
+             Thin teal border so the user reads it as one logical unit. */
+          .group-analysis-box {
+            border: 1px solid #c8dfd9;
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-top: 8px;
+            margin-bottom: 8px;
+            background: #fff;
+          }
+          .group-analysis-toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+          }
+          .group-analysis-toggle-label {
+            flex: 1;
+            font-size: 0.9rem;
+            color: #1d6a72;
+            cursor: help; /* tooltip hint */
+          }
+          .group-analysis-toggle {
+            flex: 0 0 auto;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #1d6a72;
+            margin: 0;
+          }
+
+          /* Counter + selected-list block. Inset slightly so it nests inside
+             the bordered group box but reads distinctly. */
           .group-selection-counter {
-            margin: 8px 0;
-            padding: 6px 10px;
-            background: #f0f7ff;
-            border-left: 3px solid #4a90e2;
+            margin-top: 10px;
+            padding: 8px 10px;
+            background: #e8f4ef;
+            border-left: 3px solid #4cb89a;
             border-radius: 4px;
             font-size: 13px;
-            color: #2a4a7a;
+            color: #205964;
           }
           .group-selection-counter.hidden { display: none; }
-          /* Per-chat checkbox (added in group mode) lives on the right edge */
+          .group-selection-counter__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 6px;
+          }
+          .group-selection-counter__title { font-weight: 500; }
+          .group-clear-all-btn {
+            background: transparent;
+            border: 0;
+            color: #1d6a72;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 12px;
+            padding: 0;
+          }
+          .group-clear-all-btn:hover { color: #155256; }
+
+          /* List of currently selected chats, one row per chat, with ✕. */
+          .group-selected-chats {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+          }
+          .group-selected-chat {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            padding: 4px 8px;
+            background: rgba(255, 255, 255, 0.55);
+            border-radius: 4px;
+            font-size: 12px;
+          }
+          .group-selected-chat__title {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+          .group-selected-chat__remove {
+            background: transparent;
+            border: 0;
+            color: #1d6a72;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 0 4px;
+            line-height: 1;
+          }
+          .group-selected-chat__remove:hover { color: #c4444f; }
+
+          /* Per-chat checkbox (added in group mode) lives on the right edge of each row. */
           .sidebar-chat-item { position: relative; }
           .sidebar-chat-item--group { padding-right: 28px; }
           .group-chat-checkbox {
@@ -1112,28 +1211,36 @@
             top: 50%;
             transform: translateY(-50%);
             cursor: pointer;
+            accent-color: #1d6a72;
           }
-          .sidebar-chat-item--selected { background: #e8f1ff; }
-          /* Folder-level checkbox in the folder header */
+          .sidebar-chat-item--selected { background: #d8eee6; }
+          /* Folder-level checkbox in the folder header. */
           .group-folder-checkbox {
             margin-left: auto;
             margin-right: 6px;
             cursor: pointer;
+            accent-color: #1d6a72;
           }
-          /* "Recommended" badge next to long-context models in group mode */
+
+          /* "Recommended" badge next to long-context models in group mode. */
           .ai-model-recommended-badge {
             display: inline-block;
             font-size: 11px;
-            background: #d4f5e1;
-            color: #1f6c3a;
+            background: #d8eee6;
+            color: #1d6a72;
             padding: 1px 6px;
             border-radius: 8px;
             margin-left: 6px;
             vertical-align: middle;
           }
-          /* Group result rendering — one collapsible section per chat */
+
+          /* Result rendering ============================================ */
+          /* Per-chat collapsible section. Each section grows to fit its
+             content fully — no inner scroll, no cropping. The OUTER results
+             area gets the page-level scroll instead (see .dashboard-results-text
+             override below). */
           .group-result-section {
-            border: 1px solid #e1e1e1;
+            border: 1px solid #c8dfd9;
             border-radius: 6px;
             margin: 10px 0;
             overflow: hidden;
@@ -1145,21 +1252,35 @@
             gap: 8px;
             padding: 10px 14px;
             cursor: pointer;
-            background: #f8f8f8;
+            background: #f0f7f4;
             font-weight: 600;
+            color: #1d6a72;
             user-select: none;
           }
-          .group-result-section__chevron { font-size: 12px; color: #666; }
-          .group-result-section__body { padding: 12px 14px; border-top: 1px solid #eee; }
+          .group-result-section__chevron { font-size: 12px; color: #1d6a72; }
+          .group-result-section__body { padding: 12px 14px; border-top: 1px solid #d8eee6; }
           .group-result-section--collapsed .group-result-section__body { display: none; }
+
           .group-result-summary {
-            border-left: 4px solid #4a90e2;
-            background: #f0f7ff;
+            border-left: 4px solid #4cb89a;
+            background: #e8f4ef;
             padding: 10px 14px;
             margin: 10px 0;
             border-radius: 4px;
           }
-          .group-result-summary__title { font-weight: 600; margin-bottom: 6px; color: #2a4a7a; }
+          .group-result-summary__title {
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #1d6a72;
+          }
+
+          /* Make the results area scrollable as a whole when content is tall.
+             We set a max-height tied to viewport height so users can scroll
+             through 10+ chat sections; each section itself stays uncropped. */
+          .dashboard-results-text {
+            max-height: calc(100vh - 240px);
+            overflow-y: auto;
+          }
         </style>
       
       <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -1310,6 +1431,8 @@
       const queryGroupModeToggle = document.getElementById("queryGroupModeToggle");
       const groupSelectionCounter = document.getElementById("groupSelectionCounter");
       const groupSelectionCount = document.getElementById("groupSelectionCount");
+      const groupSelectedChatsList = document.getElementById("groupSelectedChatsList");
+      const groupClearAllBtn = document.getElementById("groupClearAllBtn");
 
       // Selected chat link strings, preserves insertion order.
       const selectedGroupChats = new Set();
@@ -1500,6 +1623,12 @@
 
       queryDaysInput?.addEventListener("change", clampQueryDaysByPlan);
       queryDaysInput?.addEventListener("blur", clampQueryDaysByPlan);
+
+      // ---- Group: "Снять всё" button ----
+      groupClearAllBtn?.addEventListener("click", (e) => {
+        e.preventDefault();
+        clearAllSelectedChats();
+      });
 
       // ---- Group mode toggle ----
       queryGroupModeToggle?.addEventListener("change", () => {
@@ -2678,10 +2807,81 @@
         } else {
           groupSelectionCounter.classList.add("hidden");
         }
+        renderSelectedChatsList();
       }
 
       function clearGroupSelection() {
         selectedGroupChats.clear();
+        updateGroupCounter();
+      }
+
+      // Lookup the human-readable title for a chat link by walking the
+      // cached chat list. Fallback to the link itself so the user always
+      // sees SOMETHING in the removable-pill, even if the chat is gone.
+      function getChatTitleByLink(link) {
+        if (typeof cachedChats === "undefined" || !Array.isArray(cachedChats)) return link;
+        const found = cachedChats.find((c) => chatLinkValue(c) === link);
+        return (found && (found.title || found.username)) || link;
+      }
+
+      // Re-render the list of selected chats inside #groupSelectedChatsList.
+      // Each row shows the chat title + a ✕ button that removes it from the
+      // selection AND unchecks the corresponding row in the chat tree.
+      function renderSelectedChatsList() {
+        if (!groupSelectedChatsList) return;
+        groupSelectedChatsList.innerHTML = "";
+        if (!selectedGroupChats.size) return;
+        // Preserve insertion order — Set iterates in insertion order.
+        selectedGroupChats.forEach((link) => {
+          const row = document.createElement("div");
+          row.className = "group-selected-chat";
+
+          const titleEl = document.createElement("span");
+          titleEl.className = "group-selected-chat__title";
+          const title = getChatTitleByLink(link);
+          titleEl.textContent = title;
+          titleEl.title = title; // tooltip for long names
+          row.appendChild(titleEl);
+
+          const removeBtn = document.createElement("button");
+          removeBtn.type = "button";
+          removeBtn.className = "group-selected-chat__remove";
+          removeBtn.setAttribute(
+            "aria-label",
+            tI18n("new-analysis:chat_requests.group_remove_one", "Убрать из группы")
+          );
+          removeBtn.title = tI18n("new-analysis:chat_requests.group_remove_one", "Убрать из группы");
+          removeBtn.textContent = "✕";
+          removeBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            removeChatFromGroup(link);
+          });
+          row.appendChild(removeBtn);
+
+          groupSelectedChatsList.appendChild(row);
+        });
+      }
+
+      // Remove a single chat from the group selection, then sync visual
+      // state of the chat tree (uncheck both the chat row and its parent
+      // folder header checkbox, if any).
+      function removeChatFromGroup(link) {
+        if (!selectedGroupChats.has(link)) return;
+        selectedGroupChats.delete(link);
+        if (typeof refreshGroupVisualState === "function") {
+          refreshGroupVisualState();
+        }
+        updateGroupCounter();
+      }
+
+      // Clear-all action exposed by the «Снять всё» button. Same as
+      // clearGroupSelection() but also syncs the tree visuals.
+      function clearAllSelectedChats() {
+        if (!selectedGroupChats.size) return;
+        selectedGroupChats.clear();
+        if (typeof refreshGroupVisualState === "function") {
+          refreshGroupVisualState();
+        }
         updateGroupCounter();
       }
 
