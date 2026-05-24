@@ -712,42 +712,51 @@
                           <select id="queryAiModelSelect" class="sidebar-inline-setting-input"></select>
                         </div>
 
+                        <!-- Group request toggle — same row style as other settings.
+                             Tooltip lives on the label itself (cursor: help). -->
+                        <div id="queryGroupModeRow" class="sidebar-inline-setting-row">
+                          <label
+                            for="queryGroupModeToggle"
+                            class="sidebar-inline-setting-label group-analysis-toggle-label"
+                            title="Выполните запрос одновременно к нескольким чатам"
+                            data-i18n="new-analysis:chat_requests.group_mode_label"
+                            data-i18n-title="new-analysis:chat_requests.group_mode_tooltip"
+                          >Групповой запрос:</label>
+                          <input
+                            id="queryGroupModeToggle"
+                            type="checkbox"
+                            class="group-analysis-toggle"
+                          />
+                        </div>
+
                       </div>
                     </div>
 
-                    <!-- Group analysis box — wraps the toggle + counter + selected list
-                         in a bordered card so the whole group widget reads as one unit. -->
-                    <div id="groupAnalysisBox" class="group-analysis-box">
-                      <div class="group-analysis-toggle-row">
-                        <label
-                          for="queryGroupModeToggle"
-                          class="group-analysis-toggle-label"
-                          title="Выполните запрос одновременно к нескольким чатам"
-                          data-i18n="new-analysis:chat_requests.group_mode_label"
-                          data-i18n-title="new-analysis:chat_requests.group_mode_tooltip"
-                        >Групповой запрос:</label>
-                        <input
-                          id="queryGroupModeToggle"
-                          type="checkbox"
-                          class="group-analysis-toggle"
-                        />
+                    <!-- Selection counter + selected-chats list. No outer border —
+                         the highlight color of this block alone signals it as a group. -->
+                    <div id="groupSelectionCounter" class="group-selection-counter hidden">
+                      <div class="group-selection-counter__header">
+                        <button
+                          type="button"
+                          id="groupCounterCollapseBtn"
+                          class="group-counter-collapse-btn"
+                          aria-expanded="true"
+                          aria-label="свернуть"
+                        >
+                          <span id="groupCounterCollapseChevron" class="group-counter-collapse-btn__chevron">▾</span>
+                        </button>
+                        <span class="group-selection-counter__title">
+                          <span data-i18n="new-analysis:chat_requests.group_counter_label">Выбрано:</span>
+                          <span id="groupSelectionCount">0</span>
+                        </span>
+                        <button
+                          type="button"
+                          id="groupClearAllBtn"
+                          class="group-clear-all-btn"
+                          data-i18n="new-analysis:chat_requests.group_clear_all"
+                        >Снять всё</button>
                       </div>
-
-                      <div id="groupSelectionCounter" class="group-selection-counter hidden">
-                        <div class="group-selection-counter__header">
-                          <span class="group-selection-counter__title">
-                            <span data-i18n="new-analysis:chat_requests.group_counter_label">Выбрано:</span>
-                            <span id="groupSelectionCount">0</span>
-                          </span>
-                          <button
-                            type="button"
-                            id="groupClearAllBtn"
-                            class="group-clear-all-btn"
-                            data-i18n="new-analysis:chat_requests.group_clear_all"
-                          >Снять всё</button>
-                        </div>
-                        <div id="groupSelectedChatsList" class="group-selected-chats"></div>
-                      </div>
+                      <div id="groupSelectedChatsList" class="group-selected-chats"></div>
                     </div>
 
                     <div id="chatHistoryBlock" class="sidebar-history-block hidden">
@@ -1093,58 +1102,39 @@
           @keyframes dashboardTailWag { 0%,100% {transform: rotate(-45deg);} 50% {transform: rotate(-25deg);} }
           @keyframes dashboardPulse { 0%,100% {opacity: 1;} 50% {opacity: 0.5;} }
 
-          /* ===== Group analysis mode — teal palette ===== */
-          /* Palette matches the landing page (deep teal + mint, not blue). */
-          .group-analysis-box,
-          .group-result-summary,
-          .group-result-section,
-          .group-selection-counter,
-          .sidebar-chat-item--selected {
-            --cotel-teal-dark: #1d6a72;     /* accent text / link */
-            --cotel-teal-mid: #4cb89a;      /* mint accent (border-left, badge bg) */
-            --cotel-teal-border: #c8dfd9;   /* thin border around blocks */
-            --cotel-teal-bg-light: #e8f4ef; /* counter / summary background */
-            --cotel-teal-bg-selected: #d8eee6; /* selected chat row in tree */
-          }
+          /* ===== Group analysis mode — translucent teal palette ===== */
+          /* Color tokens — soft cyan-teal with transparency so highlights
+             feel cool and airy, not heavy/saturated green. */
+          /*   accent line:      rgba(94, 191, 168, 0.55)
+               selected bg:      linear-gradient with rgba(127, 196, 192, 0.18 → 0.10)
+               counter bg:       rgba(127, 196, 192, 0.12)
+               summary bg:       rgba(127, 196, 192, 0.12)
+               text accent:      #1d6a72 (dark teal — readable on light bg)
+          */
 
-          /* Wrapper around the entire group widget (toggle + counter + selected list).
-             Thin teal border so the user reads it as one logical unit. */
-          .group-analysis-box {
-            border: 1px solid #c8dfd9;
-            border-radius: 8px;
-            padding: 10px 12px;
-            margin-top: 8px;
-            margin-bottom: 8px;
-            background: #fff;
-          }
-          .group-analysis-toggle-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-          }
-          .group-analysis-toggle-label {
-            flex: 1;
-            font-size: 0.9rem;
-            color: #1d6a72;
-            cursor: help; /* tooltip hint */
-          }
+          /* Group toggle in Settings — label inherits .sidebar-inline-setting-label.
+             We only need cursor:help for the tooltip hint, the rest is the same row style. */
+          .group-analysis-toggle-label { cursor: help; }
           .group-analysis-toggle {
-            flex: 0 0 auto;
             width: 18px;
             height: 18px;
             cursor: pointer;
             accent-color: #1d6a72;
             margin: 0;
+            flex: 0 0 auto;
           }
 
-          /* Counter + selected-list block. Inset slightly so it nests inside
-             the bordered group box but reads distinctly. */
+          /* Counter + selected-list block — only block in the group widget
+             that gets a visual highlight (no outer border around the group). */
           .group-selection-counter {
             margin-top: 10px;
             padding: 8px 10px;
-            background: #e8f4ef;
-            border-left: 3px solid #4cb89a;
+            background: linear-gradient(
+              90deg,
+              rgba(127, 196, 192, 0.14),
+              rgba(127, 196, 192, 0.08)
+            );
+            border-left: 3px solid rgba(94, 191, 168, 0.55);
             border-radius: 4px;
             font-size: 13px;
             color: #205964;
@@ -1153,11 +1143,24 @@
           .group-selection-counter__header {
             display: flex;
             align-items: center;
-            justify-content: space-between;
             gap: 8px;
             margin-bottom: 6px;
           }
-          .group-selection-counter__title { font-weight: 500; }
+          .group-counter-collapse-btn {
+            background: transparent;
+            border: 0;
+            cursor: pointer;
+            padding: 0;
+            color: #1d6a72;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+          }
+          .group-counter-collapse-btn__chevron { font-size: 12px; }
+          .group-selection-counter__title { font-weight: 500; flex: 1; }
           .group-clear-all-btn {
             background: transparent;
             border: 0;
@@ -1166,8 +1169,10 @@
             cursor: pointer;
             font-size: 12px;
             padding: 0;
+            margin-left: auto;
           }
           .group-clear-all-btn:hover { color: #155256; }
+          .group-selection-counter--collapsed .group-selected-chats { display: none; }
 
           /* List of currently selected chats, one row per chat, with ✕. */
           .group-selected-chats {
@@ -1181,7 +1186,7 @@
             justify-content: space-between;
             gap: 6px;
             padding: 4px 8px;
-            background: rgba(255, 255, 255, 0.55);
+            background: rgba(255, 255, 255, 0.45);
             border-radius: 4px;
             font-size: 12px;
           }
@@ -1213,7 +1218,16 @@
             cursor: pointer;
             accent-color: #1d6a72;
           }
-          .sidebar-chat-item--selected { background: #d8eee6; }
+          /* Selected chat in the tree — soft translucent teal gradient + faint
+             left accent line. Reads as cool/calm, not green. */
+          .sidebar-chat-item--selected {
+            background: linear-gradient(
+              90deg,
+              rgba(127, 196, 192, 0.18),
+              rgba(127, 196, 192, 0.08)
+            );
+            box-shadow: inset 2px 0 0 rgba(94, 191, 168, 0.45);
+          }
           /* Folder-level checkbox in the folder header. */
           .group-folder-checkbox {
             margin-left: auto;
@@ -1222,11 +1236,32 @@
             accent-color: #1d6a72;
           }
 
+          /* History list — same checkbox affordance in group mode. */
+          .group-history-checkbox {
+            cursor: pointer;
+            accent-color: #1d6a72;
+            margin-right: 6px;
+            flex: 0 0 auto;
+          }
+          .sidebar-history-item.sidebar-history-item--group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+          }
+          .sidebar-history-item--selected .sidebar-history-link {
+            background: linear-gradient(
+              90deg,
+              rgba(127, 196, 192, 0.18),
+              rgba(127, 196, 192, 0.08)
+            ) !important;
+            box-shadow: inset 2px 0 0 rgba(94, 191, 168, 0.45);
+          }
+
           /* "Recommended" badge next to long-context models in group mode. */
           .ai-model-recommended-badge {
             display: inline-block;
             font-size: 11px;
-            background: #d8eee6;
+            background: rgba(127, 196, 192, 0.2);
             color: #1d6a72;
             padding: 1px 6px;
             border-radius: 8px;
@@ -1240,7 +1275,7 @@
              area gets the page-level scroll instead (see .dashboard-results-text
              override below). */
           .group-result-section {
-            border: 1px solid #c8dfd9;
+            border: 1px solid rgba(127, 196, 192, 0.35);
             border-radius: 6px;
             margin: 10px 0;
             overflow: hidden;
@@ -1252,18 +1287,26 @@
             gap: 8px;
             padding: 10px 14px;
             cursor: pointer;
-            background: #f0f7f4;
+            background: linear-gradient(
+              90deg,
+              rgba(127, 196, 192, 0.14),
+              rgba(127, 196, 192, 0.06)
+            );
             font-weight: 600;
             color: #1d6a72;
             user-select: none;
           }
           .group-result-section__chevron { font-size: 12px; color: #1d6a72; }
-          .group-result-section__body { padding: 12px 14px; border-top: 1px solid #d8eee6; }
+          .group-result-section__body { padding: 12px 14px; border-top: 1px solid rgba(127, 196, 192, 0.25); }
           .group-result-section--collapsed .group-result-section__body { display: none; }
 
           .group-result-summary {
-            border-left: 4px solid #4cb89a;
-            background: #e8f4ef;
+            border-left: 4px solid rgba(94, 191, 168, 0.55);
+            background: linear-gradient(
+              90deg,
+              rgba(127, 196, 192, 0.14),
+              rgba(127, 196, 192, 0.06)
+            );
             padding: 10px 14px;
             margin: 10px 0;
             border-radius: 4px;
@@ -1433,6 +1476,8 @@
       const groupSelectionCount = document.getElementById("groupSelectionCount");
       const groupSelectedChatsList = document.getElementById("groupSelectedChatsList");
       const groupClearAllBtn = document.getElementById("groupClearAllBtn");
+      const groupCounterCollapseBtn = document.getElementById("groupCounterCollapseBtn");
+      const groupCounterCollapseChevron = document.getElementById("groupCounterCollapseChevron");
 
       // Selected chat link strings, preserves insertion order.
       const selectedGroupChats = new Set();
@@ -1630,6 +1675,18 @@
         clearAllSelectedChats();
       });
 
+      // ---- Group: collapse/expand the selected-chats list ----
+      groupCounterCollapseBtn?.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (!groupSelectionCounter) return;
+        const willCollapse = !groupSelectionCounter.classList.contains("group-selection-counter--collapsed");
+        groupSelectionCounter.classList.toggle("group-selection-counter--collapsed", willCollapse);
+        if (groupCounterCollapseChevron) {
+          groupCounterCollapseChevron.textContent = willCollapse ? "▸" : "▾";
+        }
+        groupCounterCollapseBtn.setAttribute("aria-expanded", willCollapse ? "false" : "true");
+      });
+
       // ---- Group mode toggle ----
       queryGroupModeToggle?.addEventListener("change", () => {
         const on = isGroupModeOn();
@@ -1638,9 +1695,13 @@
         // it on starts fresh.
         selectedGroupChats.clear();
         updateGroupCounter();
-        // Re-render chat list so chats/folders get (or lose) checkboxes.
+        // Re-render chat list AND history list so chats/folders/history
+        // items get (or lose) their checkboxes.
         if (typeof renderChatsList === "function" && typeof cachedChats !== "undefined") {
           renderChatsList(cachedChats);
+        }
+        if (typeof renderChatHistory === "function" && typeof cachedChatHistory !== "undefined") {
+          renderChatHistory(cachedChatHistory);
         }
         // Hide the single-chat input in group mode; restore in single mode.
         if (activeChatInput) {
@@ -1924,12 +1985,49 @@
         chatHistoryList.querySelectorAll(".sidebar-history-link").forEach((btn) => {
           btn.addEventListener("click", () => {
             const chatRef = btn.getAttribute("data-chat-ref") || "";
+            // In group mode, clicking the history row toggles selection
+            // (same UX as the main chat tree). Otherwise — old behavior:
+            // fill the active-chat input.
+            if (typeof isGroupModeOn === "function" && isGroupModeOn()) {
+              const itemEl = btn.closest(".sidebar-history-item");
+              const cb = itemEl ? itemEl.querySelector(".group-history-checkbox") : null;
+              toggleChatInGroup(chatRef, btn, cb);
+              if (itemEl) {
+                itemEl.classList.toggle("sidebar-history-item--selected", selectedGroupChats.has(chatRef));
+              }
+              return;
+            }
             if (activeChatInput) {
               activeChatInput.value = chatRef;
               activeChatInput.dispatchEvent(new Event("input", { bubbles: true }));
             }
           });
         });
+
+        // Group mode: inject a checkbox into each history item so the user
+        // can pick chats here too. State syncs with the main tree via
+        // selectedGroupChats + refreshGroupVisualState().
+        if (typeof isGroupModeOn === "function" && isGroupModeOn()) {
+          chatHistoryList.querySelectorAll(".sidebar-history-item").forEach((itemEl) => {
+            itemEl.classList.add("sidebar-history-item--group");
+            const chatRef = itemEl.getAttribute("data-chat-ref") || "";
+            if (selectedGroupChats.has(chatRef)) {
+              itemEl.classList.add("sidebar-history-item--selected");
+            }
+            // Avoid double-inserting on re-renders.
+            if (itemEl.querySelector(".group-history-checkbox")) return;
+            const cb = document.createElement("input");
+            cb.type = "checkbox";
+            cb.className = "group-history-checkbox";
+            cb.checked = selectedGroupChats.has(chatRef);
+            cb.addEventListener("click", (e) => {
+              e.stopPropagation();
+              toggleChatInGroup(chatRef, itemEl, cb);
+              itemEl.classList.toggle("sidebar-history-item--selected", selectedGroupChats.has(chatRef));
+            });
+            itemEl.insertBefore(cb, itemEl.firstChild);
+          });
+        }
 
         chatHistoryList.querySelectorAll(".sidebar-history-remove").forEach((btn) => {
           btn.addEventListener("click", async (e) => {
@@ -2806,6 +2904,15 @@
           groupSelectionCounter.classList.remove("hidden");
         } else {
           groupSelectionCounter.classList.add("hidden");
+          // Reset collapsed state so it doesn't carry over to the next selection.
+          groupSelectionCounter.classList.remove("group-selection-counter--collapsed");
+          if (groupCounterCollapseChevron) groupCounterCollapseChevron.textContent = "▾";
+          if (groupCounterCollapseBtn) groupCounterCollapseBtn.setAttribute("aria-expanded", "true");
+        }
+        // Show collapse button only when there's more than one selected chat —
+        // for a single chat there's nothing to collapse.
+        if (groupCounterCollapseBtn) {
+          groupCounterCollapseBtn.style.visibility = (n > 1) ? "visible" : "hidden";
         }
         renderSelectedChatsList();
       }
@@ -2961,35 +3068,50 @@
         updateGroupCounter();
       }
 
-      // After programmatic selection changes (e.g. folder toggle), update the
-      // visual state of any rendered chat items + their checkboxes.
+      // After programmatic selection changes (e.g. folder toggle, ✕ in the
+      // selected-list, "Снять всё"), update the visual state across the chat
+      // tree AND the chat-history list so checkboxes stay in sync everywhere
+      // a chat can appear.
       function refreshGroupVisualState() {
-        if (!myChatsList) return;
-        const items = myChatsList.querySelectorAll(".sidebar-chat-item");
-        items.forEach((el) => {
-          const link = el.getAttribute("data-link") || "";
-          const isSel = selectedGroupChats.has(link);
-          el.classList.toggle("sidebar-chat-item--selected", isSel);
-          const cb = el.querySelector(".group-chat-checkbox");
-          if (cb) cb.checked = isSel;
-        });
-        // Also sync folder-level checkboxes (checked iff all inner chats are).
-        const folderHeaders = myChatsList.querySelectorAll(".sidebar-folder");
-        folderHeaders.forEach((folderEl) => {
-          const folderCb = folderEl.querySelector(".group-folder-checkbox");
-          if (!folderCb) return;
-          const inner = folderEl.querySelectorAll(".sidebar-chat-item");
-          if (!inner.length) {
-            folderCb.checked = false;
-            return;
-          }
-          let allSel = true;
-          inner.forEach((it) => {
-            const l = it.getAttribute("data-link") || "";
-            if (!selectedGroupChats.has(l)) allSel = false;
+        // 1) Main chat tree items
+        if (myChatsList) {
+          const items = myChatsList.querySelectorAll(".sidebar-chat-item");
+          items.forEach((el) => {
+            const link = el.getAttribute("data-link") || "";
+            const isSel = selectedGroupChats.has(link);
+            el.classList.toggle("sidebar-chat-item--selected", isSel);
+            const cb = el.querySelector(".group-chat-checkbox");
+            if (cb) cb.checked = isSel;
           });
-          folderCb.checked = allSel;
-        });
+          // Sync folder-level checkboxes (checked iff all inner chats are).
+          const folderHeaders = myChatsList.querySelectorAll(".sidebar-folder");
+          folderHeaders.forEach((folderEl) => {
+            const folderCb = folderEl.querySelector(".group-folder-checkbox");
+            if (!folderCb) return;
+            const inner = folderEl.querySelectorAll(".sidebar-chat-item");
+            if (!inner.length) {
+              folderCb.checked = false;
+              return;
+            }
+            let allSel = true;
+            inner.forEach((it) => {
+              const l = it.getAttribute("data-link") || "";
+              if (!selectedGroupChats.has(l)) allSel = false;
+            });
+            folderCb.checked = allSel;
+          });
+        }
+        // 2) Chat-history list (group mode also exposes checkboxes here).
+        if (typeof chatHistoryList !== "undefined" && chatHistoryList) {
+          const hist = chatHistoryList.querySelectorAll(".sidebar-history-item");
+          hist.forEach((el) => {
+            const link = el.getAttribute("data-chat-ref") || "";
+            const isSel = selectedGroupChats.has(link);
+            el.classList.toggle("sidebar-history-item--selected", isSel);
+            const cb = el.querySelector(".group-history-checkbox");
+            if (cb) cb.checked = isSel;
+          });
+        }
       }
 
       // Создаёт DOM-ноду для одного чата в сайдбаре.

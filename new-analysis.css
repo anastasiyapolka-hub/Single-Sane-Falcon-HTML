@@ -523,7 +523,7 @@ button, input, textarea, select, label, h1, h2, h3, h4, h5, h6, p, span, div {
 
 /* ============================================================ */
 /* ЕДИНЫЙ HOVER ДЛЯ ВСЕХ КРУГЛЫХ ИКОНОК-КНОПОК
-   Подсветка — мягкий пепельно-бирюзовый (#95FFF7 с 32% прозрачностью).
+   Подсветка — мягкий полупрозрачный teal (rgba(127, 196, 192, 0.18)).
    Плюс тонкая рассеивающаяся тёмная тень вокруг кружка — отделяет иконку
    от серого фона при наведении.
    Применяется к:
@@ -538,7 +538,7 @@ button, input, textarea, select, label, h1, h2, h3, h4, h5, h6, p, span, div {
 .analysis-play-button:hover,
 .sidebar-add-subscription-btn:hover,
 #quick-logout-btn:hover {
-  background: rgba(149, 255, 247, 0.32) !important;
+  background: rgba(127, 196, 192, 0.18) !important;
   box-shadow:
     0 0 0 1px rgba(15, 23, 42, 0.05),    /* тонкое кольцо вокруг кружка */
     0 4px 10px rgba(15, 23, 42, 0.10),   /* мягкая рассеивающаяся тень */
@@ -1032,7 +1032,7 @@ body.user-not-auth #sidebarUserArea .auth-open-btn {
 }
 
 .sidebar-chat-item:hover {
-  background: rgba(149, 255, 247, 0.32); /* мягкий пепельно-бирюзовый, как у иконок */
+  background: rgba(127, 196, 192, 0.18); /* мягкий пепельно-бирюзовый, как у иконок */
   box-shadow:
     0 0 0 1px rgba(15, 23, 42, 0.05),
     0 2px 6px rgba(15, 23, 42, 0.08);
@@ -1040,7 +1040,7 @@ body.user-not-auth #sidebarUserArea .auth-open-btn {
 }
 
 .sidebar-chat-item:active {
-  background: rgba(149, 255, 247, 0.5);
+  background: rgba(127, 196, 192, 0.30);
 }
 
 /* === Глобальный фон = */
@@ -1092,7 +1092,7 @@ html, body {
 
 .msg-link:hover,
 .msg-link:focus-visible {
-  background: rgba(149, 255, 247, 0.32); /* тот же пепельно-бирюзовый */
+  background: rgba(127, 196, 192, 0.18); /* тот же пепельно-бирюзовый */
   box-shadow:
     0 0 0 1px rgba(15, 23, 42, 0.05),
     0 2px 6px rgba(15, 23, 42, 0.10),
@@ -1449,9 +1449,9 @@ input[type="url"]:focus,
 textarea:focus,
 select:focus {
   outline: none !important;
-  border-color: #95FFF7 !important;
+  border-color: rgba(127, 196, 192, 0.65) !important;
   box-shadow:
-    0 0 0 1px rgba(149, 255, 247, 0.5),
+    0 0 0 1px rgba(127, 196, 192, 0.30),
     0 1px 2px rgba(15, 23, 42, 0.05) !important;
 }
 
@@ -1972,7 +1972,7 @@ body.user-not-auth.sidebar-collapsed #sidebarUserArea .auth-open-btn .expanded-o
 }
 .sidebar-refresh-btn:hover,
 .sidebar-refresh-btn:focus-visible {
-  background: rgba(149, 255, 247, 0.32);
+  background: rgba(127, 196, 192, 0.18);
   color: #111827;
   outline: none;
   transform: translateY(-1px);
@@ -2020,7 +2020,7 @@ body.user-not-auth.sidebar-collapsed #sidebarUserArea .auth-open-btn .expanded-o
   transition: background 0.12s ease, color 0.12s ease;
 }
 .sidebar-folder__toggle:hover {
-  background: rgba(149, 255, 247, 0.22);
+  background: rgba(127, 196, 192, 0.15);
   color: #111827;
 }
 .sidebar-folder__chevron {
