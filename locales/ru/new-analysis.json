@@ -88,7 +88,18 @@
     "available_chats_toggle": "Мои чаты и каналы",
     "available_chats_aria": "Список чатов",
     "refresh_btn_title": "Обновить структуру папок и чатов из Telegram",
-    "folder_orphans_title": "Без папки"
+    "folder_orphans_title": "Без папки",
+    "group_mode_label": "Групповой запрос:",
+    "group_mode_tooltip": "Выполните запрос одновременно к нескольким чатам",
+    "group_counter_label": "Выбрано:",
+    "group_limit_reached": "Можно выбрать не более {{n}} чатов.",
+    "group_limit_folder_truncated": "Ограничение по групповому запросу: выбрано {{n}} чатов из {{total}}.",
+    "group_select_at_least_one": "Выберите хотя бы один чат для группового анализа.",
+    "recommended_for_group": "(рекомендовано для группового запроса)",
+    "group_summary_title": "Общий вывод",
+    "group_status_failed": "не удалось загрузить",
+    "group_status_empty": "пусто",
+    "group_skipped_prefix": "Не вошли в анализ:"
   },
   "subscriptions": {
     "section_title": "Подписки",

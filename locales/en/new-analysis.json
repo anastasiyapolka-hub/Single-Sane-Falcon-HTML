@@ -88,7 +88,18 @@
     "available_chats_toggle": "My chats and channels",
     "available_chats_aria": "Chat list",
     "refresh_btn_title": "Refresh folders and chats from Telegram",
-    "folder_orphans_title": "No folder"
+    "folder_orphans_title": "No folder",
+    "group_mode_label": "Group request:",
+    "group_mode_tooltip": "Run a query against multiple chats at once",
+    "group_counter_label": "Selected:",
+    "group_limit_reached": "You can select up to {{n}} chats.",
+    "group_limit_folder_truncated": "Group request limit: selected {{n}} of {{total}} chats.",
+    "group_select_at_least_one": "Select at least one chat for group analysis.",
+    "recommended_for_group": "(recommended for group request)",
+    "group_summary_title": "Summary",
+    "group_status_failed": "failed to load",
+    "group_status_empty": "empty",
+    "group_skipped_prefix": "Not included in analysis:"
   },
   "subscriptions": {
     "section_title": "Subscriptions",

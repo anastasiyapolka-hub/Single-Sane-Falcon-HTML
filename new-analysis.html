@@ -1080,6 +1080,86 @@
           @keyframes dashboardBlink { 0%,48%,52%,100% {height: 8px;} 50% {height: 2px;} }
           @keyframes dashboardTailWag { 0%,100% {transform: rotate(-45deg);} 50% {transform: rotate(-25deg);} }
           @keyframes dashboardPulse { 0%,100% {opacity: 1;} 50% {opacity: 0.5;} }
+
+          /* ===== Group analysis mode ===== */
+          .group-mode-control { display: inline-flex; align-items: center; gap: 6px; }
+          .group-mode-hint {
+            display: inline-block;
+            width: 16px; height: 16px;
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+            cursor: help;
+            border-radius: 50%;
+            line-height: 16px;
+          }
+          .group-selection-counter {
+            margin: 8px 0;
+            padding: 6px 10px;
+            background: #f0f7ff;
+            border-left: 3px solid #4a90e2;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #2a4a7a;
+          }
+          .group-selection-counter.hidden { display: none; }
+          /* Per-chat checkbox (added in group mode) lives on the right edge */
+          .sidebar-chat-item { position: relative; }
+          .sidebar-chat-item--group { padding-right: 28px; }
+          .group-chat-checkbox {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+          }
+          .sidebar-chat-item--selected { background: #e8f1ff; }
+          /* Folder-level checkbox in the folder header */
+          .group-folder-checkbox {
+            margin-left: auto;
+            margin-right: 6px;
+            cursor: pointer;
+          }
+          /* "Recommended" badge next to long-context models in group mode */
+          .ai-model-recommended-badge {
+            display: inline-block;
+            font-size: 11px;
+            background: #d4f5e1;
+            color: #1f6c3a;
+            padding: 1px 6px;
+            border-radius: 8px;
+            margin-left: 6px;
+            vertical-align: middle;
+          }
+          /* Group result rendering — one collapsible section per chat */
+          .group-result-section {
+            border: 1px solid #e1e1e1;
+            border-radius: 6px;
+            margin: 10px 0;
+            overflow: hidden;
+            background: #fff;
+          }
+          .group-result-section__header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            cursor: pointer;
+            background: #f8f8f8;
+            font-weight: 600;
+            user-select: none;
+          }
+          .group-result-section__chevron { font-size: 12px; color: #666; }
+          .group-result-section__body { padding: 12px 14px; border-top: 1px solid #eee; }
+          .group-result-section--collapsed .group-result-section__body { display: none; }
+          .group-result-summary {
+            border-left: 4px solid #4a90e2;
+            background: #f0f7ff;
+            padding: 10px 14px;
+            margin: 10px 0;
+            border-radius: 4px;
+          }
+          .group-result-summary__title { font-weight: 600; margin-bottom: 6px; color: #2a4a7a; }
         </style>
       
       <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -1225,6 +1305,20 @@
       const queryDaysInput = document.getElementById("queryDaysInput");
       const queryAiModelRow = document.getElementById("queryAiModelRow");
       const queryAiModelSelect = document.getElementById("queryAiModelSelect");
+
+      // ----- Group analysis mode (multi-chat) -----
+      const queryGroupModeToggle = document.getElementById("queryGroupModeToggle");
+      const groupSelectionCounter = document.getElementById("groupSelectionCounter");
+      const groupSelectionCount = document.getElementById("groupSelectionCount");
+
+      // Selected chat link strings, preserves insertion order.
+      const selectedGroupChats = new Set();
+      // Models with 1M+ context — get a "рекомендовано" badge in group mode.
+      const RECOMMENDED_GROUP_MODELS = new Set([
+        "openai:gpt-4.1",
+        "google:gemini-2.5-flash",
+        "google:gemini-3.5-flash",
+      ]);
 
       const chatHistoryBlock = document.getElementById("chatHistoryBlock");
       const chatHistoryToggle = document.getElementById("chatHistoryToggle");
@@ -1406,6 +1500,30 @@
 
       queryDaysInput?.addEventListener("change", clampQueryDaysByPlan);
       queryDaysInput?.addEventListener("blur", clampQueryDaysByPlan);
+
+      // ---- Group mode toggle ----
+      queryGroupModeToggle?.addEventListener("change", () => {
+        const on = isGroupModeOn();
+        // Reset selection whenever the toggle changes. This matches user
+        // expectation: turning the mode off discards selection, turning
+        // it on starts fresh.
+        selectedGroupChats.clear();
+        updateGroupCounter();
+        // Re-render chat list so chats/folders get (or lose) checkboxes.
+        if (typeof renderChatsList === "function" && typeof cachedChats !== "undefined") {
+          renderChatsList(cachedChats);
+        }
+        // Hide the single-chat input in group mode; restore in single mode.
+        if (activeChatInput) {
+          activeChatInput.style.display = on ? "none" : "";
+          if (on) activeChatInput.value = "";
+        }
+        // In group mode the AI model selector may show "рекомендовано"
+        // badges — rebuild it.
+        if (typeof refreshAiModelControls === "function") {
+          refreshAiModelControls();
+        }
+      });
 
       window.cotelRefreshLimitBoundControls = refreshLimitBoundControls;
 
@@ -2534,6 +2652,146 @@
         return c.username ? `@${c.username}` : String(c.id || "");
       }
 
+      // ===== Group analysis: helpers =====
+
+      function isGroupModeOn() {
+        return !!(queryGroupModeToggle && queryGroupModeToggle.checked);
+      }
+
+      function getGroupChatsLimitForPlan() {
+        const code = String(getPlanInfo()?.code || "free").toLowerCase();
+        if (code === "free") return 3;
+        if (code === "basic") return 10;
+        return 20; // pro and any future paid tier
+      }
+
+      function getSelectedGroupCount() {
+        return selectedGroupChats.size;
+      }
+
+      function updateGroupCounter() {
+        if (!groupSelectionCounter || !groupSelectionCount) return;
+        const n = getSelectedGroupCount();
+        groupSelectionCount.textContent = String(n);
+        if (isGroupModeOn() && n > 0) {
+          groupSelectionCounter.classList.remove("hidden");
+        } else {
+          groupSelectionCounter.classList.add("hidden");
+        }
+      }
+
+      function clearGroupSelection() {
+        selectedGroupChats.clear();
+        updateGroupCounter();
+      }
+
+      function toggleChatInGroup(link, chatItemEl, checkboxEl) {
+        const limit = getGroupChatsLimitForPlan();
+        if (selectedGroupChats.has(link)) {
+          selectedGroupChats.delete(link);
+          if (chatItemEl) chatItemEl.classList.remove("sidebar-chat-item--selected");
+          if (checkboxEl) checkboxEl.checked = false;
+        } else {
+          if (selectedGroupChats.size >= limit) {
+            // Undo the visual check the browser may have applied.
+            if (checkboxEl) checkboxEl.checked = false;
+            alert(
+              tI18n("new-analysis:chat_requests.group_limit_reached", "Можно выбрать не более {{n}} чатов.")
+                .replace("{{n}}", String(limit))
+            );
+            return;
+          }
+          selectedGroupChats.add(link);
+          if (chatItemEl) chatItemEl.classList.add("sidebar-chat-item--selected");
+          if (checkboxEl) checkboxEl.checked = true;
+        }
+        updateGroupCounter();
+      }
+
+      // Folder-level toggle: select up to (limit - alreadySelected) chats from
+      // the folder. If folder has more chats than free slots, fill up to the
+      // limit and warn. If folder is fully selected → uncheck all its chats.
+      function toggleFolderInGroup(folderChats, folderCheckboxEl) {
+        if (!Array.isArray(folderChats) || !folderChats.length) return;
+        const folderLinks = folderChats.map((c) => chatLinkValue(c)).filter(Boolean);
+        const allSelected = folderLinks.every((l) => selectedGroupChats.has(l));
+
+        if (allSelected) {
+          // Deselect all chats in this folder.
+          folderLinks.forEach((l) => selectedGroupChats.delete(l));
+          if (folderCheckboxEl) folderCheckboxEl.checked = false;
+          // Re-render visual state of items in the DOM.
+          refreshGroupVisualState();
+          updateGroupCounter();
+          return;
+        }
+
+        // Select as many as possible up to the plan limit.
+        const limit = getGroupChatsLimitForPlan();
+        const slotsLeft = Math.max(0, limit - selectedGroupChats.size);
+        if (slotsLeft === 0) {
+          if (folderCheckboxEl) folderCheckboxEl.checked = false;
+          alert(
+            tI18n("new-analysis:chat_requests.group_limit_reached", "Можно выбрать не более {{n}} чатов.")
+              .replace("{{n}}", String(limit))
+          );
+          return;
+        }
+        let added = 0;
+        for (const l of folderLinks) {
+          if (selectedGroupChats.has(l)) continue;
+          if (added >= slotsLeft) break;
+          selectedGroupChats.add(l);
+          added++;
+        }
+        const stillUnselected = folderLinks.length - folderLinks.filter((l) => selectedGroupChats.has(l)).length;
+        if (stillUnselected > 0) {
+          // Truncated due to limit — let the user know which limit was hit.
+          alert(
+            tI18n("new-analysis:chat_requests.group_limit_folder_truncated",
+                  "Ограничение по групповому запросу: выбрано {{n}} чатов из {{total}}.")
+              .replace("{{n}}", String(added))
+              .replace("{{total}}", String(folderLinks.length))
+          );
+        }
+        if (folderCheckboxEl) {
+          folderCheckboxEl.checked = folderLinks.every((l) => selectedGroupChats.has(l));
+        }
+        refreshGroupVisualState();
+        updateGroupCounter();
+      }
+
+      // After programmatic selection changes (e.g. folder toggle), update the
+      // visual state of any rendered chat items + their checkboxes.
+      function refreshGroupVisualState() {
+        if (!myChatsList) return;
+        const items = myChatsList.querySelectorAll(".sidebar-chat-item");
+        items.forEach((el) => {
+          const link = el.getAttribute("data-link") || "";
+          const isSel = selectedGroupChats.has(link);
+          el.classList.toggle("sidebar-chat-item--selected", isSel);
+          const cb = el.querySelector(".group-chat-checkbox");
+          if (cb) cb.checked = isSel;
+        });
+        // Also sync folder-level checkboxes (checked iff all inner chats are).
+        const folderHeaders = myChatsList.querySelectorAll(".sidebar-folder");
+        folderHeaders.forEach((folderEl) => {
+          const folderCb = folderEl.querySelector(".group-folder-checkbox");
+          if (!folderCb) return;
+          const inner = folderEl.querySelectorAll(".sidebar-chat-item");
+          if (!inner.length) {
+            folderCb.checked = false;
+            return;
+          }
+          let allSel = true;
+          inner.forEach((it) => {
+            const l = it.getAttribute("data-link") || "";
+            if (!selectedGroupChats.has(l)) allSel = false;
+          });
+          folderCb.checked = allSel;
+        });
+      }
+
       // Создаёт DOM-ноду для одного чата в сайдбаре.
       function createChatItemEl(chat) {
         const el = document.createElement("div");
@@ -2542,10 +2800,40 @@
         const title = chat.title || tI18n("new-analysis:subscription_dynamic.untitled", "Без названия");
         el.setAttribute("data-link", link);
         el.title = title;
-        el.textContent = title; // textContent — никаких XSS на title из Telegram
-        el.addEventListener("click", () => {
-          if (activeChatInput) activeChatInput.value = link;
-        });
+
+        // Use a span for title so we can append the checkbox separately
+        // in group mode without colliding with textContent.
+        const titleSpan = document.createElement("span");
+        titleSpan.textContent = title; // textContent — никаких XSS на title из Telegram
+        el.appendChild(titleSpan);
+
+        if (isGroupModeOn()) {
+          el.classList.add("sidebar-chat-item--group");
+          if (selectedGroupChats.has(link)) {
+            el.classList.add("sidebar-chat-item--selected");
+          }
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.className = "group-chat-checkbox";
+          checkbox.checked = selectedGroupChats.has(link);
+          checkbox.addEventListener("click", (e) => {
+            e.stopPropagation();
+            toggleChatInGroup(link, el, checkbox);
+          });
+          el.appendChild(checkbox);
+
+          // Clicking the row also toggles the checkbox in group mode.
+          el.addEventListener("click", (e) => {
+            // If the user clicked the checkbox directly, the handler
+            // above already fired — don't double-toggle.
+            if (e.target === checkbox) return;
+            toggleChatInGroup(link, el, checkbox);
+          });
+        } else {
+          el.addEventListener("click", () => {
+            if (activeChatInput) activeChatInput.value = link;
+          });
+        }
         return el;
       }
 
@@ -2596,7 +2884,31 @@
           setFolderCollapsed(id, nowCollapsed);
         });
 
-        folderEl.appendChild(toggleBtn);
+        // In group mode, render a folder-level checkbox alongside the toggle
+        // button. We can't nest <input> inside <button> (invalid HTML), so
+        // wrap both in a flex row.
+        if (isGroupModeOn()) {
+          const headerRow = document.createElement("div");
+          headerRow.style.display = "flex";
+          headerRow.style.alignItems = "center";
+          headerRow.appendChild(toggleBtn);
+
+          const folderCb = document.createElement("input");
+          folderCb.type = "checkbox";
+          folderCb.className = "group-folder-checkbox";
+          // Pre-check if all inner chats are already in the selection set.
+          const folderLinks = chats.map((c) => chatLinkValue(c)).filter(Boolean);
+          folderCb.checked = folderLinks.length > 0 && folderLinks.every((l) => selectedGroupChats.has(l));
+          folderCb.addEventListener("click", (e) => {
+            e.stopPropagation();
+            toggleFolderInGroup(chats, folderCb);
+          });
+          headerRow.appendChild(folderCb);
+
+          folderEl.appendChild(headerRow);
+        } else {
+          folderEl.appendChild(toggleBtn);
+        }
 
         const itemsEl = document.createElement("div");
         itemsEl.className = "sidebar-folder__items";
@@ -3341,11 +3653,25 @@
         const options = getAiModelOptionsByPlan();
         const normalized = normalizeAiModelUi(selectedValue);
 
+        // In group mode, decorate long-context models with a «рекомендовано»
+        // suffix in the label so the user knows which ones handle 20-chat
+        // requests well. We only add it to the label string for clarity in
+        // the native <select> — option.value remains the plain slug.
+        const groupOn = typeof isGroupModeOn === "function" && isGroupModeOn();
+        const recommendedSuffix = " " + tI18n(
+          "new-analysis:chat_requests.recommended_for_group",
+          "(рекомендовано для группового запроса)"
+        );
+
         selectEl.innerHTML = options
-          .map(
-            (item) =>
-              `<option value="${item.value}" ${item.value === normalized ? "selected" : ""}>${item.label}</option>`
-          )
+          .map((item) => {
+            let label = item.label;
+            if (groupOn && typeof RECOMMENDED_GROUP_MODELS !== "undefined"
+                && RECOMMENDED_GROUP_MODELS.has(item.value)) {
+              label = label + recommendedSuffix;
+            }
+            return `<option value="${item.value}" ${item.value === normalized ? "selected" : ""}>${label}</option>`;
+          })
           .join("");
 
         if (!options.some((item) => item.value === normalized) && options[0]) {
@@ -4021,6 +4347,179 @@ if (runSubscriptionsBtn) {
         }
       }
 
+      // Parse a group-analysis markdown summary into ordered sections.
+      // Expected structure (RU or EN):
+      //   ## Chat: <name>      / ## Чат: <name>
+      //   ...body...
+      //   ## Summary           / ## Общий вывод
+      //   ...overall...
+      // Returns: { intro: str, chats: [{name, body}], summary: str|null }
+      function parseGroupSummary(text) {
+        const out = { intro: "", chats: [], summary: null };
+        if (!text || typeof text !== "string") return out;
+
+        // Match BOTH the chat-section header (## Chat: X / ## Чат: X) and the
+        // overall summary header (## Summary / ## Общий вывод). Using a single
+        // pass with named-ish groups by checking the matched text.
+        const headerRe = /^##\s*(?:Chat|Чат)\s*:\s*(.+?)\s*$|^##\s*(?:Summary|Общий\s*вывод)\s*$/gmi;
+        const matches = [];
+        let m;
+        while ((m = headerRe.exec(text)) !== null) {
+          matches.push({ index: m.index, full: m[0], chatName: m[1] || null });
+        }
+        if (!matches.length) {
+          out.intro = text.trim();
+          return out;
+        }
+        // Anything before the first header is "intro" (usually empty in
+        // well-behaved group responses, but be defensive).
+        out.intro = text.slice(0, matches[0].index).trim();
+
+        for (let i = 0; i < matches.length; i++) {
+          const cur = matches[i];
+          const nextStart = (i + 1 < matches.length) ? matches[i + 1].index : text.length;
+          const headerEnd = cur.index + cur.full.length;
+          const body = text.slice(headerEnd, nextStart).trim();
+          if (cur.chatName) {
+            out.chats.push({ name: cur.chatName, body });
+          } else {
+            // Summary block
+            out.summary = body;
+          }
+        }
+        return out;
+      }
+
+      function renderGroupResult(payload, userQuery) {
+        // Optional user question at the top, same style as single-chat.
+        if (userQuery && userQuery.trim()) {
+          const queryEl = document.createElement("div");
+          queryEl.style.fontStyle = "italic";
+          queryEl.style.marginBottom = "8px";
+          queryEl.textContent = userQuery.trim();
+          resultDiv.appendChild(queryEl);
+
+          const dividerEl = document.createElement("div");
+          dividerEl.style.borderBottom = "1px solid #d1d5db";
+          dividerEl.style.marginBottom = "16px";
+          resultDiv.appendChild(dividerEl);
+        }
+
+        const fullText = String(payload?.summary || "");
+        const parsed = parseGroupSummary(fullText);
+        const results = Array.isArray(payload?.results) ? payload.results : [];
+
+        // Build a name → results-row map for permalink lookup.
+        // The LLM uses the chat name verbatim from the «...» marker;
+        // results[i].chat_name is the same string (we pass it through).
+        const rowByName = new Map();
+        results.forEach((r) => {
+          if (r && r.chat_name) rowByName.set(String(r.chat_name), r);
+        });
+
+        // Show overall summary on top (collapsed by default? — keep open).
+        if (parsed.summary) {
+          const sumBox = document.createElement("div");
+          sumBox.className = "group-result-summary";
+          const sumTitle = document.createElement("div");
+          sumTitle.className = "group-result-summary__title";
+          sumTitle.textContent = tI18n(
+            "new-analysis:chat_requests.group_summary_title",
+            "Общий вывод"
+          );
+          sumBox.appendChild(sumTitle);
+          const sumBody = document.createElement("pre");
+          sumBody.style.margin = "0";
+          sumBody.style.whiteSpace = "pre-wrap";
+          sumBody.style.wordWrap = "break-word";
+          // Summary has no specific per-chat permalink scope — render plain.
+          sumBody.textContent = parsed.summary;
+          sumBox.appendChild(sumBody);
+          resultDiv.appendChild(sumBox);
+        }
+
+        // Per-chat collapsible sections (default expanded).
+        parsed.chats.forEach((chatSec) => {
+          const section = document.createElement("div");
+          section.className = "group-result-section";
+
+          const header = document.createElement("div");
+          header.className = "group-result-section__header";
+
+          const chevron = document.createElement("span");
+          chevron.className = "group-result-section__chevron";
+          chevron.textContent = "▾";
+          header.appendChild(chevron);
+
+          const titleEl = document.createElement("span");
+          titleEl.textContent = chatSec.name;
+          header.appendChild(titleEl);
+
+          // Show a small status hint if this chat failed/was empty.
+          const row = rowByName.get(chatSec.name);
+          if (row && row.status && row.status !== "ok") {
+            const statusBadge = document.createElement("span");
+            statusBadge.style.fontSize = "11px";
+            statusBadge.style.marginLeft = "8px";
+            statusBadge.style.color = row.status === "fetch_failed" ? "#a33" : "#888";
+            statusBadge.textContent = row.status === "fetch_failed"
+              ? tI18n("new-analysis:chat_requests.group_status_failed", "не удалось загрузить")
+              : tI18n("new-analysis:chat_requests.group_status_empty", "пусто");
+            header.appendChild(statusBadge);
+          }
+
+          section.appendChild(header);
+
+          const body = document.createElement("div");
+          body.className = "group-result-section__body";
+          const bodyPre = document.createElement("pre");
+          bodyPre.style.margin = "0";
+          bodyPre.style.whiteSpace = "pre-wrap";
+          bodyPre.style.wordWrap = "break-word";
+
+          const links = (row && row.message_links) || null;
+          if (links) {
+            appendTextWithMsgLinks(bodyPre, chatSec.body, links);
+          } else {
+            bodyPre.textContent = chatSec.body;
+          }
+          body.appendChild(bodyPre);
+          section.appendChild(body);
+
+          header.addEventListener("click", () => {
+            const collapsed = section.classList.toggle("group-result-section--collapsed");
+            chevron.textContent = collapsed ? "▸" : "▾";
+          });
+
+          resultDiv.appendChild(section);
+        });
+
+        // List chats that the LLM didn't cover but were requested and
+        // failed at the fetch stage — useful so the user sees what was
+        // skipped even though no LLM section exists for them.
+        const failedOrEmpty = results.filter((r) =>
+          r && (r.status === "fetch_failed" || r.status === "empty")
+        ).filter((r) => !parsed.chats.some((s) => s.name === r.chat_name));
+        if (failedOrEmpty.length) {
+          const skippedBox = document.createElement("div");
+          skippedBox.style.marginTop = "12px";
+          skippedBox.style.fontSize = "12px";
+          skippedBox.style.color = "#666";
+          const lines = failedOrEmpty.map((r) => {
+            const label = r.chat_name || r.chat_link;
+            const reason = r.status === "fetch_failed"
+              ? tI18n("new-analysis:chat_requests.group_status_failed", "не удалось загрузить")
+              : tI18n("new-analysis:chat_requests.group_status_empty", "пусто");
+            return `• ${label} — ${reason}`;
+          });
+          skippedBox.textContent = tI18n(
+            "new-analysis:chat_requests.group_skipped_prefix",
+            "Не вошли в анализ:"
+          ) + "\n" + lines.join("\n");
+          resultDiv.appendChild(skippedBox);
+        }
+      }
+
       function renderResult(payload, rawText, userQuery) {
         if (typeof window.cotelApplyUsageFromPayload === "function") {
           window.cotelApplyUsageFromPayload(payload);
@@ -4031,6 +4530,16 @@ if (runSubscriptionsBtn) {
         // Очищаем элемент
         resultDiv.innerHTML = "";
         resultDiv.className = "dashboard-results-text";
+
+        // --- Group-mode response (multi-chat) ---
+        // Backend returns `group_size: int` and `results: array`. Render
+        // collapsible per-chat sections instead of a flat blob.
+        const isGroupPayload = payload && (payload.group_size > 0)
+          && Array.isArray(payload.results);
+        if (isGroupPayload) {
+          renderGroupResult(payload, userQuery);
+          return;
+        }
 
         // Если есть вопрос, добавляем его курсивом с разделителем
         if (userQuery && userQuery.trim()) {
@@ -4152,8 +4661,48 @@ if (runSubscriptionsBtn) {
 
             // 2️⃣ ВЕТКА: МОЙ TELEGRAM АККАУНТ
             if (isTelegramAccount) {
-              const chatLink = (activeChatInput?.value || "").trim();
               const days = parseInt(queryDaysInput?.value || "1", 10);
+              const aiModel = normalizeAiModelUi(
+                queryAiModelSelect?.value || getDefaultAiModelForUi()
+              );
+
+              // --- Group mode: multi-chat request ---
+              if (typeof isGroupModeOn === "function" && isGroupModeOn()) {
+                const links = Array.from(selectedGroupChats);
+                if (links.length === 0) {
+                  alert(tI18n(
+                    "new-analysis:chat_requests.group_select_at_least_one",
+                    "Выберите хотя бы один чат для группового анализа."
+                  ));
+                  showLoader(false);
+                  return;
+                }
+
+                const payload = {
+                  chat_links: links,
+                  days: days,
+                  user_query: query || null,
+                  ai_model: aiModel,
+                };
+
+                const data = await apiFetch("/tg/analyze_chats_group", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(payload),
+                });
+
+                if (loaderMinPromise) {
+                  await loaderMinPromise;
+                }
+
+                renderResult(data, JSON.stringify(data, null, 2), query);
+                if (queryInput) queryInput.value = "";
+                await loadChatHistory();
+                return;
+              }
+
+              // --- Single-chat (existing) ---
+              const chatLink = (activeChatInput?.value || "").trim();
 
               if (!chatLink) {
                 alert(tI18n("new-analysis:dashboard_dynamic.enter_chat_link", "Введите ссылку на чат или канал Telegram."));
@@ -4165,12 +4714,10 @@ if (runSubscriptionsBtn) {
                 chat_link: chatLink,
                 days: days,
                 user_query: query || null,
-                ai_model: normalizeAiModelUi(
-                  queryAiModelSelect?.value || getDefaultAiModelForUi()
-                ),
+                ai_model: aiModel,
               };
 
-              
+
               const data = await apiFetch("/tg/analyze_chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
