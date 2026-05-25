@@ -1032,7 +1032,9 @@ body.user-not-auth #sidebarUserArea .auth-open-btn {
 }
 
 .sidebar-chat-item:hover {
-  background: rgba(127, 196, 192, 0.18); /* мягкий пепельно-бирюзовый, как у иконок */
+  /* Hover is intentionally BRIGHTER than the selected state so they read
+     as different signals (transient vs persistent). */
+  background: rgba(127, 196, 192, 0.28);
   box-shadow:
     0 0 0 1px rgba(15, 23, 42, 0.05),
     0 2px 6px rgba(15, 23, 42, 0.08);
@@ -1040,7 +1042,7 @@ body.user-not-auth #sidebarUserArea .auth-open-btn {
 }
 
 .sidebar-chat-item:active {
-  background: rgba(127, 196, 192, 0.30);
+  background: rgba(127, 196, 192, 0.38);
 }
 
 /* === Глобальный фон = */

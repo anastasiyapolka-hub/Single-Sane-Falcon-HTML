@@ -714,7 +714,7 @@
 
                         <!-- Group request toggle — same row style as other settings.
                              Tooltip lives on the label itself (cursor: help). -->
-                        <div id="queryGroupModeRow" class="sidebar-inline-setting-row">
+                        <div id="queryGroupModeRow" class="sidebar-inline-setting-row sidebar-inline-setting-row--toggle">
                           <label
                             for="queryGroupModeToggle"
                             class="sidebar-inline-setting-label group-analysis-toggle-label"
@@ -729,34 +729,35 @@
                           />
                         </div>
 
-                      </div>
-                    </div>
+                        <!-- Selection counter + selected-chats list. Nested
+                             INSIDE Settings so collapsing Settings also hides
+                             the group selection block (correct hierarchy). -->
+                        <div id="groupSelectionCounter" class="group-selection-counter hidden">
+                          <div class="group-selection-counter__header">
+                            <button
+                              type="button"
+                              id="groupCounterCollapseBtn"
+                              class="group-counter-collapse-btn"
+                              aria-expanded="true"
+                              aria-label="свернуть"
+                            >
+                              <span id="groupCounterCollapseChevron" class="group-counter-collapse-btn__chevron">▾</span>
+                            </button>
+                            <span class="group-selection-counter__title">
+                              <span data-i18n="new-analysis:chat_requests.group_counter_label">Выбрано:</span>
+                              <span id="groupSelectionCount">0</span>
+                            </span>
+                            <button
+                              type="button"
+                              id="groupClearAllBtn"
+                              class="group-clear-all-btn"
+                              data-i18n="new-analysis:chat_requests.group_clear_all"
+                            >Снять всё</button>
+                          </div>
+                          <div id="groupSelectedChatsList" class="group-selected-chats"></div>
+                        </div>
 
-                    <!-- Selection counter + selected-chats list. No outer border —
-                         the highlight color of this block alone signals it as a group. -->
-                    <div id="groupSelectionCounter" class="group-selection-counter hidden">
-                      <div class="group-selection-counter__header">
-                        <button
-                          type="button"
-                          id="groupCounterCollapseBtn"
-                          class="group-counter-collapse-btn"
-                          aria-expanded="true"
-                          aria-label="свернуть"
-                        >
-                          <span id="groupCounterCollapseChevron" class="group-counter-collapse-btn__chevron">▾</span>
-                        </button>
-                        <span class="group-selection-counter__title">
-                          <span data-i18n="new-analysis:chat_requests.group_counter_label">Выбрано:</span>
-                          <span id="groupSelectionCount">0</span>
-                        </span>
-                        <button
-                          type="button"
-                          id="groupClearAllBtn"
-                          class="group-clear-all-btn"
-                          data-i18n="new-analysis:chat_requests.group_clear_all"
-                        >Снять всё</button>
                       </div>
-                      <div id="groupSelectedChatsList" class="group-selected-chats"></div>
                     </div>
 
                     <div id="chatHistoryBlock" class="sidebar-history-block hidden">
@@ -1123,6 +1124,22 @@
             margin: 0;
             flex: 0 0 auto;
           }
+          /* Force the group toggle row to stay a single flex row even on a
+             narrow sidebar. The base .sidebar-inline-setting-row is meant for
+             label-on-top text inputs, which pushes our checkbox below; the
+             --toggle modifier overrides that. */
+          .sidebar-inline-setting-row--toggle {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            gap: 10px !important;
+          }
+          .sidebar-inline-setting-row--toggle .sidebar-inline-setting-label {
+            flex: 1 1 auto;
+            margin: 0;
+          }
 
           /* Counter + selected-list block — only block in the group widget
              that gets a visual highlight (no outer border around the group). */
@@ -1219,14 +1236,17 @@
             accent-color: #1d6a72;
           }
           /* Selected chat in the tree — soft translucent teal gradient + faint
-             left accent line. Reads as cool/calm, not green. */
-          .sidebar-chat-item--selected {
+             left accent line. INTENTIONALLY softer than the hover state so
+             the two read as different signals. Hover = transient, brighter;
+             selected = persistent, calmer. */
+          .sidebar-chat-item--selected,
+          .sidebar-chat-item--selected:hover {
             background: linear-gradient(
               90deg,
-              rgba(127, 196, 192, 0.18),
-              rgba(127, 196, 192, 0.08)
-            );
-            box-shadow: inset 2px 0 0 rgba(94, 191, 168, 0.45);
+              rgba(127, 196, 192, 0.14),
+              rgba(127, 196, 192, 0.05)
+            ) !important;
+            box-shadow: inset 2px 0 0 rgba(94, 191, 168, 0.55) !important;
           }
           /* Folder-level checkbox in the folder header. */
           .group-folder-checkbox {
@@ -1240,21 +1260,32 @@
           .group-history-checkbox {
             cursor: pointer;
             accent-color: #1d6a72;
-            margin-right: 6px;
             flex: 0 0 auto;
           }
           .sidebar-history-item.sidebar-history-item--group {
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
           }
-          .sidebar-history-item--selected .sidebar-history-link {
+          /* Selected history item: highlight the ROW (the outer wrapper)
+             with a single soft teal gradient. Crucially we must strip the
+             hover/active background from the inner .sidebar-history-link
+             button — otherwise it stacks on top of the row highlight and
+             we see two overlapping shades. */
+          .sidebar-history-item--selected {
             background: linear-gradient(
               90deg,
-              rgba(127, 196, 192, 0.18),
-              rgba(127, 196, 192, 0.08)
-            ) !important;
-            box-shadow: inset 2px 0 0 rgba(94, 191, 168, 0.45);
+              rgba(127, 196, 192, 0.14),
+              rgba(127, 196, 192, 0.05)
+            );
+            box-shadow: inset 2px 0 0 rgba(94, 191, 168, 0.55);
+            border-radius: 4px;
+          }
+          .sidebar-history-item--selected .sidebar-history-link,
+          .sidebar-history-item--selected .sidebar-history-link:hover,
+          .sidebar-history-item--selected .sidebar-history-link:active {
+            background: transparent !important;
+            box-shadow: none !important;
           }
 
           /* "Recommended" badge next to long-context models in group mode. */
@@ -1964,7 +1995,6 @@
               <button
                 type="button"
                 class="sidebar-chat-item sidebar-history-link"
-                title="${title}"
                 data-chat-ref="${chatRef}"
               >
                 ${title}
@@ -2005,8 +2035,10 @@
         });
 
         // Group mode: inject a checkbox into each history item so the user
-        // can pick chats here too. State syncs with the main tree via
-        // selectedGroupChats + refreshGroupVisualState().
+        // can pick chats here too. Layout matches «Мои чаты»:
+        // [title] [checkbox] [✕] — checkbox is inserted BEFORE the remove
+        // button so it ends up at the right edge next to ×.
+        // State syncs with the main tree via selectedGroupChats + refreshGroupVisualState().
         if (typeof isGroupModeOn === "function" && isGroupModeOn()) {
           chatHistoryList.querySelectorAll(".sidebar-history-item").forEach((itemEl) => {
             itemEl.classList.add("sidebar-history-item--group");
@@ -2025,7 +2057,14 @@
               toggleChatInGroup(chatRef, itemEl, cb);
               itemEl.classList.toggle("sidebar-history-item--selected", selectedGroupChats.has(chatRef));
             });
-            itemEl.insertBefore(cb, itemEl.firstChild);
+            // Insert the checkbox just before the remove (✕) button so
+            // the order reads as [title] [checkbox] [✕].
+            const removeBtn = itemEl.querySelector(".sidebar-history-remove");
+            if (removeBtn) {
+              itemEl.insertBefore(cb, removeBtn);
+            } else {
+              itemEl.appendChild(cb);
+            }
           });
         }
 
@@ -3121,7 +3160,8 @@
         const link = chatLinkValue(chat);
         const title = chat.title || tI18n("new-analysis:subscription_dynamic.untitled", "Без названия");
         el.setAttribute("data-link", link);
-        el.title = title;
+        // No `title` attribute — the chat name is already visible in the row,
+        // a tooltip with the same text on hover is just noise.
 
         // Use a span for title so we can append the checkbox separately
         // in group mode without colliding with textContent.
