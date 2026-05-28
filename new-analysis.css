@@ -2176,6 +2176,28 @@ body.user-not-auth.sidebar-collapsed #sidebarUserArea .auth-open-btn .expanded-o
   padding: 8px 2px;
 }
 
+/* Период анализа: лейбл сверху, ниже — компактная строка (число + селект
+   единиц). Сидим в общем вертикальном стеке (.sidebar-inline-setting-row
+   остаётся колонкой), чтобы при узком сайдбаре label не обрезался; саму
+   "одну строку" с инпутом+селектом обеспечивает .sidebar-inline-period-
+   controls. */
+.sidebar-inline-period-controls {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+}
+.sidebar-inline-period-input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.sidebar-inline-period-unit {
+  flex: 0 0 auto;
+  width: auto !important;
+  min-width: 96px;
+  padding-right: 28px; /* место под стрелку селекта */
+}
+
 .sidebar-inline-setting-label {
   font-size: 0.85rem;
   color: #4b5563;

@@ -695,16 +695,30 @@
                       </button>
 
                       <div id="querySettingsInlineBody" class="sidebar-history-body hidden">
-                        <div class="sidebar-inline-setting-row">
-                          <label for="queryDaysInput" class="sidebar-inline-setting-label" data-i18n="new-analysis:chat_requests.history_days_label">Период анализа истории, дней:</label>
-                          <input
-                            id="queryDaysInput"
-                            type="number"
-                            class="sidebar-inline-setting-input"
-                            min="1"
-                            max="365"
-                            value="1"
-                          />
+                        <div class="sidebar-inline-setting-row sidebar-inline-setting-row--period">
+                          <label for="queryDaysInput" class="sidebar-inline-setting-label" data-i18n="new-analysis:chat_requests.history_period_label">Период анализа истории:</label>
+                          <div class="sidebar-inline-period-controls">
+                            <input
+                              id="queryDaysInput"
+                              type="number"
+                              class="sidebar-inline-setting-input sidebar-inline-period-input"
+                              min="1"
+                              max="365"
+                              step="1"
+                              value="1"
+                              inputmode="numeric"
+                            />
+                            <select
+                              id="queryPeriodUnitSelect"
+                              class="sidebar-inline-setting-input sidebar-inline-period-unit"
+                              aria-label="Единица периода"
+                              data-i18n-aria-label="new-analysis:chat_requests.period_unit_aria"
+                            >
+                              <option value="minutes" data-i18n="new-analysis:chat_requests.period_unit_minutes">минуты</option>
+                              <option value="hours" data-i18n="new-analysis:chat_requests.period_unit_hours">часы</option>
+                              <option value="days" selected data-i18n="new-analysis:chat_requests.period_unit_days">дни</option>
+                            </select>
+                          </div>
                         </div>
 
                         <div id="queryAiModelRow" class="sidebar-inline-setting-row">
@@ -4083,20 +4097,71 @@
         return tI18n("new-analysis:subscription_frequency.per_minutes", `1 раз в ${value} минут`, { value });
       }
 
-      function clampQueryDaysByPlan() {
-        const plan = getPlanInfo();
-        if (!plan || !queryDaysInput) return;
+      // Границы периода по единицам измерения. Должны совпадать с
+      // PERIOD_BOUNDS в backend/plan_limits.py — серверная валидация
+      // авторитетна, фронт делает то же самое только ради UX.
+      // Дни не имеют статичного потолка — он берётся из тарифа.
+      const PERIOD_UI_BOUNDS = {
+        minutes: { min: 5,  max: 180,  defaultValue: 30 },
+        hours:   { min: 1,  max: 72,   defaultValue: 1  },
+        days:    { min: 1,  max: null, defaultValue: 1  },
+      };
 
-        const maxDays = Number(plan.qa_history_days || 1);
-        queryDaysInput.max = String(maxDays);
-
-        let current = parseInt(queryDaysInput.value || "1", 10);
-        if (!Number.isFinite(current) || current < 1) current = 1;
-
-        if (current > maxDays) {
-          queryDaysInput.value = String(maxDays);
-        }
+      function getQueryPeriodUnit() {
+        const sel = document.getElementById("queryPeriodUnitSelect");
+        const v = (sel?.value || "days").toLowerCase();
+        return PERIOD_UI_BOUNDS[v] ? v : "days";
       }
+
+      // Универсальная валидация поля периода для текущей выбранной
+      // единицы. Заменила clampQueryDaysByPlan: теперь работает для
+      // минут, часов и дней. Для дней потолок берёт из тарифа, для
+      // минут/часов — из PERIOD_UI_BOUNDS.
+      function applyPeriodBounds() {
+        if (!queryDaysInput) return;
+        const unit = getQueryPeriodUnit();
+        const bounds = PERIOD_UI_BOUNDS[unit] || PERIOD_UI_BOUNDS.days;
+
+        let max = bounds.max;
+        if (unit === "days") {
+          const plan = getPlanInfo();
+          const planMax = plan ? Number(plan.qa_history_days || 1) : 365;
+          max = planMax > 0 ? planMax : 365;
+        }
+
+        queryDaysInput.min = String(bounds.min);
+        if (max != null) {
+          queryDaysInput.max = String(max);
+        } else {
+          queryDaysInput.removeAttribute("max");
+        }
+
+        let current = parseInt(queryDaysInput.value || "0", 10);
+        if (!Number.isFinite(current) || current <= 0) {
+          current = bounds.defaultValue;
+        }
+        if (current < bounds.min) current = bounds.min;
+        if (max != null && current > max) current = max;
+        queryDaysInput.value = String(current);
+      }
+
+      // Сохраняем имя clampQueryDaysByPlan для уже навешанных слушателей —
+      // делаем его псевдонимом нового хелпера.
+      function clampQueryDaysByPlan() {
+        applyPeriodBounds();
+      }
+
+      // При смене единицы — пересчитываем границы и подставляем дефолт,
+      // подходящий под новую единицу (5 минут / 1 час / 1 день),
+      // чтобы пользователь не оказался с числом 60 в "днях".
+      document.getElementById("queryPeriodUnitSelect")?.addEventListener("change", (e) => {
+        const newUnit = (e.target.value || "days").toLowerCase();
+        const bounds = PERIOD_UI_BOUNDS[newUnit] || PERIOD_UI_BOUNDS.days;
+        if (queryDaysInput) {
+          queryDaysInput.value = String(bounds.defaultValue);
+        }
+        applyPeriodBounds();
+      });
 
       function getAvailablePeriodOptionsByPlan(subscriptionType) {
         const plan = getPlanInfo();
@@ -5023,7 +5088,11 @@ if (runSubscriptionsBtn) {
 
             // 2️⃣ ВЕТКА: МОЙ TELEGRAM АККАУНТ
             if (isTelegramAccount) {
-              const days = parseInt(queryDaysInput?.value || "1", 10);
+              const periodValue = parseInt(queryDaysInput?.value || "1", 10);
+              const periodUnit = getQueryPeriodUnit();
+              // days — для обратной совместимости со старыми бэкендами;
+              // новый контракт period_value+period_unit приоритетный.
+              const days = periodUnit === "days" ? periodValue : 1;
               const aiModel = normalizeAiModelUi(
                 queryAiModelSelect?.value || getDefaultAiModelForUi()
               );
@@ -5043,6 +5112,8 @@ if (runSubscriptionsBtn) {
                 const payload = {
                   chat_links: links,
                   days: days,
+                  period_value: periodValue,
+                  period_unit: periodUnit,
                   user_query: query || null,
                   ai_model: aiModel,
                 };
@@ -5075,6 +5146,8 @@ if (runSubscriptionsBtn) {
               const payload = {
                 chat_link: chatLink,
                 days: days,
+                period_value: periodValue,
+                period_unit: periodUnit,
                 user_query: query || null,
                 ai_model: aiModel,
               };
@@ -5099,7 +5172,9 @@ if (runSubscriptionsBtn) {
             // ВЕТКА: CЛУЖЕБНЫЙ АККАУНТ
             if (isServiceAccount) {
               const chatLink = (activeChatInput?.value || "").trim();
-              const days = parseInt(queryDaysInput?.value || "1", 10);
+              const periodValue = parseInt(queryDaysInput?.value || "1", 10);
+              const periodUnit = getQueryPeriodUnit();
+              const days = periodUnit === "days" ? periodValue : 1;
 
               if (!chatLink) {
                 alert(tI18n("new-analysis:dashboard_dynamic.enter_public_link", "Введите публичный username или ссылку на публичный чат/канал Telegram."));
@@ -5110,6 +5185,8 @@ if (runSubscriptionsBtn) {
               const payload = {
                 chat_link: chatLink,
                 days: days,
+                period_value: periodValue,
+                period_unit: periodUnit,
                 user_query: query || "",
                 ai_model: normalizeAiModelUi(
                   queryAiModelSelect?.value || getDefaultAiModelForUi()
