@@ -2180,22 +2180,30 @@ body.user-not-auth.sidebar-collapsed #sidebarUserArea .auth-open-btn .expanded-o
    единиц). Сидим в общем вертикальном стеке (.sidebar-inline-setting-row
    остаётся колонкой), чтобы при узком сайдбаре label не обрезался; саму
    "одну строку" с инпутом+селектом обеспечивает .sidebar-inline-period-
-   controls. */
+   controls.
+
+   ВАЖНО: число должно тянуться, селект — узкий и фиксированный (ровно
+   под слово "минуты"/"minutes"). Эти правила имеют выше специфичность,
+   чем общее `select.sidebar-inline-setting-input`, и используют
+   !important, чтобы перебить его width: 100% / flex: none. */
 .sidebar-inline-period-controls {
   display: flex;
   align-items: stretch;
   gap: 8px;
   width: 100%;
-}
-.sidebar-inline-period-input {
-  flex: 1 1 auto;
   min-width: 0;
 }
-.sidebar-inline-period-unit {
-  flex: 0 0 auto;
+.sidebar-inline-period-controls input.sidebar-inline-period-input {
+  flex: 1 1 auto !important;
   width: auto !important;
-  min-width: 96px;
-  padding-right: 28px; /* место под стрелку селекта */
+  min-width: 0 !important;
+}
+.sidebar-inline-period-controls select.sidebar-inline-period-unit {
+  flex: 0 0 100px !important;
+  width: 100px !important;
+  min-width: 100px !important;
+  max-width: 100px !important;
+  padding-right: 26px !important; /* место под стрелку селекта */
 }
 
 .sidebar-inline-setting-label {
