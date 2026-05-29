@@ -118,9 +118,24 @@ const AI_MODEL_OPTIONS = [
     labelFallback: "OpenAI GPT-4.1 mini — быстрый и универсальный анализ"
   },
   {
+    value: "openai:o4-mini",
+    labelKey: "common:ai_models.openai_o4_mini",
+    labelFallback: "OpenAI o4-mini — дешёвый reasoning, 200K контекст"
+  },
+  {
+    value: "openai:o3",
+    labelKey: "common:ai_models.openai_o3",
+    labelFallback: "OpenAI o3 — глубокий reasoning, 200K контекст"
+  },
+  {
     value: "anthropic:claude-sonnet-4-6",
     labelKey: "common:ai_models.claude_sonnet_4_6",
     labelFallback: "Claude Sonnet 4.6 — более глубокий анализ длинных обсуждений"
+  },
+  {
+    value: "google:gemini-2.5-pro",
+    labelKey: "common:ai_models.google_gemini_2_5_pro",
+    labelFallback: "Google Gemini 2.5 Pro — глубокий анализ, 1M контекст, дешевле Sonnet"
   },
 ];
 

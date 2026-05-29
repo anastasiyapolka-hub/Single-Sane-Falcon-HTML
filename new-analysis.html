@@ -1529,7 +1529,9 @@
       // Models with 1M+ context — get a "рекомендовано" badge in group mode.
       const RECOMMENDED_GROUP_MODELS = new Set([
         "openai:gpt-4.1",
+        "openai:o3",
         "google:gemini-2.5-flash",
+        "google:gemini-2.5-pro",
         "google:gemini-3.5-flash",
       ]);
 
@@ -3958,6 +3960,8 @@
           "openai:gpt-4.1-mini",
           "openai:gpt-5.4-mini",
           "openai:gpt-4.1",
+          "openai:o3",
+          "openai:o4-mini",
           // Anthropic
           "anthropic:claude-haiku-4-5",
           "anthropic:claude-sonnet-4-6",
@@ -3965,6 +3969,7 @@
           "google:gemini-3.1-flash-lite",
           "google:gemini-2.5-flash",
           "google:gemini-3.5-flash",
+          "google:gemini-2.5-pro",
         ]);
         return allowed.has(raw) ? raw : "openai:gpt-4.1-mini";
       }
@@ -3994,6 +3999,14 @@
             value: "openai:gpt-4.1",
             label: tI18n("common:ai_models.openai_gpt_4_1", "OpenAI GPT-4.1 — для длинного контекста и глубокого анализа"),
           });
+          base.push({
+            value: "openai:o4-mini",
+            label: tI18n("common:ai_models.openai_o4_mini", "OpenAI o4-mini — дешёвый reasoning, 200K контекст"),
+          });
+          base.push({
+            value: "openai:o3",
+            label: tI18n("common:ai_models.openai_o3", "OpenAI o3 — глубокий reasoning, 200K контекст"),
+          });
 
           // Anthropic: light + deep
           base.push({
@@ -4013,6 +4026,10 @@
           base.push({
             value: "google:gemini-2.5-flash",
             label: tI18n("common:ai_models.google_gemini_2_5_flash", "Google Gemini 2.5 Flash — баланс цены и качества, длинный контекст"),
+          });
+          base.push({
+            value: "google:gemini-2.5-pro",
+            label: tI18n("common:ai_models.google_gemini_2_5_pro", "Google Gemini 2.5 Pro — глубокий анализ, 1M контекст, дешевле Sonnet"),
           });
           base.push({
             value: "google:gemini-3.5-flash",
@@ -4071,8 +4088,19 @@
           subAiModelRow.style.display = planCode === "free" ? "none" : "";
         }
 
-        buildAiModelSelect(queryAiModelSelect, defaultAiModel);
-        buildAiModelSelect(subAiModelSelect, defaultAiModel);
+        // PRESERVE the user's current selection across refreshes.
+        // Background: after every API request `renderResult` →
+        // `cotelApplyUsageFromPayload` → `cotelRefreshLimitBoundControls`
+        // → here, which used to reset the select back to the profile
+        // default. That meant a user who picked, say, Sonnet for their
+        // query would see the select snap back to GPT-4.1 mini the moment
+        // the answer rendered. Preserve current value when it's still a
+        // valid option; only fall back to default if the select is empty
+        // or holds a stale (now-removed) slug.
+        const currentQueryVal = queryAiModelSelect?.value || "";
+        const currentSubVal = subAiModelSelect?.value || "";
+        buildAiModelSelect(queryAiModelSelect, currentQueryVal || defaultAiModel);
+        buildAiModelSelect(subAiModelSelect, currentSubVal || defaultAiModel);
       }
 
       function updateChatHistoryAvailability() {
