@@ -1315,16 +1315,21 @@
           }
 
           /* Result rendering ============================================ */
-          /* Per-chat collapsible section. Each section grows to fit its
-             content fully — no inner scroll, no cropping. The OUTER results
-             area gets the page-level scroll instead (see .dashboard-results-text
-             override below). */
+          /* Per-chat collapsible section. Each section MUST take its natural
+             height — no inner scroll, no cropping. Two things matter:
+             1) No `overflow: hidden` on the wrapper — that was clipping
+                expanded bodies. Border-radius moved onto the header instead.
+             2) `flex: 0 0 auto` on the wrapper — .dashboard-results-text is
+                a flex column, and without this each section would shrink to
+                share space with siblings (the "ribbon" bug). With `0 0 auto`,
+                each section grows to its content and the OUTER container
+                scrolls through them all. */
           .group-result-section {
             border: 1px solid rgba(127, 196, 192, 0.35);
             border-radius: 6px;
             margin: 10px 0;
-            overflow: hidden;
             background: #fff;
+            flex: 0 0 auto !important;
           }
           .group-result-section__header {
             display: flex;
@@ -1340,10 +1345,29 @@
             font-weight: 600;
             color: #1d6a72;
             user-select: none;
+            border-top-left-radius: 6px;
+            border-top-right-radius: 6px;
+          }
+          /* When collapsed, the header's bottom corners are exposed — round
+             them too so the pill shape stays clean. */
+          .group-result-section--collapsed .group-result-section__header {
+            border-radius: 6px;
           }
           .group-result-section__chevron { font-size: 12px; color: #1d6a72; }
-          .group-result-section__body { padding: 12px 14px; border-top: 1px solid rgba(127, 196, 192, 0.25); }
+          .group-result-section__body {
+            padding: 12px 14px;
+            border-top: 1px solid rgba(127, 196, 192, 0.25);
+          }
           .group-result-section--collapsed .group-result-section__body { display: none; }
+          /* The <pre> inside section body MUST be allowed to overflow its
+             natural width / height — no shrinking, no inner scroll. */
+          .group-result-section__body pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow: visible;
+            max-height: none;
+          }
 
           .group-result-summary {
             border-left: 4px solid rgba(94, 191, 168, 0.55);
@@ -1355,19 +1379,29 @@
             padding: 10px 14px;
             margin: 10px 0;
             border-radius: 4px;
+            flex: 0 0 auto !important;
           }
           .group-result-summary__title {
             font-weight: 600;
             margin-bottom: 6px;
             color: #1d6a72;
           }
+          .group-result-summary pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow: visible;
+            max-height: none;
+          }
 
           /* Make the results area scrollable as a whole when content is tall.
-             We set a max-height tied to viewport height so users can scroll
-             through 10+ chat sections; each section itself stays uncropped. */
+             We pin max-height to the viewport, scroll vertically, AND override
+             the base flex layout so children don't share space — they stack
+             at their natural heights. */
           .dashboard-results-text {
             max-height: calc(100vh - 240px);
             overflow-y: auto;
+            display: block !important;
           }
         </style>
       
