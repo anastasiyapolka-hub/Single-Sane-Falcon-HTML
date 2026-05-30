@@ -3974,70 +3974,42 @@
         return allowed.has(raw) ? raw : "openai:gpt-4.1-mini";
       }
 
+      function getAllAiModelOptions() {
+        // Full catalog of supported models with their labels.
+        // Used (a) by getAiModelOptionsByPlan as the source of options
+        // for paid plans, and (b) by buildAiModelSelect to look up a
+        // friendly label when re-injecting an off-plan model the user
+        // had already selected (defensive against plan-info race).
+        // Order: light → balanced → deep within each provider,
+        // providers grouped OpenAI → Anthropic → Google. Keep this
+        // order stable so the dropdown ranking matches what users see
+        // in pricing/admin.
+        return [
+          { value: "openai:gpt-4.1-mini", label: tI18n("common:ai_models.openai_gpt_4_1_mini", "OpenAI GPT-4.1 mini — быстрый и универсальный анализ") },
+          { value: "openai:gpt-5.4-mini", label: tI18n("common:ai_models.openai_gpt_5_4_mini", "OpenAI GPT-5.4 mini — сбалансированный анализ") },
+          { value: "openai:gpt-4.1",      label: tI18n("common:ai_models.openai_gpt_4_1",      "OpenAI GPT-4.1 — для длинного контекста и глубокого анализа") },
+          { value: "openai:o4-mini",      label: tI18n("common:ai_models.openai_o4_mini",      "OpenAI o4-mini — дешёвый reasoning, 200K контекст") },
+          { value: "openai:o3",           label: tI18n("common:ai_models.openai_o3",           "OpenAI o3 — глубокий reasoning, 200K контекст") },
+          { value: "anthropic:claude-haiku-4-5",  label: tI18n("common:ai_models.claude_haiku_4_5",  "Claude Haiku 4.5 — быстрый и дешёвый анализ") },
+          { value: "anthropic:claude-sonnet-4-6", label: tI18n("common:ai_models.claude_sonnet_4_6", "Claude Sonnet 4.6 — более глубокий анализ длинных обсуждений") },
+          { value: "google:gemini-3.1-flash-lite", label: tI18n("common:ai_models.google_gemini_3_1_flash_lite", "Google Gemini 3.1 Flash Lite — самая дешёвая, для простых запросов") },
+          { value: "google:gemini-2.5-flash",      label: tI18n("common:ai_models.google_gemini_2_5_flash",      "Google Gemini 2.5 Flash — баланс цены и качества, длинный контекст") },
+          { value: "google:gemini-2.5-pro",        label: tI18n("common:ai_models.google_gemini_2_5_pro",        "Google Gemini 2.5 Pro — глубокий анализ, 1M контекст, дешевле Sonnet") },
+          { value: "google:gemini-3.5-flash",      label: tI18n("common:ai_models.google_gemini_3_5_flash",      "Google Gemini 3.5 Flash — премиум интеллект, для сложного анализа") },
+        ];
+      }
+
       function getAiModelOptionsByPlan() {
         const planCode = String(getPlanInfo()?.code || "free").toLowerCase();
+        const all = getAllAiModelOptions();
 
         // Free plan: only the default OpenAI mini.
-        const base = [
-          {
-            value: "openai:gpt-4.1-mini",
-            label: tI18n("common:ai_models.openai_gpt_4_1_mini", "OpenAI GPT-4.1 mini — быстрый и универсальный анализ"),
-          },
-        ];
-
-        if (planCode !== "free") {
-          // Ordered light → balanced → deep within each provider, providers
-          // grouped: OpenAI → Anthropic → Google. Keep this order stable so
-          // the dropdown ranking matches what users see in pricing/admin.
-
-          // OpenAI: balanced + deep (light already added above)
-          base.push({
-            value: "openai:gpt-5.4-mini",
-            label: tI18n("common:ai_models.openai_gpt_5_4_mini", "OpenAI GPT-5.4 mini — сбалансированный анализ"),
-          });
-          base.push({
-            value: "openai:gpt-4.1",
-            label: tI18n("common:ai_models.openai_gpt_4_1", "OpenAI GPT-4.1 — для длинного контекста и глубокого анализа"),
-          });
-          base.push({
-            value: "openai:o4-mini",
-            label: tI18n("common:ai_models.openai_o4_mini", "OpenAI o4-mini — дешёвый reasoning, 200K контекст"),
-          });
-          base.push({
-            value: "openai:o3",
-            label: tI18n("common:ai_models.openai_o3", "OpenAI o3 — глубокий reasoning, 200K контекст"),
-          });
-
-          // Anthropic: light + deep
-          base.push({
-            value: "anthropic:claude-haiku-4-5",
-            label: tI18n("common:ai_models.claude_haiku_4_5", "Claude Haiku 4.5 — быстрый и дешёвый анализ"),
-          });
-          base.push({
-            value: "anthropic:claude-sonnet-4-6",
-            label: tI18n("common:ai_models.claude_sonnet_4_6", "Claude Sonnet 4.6 — более глубокий анализ длинных обсуждений"),
-          });
-
-          // Google: light + balanced + deep
-          base.push({
-            value: "google:gemini-3.1-flash-lite",
-            label: tI18n("common:ai_models.google_gemini_3_1_flash_lite", "Google Gemini 3.1 Flash Lite — самая дешёвая, для простых запросов"),
-          });
-          base.push({
-            value: "google:gemini-2.5-flash",
-            label: tI18n("common:ai_models.google_gemini_2_5_flash", "Google Gemini 2.5 Flash — баланс цены и качества, длинный контекст"),
-          });
-          base.push({
-            value: "google:gemini-2.5-pro",
-            label: tI18n("common:ai_models.google_gemini_2_5_pro", "Google Gemini 2.5 Pro — глубокий анализ, 1M контекст, дешевле Sonnet"),
-          });
-          base.push({
-            value: "google:gemini-3.5-flash",
-            label: tI18n("common:ai_models.google_gemini_3_5_flash", "Google Gemini 3.5 Flash — премиум интеллект, для сложного анализа"),
-          });
+        if (planCode === "free") {
+          return all.filter((it) => it.value === "openai:gpt-4.1-mini");
         }
 
-        return base;
+        // Paid plans: full list.
+        return all;
       }
 
       function buildAiModelSelect(selectEl, selectedValue) {
@@ -4045,6 +4017,29 @@
 
         const options = getAiModelOptionsByPlan();
         const normalized = normalizeAiModelUi(selectedValue);
+
+        // Defensive injection: if the user previously selected a model
+        // that normalizeAiModelUi recognizes (a globally valid slug) but
+        // the current plan-filtered options happen to drop it, push it
+        // into the visible options anyway. This guards against the race
+        // where plan-usage info arrives stale/partial in an API response
+        // and the refresh would otherwise silently reset the dropdown to
+        // GPT-4.1 mini. Symptom this fixes: Sonnet / Gemini Flash Lite
+        // snapping back to GPT-4.1 mini after every /analyze call, but
+        // only intermittently — exactly matching the user-visible bug.
+        const rawInput = String(selectedValue || "").trim().toLowerCase();
+        const userPickedValidButPlanFilteredOut =
+          rawInput
+          && rawInput === normalized
+          && !options.some((it) => it.value === normalized);
+        if (userPickedValidButPlanFilteredOut) {
+          const masterMatch = getAllAiModelOptions().find(
+            (it) => it.value === normalized
+          );
+          if (masterMatch) {
+            options.push(masterMatch);
+          }
+        }
 
         // In group mode, decorate long-context models with a «рекомендовано»
         // suffix in the label so the user knows which ones handle 20-chat
@@ -4067,6 +4062,10 @@
           })
           .join("");
 
+        // Last-resort fallback: only reset to first option if the user's
+        // value isn't even globally valid. With the injection above this
+        // path is only hit for genuinely-unknown slugs (e.g. a removed
+        // model coming back from old chat history).
         if (!options.some((item) => item.value === normalized) && options[0]) {
           selectEl.value = options[0].value;
         }
