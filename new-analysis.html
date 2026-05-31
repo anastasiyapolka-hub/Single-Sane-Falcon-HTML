@@ -1605,6 +1605,8 @@
       // Modal
       const botConnectModal = document.getElementById("botConnectModal");
       const modalOkBtn = document.getElementById("modalOkBtn");
+      const modalOpenBotBtn = document.getElementById("modalOpenBotBtn");
+      const modalOpenBotWebLink = document.getElementById("modalOpenBotWebLink");
 
       
       // элементы для сворачиваемой левой панели
@@ -3446,8 +3448,46 @@
         renderChatsList(filtered);
       }
 
-      function openModal() {
-        if (botConnectModal) botConnectModal.style.display = "flex";
+      async function openModal() {
+        if (!botConnectModal) return;
+
+        // Заранее показываем модалку — кнопка/ссылка станут активны после получения deeplink
+        botConnectModal.style.display = "flex";
+
+        if (modalOpenBotBtn) {
+          modalOpenBotBtn.setAttribute("href", "#");
+          modalOpenBotBtn.setAttribute("aria-disabled", "true");
+          modalOpenBotBtn.classList.add("is-loading");
+        }
+        if (modalOpenBotWebLink) {
+          modalOpenBotWebLink.setAttribute("href", "#");
+          modalOpenBotWebLink.setAttribute("aria-disabled", "true");
+        }
+
+        try {
+          const data = await apiFetch("/tg/bot/link/start", { method: "POST" });
+          const webLink = data?.deeplink || "";
+          if (webLink) {
+            // Нативная схема — открывает установленное приложение Telegram под текущим аккаунтом
+            const tgScheme = webLink.replace(
+              /^https?:\/\/t\.me\/([^/?#]+)\?start=(.+)$/i,
+              "tg://resolve?domain=$1&start=$2"
+            );
+
+            if (modalOpenBotBtn) {
+              modalOpenBotBtn.setAttribute("href", tgScheme);
+              modalOpenBotBtn.removeAttribute("aria-disabled");
+              modalOpenBotBtn.classList.remove("is-loading");
+            }
+            if (modalOpenBotWebLink) {
+              modalOpenBotWebLink.setAttribute("href", webLink);
+              modalOpenBotWebLink.removeAttribute("aria-disabled");
+            }
+          }
+        } catch (e) {
+          console.error("bot link start failed", e);
+          if (modalOpenBotBtn) modalOpenBotBtn.classList.remove("is-loading");
+        }
       }
 
       function closeModal() {
@@ -5328,12 +5368,14 @@ if (runSubscriptionsBtn) {
           Для активации механизма подписок требуется подключить бота к CoTel.
         </p>
 
-        <a class="modal-link" href="https://t.me/CoTel_AlertBot" target="_blank" rel="noopener">
-          t.me/CoTel_AlertBot
-        </a>
+        <div class="modal-actions">
+          <a id="modalOpenBotBtn" class="tg-button" href="#" target="_blank" rel="noopener" data-i18n="new-analysis:bot_connect_modal.open_btn">Открыть бота</a>
+        </div>
+
+        <a id="modalOpenBotWebLink" class="modal-link" href="#" target="_blank" rel="noopener" data-i18n="new-analysis:bot_connect_modal.open_in_browser">Открыть в браузере / другой аккаунт</a>
 
         <div class="modal-actions">
-          <button id="modalOkBtn" type="button" class="tg-button" data-i18n="new-analysis:bot_connect_modal.ok_btn">Понятно</button>
+          <button id="modalOkBtn" type="button" class="tg-button tg-button--secondary" data-i18n="new-analysis:bot_connect_modal.ok_btn">Понятно</button>
         </div>
       </div>
     </div>

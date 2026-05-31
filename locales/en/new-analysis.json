@@ -363,6 +363,8 @@
   "bot_connect_modal": {
     "title": "Connect bot",
     "text": "To activate the subscriptions engine, please connect the bot to CoTel.",
+    "open_btn": "Open bot",
+    "open_in_browser": "Open in browser / another account",
     "ok_btn": "Got it"
   }
 }
