@@ -57,7 +57,7 @@
     "qr_hint": "Откройте Telegram → Настройки → Устройства → Подключить устройство и сканируйте QR.",
     "qr_refresh_btn": "Обновить QR",
     "phone_label": "Вход по номеру телефона",
-    "phone_placeholder": "+7 9ХХ ХХХ-ХХ-ХХ",
+    "phone_placeholder": "9ХХ ХХХ-ХХ-ХХ",
     "send_code_btn": "Получить код в Telegram",
     "send_code_hint": "Мы отправим код в ваш Telegram-клиент. Мы не сохраняем историю сообщений.",
     "code_sent_hint": "Мы отправили код в ваш Telegram. Введите его ниже.",

@@ -57,7 +57,7 @@
     "qr_hint": "Open Telegram → Settings → Devices → Link Desktop Device and scan the QR code.",
     "qr_refresh_btn": "Refresh QR",
     "phone_label": "Sign in with phone number",
-    "phone_placeholder": "+1 555 555-55-55",
+    "phone_placeholder": "555 555-55-55",
     "send_code_btn": "Get code in Telegram",
     "send_code_hint": "We'll send a code to your Telegram client. We don't store message history.",
     "code_sent_hint": "We've sent a code to your Telegram. Enter it below.",

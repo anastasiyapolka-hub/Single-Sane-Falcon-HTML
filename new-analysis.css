@@ -1824,6 +1824,65 @@ select option {
   justify-content: flex-end;
 }
 
+.modal-actions--center {
+  justify-content: center;
+  margin: 4px 0 12px;
+}
+
+.modal-card--with-close {
+  position: relative;
+  padding-top: 36px;
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  font-size: 22px;
+  line-height: 1;
+  color: rgba(0,0,0,0.55);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.modal-close-btn:hover {
+  background: rgba(0,0,0,0.06);
+  color: rgba(0,0,0,0.85);
+}
+
+.modal-deeplink {
+  display: block;
+  text-align: center;
+  font-size: 0.8rem;
+  color: rgba(0,0,0,0.55);
+  word-break: break-all;
+  text-decoration: underline;
+  padding: 4px 8px;
+  margin-top: 4px;
+}
+
+.modal-deeplink:hover {
+  color: rgba(0,0,0,0.85);
+}
+
+.modal-deeplink[aria-disabled="true"] {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.tg-button[aria-disabled="true"] {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
 .data-source-hidden {
   display: none !important;
 }

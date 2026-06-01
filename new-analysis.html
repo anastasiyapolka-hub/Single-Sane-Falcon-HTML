@@ -511,7 +511,7 @@
                             id="tgPhoneInput"
                             type="text"
                             class="tg-input"
-                            placeholder="+7 9ХХ ХХХ-ХХ-ХХ"
+                            placeholder="9ХХ ХХХ-ХХ-ХХ"
                             data-i18n-placeholder="new-analysis:telegram_auth.phone_placeholder"
                           />
                         </div>
@@ -1604,7 +1604,7 @@
 
       // Modal
       const botConnectModal = document.getElementById("botConnectModal");
-      const modalOkBtn = document.getElementById("modalOkBtn");
+      const modalCloseBtn = document.getElementById("modalCloseBtn");
       const modalOpenBotBtn = document.getElementById("modalOpenBotBtn");
       const modalOpenBotWebLink = document.getElementById("modalOpenBotWebLink");
 
@@ -3451,42 +3451,52 @@
       async function openModal() {
         if (!botConnectModal) return;
 
-        // Заранее показываем модалку — кнопка/ссылка станут активны после получения deeplink
+        // Заранее показываем модалку — кнопка/ссылка станут активны после получения кода
         botConnectModal.style.display = "flex";
 
         if (modalOpenBotBtn) {
           modalOpenBotBtn.setAttribute("href", "#");
           modalOpenBotBtn.setAttribute("aria-disabled", "true");
-          modalOpenBotBtn.classList.add("is-loading");
         }
         if (modalOpenBotWebLink) {
           modalOpenBotWebLink.setAttribute("href", "#");
           modalOpenBotWebLink.setAttribute("aria-disabled", "true");
+          modalOpenBotWebLink.textContent = "…";
         }
 
         try {
           const data = await apiFetch("/tg/bot/link/start", { method: "POST" });
+          const code = data?.code || "";
           const webLink = data?.deeplink || "";
-          if (webLink) {
-            // Нативная схема — открывает установленное приложение Telegram под текущим аккаунтом
-            const tgScheme = webLink.replace(
-              /^https?:\/\/t\.me\/([^/?#]+)\?start=(.+)$/i,
-              "tg://resolve?domain=$1&start=$2"
-            );
 
-            if (modalOpenBotBtn) {
-              modalOpenBotBtn.setAttribute("href", tgScheme);
-              modalOpenBotBtn.removeAttribute("aria-disabled");
-              modalOpenBotBtn.classList.remove("is-loading");
-            }
-            if (modalOpenBotWebLink) {
-              modalOpenBotWebLink.setAttribute("href", webLink);
-              modalOpenBotWebLink.removeAttribute("aria-disabled");
-            }
+          // username бота: предпочитаем поле bot_username, иначе парсим из deeplink
+          let botUsername = (data?.bot_username || "").trim();
+          if (!botUsername && webLink) {
+            const m = String(webLink).match(/t\.me\/([^/?#]+)/i);
+            if (m && m[1]) botUsername = m[1];
+          }
+
+          if (!code || !webLink || !botUsername) {
+            console.error("bot link start: bad response", data);
+            if (modalOpenBotWebLink) modalOpenBotWebLink.textContent = "Не удалось получить код, попробуйте ещё раз";
+            return;
+          }
+
+          // Нативная схема — открывает установленное приложение Telegram под текущим аккаунтом
+          const tgScheme = `tg://resolve?domain=${botUsername}&start=${encodeURIComponent(code)}`;
+
+          if (modalOpenBotBtn) {
+            modalOpenBotBtn.setAttribute("href", tgScheme);
+            modalOpenBotBtn.removeAttribute("aria-disabled");
+          }
+          if (modalOpenBotWebLink) {
+            modalOpenBotWebLink.setAttribute("href", webLink);
+            modalOpenBotWebLink.textContent = webLink;
+            modalOpenBotWebLink.removeAttribute("aria-disabled");
           }
         } catch (e) {
           console.error("bot link start failed", e);
-          if (modalOpenBotBtn) modalOpenBotBtn.classList.remove("is-loading");
+          if (modalOpenBotWebLink) modalOpenBotWebLink.textContent = "Не удалось получить код, попробуйте ещё раз";
         }
       }
 
@@ -3494,9 +3504,14 @@
         if (botConnectModal) botConnectModal.style.display = "none";
       }
 
-      modalOkBtn?.addEventListener("click", closeModal);
+      modalCloseBtn?.addEventListener("click", closeModal);
       botConnectModal?.addEventListener("click", (e) => {
         if (e.target === botConnectModal) closeModal();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && botConnectModal && botConnectModal.style.display !== "none") {
+          closeModal();
+        }
       });
 
       subChatInput?.addEventListener("input", () => {
@@ -5362,21 +5377,25 @@ if (runSubscriptionsBtn) {
 
       <!-- Modal: Подключение бота для подписок -->
     <div id="botConnectModal" class="modal-overlay" style="display:none;">
-      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-card modal-card--with-close" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <button
+          id="modalCloseBtn"
+          type="button"
+          class="modal-close-btn"
+          aria-label="Закрыть"
+          data-i18n-aria-label="common:close"
+        >×</button>
+
         <h3 id="modalTitle" class="modal-title" data-i18n="new-analysis:bot_connect_modal.title">Подключение бота</h3>
         <p class="modal-text" data-i18n="new-analysis:bot_connect_modal.text">
           Для активации механизма подписок требуется подключить бота к CoTel.
         </p>
 
-        <div class="modal-actions">
-          <a id="modalOpenBotBtn" class="tg-button" href="#" target="_blank" rel="noopener" data-i18n="new-analysis:bot_connect_modal.open_btn">Открыть бота</a>
+        <div class="modal-actions modal-actions--center">
+          <a id="modalOpenBotBtn" class="tg-button tg-button--primary" href="#" target="_blank" rel="noopener" data-i18n="new-analysis:bot_connect_modal.open_btn">Открыть бота</a>
         </div>
 
-        <a id="modalOpenBotWebLink" class="modal-link" href="#" target="_blank" rel="noopener" data-i18n="new-analysis:bot_connect_modal.open_in_browser">Открыть в браузере / другой аккаунт</a>
-
-        <div class="modal-actions">
-          <button id="modalOkBtn" type="button" class="tg-button tg-button--secondary" data-i18n="new-analysis:bot_connect_modal.ok_btn">Понятно</button>
-        </div>
+        <a id="modalOpenBotWebLink" class="modal-deeplink" href="#" target="_blank" rel="noopener">…</a>
       </div>
     </div>
 
