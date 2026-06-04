@@ -721,9 +721,28 @@
                           </div>
                         </div>
 
-                        <div id="queryAiModelRow" class="sidebar-inline-setting-row">
-                          <label for="queryAiModelSelect" class="sidebar-inline-setting-label" data-i18n="new-analysis:chat_requests.ai_model_label">Модель AI:</label>
-                          <select id="queryAiModelSelect" class="sidebar-inline-setting-input"></select>
+                        <div id="queryDepthRow" class="sidebar-inline-setting-row">
+                          <label class="sidebar-inline-setting-label"
+                                 data-i18n="new-analysis:chat_requests.depth_label">Глубина анализа:</label>
+                          <div class="depth-selector" id="queryDepthSelector" role="radiogroup"
+                               aria-label="Глубина анализа">
+                            <button type="button" class="depth-btn active" data-depth="light"
+                                    data-i18n="new-analysis:chat_requests.depth_light">Лёгкий</button>
+                            <button type="button" class="depth-btn" data-depth="balanced"
+                                    data-i18n="new-analysis:chat_requests.depth_balanced">Средний</button>
+                            <button type="button" class="depth-btn" data-depth="deep"
+                                    data-i18n="new-analysis:chat_requests.depth_deep">Глубокий</button>
+                            <button type="button" id="queryDepthInfoBtn" class="depth-info-btn"
+                                    title="Примерная стоимость"
+                                    data-i18n-title="new-analysis:chat_requests.depth_info_tooltip"
+                                    aria-label="Примерная стоимость">ⓘ</button>
+                          </div>
+                        </div>
+
+                        <!-- Скрытый legacy селектор модели (нужен старому JS-коду на время cutover'а).
+                             Удалим в этапе 4 рефакторинга вместе со старой логикой. -->
+                        <div id="queryAiModelRow" class="sidebar-inline-setting-row" style="display:none">
+                          <select id="queryAiModelSelect"></select>
                         </div>
 
                         <!-- Group request toggle — same row style as other settings.
@@ -1548,6 +1567,53 @@
       const queryDaysInput = document.getElementById("queryDaysInput");
       const queryAiModelRow = document.getElementById("queryAiModelRow");
       const queryAiModelSelect = document.getElementById("queryAiModelSelect");
+      const queryDepthSelector = document.getElementById("queryDepthSelector");
+      const queryDepthInfoBtn = document.getElementById("queryDepthInfoBtn");
+
+      // === Глубина анализа (заменяет старый выбор модели) ===
+      // light / balanced / deep — пользователь выбирает только это,
+      // конкретную модель определяет роутер на бэке (classifier → routing).
+      const DEPTH_VALUES = ["light", "balanced", "deep"];
+      let _selectedDepth = "light";
+
+      function getSelectedDepth() {
+        return DEPTH_VALUES.includes(_selectedDepth) ? _selectedDepth : "light";
+      }
+
+      function setSelectedDepth(depth) {
+        const d = DEPTH_VALUES.includes(depth) ? depth : "light";
+        _selectedDepth = d;
+        if (queryDepthSelector) {
+          queryDepthSelector.querySelectorAll(".depth-btn").forEach((btn) => {
+            btn.classList.toggle("active", btn.dataset.depth === d);
+            btn.setAttribute("aria-checked", btn.dataset.depth === d ? "true" : "false");
+          });
+        }
+      }
+
+      function initDepthSelector() {
+        if (!queryDepthSelector || queryDepthSelector._wired) return;
+        queryDepthSelector._wired = true;
+        queryDepthSelector.querySelectorAll(".depth-btn").forEach((btn) => {
+          btn.addEventListener("click", () => setSelectedDepth(btn.dataset.depth));
+        });
+        if (queryDepthInfoBtn) {
+          queryDepthInfoBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            const lightTxt = tI18n("new-analysis:chat_requests.depth_estimate_light", "~30-150 токенов");
+            const balancedTxt = tI18n("new-analysis:chat_requests.depth_estimate_balanced", "~80-300 токенов");
+            const deepTxt = tI18n("new-analysis:chat_requests.depth_estimate_deep", "~200-800 токенов");
+            const note = tI18n(
+              "new-analysis:chat_requests.depth_estimate_note",
+              "Точное списание зависит от активности чата и считается после выполнения."
+            );
+            alert(
+              `Лёгкий: ${lightTxt}\nСредний: ${balancedTxt}\nГлубокий: ${deepTxt}\n\n${note}`
+            );
+          });
+        }
+      }
+      initDepthSelector();
 
       // ----- Group analysis mode (multi-chat) -----
       const queryGroupModeToggle = document.getElementById("queryGroupModeToggle");
@@ -5681,6 +5747,8 @@ if (runSubscriptionsBtn) {
             <span class="plan-chip plan-basic">Basic</span>
             <span class="plan-divider">/</span>
             <span class="plan-chip plan-pro">Pro</span>
+            <span class="plan-divider">/</span>
+            <span class="plan-chip plan-power">Power</span>
           </div>
 
           <button id="change-plan-btn" type="button" class="profile-plan-btn" data-i18n="auth:profile.change_plan">
@@ -5690,6 +5758,7 @@ if (runSubscriptionsBtn) {
 
         <div class="profile-tabs">
           <button type="button" class="profile-tab-btn active" data-profile-tab="limits" data-i18n="auth:profile.tabs.limits">Лимиты</button>
+          <button type="button" class="profile-tab-btn" data-profile-tab="history" data-i18n="auth:profile.tabs.history">История запросов</button>
           <button type="button" class="profile-tab-btn" data-profile-tab="personal" data-i18n="auth:profile.tabs.personal">Личные данные</button>
           <button type="button" class="profile-tab-btn" data-profile-tab="settings" data-i18n="auth:profile.tabs.settings">Настройки профиля</button>
         </div>
@@ -5697,25 +5766,44 @@ if (runSubscriptionsBtn) {
         <div class="profile-tab-panels">
           <!-- LIMITS -->
           <div class="profile-tab-panel active" data-profile-panel="limits">
+
+            <!-- Карточка баланса токенов с прогресс-баром (top-блок) -->
+            <div class="profile-tokens-card">
+              <div class="profile-tokens-header">
+                <div class="profile-tokens-title" data-i18n="auth:profile.tokens.title">Баланс токенов</div>
+                <div class="profile-tokens-period" id="profile-tokens-period">—</div>
+              </div>
+              <div class="profile-tokens-progress">
+                <div class="profile-tokens-progress-bar">
+                  <div class="profile-tokens-progress-fill" id="profile-tokens-progress-fill" style="width:0%"></div>
+                </div>
+                <div class="profile-tokens-progress-text">
+                  <span id="profile-tokens-used">0</span>
+                  <span class="profile-tokens-sep">/</span>
+                  <span id="profile-tokens-granted">0</span>
+                  <span data-i18n="auth:profile.tokens.unit_suffix">токенов</span>
+                </div>
+              </div>
+              <div class="profile-tokens-breakdown" id="profile-tokens-breakdown" style="display:none">
+                <div class="profile-tokens-row">
+                  <span data-i18n="auth:profile.tokens.qa_label">↳ Q&A запросы:</span>
+                  <span id="profile-tokens-qa-used">0</span>
+                </div>
+                <div class="profile-tokens-row">
+                  <span data-i18n="auth:profile.tokens.subs_label">↳ Подписки:</span>
+                  <span id="profile-tokens-subs-used">0</span>
+                </div>
+              </div>
+              <div class="profile-tokens-topup-row">
+                <span data-i18n="auth:profile.tokens.topup_balance_label">Купленные дополнительно:</span>
+                <strong id="profile-tokens-topup-balance">0</strong>
+                <button id="profile-tokens-topup-btn" type="button" class="profile-tokens-topup-btn"
+                        data-i18n="auth:profile.tokens.topup_button">+ Докупить токены</button>
+              </div>
+            </div>
+
+            <!-- Карточки тарифа -->
             <div class="profile-limits-grid">
-              <div class="profile-limit-card">
-                <div class="profile-limit-card-title" data-i18n="auth:profile.limits.daily">Запросы сегодня</div>
-                <div class="profile-limit-card-value">
-                  <span id="profile-limit-daily-used">0</span>
-                  <span class="profile-limit-sep">/</span>
-                  <span id="profile-limit-daily-total">0</span>
-                </div>
-              </div>
-
-              <div class="profile-limit-card">
-                <div class="profile-limit-card-title" data-i18n="auth:profile.limits.monthly">Запросы в месяц</div>
-                <div class="profile-limit-card-value">
-                  <span id="profile-limit-monthly-used">0</span>
-                  <span class="profile-limit-sep">/</span>
-                  <span id="profile-limit-monthly-total">0</span>
-                </div>
-              </div>
-
               <div class="profile-limit-card">
                 <div class="profile-limit-card-title" data-i18n="auth:profile.limits.subscriptions">Активные подписки</div>
                 <div class="profile-limit-card-value">
@@ -5736,8 +5824,13 @@ if (runSubscriptionsBtn) {
               </div>
 
               <div class="profile-limit-card">
-                <div class="profile-limit-card-title" data-i18n="auth:profile.limits.chat_history">История чатов и каналов</div>
-                <div class="profile-limit-card-text" id="profile-limit-chat-history">—</div>
+                <div class="profile-limit-card-title" data-i18n="auth:profile.limits.group_analysis_title">Групповой анализ</div>
+                <div class="profile-limit-card-text" id="profile-limit-group-analysis">—</div>
+              </div>
+
+              <div class="profile-limit-card">
+                <div class="profile-limit-card-title" data-i18n="auth:profile.limits.topup_card_title">Докупка токенов</div>
+                <div class="profile-limit-card-text" id="profile-limit-topup-availability">—</div>
               </div>
 
               <div class="profile-limit-card" id="profile-trial-card">
@@ -5750,6 +5843,35 @@ if (runSubscriptionsBtn) {
                 </div>
               </div>
             </div>
+          </div>
+
+          <!-- HISTORY (новая вкладка «История запросов») -->
+          <div class="profile-tab-panel" data-profile-panel="history">
+            <div class="profile-history-header">
+              <label class="profile-history-filter">
+                <input type="checkbox" id="profile-history-include-subs">
+                <span data-i18n="auth:profile.history.include_subs">Показывать срабатывания подписок</span>
+              </label>
+              <div class="profile-history-total" id="profile-history-total" style="display:none">
+                <span data-i18n="auth:profile.history.total_label">Всего:</span>
+                <strong id="profile-history-total-count">0</strong>
+              </div>
+            </div>
+
+            <div class="profile-history-loading" id="profile-history-loading" style="display:none">
+              <div class="profile-history-spinner"></div>
+              <div data-i18n="auth:profile.history.loading">Загружаем историю…</div>
+            </div>
+
+            <div class="profile-history-empty" id="profile-history-empty" style="display:none">
+              <div data-i18n="auth:profile.history.empty">У вас пока нет запросов. Сделайте первый — он появится здесь.</div>
+            </div>
+
+            <div class="profile-history-list" id="profile-history-list"></div>
+
+            <button id="profile-history-load-more" type="button"
+                    class="profile-history-load-more" style="display:none"
+                    data-i18n="auth:profile.history.load_more">Показать ещё</button>
           </div>
 
           <!-- PERSONAL -->

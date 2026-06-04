@@ -1756,12 +1756,55 @@ function renderProfileLimits() {
     if (el) el.textContent = String(value ?? "—");
   };
 
-  setText("profile-limit-daily-used", usage.daily_used ?? 0);
-  setText("profile-limit-daily-total", plan.daily_qa_limit ?? 0);
+  // === Карточка баланса токенов (top-блок) ===
+  const tokens = usage.tokens || {};
+  const monthlyGranted = Number(tokens.monthly_granted || 0);
+  const monthlyUsed = Number(tokens.monthly_used || 0);
+  const topupBalance = Number(tokens.topup_balance || 0);
 
-  setText("profile-limit-monthly-used", usage.monthly_used ?? 0);
-  setText("profile-limit-monthly-total", plan.monthly_qa_limit ?? 0);
+  setText("profile-tokens-granted", monthlyGranted);
+  setText("profile-tokens-used", monthlyUsed);
+  setText("profile-tokens-topup-balance", topupBalance);
 
+  const progressFill = byId("profile-tokens-progress-fill");
+  if (progressFill) {
+    const pct = monthlyGranted > 0
+      ? Math.min(100, Math.round((monthlyUsed / monthlyGranted) * 100))
+      : 0;
+    progressFill.style.width = `${pct}%`;
+    progressFill.classList.toggle("profile-tokens-progress-warning", pct >= 80 && pct < 100);
+    progressFill.classList.toggle("profile-tokens-progress-danger", pct >= 100);
+  }
+
+  // Подпись «Обновится 1 июля» — рассчитываем 1-е число следующего месяца
+  const periodEl = byId("profile-tokens-period");
+  if (periodEl) {
+    const now = new Date();
+    const next = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
+    const dateStr = next.toLocaleDateString(
+      (document.documentElement.lang || "ru") === "en" ? "en-US" : "ru-RU",
+      { day: "numeric", month: "long" }
+    );
+    const planLabel = String(plan.code || "—").toUpperCase();
+    const priceLabel = Number(plan.price_usd) > 0
+      ? ` · $${Number(plan.price_usd)}/мес`
+      : "";
+    periodEl.textContent = tAuth(
+      "auth:profile.tokens.period_template",
+      `${planLabel}${priceLabel} · Обновится ${dateStr}`,
+      { plan: planLabel, price: priceLabel, date: dateStr }
+    );
+  }
+
+  // Кнопка докупки токенов — disabled если plan.topup_enabled = false
+  const topupBtn = byId("profile-tokens-topup-btn");
+  if (topupBtn) {
+    const enabled = !!plan.topup_enabled;
+    topupBtn.disabled = !enabled;
+    topupBtn.style.display = enabled ? "" : "none";
+  }
+
+  // === Карточки тарифа ===
   setText("profile-limit-subs-used", usage.active_subscriptions ?? 0);
   setText("profile-limit-subs-total", plan.max_active_subscriptions ?? 0);
 
@@ -1780,11 +1823,31 @@ function renderProfileLimits() {
     frequencyEl.textContent = formatSubscriptionFrequency(plan.min_subscription_interval_minutes);
   }
 
-  const chatHistoryEl = byId("profile-limit-chat-history");
-  if (chatHistoryEl) {
-    chatHistoryEl.textContent = plan.has_chat_history
-      ? tAuth("auth:profile.limits.chat_history_available", "доступна")
-      : tAuth("auth:profile.limits.chat_history_unavailable", "недоступна");
+  // Карточка «Групповой анализ»
+  const groupEl = byId("profile-limit-group-analysis");
+  if (groupEl) {
+    const maxChats = Number(plan.max_chats_per_group_request || 1);
+    const planCode = String(plan.code || "").toLowerCase();
+    if (maxChats <= 1 || planCode === "free") {
+      groupEl.textContent = tAuth(
+        "auth:profile.limits.group_analysis_unavailable",
+        "Не доступен на бесплатном тарифе"
+      );
+    } else {
+      groupEl.textContent = tAuth(
+        "auth:profile.limits.group_analysis_value",
+        `Q&A и подписки до ${maxChats} чатов одновременно`,
+        { max: maxChats }
+      );
+    }
+  }
+
+  // Карточка «Докупка токенов»
+  const topupAvailEl = byId("profile-limit-topup-availability");
+  if (topupAvailEl) {
+    topupAvailEl.textContent = plan.topup_enabled
+      ? tAuth("auth:profile.limits.topup_available", "Доступна")
+      : tAuth("auth:profile.limits.topup_unavailable", "Не доступна");
   }
 
   const trialCard = byId("profile-trial-card");
@@ -1816,6 +1879,264 @@ function renderProfileLimits() {
   }
 }
 
+
+// ===========================================================================
+// История запросов (вкладка «История запросов» в профиле)
+// ===========================================================================
+
+const HISTORY_PAGE_SIZE = 50;
+let _historyState = {
+  loaded: false,
+  loading: false,
+  items: [],
+  offset: 0,
+  total: 0,
+  includeSubscriptions: false,
+};
+
+function _formatHistoryDate(isoStr) {
+  if (!isoStr) return "";
+  try {
+    const d = new Date(isoStr);
+    const lang = (document.documentElement.lang || "ru") === "en" ? "en-US" : "ru-RU";
+    const dateStr = d.toLocaleDateString(lang, { day: "numeric", month: "long" });
+    const timeStr = d.toLocaleTimeString(lang, { hour: "2-digit", minute: "2-digit" });
+    return `${dateStr} ${timeStr}`;
+  } catch {
+    return isoStr;
+  }
+}
+
+function _modelDisplayName(slug) {
+  if (!slug) return "—";
+  // Маппинг slug → человекочитаемое имя. Расширяемо.
+  const map = {
+    "openai:gpt-4.1-mini":             "OpenAI GPT-4.1 mini",
+    "openai:gpt-5.4-mini":             "OpenAI GPT-5.4 mini",
+    "openai:gpt-4.1":                  "OpenAI GPT-4.1",
+    "openai:o3":                       "OpenAI o3",
+    "openai:o4-mini":                  "OpenAI o4-mini",
+    "anthropic:claude-haiku-4-5":      "Claude Haiku 4.5",
+    "anthropic:claude-sonnet-4-6":     "Claude Sonnet 4.6",
+    "google:gemini-3.1-flash-lite":    "Google Gemini Flash Lite",
+    "google:gemini-2.5-flash":         "Google Gemini 2.5 Flash",
+    "google:gemini-2.5-pro":           "Google Gemini 2.5 Pro",
+    "google:gemini-3.5-flash":         "Google Gemini 3.5 Flash",
+  };
+  return map[slug] || slug;
+}
+
+function _tierDisplayName(tier) {
+  const t = String(tier || "").toLowerCase();
+  if (t === "light") return tAuth("auth:profile.history.tier_light", "лёгкий");
+  if (t === "balanced") return tAuth("auth:profile.history.tier_balanced", "средний");
+  if (t === "deep") return tAuth("auth:profile.history.tier_deep", "глубокий");
+  return "—";
+}
+
+function _eventTypeBadge(eventType) {
+  switch (eventType) {
+    case "qa_request_success":
+      return { color: "ok",  label: tAuth("auth:profile.history.event_qa", "Q&A") };
+    case "subscription_run_success":
+      return { color: "subs", label: tAuth("auth:profile.history.event_subscription", "Подписка") };
+    case "qa_request_failure":
+      return { color: "fail", label: tAuth("auth:profile.history.event_failure", "Ошибка") };
+    default:
+      return { color: "other", label: eventType };
+  }
+}
+
+function _renderHistoryItem(item) {
+  const badge = _eventTypeBadge(item.event_type);
+
+  // Источник: chat_ref (если group:N → «N чатов»)
+  let source = item.chat_ref || "";
+  if (source.startsWith("group:")) {
+    const after = source.slice(6);
+    if (/^\d+$/.test(after)) {
+      source = tAuth("auth:profile.history.group_n_chats", `${after} чатов`, { n: after });
+    }
+  }
+
+  // Период
+  const daysStr = item.requested_days
+    ? tAuth("auth:profile.history.days_template", `${item.requested_days} дн`, { days: item.requested_days })
+    : "";
+
+  // Длительность
+  let durStr = "";
+  if (item.duration_ms_llm) {
+    const sec = Math.round(item.duration_ms_llm / 100) / 10;
+    durStr = `${sec} ${tAuth("auth:profile.history.seconds_short", "с")}`;
+  }
+
+  const tokensStr = (item.tokens_charged != null)
+    ? `${item.tokens_charged} ${tAuth("auth:profile.tokens.unit_suffix", "токенов")}`
+    : "—";
+
+  const dateStr = _formatHistoryDate(item.created_at);
+  const tierStr = _tierDisplayName(item.tier);
+  const modelStr = _modelDisplayName(item.used_model);
+
+  const errorRow = item.event_type === "qa_request_failure" && item.error_code
+    ? `<div class="profile-history-error">${escapeHtml(item.error_code)}</div>`
+    : "";
+
+  return `
+    <div class="profile-history-item profile-history-item-${badge.color}">
+      <div class="profile-history-row1">
+        <span class="profile-history-badge profile-history-badge-${badge.color}">${escapeHtml(badge.label)}</span>
+        <span class="profile-history-date">${escapeHtml(dateStr)}</span>
+      </div>
+      <div class="profile-history-row2">
+        ${tierStr ? `<span>${escapeHtml(tierStr)}</span> · ` : ""}
+        ${source ? `<span class="profile-history-source">${escapeHtml(source)}</span>` : ""}
+        ${daysStr ? ` · <span>${escapeHtml(daysStr)}</span>` : ""}
+      </div>
+      <div class="profile-history-row3">
+        <strong>${escapeHtml(tokensStr)}</strong>
+        · <span>${escapeHtml(modelStr)}</span>
+        ${durStr ? ` · <span>${escapeHtml(durStr)}</span>` : ""}
+      </div>
+      ${errorRow}
+    </div>
+  `;
+}
+
+function escapeHtml(s) {
+  return String(s ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+async function _fetchHistoryPage(offset, includeSubs) {
+  const qs = new URLSearchParams({
+    limit: HISTORY_PAGE_SIZE,
+    offset,
+    include_subscriptions: includeSubs ? "true" : "false",
+  });
+  const res = await apiFetch(`/account/usage-history?${qs}`, { method: "GET" });
+  return res;
+}
+
+async function loadProfileHistory({ reset } = {}) {
+  if (_historyState.loading) return;
+
+  const listEl = byId("profile-history-list");
+  const loadingEl = byId("profile-history-loading");
+  const emptyEl = byId("profile-history-empty");
+  const loadMoreBtn = byId("profile-history-load-more");
+  const totalEl = byId("profile-history-total");
+  const totalCountEl = byId("profile-history-total-count");
+
+  if (reset) {
+    _historyState.items = [];
+    _historyState.offset = 0;
+    _historyState.total = 0;
+    if (listEl) listEl.innerHTML = "";
+    if (emptyEl) emptyEl.style.display = "none";
+    if (totalEl) totalEl.style.display = "none";
+    if (loadMoreBtn) loadMoreBtn.style.display = "none";
+  }
+
+  if (loadingEl) loadingEl.style.display = "flex";
+  _historyState.loading = true;
+
+  try {
+    const data = await _fetchHistoryPage(_historyState.offset, _historyState.includeSubscriptions);
+    const newItems = Array.isArray(data?.items) ? data.items : [];
+    _historyState.items.push(...newItems);
+    _historyState.offset += newItems.length;
+    _historyState.total = Number(data?.total || 0);
+    _historyState.loaded = true;
+
+    // Render new items append
+    if (listEl) {
+      const html = newItems.map(_renderHistoryItem).join("");
+      listEl.insertAdjacentHTML("beforeend", html);
+    }
+
+    // Empty state
+    if (emptyEl) emptyEl.style.display = _historyState.items.length === 0 ? "" : "none";
+
+    // Total
+    if (totalEl && totalCountEl) {
+      totalCountEl.textContent = String(_historyState.total);
+      totalEl.style.display = _historyState.total > 0 ? "" : "none";
+    }
+
+    // Load more button
+    if (loadMoreBtn) {
+      loadMoreBtn.style.display =
+        _historyState.items.length < _historyState.total ? "" : "none";
+    }
+  } catch (err) {
+    console.warn("Profile history load failed:", err);
+    if (emptyEl) {
+      emptyEl.textContent = tAuth(
+        "auth:profile.history.load_error",
+        "Не удалось загрузить историю. Попробуйте позже."
+      );
+      emptyEl.style.display = "";
+    }
+  } finally {
+    _historyState.loading = false;
+    if (loadingEl) loadingEl.style.display = "none";
+  }
+}
+
+function ensureHistoryLoadedOnTabSwitch(tabName) {
+  if (tabName !== "history") return;
+  // Подгружаем при первом переходе. Если уже есть данные — не перезагружаем,
+  // пользователь увидит то же что в прошлый раз (кэш сессии).
+  if (!_historyState.loaded) {
+    loadProfileHistory({ reset: true });
+  }
+}
+
+function setupHistoryHandlers() {
+  const includeCheckbox = byId("profile-history-include-subs");
+  if (includeCheckbox && !includeCheckbox._wired) {
+    includeCheckbox._wired = true;
+    includeCheckbox.addEventListener("change", () => {
+      _historyState.includeSubscriptions = !!includeCheckbox.checked;
+      loadProfileHistory({ reset: true });
+    });
+  }
+
+  const loadMoreBtn = byId("profile-history-load-more");
+  if (loadMoreBtn && !loadMoreBtn._wired) {
+    loadMoreBtn._wired = true;
+    loadMoreBtn.addEventListener("click", () => loadProfileHistory({ reset: false }));
+  }
+
+  // Top-up кнопка — пока заглушка с уведомлением (платёжка не подключена)
+  const topupBtn = byId("profile-tokens-topup-btn");
+  if (topupBtn && !topupBtn._wired) {
+    topupBtn._wired = true;
+    topupBtn.addEventListener("click", async () => {
+      try {
+        // Реальная ручка вернёт 501 пока нет платёжки
+        await apiFetch("/account/tokens/topup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ package: "small" }),
+        });
+      } catch (err) {
+        const msg = err?.body?.detail?.message
+          || tAuth(
+            "auth:profile.tokens.topup_coming_soon",
+            "Функционал докупки токенов скоро будет доступен."
+          );
+        alert(msg);
+      }
+    });
+  }
+}
+
 function switchProfileTab(tabName) {
   document.querySelectorAll(".profile-tab-btn").forEach((btn) => {
     btn.classList.toggle("active", btn.dataset.profileTab === tabName);
@@ -1824,6 +2145,14 @@ function switchProfileTab(tabName) {
   document.querySelectorAll(".profile-tab-panel").forEach((panel) => {
     panel.classList.toggle("active", panel.dataset.profilePanel === tabName);
   });
+
+  // Lazy-load истории запросов при первом переходе на вкладку
+  if (typeof ensureHistoryLoadedOnTabSwitch === "function") {
+    ensureHistoryLoadedOnTabSwitch(tabName);
+  }
+  if (typeof setupHistoryHandlers === "function") {
+    setupHistoryHandlers();
+  }
 }
 
 function captureProfileFormState() {
@@ -1962,6 +2291,8 @@ async function openProfileModal() {
       switcher.querySelector(".plan-basic")?.classList.add("active");
     } else if (plan === "pro") {
       switcher.querySelector(".plan-pro")?.classList.add("active");
+    } else if (plan === "power") {
+      switcher.querySelector(".plan-power")?.classList.add("active");
     } else {
       switcher.querySelector(".plan-free")?.classList.add("active");
     }
