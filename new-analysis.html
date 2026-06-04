@@ -5127,6 +5127,138 @@ if (runSubscriptionsBtn) {
           ) + "\n" + lines.join("\n");
           resultDiv.appendChild(skippedBox);
         }
+
+        appendChargeBreakdown(resultDiv, payload);
+      }
+
+      // --- Block 4: «Списано: N токенов» + раскрывающаяся «Расшифровка ▾» ---
+      // Поля приходят в payload напрямую из backend (_build_qa_response /
+      // _build_group_response): tokens_charged, used_model, was_fallback,
+      // category, tier, detected_category, detected_confidence.
+      function categoryLabel(slug) {
+        if (!slug) return null;
+        return tI18n("new-analysis:chat_requests.category_" + slug, slug);
+      }
+
+      function tierLabel(tier) {
+        const map = {
+          light: "new-analysis:chat_requests.depth_light",
+          balanced: "new-analysis:chat_requests.depth_balanced",
+          deep: "new-analysis:chat_requests.depth_deep",
+        };
+        if (tier && map[tier]) return tI18n(map[tier], tier);
+        return tier || null;
+      }
+
+      function appendChargeBreakdown(container, payload) {
+        if (!container || !payload) return;
+        const charged = payload.tokens_charged;
+        // Не показываем расшифровку, если списания не было (0/undefined) —
+        // например, файловый режим или пустой результат.
+        if (charged === null || charged === undefined || charged <= 0) return;
+
+        const chargedEl = document.createElement("div");
+        chargedEl.className = "result-charged";
+        const amountSpan = document.createElement("span");
+        amountSpan.className = "result-charged-amount";
+        amountSpan.textContent = tI18n(
+          "new-analysis:chat_requests.charged_label",
+          "Списано: {{n}} токенов",
+          { n: charged }
+        );
+        chargedEl.appendChild(amountSpan);
+        container.appendChild(chargedEl);
+
+        // Собираем строки расшифровки только из присутствующих полей.
+        const rows = [];
+        const modelLabel = payload.used_model;
+        if (modelLabel) {
+          rows.push([
+            tI18n("new-analysis:chat_requests.breakdown_model", "Модель"),
+            modelLabel,
+          ]);
+        }
+        const tier = tierLabel(payload.tier);
+        if (tier) {
+          rows.push([
+            tI18n("new-analysis:chat_requests.breakdown_tier", "Глубина"),
+            tier,
+          ]);
+        }
+        const cat = categoryLabel(payload.category);
+        if (cat) {
+          rows.push([
+            tI18n("new-analysis:chat_requests.breakdown_category", "Категория запроса"),
+            cat,
+          ]);
+        }
+        const detected = categoryLabel(payload.detected_category);
+        if (detected) {
+          let detVal = detected;
+          if (payload.detected_confidence !== null && payload.detected_confidence !== undefined) {
+            const pct = Math.round(Number(payload.detected_confidence) * 100);
+            if (!Number.isNaN(pct)) detVal += " (" + pct + "%)";
+          }
+          rows.push([
+            tI18n("new-analysis:chat_requests.breakdown_detected_category", "Определено AI"),
+            detVal,
+          ]);
+        }
+        if (payload.was_fallback) {
+          rows.push([
+            tI18n("new-analysis:chat_requests.breakdown_fallback", "Использована резервная модель"),
+            tI18n("new-analysis:chat_requests.breakdown_fallback_yes", "да"),
+          ]);
+        }
+
+        if (!rows.length) return;
+
+        const toggle = document.createElement("button");
+        toggle.type = "button";
+        toggle.className = "result-breakdown-toggle";
+        toggle.setAttribute("aria-expanded", "false");
+        const toggleText = document.createElement("span");
+        toggleText.textContent = tI18n(
+          "new-analysis:chat_requests.breakdown_toggle",
+          "Расшифровка"
+        );
+        toggle.appendChild(toggleText);
+        const chevron = document.createElement("span");
+        chevron.className = "chevron";
+        chevron.textContent = "▾";
+        toggle.appendChild(chevron);
+        container.appendChild(toggle);
+
+        const details = document.createElement("div");
+        details.className = "result-breakdown";
+        details.style.display = "none";
+        rows.forEach(([label, value]) => {
+          const row = document.createElement("div");
+          row.className = "result-breakdown-row";
+          const l = document.createElement("span");
+          l.className = "label";
+          l.textContent = label;
+          const v = document.createElement("span");
+          v.className = "value";
+          v.textContent = value;
+          row.appendChild(l);
+          row.appendChild(v);
+          details.appendChild(row);
+        });
+        const note = document.createElement("div");
+        note.className = "result-breakdown-note";
+        note.textContent = tI18n(
+          "new-analysis:chat_requests.breakdown_auto_note",
+          "Модель выбрана автоматически"
+        );
+        details.appendChild(note);
+        container.appendChild(details);
+
+        toggle.addEventListener("click", () => {
+          const open = details.style.display !== "none";
+          details.style.display = open ? "none" : "block";
+          toggle.setAttribute("aria-expanded", open ? "false" : "true");
+        });
       }
 
       function renderResult(payload, rawText, userQuery) {
@@ -5199,6 +5331,8 @@ if (runSubscriptionsBtn) {
             bar.style.display = "block";
           }
         }
+
+        appendChargeBreakdown(resultDiv, payload);
       }
 
       const dispatchBotBtn = document.getElementById("dispatchBotBtn");
@@ -5275,9 +5409,7 @@ if (runSubscriptionsBtn) {
               // days — для обратной совместимости со старыми бэкендами;
               // новый контракт period_value+period_unit приоритетный.
               const days = periodUnit === "days" ? periodValue : 1;
-              const aiModel = normalizeAiModelUi(
-                queryAiModelSelect?.value || getDefaultAiModelForUi()
-              );
+              const depth = getSelectedDepth();
 
               // --- Group mode: multi-chat request ---
               if (typeof isGroupModeOn === "function" && isGroupModeOn()) {
@@ -5297,7 +5429,7 @@ if (runSubscriptionsBtn) {
                   period_value: periodValue,
                   period_unit: periodUnit,
                   user_query: query || null,
-                  ai_model: aiModel,
+                  depth: depth,
                 };
 
                 const data = await apiFetch("/tg/analyze_chats_group", {
@@ -5331,7 +5463,7 @@ if (runSubscriptionsBtn) {
                 period_value: periodValue,
                 period_unit: periodUnit,
                 user_query: query || null,
-                ai_model: aiModel,
+                depth: depth,
               };
 
 
@@ -5370,9 +5502,7 @@ if (runSubscriptionsBtn) {
                 period_value: periodValue,
                 period_unit: periodUnit,
                 user_query: query || "",
-                ai_model: normalizeAiModelUi(
-                  queryAiModelSelect?.value || getDefaultAiModelForUi()
-                ),
+                depth: getSelectedDepth(),
               };
 
               const data = await apiFetch("/tg/service/analyze_chat", {

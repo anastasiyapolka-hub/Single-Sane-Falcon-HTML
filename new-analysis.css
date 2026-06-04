@@ -2705,3 +2705,121 @@ html.cotel-preboot .sidebar-boot-loader {
     transform: rotate(360deg);
   }
 }
+
+/* ===== Селектор глубины анализа (light / balanced / deep) ===== */
+.depth-selector {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 2px;
+  background: #fff;
+}
+
+.depth-btn {
+  border: none;
+  background: transparent;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #6b7280;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.depth-btn.active {
+  background: #4f46e5;
+  color: #fff;
+}
+
+.depth-btn:hover:not(.active) {
+  background: #f3f4f6;
+}
+
+.depth-info-btn {
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 6px 8px;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.depth-info-btn:hover {
+  color: #4f46e5;
+}
+
+/* ===== Расшифровка списания токенов под ответом ===== */
+.result-charged {
+  margin-top: 14px;
+  font-size: 0.85rem;
+  color: #4b5563;
+}
+
+.result-charged-amount {
+  font-weight: 600;
+  color: #111827;
+}
+
+.result-breakdown-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #4f46e5;
+}
+
+.result-breakdown-toggle:hover {
+  text-decoration: underline;
+}
+
+.result-breakdown-toggle .chevron {
+  transition: transform 0.15s ease;
+}
+
+.result-breakdown-toggle[aria-expanded="true"] .chevron {
+  transform: rotate(180deg);
+}
+
+.result-breakdown {
+  margin-top: 8px;
+  padding: 10px 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f9fafb;
+  font-size: 0.82rem;
+  color: #374151;
+}
+
+.result-breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 3px 0;
+}
+
+.result-breakdown-row .label {
+  color: #6b7280;
+}
+
+.result-breakdown-row .value {
+  font-weight: 600;
+  color: #111827;
+  text-align: right;
+}
+
+.result-breakdown-note {
+  margin-top: 8px;
+  font-size: 0.78rem;
+  color: #9ca3af;
+  font-style: italic;
+}
