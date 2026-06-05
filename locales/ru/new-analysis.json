@@ -109,7 +109,7 @@
     "group_remove_one": "Убрать из группы",
     "depth_label": "Глубина анализа:",
     "depth_light": "Лёгкий",
-    "depth_balanced": "Средний",
+    "depth_balanced": "Сбалансированный",
     "depth_deep": "Глубокий",
     "depth_info_tooltip": "Примерная стоимость",
     "depth_estimate_light": "~30-150 токенов",

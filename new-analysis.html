@@ -729,7 +729,7 @@
                             <button type="button" class="depth-btn active" data-depth="light"
                                     data-i18n="new-analysis:chat_requests.depth_light">Лёгкий</button>
                             <button type="button" class="depth-btn" data-depth="balanced"
-                                    data-i18n="new-analysis:chat_requests.depth_balanced">Средний</button>
+                                    data-i18n="new-analysis:chat_requests.depth_balanced">Сбалансированный</button>
                             <button type="button" class="depth-btn" data-depth="deep"
                                     data-i18n="new-analysis:chat_requests.depth_deep">Глубокий</button>
                             <button type="button" id="queryDepthInfoBtn" class="depth-info-btn"
@@ -788,6 +788,83 @@
                             >Снять всё</button>
                           </div>
                           <div id="groupSelectedChatsList" class="group-selected-chats"></div>
+                        </div>
+
+                        <!-- Media filter toggle — same row style as group request.
+                             Sibling of queryGroupModeRow above. Lives strictly
+                             under it (per spec). -->
+                        <div id="queryMediaFilterRow" class="sidebar-inline-setting-row sidebar-inline-setting-row--toggle">
+                          <label
+                            for="queryMediaFilterToggle"
+                            class="sidebar-inline-setting-label media-filter-toggle-label"
+                            title="Искать только сообщения с медиа-файлами выбранных типов"
+                          >Медиафильтр:</label>
+                          <input
+                            id="queryMediaFilterToggle"
+                            type="checkbox"
+                            class="media-filter-toggle"
+                          />
+                        </div>
+
+                        <!-- Media filter expandable block — visually identical
+                             to groupSelectionCounter (transparent green). Hosts
+                             5 media-category checkboxes with optional subtype
+                             dropdowns for Video and Audio. -->
+                        <div id="mediaFilterBlock" class="media-filter-block hidden">
+                          <div class="media-filter-block__header">
+                            <button
+                              type="button"
+                              id="mediaFilterCollapseBtn"
+                              class="media-filter-collapse-btn"
+                              aria-expanded="true"
+                              aria-label="свернуть"
+                            >
+                              <span id="mediaFilterCollapseChevron" class="media-filter-collapse-btn__chevron">▾</span>
+                            </button>
+                            <span class="media-filter-block__title">Типы медиа</span>
+                          </div>
+                          <div class="media-filter-categories">
+                            <div class="media-filter-row">
+                              <label class="media-filter-cat-label">
+                                <input type="checkbox" class="media-filter-cat" value="video" />
+                                <span>Видео</span>
+                              </label>
+                              <select class="media-filter-subtype" data-cat="video" aria-label="Подтип видео">
+                                <option value="video_files">Видеофайлы</option>
+                                <option value="video_round">Видеокружки</option>
+                                <option value="video_both">Видеофайлы и видеокружки</option>
+                              </select>
+                            </div>
+                            <div class="media-filter-row">
+                              <label class="media-filter-cat-label">
+                                <input type="checkbox" class="media-filter-cat" value="photo" />
+                                <span>Фото</span>
+                              </label>
+                            </div>
+                            <div class="media-filter-row">
+                              <label class="media-filter-cat-label">
+                                <input type="checkbox" class="media-filter-cat" value="audio" />
+                                <span>Аудио</span>
+                              </label>
+                              <select class="media-filter-subtype" data-cat="audio" aria-label="Подтип аудио">
+                                <option value="audio_files">Аудиофайлы</option>
+                                <option value="audio_voice">Голосовые сообщения</option>
+                                <option value="audio_both">Аудиофайлы и голосовые</option>
+                              </select>
+                            </div>
+                            <div class="media-filter-row">
+                              <label class="media-filter-cat-label">
+                                <input type="checkbox" class="media-filter-cat" value="document" />
+                                <span>Документы</span>
+                              </label>
+                            </div>
+                            <div class="media-filter-row">
+                              <label class="media-filter-cat-label">
+                                <input type="checkbox" class="media-filter-cat" value="url" />
+                                <span>Ссылки</span>
+                              </label>
+                            </div>
+                          </div>
                         </div>
 
                       </div>
@@ -1257,6 +1334,185 @@
           }
           .group-selected-chat__remove:hover { color: #c4444f; }
 
+          /* ------- Media filter block -------
+             Same look as group-selection-counter (transparent green tint + soft
+             teal accent on the left). Lives directly under queryMediaFilterRow,
+             which itself sits under queryGroupModeRow per spec. */
+          .media-filter-toggle-label { cursor: help; }
+          .media-filter-toggle { width: 18px; height: 18px; accent-color: #1d6a72; }
+          .media-filter-block {
+            margin-top: 10px;
+            padding: 8px 10px;
+            background: linear-gradient(
+              90deg,
+              rgba(127, 196, 192, 0.14),
+              rgba(127, 196, 192, 0.08)
+            );
+            border-left: 3px solid rgba(94, 191, 168, 0.55);
+            border-radius: 4px;
+            font-size: 13px;
+            color: #205964;
+          }
+          .media-filter-block.hidden { display: none; }
+          .media-filter-block__header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+          }
+          .media-filter-collapse-btn {
+            background: transparent;
+            border: 0;
+            cursor: pointer;
+            padding: 0;
+            color: #1d6a72;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+          }
+          .media-filter-collapse-btn__chevron { font-size: 12px; }
+          .media-filter-block__title { font-weight: 500; flex: 1; }
+          .media-filter-block--collapsed .media-filter-categories { display: none; }
+
+          .media-filter-categories {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+          }
+          .media-filter-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 8px;
+            background: rgba(255, 255, 255, 0.45);
+            border-radius: 4px;
+          }
+          .media-filter-cat-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            flex: 0 0 auto;
+            min-width: 110px;
+            font-size: 13px;
+            color: #205964;
+          }
+          .media-filter-cat-label input { accent-color: #1d6a72; }
+          .media-filter-subtype {
+            flex: 1;
+            min-width: 0;
+            background: #fff;
+            border: 1px solid rgba(94, 191, 168, 0.35);
+            border-radius: 3px;
+            padding: 2px 6px;
+            font-size: 12px;
+            color: #1d4e54;
+          }
+          .media-filter-subtype:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+          }
+
+          /* ------- Media filter result cards (Этап 8) ------- */
+          .mf-headline {
+            font-weight: 500;
+            color: #1d4e54;
+            margin-bottom: 12px;
+          }
+          .mf-chat-block {
+            margin-bottom: 14px;
+            padding: 8px 10px;
+            background: linear-gradient(
+              90deg,
+              rgba(127, 196, 192, 0.10),
+              rgba(127, 196, 192, 0.04)
+            );
+            border-left: 3px solid rgba(94, 191, 168, 0.45);
+            border-radius: 4px;
+          }
+          .mf-chat-block__header {
+            font-weight: 600;
+            color: #1d4e54;
+            margin-bottom: 8px;
+            font-size: 14px;
+          }
+          .mf-chat-block__error {
+            color: #a04050;
+            font-style: italic;
+            font-size: 13px;
+          }
+          .mf-chat-block__empty {
+            color: #5a7378;
+            font-style: italic;
+            font-size: 13px;
+          }
+          .mf-section { margin-bottom: 10px; }
+          .mf-section__header {
+            font-weight: 500;
+            color: #205964;
+            margin-bottom: 4px;
+            font-size: 13px;
+          }
+          .mf-card {
+            padding: 6px 10px;
+            margin-bottom: 4px;
+            background: #ffffff;
+            border: 1px solid rgba(94, 191, 168, 0.20);
+            border-radius: 4px;
+            font-size: 13px;
+            color: #1d2f33;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+          }
+          .mf-card__meta {
+            color: #5a7378;
+            font-size: 12px;
+          }
+          .mf-card__details {
+            color: #205964;
+            font-size: 12px;
+          }
+          .mf-card__caption {
+            color: #1d2f33;
+          }
+          .mf-card__urls {
+            white-space: pre-wrap;
+            font-size: 12px;
+          }
+          .mf-card__urls a {
+            color: #1d6a72;
+            text-decoration: underline;
+            word-break: break-all;
+          }
+          .mf-card__footer {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            margin-top: 4px;
+          }
+          .mf-badge {
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            background: rgba(127, 196, 192, 0.18);
+            color: #1d4e54;
+          }
+          .mf-badge--ttl { background: rgba(196, 145, 60, 0.18); color: #6a4f15; }
+          .mf-badge--spoiler { background: rgba(60, 60, 60, 0.18); color: #1d1d1d; }
+          .mf-card__open {
+            margin-left: auto;
+            font-size: 12px;
+            color: #1d6a72;
+            text-decoration: underline;
+            cursor: pointer;
+          }
+          .mf-card__open:hover { color: #155256; }
+
           /* Per-chat checkbox (added in group mode) lives on the right edge of each row. */
           .sidebar-chat-item { position: relative; }
           .sidebar-chat-item--group { padding-right: 28px; }
@@ -1591,6 +1847,94 @@
         }
       }
 
+      // === Переиспользуемый поповер (база для будущих onboarding-подсказок) ===
+      // Лёгкая белая карточка со стрелкой, появляется рядом с якорем, не блокирует
+      // интерфейс. Закрывается крестиком, кликом вне или ESC.
+      let _cotelPopoverEl = null;
+      let _cotelPopoverAnchor = null;
+
+      function _cotelPopoverOutside(e) {
+        if (!_cotelPopoverEl) return;
+        if (
+          _cotelPopoverEl.contains(e.target) ||
+          (_cotelPopoverAnchor && _cotelPopoverAnchor.contains(e.target))
+        ) {
+          return;
+        }
+        hideCotelPopover();
+      }
+
+      function _cotelPopoverEsc(e) {
+        if (e.key === "Escape") hideCotelPopover();
+      }
+
+      function hideCotelPopover() {
+        if (!_cotelPopoverEl) return;
+        _cotelPopoverEl.remove();
+        _cotelPopoverEl = null;
+        _cotelPopoverAnchor = null;
+        document.removeEventListener("click", _cotelPopoverOutside, true);
+        document.removeEventListener("keydown", _cotelPopoverEsc, true);
+        window.removeEventListener("resize", hideCotelPopover);
+        window.removeEventListener("scroll", hideCotelPopover, true);
+      }
+
+      function _positionCotelPopover(anchorEl, pop) {
+        const r = anchorEl.getBoundingClientRect();
+        const gap = 10;
+        let left = r.right + gap;
+        pop.classList.add("cotel-popover--right");
+        if (left + pop.offsetWidth > window.innerWidth - 8) {
+          left = r.left - gap - pop.offsetWidth;
+          pop.classList.remove("cotel-popover--right");
+          pop.classList.add("cotel-popover--left");
+        }
+        let top = r.top + r.height / 2 - pop.offsetHeight / 2;
+        top = Math.max(8, Math.min(top, window.innerHeight - pop.offsetHeight - 8));
+        pop.style.left = Math.round(left) + "px";
+        pop.style.top = Math.round(top) + "px";
+        const arrow = pop.querySelector(".cotel-popover-arrow");
+        if (arrow) {
+          arrow.style.top = Math.round(r.top + r.height / 2 - top) + "px";
+        }
+      }
+
+      function showCotelPopover(anchorEl, htmlContent) {
+        hideCotelPopover();
+        const pop = document.createElement("div");
+        pop.className = "cotel-popover";
+        pop.setAttribute("role", "dialog");
+        pop.innerHTML =
+          '<button type="button" class="cotel-popover-close" aria-label="Закрыть">✕</button>' +
+          '<div class="cotel-popover-body">' + htmlContent + "</div>" +
+          '<span class="cotel-popover-arrow"></span>';
+        document.body.appendChild(pop);
+        pop
+          .querySelector(".cotel-popover-close")
+          .addEventListener("click", (e) => {
+            e.stopPropagation();
+            hideCotelPopover();
+          });
+        _cotelPopoverEl = pop;
+        _cotelPopoverAnchor = anchorEl;
+        _positionCotelPopover(anchorEl, pop);
+        // Откладываем подписку на клик вне, чтобы открывающий клик не закрыл сразу.
+        setTimeout(() => {
+          document.addEventListener("click", _cotelPopoverOutside, true);
+          document.addEventListener("keydown", _cotelPopoverEsc, true);
+        }, 0);
+        window.addEventListener("resize", hideCotelPopover);
+        window.addEventListener("scroll", hideCotelPopover, true);
+      }
+
+      function toggleCotelPopover(anchorEl, htmlContent) {
+        if (_cotelPopoverEl && _cotelPopoverAnchor === anchorEl) {
+          hideCotelPopover();
+          return;
+        }
+        showCotelPopover(anchorEl, htmlContent);
+      }
+
       function initDepthSelector() {
         if (!queryDepthSelector || queryDepthSelector._wired) return;
         queryDepthSelector._wired = true;
@@ -1598,8 +1942,10 @@
           btn.addEventListener("click", () => setSelectedDepth(btn.dataset.depth));
         });
         if (queryDepthInfoBtn) {
-          queryDepthInfoBtn.addEventListener("click", (e) => {
-            e.preventDefault();
+          const buildDepthInfoHtml = () => {
+            const lightLbl = tI18n("new-analysis:chat_requests.depth_light", "Лёгкий");
+            const balancedLbl = tI18n("new-analysis:chat_requests.depth_balanced", "Сбалансированный");
+            const deepLbl = tI18n("new-analysis:chat_requests.depth_deep", "Глубокий");
             const lightTxt = tI18n("new-analysis:chat_requests.depth_estimate_light", "~30-150 токенов");
             const balancedTxt = tI18n("new-analysis:chat_requests.depth_estimate_balanced", "~80-300 токенов");
             const deepTxt = tI18n("new-analysis:chat_requests.depth_estimate_deep", "~200-800 токенов");
@@ -1607,9 +1953,31 @@
               "new-analysis:chat_requests.depth_estimate_note",
               "Точное списание зависит от активности чата и считается после выполнения."
             );
-            alert(
-              `Лёгкий: ${lightTxt}\nСредний: ${balancedTxt}\nГлубокий: ${deepTxt}\n\n${note}`
+            return (
+              '<div class="cotel-popover-row"><b>' + lightLbl + "</b> — " + lightTxt + "</div>" +
+              '<div class="cotel-popover-row"><b>' + balancedLbl + "</b> — " + balancedTxt + "</div>" +
+              '<div class="cotel-popover-row"><b>' + deepLbl + "</b> — " + deepTxt + "</div>" +
+              '<div class="cotel-popover-note">' + note + "</div>"
             );
+          };
+          // Клик — мгновенно открыть/закрыть.
+          queryDepthInfoBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleCotelPopover(queryDepthInfoBtn, buildDepthInfoHtml());
+          });
+          // Наведение и удержание 3 секунды — тоже открыть.
+          let _depthHoverTimer = null;
+          queryDepthInfoBtn.addEventListener("mouseenter", () => {
+            _depthHoverTimer = setTimeout(() => {
+              showCotelPopover(queryDepthInfoBtn, buildDepthInfoHtml());
+            }, 3000);
+          });
+          queryDepthInfoBtn.addEventListener("mouseleave", () => {
+            if (_depthHoverTimer) {
+              clearTimeout(_depthHoverTimer);
+              _depthHoverTimer = null;
+            }
           });
         }
       }
@@ -1863,6 +2231,85 @@
           refreshAiModelControls();
         }
       });
+
+      // ---- Media filter (Этап 7) ----
+      // Чекбокс «Медиафильтр» под «Групповой запрос», сворачиваемый
+      // блок с 5 категориями и опциональными подтипами для Видео/Аудио.
+      const queryMediaFilterToggle = document.getElementById("queryMediaFilterToggle");
+      const mediaFilterBlock = document.getElementById("mediaFilterBlock");
+      const mediaFilterCollapseBtn = document.getElementById("mediaFilterCollapseBtn");
+      const mediaFilterCollapseChevron = document.getElementById("mediaFilterCollapseChevron");
+
+      function isMediaFilterOn() {
+        return !!(queryMediaFilterToggle && queryMediaFilterToggle.checked);
+      }
+
+      // Подтипы активны только если соответствующая категория отмечена.
+      // Это снимает дилемму «что значит выбранный подтип у выключенной категории».
+      function refreshMediaFilterSubtypeStates() {
+        if (!mediaFilterBlock) return;
+        const cats = mediaFilterBlock.querySelectorAll(".media-filter-cat");
+        const stateByCat = {};
+        cats.forEach((c) => { stateByCat[c.value] = c.checked; });
+        mediaFilterBlock.querySelectorAll(".media-filter-subtype").forEach((sel) => {
+          const cat = sel.dataset.cat;
+          sel.disabled = !stateByCat[cat];
+        });
+      }
+
+      // Возвращает объект media_filter для payload'а или null если фильтр выключен.
+      // Контракт совпадает с backend/media_filter/types.py MediaFilterRequest.
+      function getMediaFilterPayload() {
+        if (!isMediaFilterOn()) return null;
+        const categories = [];
+        mediaFilterBlock?.querySelectorAll(".media-filter-cat").forEach((c) => {
+          if (c.checked) categories.push(c.value);
+        });
+        const videoSel = mediaFilterBlock?.querySelector('.media-filter-subtype[data-cat="video"]');
+        const audioSel = mediaFilterBlock?.querySelector('.media-filter-subtype[data-cat="audio"]');
+        return {
+          enabled: true,
+          categories: categories,
+          video_subtype: (videoSel && videoSel.value) || "video_files",
+          audio_subtype: (audioSel && audioSel.value) || "audio_files",
+        };
+      }
+
+      queryMediaFilterToggle?.addEventListener("change", () => {
+        const on = isMediaFilterOn();
+        if (mediaFilterBlock) {
+          mediaFilterBlock.classList.toggle("hidden", !on);
+          if (on) {
+            mediaFilterBlock.classList.remove("media-filter-block--collapsed");
+            if (mediaFilterCollapseChevron) mediaFilterCollapseChevron.textContent = "▾";
+            mediaFilterCollapseBtn?.setAttribute("aria-expanded", "true");
+          }
+        }
+      });
+
+      mediaFilterCollapseBtn?.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (!mediaFilterBlock) return;
+        const willCollapse = !mediaFilterBlock.classList.contains("media-filter-block--collapsed");
+        mediaFilterBlock.classList.toggle("media-filter-block--collapsed", willCollapse);
+        if (mediaFilterCollapseChevron) {
+          mediaFilterCollapseChevron.textContent = willCollapse ? "▸" : "▾";
+        }
+        mediaFilterCollapseBtn.setAttribute("aria-expanded", willCollapse ? "false" : "true");
+      });
+
+      // Включение/выключение dropdown'ов подтипа при изменении чекбокса
+      // категории. Также — рендерим начальное состояние сразу при загрузке.
+      mediaFilterBlock?.querySelectorAll(".media-filter-cat").forEach((c) => {
+        c.addEventListener("change", refreshMediaFilterSubtypeStates);
+      });
+      refreshMediaFilterSubtypeStates();
+
+      // Экспонируем для places-of-use ниже (apiFetch payload-сборка в submit).
+      window.cotelMediaFilter = {
+        isOn: isMediaFilterOn,
+        getPayload: getMediaFilterPayload,
+      };
 
       window.cotelRefreshLimitBoundControls = refreshLimitBoundControls;
 
@@ -5150,6 +5597,254 @@ if (runSubscriptionsBtn) {
         return tier || null;
       }
 
+      // ---------------------------------------------------------------------
+      // Media filter response renderer (Этап 8)
+      // ---------------------------------------------------------------------
+      // Рендерит структуру MediaFilterAnswer от backend/media_filter/formatter.py:
+      //   { is_group, total_count, headline, sections | chat_blocks }
+      // Карточки группируются по типу медиа в фикс-порядке.
+      // ---------------------------------------------------------------------
+
+      function mfKindLabel(kind) {
+        const map = {
+          "video_file":  "Видеофайлы",
+          "video_round": "Видеокружки",
+          "photo":       "Фото",
+          "audio_file":  "Аудиофайлы",
+          "voice":       "Голосовые сообщения",
+          "document":    "Документы",
+          "url":         "Ссылки",
+        };
+        return map[kind] || kind;
+      }
+
+      function mfChatErrorLabel(code) {
+        const map = {
+          "PRIVATE":         "Чат приватный, нет доступа",
+          "ADMIN_REQUIRED":  "Требуются права администратора",
+          "NOT_FOUND":       "Чат не найден",
+          "FLOOD_WAIT":      "Слишком много запросов к Telegram — попробуйте позже",
+          "RESOLVE_FAILED":  "Не удалось определить чат",
+          "NOT_AUTHORIZED":  "Telegram не подключен",
+          "FETCH_FAILED":    "Ошибка загрузки сообщений из Telegram",
+        };
+        return map[code] || ("Ошибка: " + code);
+      }
+
+      function mfFormatDate(iso) {
+        try {
+          const d = new Date(iso);
+          if (isNaN(d.getTime())) return iso;
+          const pad = (n) => String(n).padStart(2, "0");
+          return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        } catch (_e) {
+          return iso;
+        }
+      }
+
+      function mfFormatSize(bytes) {
+        if (!bytes || bytes <= 0) return "";
+        const units = ["Б", "КБ", "МБ", "ГБ"];
+        let i = 0, v = bytes;
+        while (v >= 1024 && i < units.length - 1) { v /= 1024; i++; }
+        return (v < 10 && i > 0 ? v.toFixed(1) : Math.round(v)) + " " + units[i];
+      }
+
+      function mfHumanDuration(seconds) {
+        if (!seconds || seconds <= 0) return "";
+        if (seconds < 60) return seconds + " сек";
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        if (m < 60) return m + ":" + String(s).padStart(2, "0");
+        const h = Math.floor(m / 60);
+        return h + " ч " + (m % 60) + " мин";
+      }
+
+      function mfCardDetails(card) {
+        const parts = [];
+        switch (card.kind) {
+          case "video_file":
+            if (card.duration_sec) parts.push(mfHumanDuration(card.duration_sec));
+            if (card.file_size) parts.push(mfFormatSize(card.file_size));
+            break;
+          case "video_round":
+            if (card.duration_sec) parts.push(mfHumanDuration(card.duration_sec));
+            break;
+          case "photo":
+            if (card.file_size) parts.push(mfFormatSize(card.file_size));
+            break;
+          case "audio_file":
+            if (card.duration_sec) parts.push(mfHumanDuration(card.duration_sec));
+            if (card.file_size) parts.push(mfFormatSize(card.file_size));
+            if (card.performer || card.title) {
+              parts.push([card.performer, card.title].filter(Boolean).join(" — "));
+            }
+            break;
+          case "voice":
+            if (card.duration_sec) parts.push(mfHumanDuration(card.duration_sec));
+            break;
+          case "document":
+            if (card.file_name) parts.push(card.file_name);
+            if (card.file_size) parts.push(mfFormatSize(card.file_size));
+            if (card.mime_type) parts.push(card.mime_type);
+            break;
+          case "url":
+            // URL cards рендерят список ссылок отдельным блоком, тут пусто.
+            break;
+        }
+        return parts.join(" · ");
+      }
+
+      function mfRenderCard(card) {
+        const el = document.createElement("div");
+        el.className = "mf-card";
+
+        // 1. Meta-строка: дата, автор
+        const meta = document.createElement("div");
+        meta.className = "mf-card__meta";
+        meta.textContent = mfFormatDate(card.date_iso)
+          + (card.sender_label ? " · " + card.sender_label : "");
+        el.appendChild(meta);
+
+        // 2. Спец-детали по типу
+        const detailsStr = mfCardDetails(card);
+        if (detailsStr) {
+          const details = document.createElement("div");
+          details.className = "mf-card__details";
+          details.textContent = detailsStr;
+          el.appendChild(details);
+        }
+
+        // 3. Подпись/текст
+        if (card.caption) {
+          const cap = document.createElement("div");
+          cap.className = "mf-card__caption";
+          cap.textContent = card.caption;
+          el.appendChild(cap);
+        }
+
+        // 4. URL-список для kind="url"
+        if (card.kind === "url" && Array.isArray(card.extracted_urls) && card.extracted_urls.length) {
+          const urls = document.createElement("div");
+          urls.className = "mf-card__urls";
+          card.extracted_urls.forEach((u, idx) => {
+            if (idx > 0) urls.appendChild(document.createTextNode("\n"));
+            const a = document.createElement("a");
+            a.href = u; a.target = "_blank"; a.rel = "noopener noreferrer";
+            a.textContent = u;
+            urls.appendChild(a);
+          });
+          el.appendChild(urls);
+        }
+
+        // 5. Бейджи + ссылка на сообщение
+        const footer = document.createElement("div");
+        footer.className = "mf-card__footer";
+
+        if (card.is_forwarded && card.forward_label) {
+          const fwd = document.createElement("span");
+          fwd.className = "mf-badge mf-badge--fwd";
+          fwd.textContent = "↪ " + card.forward_label;
+          footer.appendChild(fwd);
+        }
+
+        if (card.ttl_period_sec) {
+          const ttl = document.createElement("span");
+          ttl.className = "mf-badge mf-badge--ttl";
+          ttl.textContent = "⏱ исчезающее (" + mfHumanDuration(card.ttl_period_sec) + ")";
+          ttl.title = "Самоудаляющееся сообщение. Ссылка может протухнуть.";
+          footer.appendChild(ttl);
+        }
+
+        if (card.has_spoiler) {
+          const sp = document.createElement("span");
+          sp.className = "mf-badge mf-badge--spoiler";
+          sp.textContent = "⚫ спойлер";
+          footer.appendChild(sp);
+        }
+
+        if (card.permalink) {
+          const link = document.createElement("a");
+          link.href = card.permalink;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          link.className = "mf-card__open";
+          link.textContent = "↗ открыть в Telegram";
+          footer.appendChild(link);
+        }
+
+        if (footer.children.length > 0) el.appendChild(footer);
+        return el;
+      }
+
+      function mfRenderSection(section) {
+        const el = document.createElement("div");
+        el.className = "mf-section";
+        const head = document.createElement("div");
+        head.className = "mf-section__header";
+        head.textContent = `${mfKindLabel(section.kind)} (${section.count})`;
+        el.appendChild(head);
+        (section.cards || []).forEach((c) => el.appendChild(mfRenderCard(c)));
+        return el;
+      }
+
+      function mfRenderChatBlock(block) {
+        const el = document.createElement("div");
+        el.className = "mf-chat-block";
+        const head = document.createElement("div");
+        head.className = "mf-chat-block__header";
+        head.textContent = `${block.chat_title || block.chat_link}`
+          + (block.total_count ? ` (${block.total_count})` : "");
+        el.appendChild(head);
+        if (block.error_code) {
+          const err = document.createElement("div");
+          err.className = "mf-chat-block__error";
+          err.textContent = mfChatErrorLabel(block.error_code);
+          el.appendChild(err);
+          return el;
+        }
+        if (!block.sections || block.sections.length === 0) {
+          const empty = document.createElement("div");
+          empty.className = "mf-chat-block__empty";
+          empty.textContent = "Нет совпадений по выбранным фильтрам.";
+          el.appendChild(empty);
+          return el;
+        }
+        (block.sections || []).forEach((s) => el.appendChild(mfRenderSection(s)));
+        return el;
+      }
+
+      function renderMediaFilterAnswer(answer, userQuery) {
+        if (!answer || !resultDiv) return;
+
+        // Пользовательский вопрос курсивом + разделитель — как в обычном
+        // ответе, чтобы UI остался единым по композиции.
+        if (userQuery && userQuery.trim()) {
+          const queryEl = document.createElement("div");
+          queryEl.style.fontStyle = "italic";
+          queryEl.style.marginBottom = "8px";
+          queryEl.textContent = userQuery.trim();
+          resultDiv.appendChild(queryEl);
+          const divider = document.createElement("div");
+          divider.style.borderBottom = "1px solid #d1d5db";
+          divider.style.marginBottom = "16px";
+          resultDiv.appendChild(divider);
+        }
+
+        if (answer.headline) {
+          const h = document.createElement("div");
+          h.className = "mf-headline";
+          h.textContent = answer.headline;
+          resultDiv.appendChild(h);
+        }
+
+        if (answer.is_group) {
+          (answer.chat_blocks || []).forEach((b) => resultDiv.appendChild(mfRenderChatBlock(b)));
+        } else {
+          (answer.sections || []).forEach((s) => resultDiv.appendChild(mfRenderSection(s)));
+        }
+      }
+
       function appendChargeBreakdown(container, payload) {
         if (!container || !payload) return;
         const charged = payload.tokens_charged;
@@ -5271,6 +5966,16 @@ if (runSubscriptionsBtn) {
         // Очищаем элемент
         resultDiv.innerHTML = "";
         resultDiv.className = "dashboard-results-text";
+
+        // --- Media filter response ---
+        // Detect by presence of `media_filter` field (see backend formatter).
+        // Routed BEFORE group-mode check: media filter может прийти и в
+        // одиночном, и в групповом запросе — структура своя.
+        if (payload && payload.media_filter) {
+          renderMediaFilterAnswer(payload.media_filter, userQuery);
+          appendChargeBreakdown(resultDiv, payload);
+          return;
+        }
 
         // --- Group-mode response (multi-chat) ---
         // Backend returns `group_size: int` and `results: array`. Render
@@ -5432,6 +6137,12 @@ if (runSubscriptionsBtn) {
                   depth: depth,
                 };
 
+                // Этап 8: добавляем media_filter, если пользователь его включил.
+                const mfPayload = (typeof window.cotelMediaFilter?.getPayload === "function")
+                  ? window.cotelMediaFilter.getPayload()
+                  : null;
+                if (mfPayload) payload.media_filter = mfPayload;
+
                 const data = await apiFetch("/tg/analyze_chats_group", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
@@ -5466,6 +6177,11 @@ if (runSubscriptionsBtn) {
                 depth: depth,
               };
 
+              // Этап 8: media_filter (опц., если включён в UI)
+              const mfPayloadSingle = (typeof window.cotelMediaFilter?.getPayload === "function")
+                ? window.cotelMediaFilter.getPayload()
+                : null;
+              if (mfPayloadSingle) payload.media_filter = mfPayloadSingle;
 
               const data = await apiFetch("/tg/analyze_chat", {
                 method: "POST",
