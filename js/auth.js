@@ -413,6 +413,9 @@ function buildProfilePhoneOptions(countryIso2) {
     autoPlaceholder: "aggressive",
     countrySearch: true,
     fixDropdownWidth: true,
+    // Рендерим список стран в body, чтобы он не обрезался при скролле
+    // карточки профиля (см. overflow-y: auto в .profile-modal-content).
+    dropdownContainer: document.body,
     loadUtils: () =>
       import("https://cdn.jsdelivr.net/npm/intl-tel-input@26.8.1/build/js/utils.js"),
   };
@@ -1404,6 +1407,18 @@ function bindAuthUi() {
   byId("change-password-submit")?.addEventListener("click", handleChangePassword);
   byId("change-password-modal-close")?.addEventListener("click", closeChangePasswordModal);
 
+  byId("profile-levels-guide-link")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    openLevelsGuideModal();
+  });
+  byId("levels-guide-close")?.addEventListener("click", closeLevelsGuideModal);
+  byId("levels-guide-modal")?.addEventListener("click", (e) => {
+    const content = byId("levels-guide-modal")?.querySelector(".auth-modal-content");
+    if (content && !content.contains(e.target)) {
+      closeLevelsGuideModal();
+    }
+  });
+
   byId("delete-account-submit")?.addEventListener("click", handleDeleteAccount);
   byId("delete-account-modal-close")?.addEventListener("click", closeDeleteAccountModal);
 
@@ -1884,7 +1899,7 @@ function renderProfileLimits() {
 // История запросов (вкладка «История запросов» в профиле)
 // ===========================================================================
 
-const HISTORY_PAGE_SIZE = 50;
+const HISTORY_PAGE_SIZE = 30;
 let _historyState = {
   loaded: false,
   loading: false,
@@ -2090,11 +2105,11 @@ async function loadProfileHistory({ reset } = {}) {
 
 function ensureHistoryLoadedOnTabSwitch(tabName) {
   if (tabName !== "history") return;
-  // Подгружаем при первом переходе. Если уже есть данные — не перезагружаем,
-  // пользователь увидит то же что в прошлый раз (кэш сессии).
-  if (!_historyState.loaded) {
-    loadProfileHistory({ reset: true });
-  }
+  // Каждый раз при открытии вкладки перезагружаем первую страницу (reset),
+  // чтобы только что сделанные запросы сразу попадали в историю. Грузим
+  // одну страницу (HISTORY_PAGE_SIZE = 30), остальное — по кнопке «Показать
+  // ещё», чтобы не гонять тяжёлый запрос.
+  loadProfileHistory({ reset: true });
 }
 
 function setupHistoryHandlers() {
@@ -2412,6 +2427,14 @@ function openChangePasswordModal() {
 
 function closeChangePasswordModal() {
   byId("change-password-modal")?.classList.add("hidden");
+}
+
+function openLevelsGuideModal() {
+  byId("levels-guide-modal")?.classList.remove("hidden");
+}
+
+function closeLevelsGuideModal() {
+  byId("levels-guide-modal")?.classList.add("hidden");
 }
 
 function openDeleteAccountModal() {

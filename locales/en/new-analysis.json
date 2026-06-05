@@ -107,7 +107,7 @@
     "group_skipped_prefix": "Not included in analysis:",
     "group_clear_all": "Clear all",
     "group_remove_one": "Remove from group",
-    "depth_label": "Analysis depth:",
+    "depth_label": "Analysis level:",
     "depth_light": "Light",
     "depth_balanced": "Balanced",
     "depth_deep": "Deep",

@@ -107,7 +107,7 @@
     "group_skipped_prefix": "Не вошли в анализ:",
     "group_clear_all": "Снять всё",
     "group_remove_one": "Убрать из группы",
-    "depth_label": "Глубина анализа:",
+    "depth_label": "Уровень анализа:",
     "depth_light": "Лёгкий",
     "depth_balanced": "Сбалансированный",
     "depth_deep": "Глубокий",

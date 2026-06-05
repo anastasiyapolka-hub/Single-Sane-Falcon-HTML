@@ -948,7 +948,8 @@ text-decoration: underline;
 
 .profile-modal-content {
   width: min(92vw, 720px);
-  overflow: visible;
+  max-height: min(90vh, 900px);
+  overflow-y: auto;
 }
 
 .profile-modal-header {
@@ -1099,6 +1100,117 @@ text-decoration: underline;
 
 .profile-limit-sep {
   color: #9ca3af;
+}
+
+/* Карточка-зеркало со ссылкой на методичку «Уровень анализа» */
+.profile-limit-card--link {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.profile-limit-link {
+  color: #d9660f;
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(217, 102, 15, 0.35);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.profile-limit-link:hover {
+  color: #b8530c;
+  border-bottom-color: #b8530c;
+}
+
+/* ===========================================================================
+   Методичка «Уровень анализа» (модалка поверх профиля)
+   =========================================================================== */
+
+.levels-guide-content {
+  max-width: 640px;
+  width: min(92vw, 640px);
+}
+
+.levels-guide-body {
+  max-height: min(80vh, 760px);
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.levels-guide-title {
+  margin: 0 0 8px;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #111827;
+}
+
+.levels-guide-intro {
+  margin: 0 0 18px;
+  font-size: 0.96rem;
+  line-height: 1.5;
+  color: #4b5563;
+}
+
+.levels-guide-card {
+  border: 1px solid #e5e7eb;
+  border-left: 4px solid #d1d5db;
+  border-radius: 12px;
+  background: #fafafa;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+
+.levels-guide-card--light { border-left-color: #f59e0b; }
+.levels-guide-card--balanced { border-left-color: #d9660f; }
+.levels-guide-card--deep { border-left-color: #9a3412; }
+
+.levels-guide-card-head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.levels-guide-badge {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #111827;
+}
+
+.levels-guide-card-sub {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.levels-guide-desc {
+  margin: 0 0 6px;
+  font-size: 0.92rem;
+  color: #374151;
+}
+
+.levels-guide-list {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: #374151;
+}
+
+.levels-guide-list li {
+  margin-bottom: 3px;
+}
+
+.levels-guide-note {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #7c2d12;
 }
 
 /* ===========================================================================
@@ -1515,7 +1627,15 @@ text-decoration: underline;
   overflow: visible;
 }
 
-#profile-modal .auth-modal-content,
+/* Карточка профиля скроллится внутри себя при нехватке высоты окна,
+   чтобы внутренние блоки не «уезжали» за пределы модалки. Список стран
+   телефона рендерится в body (dropdownContainer), поэтому скролл карточки
+   его не обрезает. */
+#profile-modal .auth-modal-content {
+  max-height: min(90vh, 900px);
+  overflow-y: auto;
+}
+
 #profile-modal .profile-tab-panel,
 #profile-modal .profile-block {
   overflow: visible;

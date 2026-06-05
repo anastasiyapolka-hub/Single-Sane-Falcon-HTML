@@ -723,9 +723,9 @@
 
                         <div id="queryDepthRow" class="sidebar-inline-setting-row">
                           <label class="sidebar-inline-setting-label"
-                                 data-i18n="new-analysis:chat_requests.depth_label">Глубина анализа:</label>
+                                 data-i18n="new-analysis:chat_requests.depth_label">Уровень анализа:</label>
                           <div class="depth-selector" id="queryDepthSelector" role="radiogroup"
-                               aria-label="Глубина анализа">
+                               aria-label="Уровень анализа">
                             <button type="button" class="depth-btn active" data-depth="light"
                                     data-i18n="new-analysis:chat_requests.depth_light">Лёгкий</button>
                             <button type="button" class="depth-btn" data-depth="balanced"
@@ -733,8 +733,6 @@
                             <button type="button" class="depth-btn" data-depth="deep"
                                     data-i18n="new-analysis:chat_requests.depth_deep">Глубокий</button>
                             <button type="button" id="queryDepthInfoBtn" class="depth-info-btn"
-                                    title="Примерная стоимость"
-                                    data-i18n-title="new-analysis:chat_requests.depth_info_tooltip"
                                     aria-label="Примерная стоимость">ⓘ</button>
                           </div>
                         </div>
@@ -2910,12 +2908,29 @@
 
         setTgState("connected");
         setTelegramConnectionStatus(true, displayName);
-      } catch (e) {
-        cachedChats = [];
-        cachedFolders = [];
 
-        setTgState("phone");
-        setTelegramConnectionStatus(false, null);
+        // Сразу перерисовываем дерево чатов после успешной загрузки, не
+        // полагаясь только на initializeDashboardPage. Иначе при повторных
+        // вызовах bootstrap (refresh состояния, cotel-auth-changed) блок
+        // «Мои чаты и каналы» мог оставаться скрытым.
+        if (typeof renderChatsList === "function") renderChatsList(cachedChats);
+        if (typeof renderSubChatsList === "function") {
+          renderSubChatsList(getCurrentSubscriptionChatCandidates());
+        }
+      } catch (e) {
+        // Транзиентная ошибка (сетевой сбой, 401 во время обновления токена
+        // при перезагрузке страницы) НЕ должна стирать уже загруженные чаты —
+        // иначе дерево «Мои чаты» мигает и пропадает на обновлении. Чистим
+        // кэш только если чатов ещё не было.
+        const hadChats = Array.isArray(cachedChats) && cachedChats.length > 0;
+        if (!hadChats) {
+          cachedChats = [];
+          cachedFolders = [];
+          setTgState("phone");
+          setTelegramConnectionStatus(false, null);
+        } else {
+          console.warn("bootstrapTelegramState: сохраняю кэш чатов после ошибки", e);
+        }
       }
     }
      
@@ -4683,7 +4698,10 @@
         const defaultAiModel = getDefaultAiModelForUi();
 
         if (queryAiModelRow) {
-          queryAiModelRow.style.display = planCode === "free" ? "none" : "";
+          // Выбор модели для запросов к чатам заменён селектором глубины
+          // (light/balanced/deep). Скрываем для всех; оставляем в DOM —
+          // возможно вернём под админские права. Удалять не нужно.
+          queryAiModelRow.style.display = "none";
         }
         if (subAiModelRow) {
           subAiModelRow.style.display = planCode === "free" ? "none" : "";
@@ -6679,6 +6697,14 @@ if (runSubscriptionsBtn) {
                 <div class="profile-limit-card-text" id="profile-limit-topup-availability">—</div>
               </div>
 
+              <div class="profile-limit-card profile-limit-card--link">
+                <div class="profile-limit-card-title" data-i18n="auth:profile.limits.levels_card_title">Уровень анализа</div>
+                <div class="profile-limit-card-text">
+                  <a href="#" id="profile-levels-guide-link" class="profile-limit-link"
+                     data-i18n="auth:profile.limits.levels_card_link">Подробнее об уровне анализа</a>
+                </div>
+              </div>
+
               <div class="profile-limit-card" id="profile-trial-card">
                 <div class="profile-limit-card-title" data-i18n="auth:profile.limits.trial">Trial-подписки</div>
                 <div class="profile-limit-card-text">
@@ -6799,6 +6825,74 @@ if (runSubscriptionsBtn) {
           </div>
         </div>     
              
+      </div>
+    </div>
+
+
+    <!-- Методичка «Уровень анализа» — overlay поверх профиля -->
+    <div id="levels-guide-modal" class="auth-modal hidden">
+      <div class="auth-modal-backdrop"></div>
+      <div class="auth-modal-content levels-guide-content">
+        <button id="levels-guide-close" type="button" class="auth-modal-close" aria-label="Закрыть" data-i18n-aria-label="auth:profile.close_label">×</button>
+
+        <div class="levels-guide-body">
+          <h2 class="levels-guide-title" data-i18n="auth:profile.levels.modal_title">Уровень анализа</h2>
+          <p class="levels-guide-intro" data-i18n="auth:profile.levels.intro">
+            Уровень анализа определяет, насколько «умная» модель обработает ваш запрос. Чем выше уровень — тем глубже рассуждения, но и дороже запрос в токенах. Для большинства повседневных задач достаточно лёгкого уровня.
+          </p>
+
+          <div class="levels-guide-card levels-guide-card--light">
+            <div class="levels-guide-card-head">
+              <span class="levels-guide-badge" data-i18n="new-analysis:chat_requests.depth_light">Лёгкий</span>
+              <span class="levels-guide-card-sub" data-i18n="auth:profile.levels.light_sub">быстрый и экономичный · по умолчанию</span>
+            </div>
+            <p class="levels-guide-desc" data-i18n="auth:profile.levels.light_desc">
+              Подходит для большинства повседневных запросов. Выбирайте его по умолчанию:
+            </p>
+            <ul class="levels-guide-list">
+              <li data-i18n="auth:profile.levels.light_item1">простые вопросы и поиск фактов в переписке;</li>
+              <li data-i18n="auth:profile.levels.light_item2">краткие дайджесты: «о чём говорили», главные темы;</li>
+              <li data-i18n="auth:profile.levels.light_item3">оценка источников и авторитетности ссылок;</li>
+              <li data-i18n="auth:profile.levels.light_item4">базовый анализ настроения за короткий период.</li>
+            </ul>
+          </div>
+
+          <div class="levels-guide-card levels-guide-card--balanced">
+            <div class="levels-guide-card-head">
+              <span class="levels-guide-badge" data-i18n="new-analysis:chat_requests.depth_balanced">Сбалансированный</span>
+              <span class="levels-guide-card-sub" data-i18n="auth:profile.levels.balanced_sub">золотая середина</span>
+            </div>
+            <p class="levels-guide-desc" data-i18n="auth:profile.levels.balanced_desc">
+              Стоит поднять уровень до сбалансированного, когда:
+            </p>
+            <ul class="levels-guide-list">
+              <li data-i18n="auth:profile.levels.balanced_item1">нужен детальный дайджест или структурированный отчёт за длительный период;</li>
+              <li data-i18n="auth:profile.levels.balanced_item2">важна динамика настроений — как мнение менялось со временем;</li>
+              <li data-i18n="auth:profile.levels.balanced_item3">анализ нескольких чатов одновременно;</li>
+              <li data-i18n="auth:profile.levels.balanced_item4">фильтрация и ранжирование: «топ-N», «найди по критерию».</li>
+            </ul>
+          </div>
+
+          <div class="levels-guide-card levels-guide-card--deep">
+            <div class="levels-guide-card-head">
+              <span class="levels-guide-badge" data-i18n="new-analysis:chat_requests.depth_deep">Глубокий</span>
+              <span class="levels-guide-card-sub" data-i18n="auth:profile.levels.deep_sub">максимальное качество рассуждений</span>
+            </div>
+            <p class="levels-guide-desc" data-i18n="auth:profile.levels.deep_desc">
+              Выбирайте для сложных аналитических задач, где важна точность:
+            </p>
+            <ul class="levels-guide-list">
+              <li data-i18n="auth:profile.levels.deep_item1">поиск противоречий и сопоставление точек зрения: «А против Б»;</li>
+              <li data-i18n="auth:profile.levels.deep_item2">ранжирование с обоснованием каждого пункта;</li>
+              <li data-i18n="auth:profile.levels.deep_item3">сводный анализ по множеству источников и чатов;</li>
+              <li data-i18n="auth:profile.levels.deep_item4">задачи с тонкими выводами, где поверхностного ответа мало.</li>
+            </ul>
+          </div>
+
+          <p class="levels-guide-note" data-i18n="auth:profile.levels.note">
+            Совет: начинайте с лёгкого уровня. Если для сложной задачи ответ кажется поверхностным — поднимите уровень. Так вы не переплачиваете токенами за простые запросы.
+          </p>
+        </div>
       </div>
     </div>
 
