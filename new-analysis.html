@@ -3950,7 +3950,7 @@
       }
 
       // Создаёт DOM-ноду для одного чата в сайдбаре.
-      function createChatItemEl(chat) {
+      function createChatItemEl(chat, mode = "qa") {
         const el = document.createElement("div");
         el.className = "sidebar-chat-item";
         const link = chatLinkValue(chat);
@@ -3964,6 +3964,16 @@
         const titleSpan = document.createElement("span");
         titleSpan.textContent = title; // textContent — никаких XSS на title из Telegram
         el.appendChild(titleSpan);
+
+        // В режиме подписки группового мультивыбора нет — это всегда один чат.
+        // Просто кликабельный элемент, по клику заполняем subChatInput.
+        if (mode === "subscription") {
+          el.addEventListener("click", () => {
+            const input = document.getElementById("subChatInput");
+            if (input) input.value = link;
+          });
+          return el;
+        }
 
         if (isGroupModeOn()) {
           el.classList.add("sidebar-chat-item--group");
@@ -3999,11 +4009,14 @@
       // chats — массив объектов чата (а не id), уже отфильтрованных
       // от пропавших/архивных. isOrphans=true для синтетической секции
       // "Без папки".
-      function createFolderEl({ id, title, emoticon, chats, isOrphans = false }) {
+      function createFolderEl({ id, title, emoticon, chats, isOrphans = false, mode = "qa" }) {
         const folderEl = document.createElement("div");
         folderEl.className = "sidebar-folder";
         if (isOrphans) folderEl.classList.add("sidebar-folder--orphans");
 
+        // Папки в подписке/Q&A используют один и тот же localStorage-ключ,
+        // чтобы свёрнутое/развёрнутое состояние было сквозным. Если позже
+        // решим разделить — добавим суффикс по mode.
         const collapsed = isFolderCollapsed(id);
         if (collapsed) folderEl.classList.add("sidebar-folder--collapsed");
 
@@ -4042,10 +4055,9 @@
           setFolderCollapsed(id, nowCollapsed);
         });
 
-        // In group mode, render a folder-level checkbox alongside the toggle
-        // button. We can't nest <input> inside <button> (invalid HTML), so
-        // wrap both in a flex row.
-        if (isGroupModeOn()) {
+        // В подписке группового чекбокса на папку не существует — там
+        // выбирается всегда ровно один чат. Поэтому ветка группы пропускается.
+        if (mode !== "subscription" && isGroupModeOn()) {
           const headerRow = document.createElement("div");
           headerRow.style.display = "flex";
           headerRow.style.alignItems = "center";
@@ -4070,7 +4082,7 @@
 
         const itemsEl = document.createElement("div");
         itemsEl.className = "sidebar-folder__items";
-        chats.forEach((chat) => itemsEl.appendChild(createChatItemEl(chat)));
+        chats.forEach((chat) => itemsEl.appendChild(createChatItemEl(chat, mode)));
         folderEl.appendChild(itemsEl);
 
         return folderEl;
@@ -4149,30 +4161,59 @@
 
         const items = Array.isArray(list) ? list : [];
 
-        if (!items.length) {
-          subChatsList.innerHTML = "";
+        subChatsList.innerHTML = "";
+
+        if (!items.length) return;
+
+        // Дерево с папками доступно только в personal-режиме и только
+        // когда отображается полный список (без поискового сужения).
+        // В service-режиме чаты приходят из истории — там понятия папки
+        // у нас нет, остаётся плоский рендер.
+        const isPersonal = getCurrentSubscriptionSourceMode() === "personal";
+        const usingFullList = isPersonal && items === cachedChats;
+        const folders = Array.isArray(cachedFolders) ? cachedFolders : [];
+
+        if (!usingFullList || !folders.length) {
+          items.forEach((c) => subChatsList.appendChild(createChatItemEl(c, "subscription")));
           return;
         }
 
-        subChatsList.innerHTML = items
-          .map((c) => {
-            const linkValue =
-              c.chat_ref
-                ? String(c.chat_ref)
-                : (c.username ? `@${c.username}` : String(c.id || ""));
-            const safeTitle = (c.title || tI18n("new-analysis:subscription_dynamic.untitled", "Без названия"))
-              .replace(/</g, "&lt;")
-              .replace(/>/g, "&gt;");
-            return `<div class="sidebar-chat-item" data-link="${linkValue}" title="${safeTitle}">${safeTitle}</div>`;
-          })
-          .join("");
-
-        subChatsList.querySelectorAll(".sidebar-chat-item").forEach((el) => {
-          el.addEventListener("click", () => {
-            const link = el.getAttribute("data-link") || "";
-            if (subChatInput) subChatInput.value = link;
-          });
+        // Иерархический рендер — точная копия логики renderChatsList,
+        // только с mode="subscription" и без группового мультивыбора.
+        const chatsById = new Map();
+        cachedChats.forEach((c) => {
+          if (c && c.id != null) chatsById.set(c.id, c);
         });
+
+        const inAnyFolder = new Set();
+
+        folders.forEach((f) => {
+          const chatsInFolder = (f.chat_ids || [])
+            .map((id) => chatsById.get(id))
+            .filter(Boolean);
+          if (!chatsInFolder.length) return;
+          chatsInFolder.forEach((c) => inAnyFolder.add(c.id));
+          subChatsList.appendChild(createFolderEl({
+            id: f.id,
+            title: f.title,
+            emoticon: f.emoticon,
+            chats: chatsInFolder,
+            isOrphans: false,
+            mode: "subscription",
+          }));
+        });
+
+        const orphans = cachedChats.filter((c) => !inAnyFolder.has(c.id));
+        if (orphans.length) {
+          subChatsList.appendChild(createFolderEl({
+            id: "orphans",
+            title: tI18n("new-analysis:chat_requests.folder_orphans_title", "Без папки"),
+            emoticon: null,
+            chats: orphans,
+            isOrphans: true,
+            mode: "subscription",
+          }));
+        }
       }
 
       function filterChatsByInput() {
@@ -4929,7 +4970,10 @@
           queryAiModelRow.style.display = "none";
         }
         if (subAiModelRow) {
-          subAiModelRow.style.display = planCode === "free" ? "none" : "";
+          // Селектор модели AI скрыт всегда (Этап B1). Раньше показывался
+          // для платных тарифов, теперь — никогда. Оставлен в DOM, потому
+          // что submit-обработчик читает subAiModelSelect.value.
+          subAiModelRow.style.display = "none";
         }
 
         // PRESERVE the user's current selection across refreshes.
