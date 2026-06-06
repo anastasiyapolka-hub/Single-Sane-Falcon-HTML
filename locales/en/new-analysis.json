@@ -166,7 +166,7 @@
     "ai_model_help": "This AI model will be used for this subscription. Free accounts use OpenAI.",
     "prompt_label": "Query text",
     "prompt_placeholder": "Enter the query for the subscription: what information to collect and when to notify",
-    "prompt_help": "You can use keywords or a more complex query — analysis is performed by OpenAI.",
+    "prompt_help": "You can use keywords or a more complex query — analysis is performed by an AI model picked automatically by the router.",
     "media_filter_label": "Media filter",
     "media_filter_hint": "Track only messages with the selected media types. The query text (if any) refines the filter semantically.",
     "create_btn": "Create subscription",

@@ -1,0 +1,109 @@
+/* Извлечено из new-analysis.html (reset + default + sidebar/tg base).
+   Каскад: подключается ДО style.css и new-analysis.css. */
+
+      html {  line-height: 1.15;}body {  margin: 0;}* {  box-sizing: border-box;  border-width: 0;  border-style: solid;  -webkit-font-smoothing: antialiased;}p,li,ul,pre,div,h1,h2,h3,h4,h5,h6,figure,blockquote,figcaption {  margin: 0;  padding: 0;}button {  background-color: transparent;}button,input,optgroup,select,textarea {  font-family: inherit;  font-size: 100%;  line-height: 1.15;  margin: 0;}button,select {  text-transform: none;}button,[type="button"],[type="reset"],[type="submit"] {  -webkit-appearance: button;  color: inherit;}button::-moz-focus-inner,[type="button"]::-moz-focus-inner,[type="reset"]::-moz-focus-inner,[type="submit"]::-moz-focus-inner {  border-style: none;  padding: 0;}button:-moz-focus,[type="button"]:-moz-focus,[type="reset"]:-moz-focus,[type="submit"]:-moz-focus {  outline: 1px dotted ButtonText;}a {  color: inherit;  text-decoration: inherit;}pre {  white-space: normal;}input {  padding: 2px 4px;}img {  display: block;}details {  display: block;  margin: 0;  padding: 0;}summary::-webkit-details-marker {  display: none;}[data-thq="accordion"] [data-thq="accordion-content"] {  max-height: 0;  overflow: hidden;  transition: max-height 0.3s ease-in-out;  padding: 0;}[data-thq="accordion"] details[data-thq="accordion-trigger"][open] + [data-thq="accordion-content"] {  max-height: 1000vh;}details[data-thq="accordion-trigger"][open] summary [data-thq="accordion-icon"] {  transform: rotate(180deg);}html { scroll-behavior: smooth  }
+    
+
+      html {
+        font-family: "Noto Sans";
+        font-size: 1rem;
+      }
+
+    
+      body {
+        font-weight: 400;
+        font-style:normal;
+        text-decoration: undefined;
+        text-transform: undefined;
+        letter-spacing: 0.01em;
+        line-height: 1.6;
+        color: var(--color-on-surface);
+        background: var(--color-surface);
+
+        fill: var(--color-on-surface);
+      }
+    
+
+      .sidebar-section {
+        margin-bottom: 18px;
+      }
+
+      .sidebar-section details {
+        border-radius: 8px;
+        padding: 8px 10px;
+        background: #ffffff;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+      }
+
+      .sidebar-section summary {
+        list-style: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-weight: 550;
+        font-size: 1.00rem 
+      }
+
+      .sidebar-section summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .sidebar-section-body {
+        margin-top: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .sidebar-radio-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .sidebar-radio-row input[type="radio"] {
+        margin: 0;
+      }
+
+      
+
+      .tg-field {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        margin-bottom: 12px;
+        padding: 4px 0 4px 12px;
+        border-radius: 0;
+        background: transparent;
+        /* Только тонкая оранжевая вертикальная линия слева — лёгкое
+           разделение блоков без "плашек" */
+        border: none;
+        border-left: 2px solid #FF8D37;
+      }
+
+
+      .tg-input {
+        padding: 10px 14px;
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+        font-size: 0.9rem;
+        background: #ffffff;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      .tg-button {
+        margin-top: 4px;
+        padding: 6px 14px;
+        border-radius: 999px;
+        border: 1px solid #d1d5db;
+        background: #f3f4f6;
+        cursor: pointer;
+        font-size: 0.85rem;
+      }
+
+      .tg-button:hover {
+        background: #e5e7eb;
+      }
+

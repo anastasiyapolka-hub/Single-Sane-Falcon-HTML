@@ -1,0 +1,551 @@
+/* Извлечено из new-analysis.html (nav reduced-motion + slideIn + dashboard).
+   Каскад: подключается ПОСЛЕ new-analysis.css. */
+
+                  @media (prefers-reduced-motion: reduce) {
+                  .navigation__link::after, .navigation__logo::before, .navigation__overlay-link::before {
+                    transition: none;
+                  }
+                  .navigation__overlay-link {
+                    animation: none;
+                  }
+                  .navigation__logo:hover .navigation__logo-icon {
+                    transform: none;
+                  }
+                  }
+                
+
+                          @keyframes slideIn {from {opacity: 0;
+                  transform: translateY(-20px);}
+                  to {opacity: 1;
+                  transform: translateY(0);}}
+                
+
+          @keyframes dashboardFloat { 0%,100% {transform: translateY(0) rotate(0deg);} 50% {transform: translateY(-20px) rotate(5deg);} }
+          @keyframes dashboardBlink { 0%,48%,52%,100% {height: 8px;} 50% {height: 2px;} }
+          @keyframes dashboardTailWag { 0%,100% {transform: rotate(-45deg);} 50% {transform: rotate(-25deg);} }
+          @keyframes dashboardPulse { 0%,100% {opacity: 1;} 50% {opacity: 0.5;} }
+
+          /* ===== Group analysis mode — translucent teal palette ===== */
+          /* Color tokens — soft cyan-teal with transparency so highlights
+             feel cool and airy, not heavy/saturated green. */
+          /*   accent line:      rgba(94, 191, 168, 0.55)
+               selected bg:      linear-gradient with rgba(127, 196, 192, 0.18 → 0.10)
+               counter bg:       rgba(127, 196, 192, 0.12)
+               summary bg:       rgba(127, 196, 192, 0.12)
+               text accent:      #1d6a72 (dark teal — readable on light bg)
+          */
+
+          /* Group toggle in Settings — label inherits .sidebar-inline-setting-label.
+             We only need cursor:help for the tooltip hint, the rest is the same row style. */
+          .group-analysis-toggle-label { cursor: help; }
+          .group-analysis-toggle {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #1d6a72;
+            margin: 0;
+            flex: 0 0 auto;
+          }
+          /* Force the group toggle row to stay a single flex row even on a
+             narrow sidebar. The base .sidebar-inline-setting-row is meant for
+             label-on-top text inputs, which pushes our checkbox below; the
+             --toggle modifier overrides that. */
+          .sidebar-inline-setting-row--toggle {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            gap: 10px !important;
+          }
+          .sidebar-inline-setting-row--toggle .sidebar-inline-setting-label {
+            flex: 1 1 auto;
+            margin: 0;
+          }
+
+          /* Counter + selected-list block — only block in the group widget
+             that gets a visual highlight (no outer border around the group). */
+          .group-selection-counter {
+            margin-top: 10px;
+            padding: 8px 10px;
+            background: linear-gradient(
+              90deg,
+              rgba(127, 196, 192, 0.14),
+              rgba(127, 196, 192, 0.08)
+            );
+            border-left: 3px solid rgba(94, 191, 168, 0.55);
+            border-radius: 4px;
+            font-size: 13px;
+            color: #205964;
+          }
+          .group-selection-counter.hidden { display: none; }
+          .group-selection-counter__header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+          }
+          .group-counter-collapse-btn {
+            background: transparent;
+            border: 0;
+            cursor: pointer;
+            padding: 0;
+            color: #1d6a72;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+          }
+          .group-counter-collapse-btn__chevron { font-size: 12px; }
+          .group-selection-counter__title { font-weight: 500; flex: 1; }
+          .group-clear-all-btn {
+            background: transparent;
+            border: 0;
+            color: #1d6a72;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 12px;
+            padding: 0;
+            margin-left: auto;
+          }
+          .group-clear-all-btn:hover { color: #155256; }
+          .group-selection-counter--collapsed .group-selected-chats { display: none; }
+
+          /* List of currently selected chats, one row per chat, with ✕. */
+          .group-selected-chats {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+          }
+          .group-selected-chat {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            padding: 4px 8px;
+            background: rgba(255, 255, 255, 0.45);
+            border-radius: 4px;
+            font-size: 12px;
+          }
+          .group-selected-chat__title {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+          .group-selected-chat__remove {
+            background: transparent;
+            border: 0;
+            color: #1d6a72;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 0 4px;
+            line-height: 1;
+          }
+          .group-selected-chat__remove:hover { color: #c4444f; }
+
+          /* ------- Media filter block -------
+             Same look as group-selection-counter (transparent green tint + soft
+             teal accent on the left). Lives directly under queryMediaFilterRow,
+             which itself sits under queryGroupModeRow per spec. */
+          .media-filter-toggle-label { cursor: help; }
+          .media-filter-toggle { width: 18px; height: 18px; accent-color: #1d6a72; }
+          .media-filter-block {
+            margin-top: 10px;
+            padding: 8px 10px;
+            background: linear-gradient(
+              90deg,
+              rgba(127, 196, 192, 0.14),
+              rgba(127, 196, 192, 0.08)
+            );
+            border-left: 3px solid rgba(94, 191, 168, 0.55);
+            border-radius: 4px;
+            font-size: 13px;
+            color: #205964;
+          }
+          .media-filter-block.hidden { display: none; }
+          .media-filter-block__header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+          }
+          .media-filter-collapse-btn {
+            background: transparent;
+            border: 0;
+            cursor: pointer;
+            padding: 0;
+            color: #1d6a72;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+          }
+          .media-filter-collapse-btn__chevron { font-size: 12px; }
+          .media-filter-block__title { font-weight: 500; flex: 1; }
+          .media-filter-block--collapsed .media-filter-categories { display: none; }
+
+          .media-filter-categories {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+          }
+          .media-filter-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 8px;
+            background: rgba(255, 255, 255, 0.45);
+            border-radius: 4px;
+          }
+          .media-filter-cat-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            flex: 0 0 auto;
+            min-width: 110px;
+            font-size: 13px;
+            color: #205964;
+          }
+          .media-filter-cat-label input { accent-color: #1d6a72; }
+          .media-filter-subtype {
+            flex: 1;
+            min-width: 0;
+            background: #fff;
+            border: 1px solid rgba(94, 191, 168, 0.35);
+            border-radius: 3px;
+            padding: 2px 6px;
+            font-size: 12px;
+            color: #1d4e54;
+          }
+          .media-filter-subtype:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+          }
+
+          /* ------- Media filter result cards (Этап 8) ------- */
+          .mf-headline {
+            font-weight: 500;
+            color: #1d4e54;
+            margin-bottom: 12px;
+          }
+          .mf-chat-block {
+            margin-bottom: 14px;
+            padding: 8px 10px;
+            background: linear-gradient(
+              90deg,
+              rgba(127, 196, 192, 0.10),
+              rgba(127, 196, 192, 0.04)
+            );
+            border-left: 3px solid rgba(94, 191, 168, 0.45);
+            border-radius: 4px;
+          }
+          .mf-chat-block__header {
+            font-weight: 600;
+            color: #1d4e54;
+            margin-bottom: 8px;
+            font-size: 14px;
+          }
+          .mf-chat-block__error {
+            color: #a04050;
+            font-style: italic;
+            font-size: 13px;
+          }
+          .mf-chat-block__empty {
+            color: #5a7378;
+            font-style: italic;
+            font-size: 13px;
+          }
+          .mf-section { margin-bottom: 10px; }
+          .mf-section__header {
+            font-weight: 500;
+            color: #205964;
+            margin-bottom: 4px;
+            font-size: 13px;
+          }
+          .mf-card {
+            padding: 6px 10px;
+            margin-bottom: 4px;
+            background: #ffffff;
+            border: 1px solid rgba(94, 191, 168, 0.20);
+            border-radius: 4px;
+            font-size: 13px;
+            color: #1d2f33;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+          }
+          .mf-card__meta {
+            color: #5a7378;
+            font-size: 12px;
+          }
+          .mf-card__details {
+            color: #205964;
+            font-size: 12px;
+          }
+          .mf-card__caption {
+            color: #1d2f33;
+          }
+          .mf-card__urls {
+            white-space: pre-wrap;
+            font-size: 12px;
+          }
+          .mf-card__urls a {
+            color: #1d6a72;
+            text-decoration: underline;
+            word-break: break-all;
+          }
+          .mf-card__footer {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            margin-top: 4px;
+          }
+          .mf-badge {
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            background: rgba(127, 196, 192, 0.18);
+            color: #1d4e54;
+          }
+          .mf-badge--ttl { background: rgba(196, 145, 60, 0.18); color: #6a4f15; }
+          .mf-badge--spoiler { background: rgba(60, 60, 60, 0.18); color: #1d1d1d; }
+          .mf-card__open {
+            margin-left: auto;
+            font-size: 12px;
+            color: #1d6a72;
+            text-decoration: underline;
+            cursor: pointer;
+          }
+          .mf-card__open:hover { color: #155256; }
+
+          /* ------- Subscription form: media filter block (Этап B2) -------
+             Использует tg-field (оранжевая линия слева) как родитель,
+             добавляет внутреннее оформление под чекбокс + подкатегории. */
+          .sub-mf-toggle-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #1d2f33;
+          }
+          .sub-mf-toggle { accent-color: #FF8D37; width: 16px; height: 16px; }
+          .sub-mf-hint {
+            margin: 4px 0 6px 0;
+            font-size: 12px;
+            color: #5a7378;
+          }
+          .sub-mf-categories {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-top: 4px;
+          }
+          .sub-mf-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 0;
+          }
+          .sub-mf-cat-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            flex: 0 0 auto;
+            min-width: 110px;
+            font-size: 13px;
+            color: #1d2f33;
+          }
+          .sub-mf-cat-label input { accent-color: #FF8D37; }
+          .sub-mf-subtype {
+            flex: 1;
+            min-width: 0;
+            background: #fff;
+            border: 1px solid #d1d5db;
+            border-radius: 3px;
+            padding: 2px 6px;
+            font-size: 12px;
+            color: #1d2f33;
+          }
+          .sub-mf-subtype:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+          }
+          /* Когда subscription_type='digest', блок целиком прячется через
+             класс на родителе формы. */
+          .subscription-block--digest #subMediaFilterField { display: none; }
+
+          /* Per-chat checkbox (added in group mode) lives on the right edge of each row. */
+          .sidebar-chat-item { position: relative; }
+          .sidebar-chat-item--group { padding-right: 28px; }
+          .group-chat-checkbox {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            accent-color: #1d6a72;
+          }
+          /* Selected chat in the tree — soft translucent teal gradient + faint
+             left accent line. INTENTIONALLY softer than the hover state so
+             the two read as different signals. Hover = transient, brighter;
+             selected = persistent, calmer. */
+          .sidebar-chat-item--selected,
+          .sidebar-chat-item--selected:hover {
+            background: linear-gradient(
+              90deg,
+              rgba(127, 196, 192, 0.14),
+              rgba(127, 196, 192, 0.05)
+            ) !important;
+            box-shadow: inset 2px 0 0 rgba(94, 191, 168, 0.55) !important;
+          }
+          /* Folder-level checkbox in the folder header. */
+          .group-folder-checkbox {
+            margin-left: auto;
+            margin-right: 6px;
+            cursor: pointer;
+            accent-color: #1d6a72;
+          }
+
+          /* History list — same checkbox affordance in group mode. */
+          .group-history-checkbox {
+            cursor: pointer;
+            accent-color: #1d6a72;
+            flex: 0 0 auto;
+          }
+          .sidebar-history-item.sidebar-history-item--group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+          }
+          /* Selected history item: highlight the ROW (the outer wrapper)
+             with a single soft teal gradient. Crucially we must strip the
+             hover/active background from the inner .sidebar-history-link
+             button — otherwise it stacks on top of the row highlight and
+             we see two overlapping shades. */
+          .sidebar-history-item--selected {
+            background: linear-gradient(
+              90deg,
+              rgba(127, 196, 192, 0.14),
+              rgba(127, 196, 192, 0.05)
+            );
+            box-shadow: inset 2px 0 0 rgba(94, 191, 168, 0.55);
+            border-radius: 4px;
+          }
+          .sidebar-history-item--selected .sidebar-history-link,
+          .sidebar-history-item--selected .sidebar-history-link:hover,
+          .sidebar-history-item--selected .sidebar-history-link:active {
+            background: transparent !important;
+            box-shadow: none !important;
+          }
+
+          /* "Recommended" badge next to long-context models in group mode. */
+          .ai-model-recommended-badge {
+            display: inline-block;
+            font-size: 11px;
+            background: rgba(127, 196, 192, 0.2);
+            color: #1d6a72;
+            padding: 1px 6px;
+            border-radius: 8px;
+            margin-left: 6px;
+            vertical-align: middle;
+          }
+
+          /* Result rendering ============================================ */
+          /* Per-chat collapsible section. Each section MUST take its natural
+             height — no inner scroll, no cropping. Two things matter:
+             1) No `overflow: hidden` on the wrapper — that was clipping
+                expanded bodies. Border-radius moved onto the header instead.
+             2) `flex: 0 0 auto` on the wrapper — .dashboard-results-text is
+                a flex column, and without this each section would shrink to
+                share space with siblings (the "ribbon" bug). With `0 0 auto`,
+                each section grows to its content and the OUTER container
+                scrolls through them all. */
+          .group-result-section {
+            border: 1px solid rgba(127, 196, 192, 0.35);
+            border-radius: 6px;
+            margin: 10px 0;
+            background: #fff;
+            flex: 0 0 auto !important;
+          }
+          .group-result-section__header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            cursor: pointer;
+            background: linear-gradient(
+              90deg,
+              rgba(127, 196, 192, 0.14),
+              rgba(127, 196, 192, 0.06)
+            );
+            font-weight: 600;
+            color: #1d6a72;
+            user-select: none;
+            border-top-left-radius: 6px;
+            border-top-right-radius: 6px;
+          }
+          /* When collapsed, the header's bottom corners are exposed — round
+             them too so the pill shape stays clean. */
+          .group-result-section--collapsed .group-result-section__header {
+            border-radius: 6px;
+          }
+          .group-result-section__chevron { font-size: 12px; color: #1d6a72; }
+          .group-result-section__body {
+            padding: 12px 14px;
+            border-top: 1px solid rgba(127, 196, 192, 0.25);
+          }
+          .group-result-section--collapsed .group-result-section__body { display: none; }
+          /* The <pre> inside section body MUST be allowed to overflow its
+             natural width / height — no shrinking, no inner scroll. */
+          .group-result-section__body pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow: visible;
+            max-height: none;
+          }
+
+          .group-result-summary {
+            border-left: 4px solid rgba(94, 191, 168, 0.55);
+            background: linear-gradient(
+              90deg,
+              rgba(127, 196, 192, 0.14),
+              rgba(127, 196, 192, 0.06)
+            );
+            padding: 10px 14px;
+            margin: 10px 0;
+            border-radius: 4px;
+            flex: 0 0 auto !important;
+          }
+          .group-result-summary__title {
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #1d6a72;
+          }
+          .group-result-summary pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow: visible;
+            max-height: none;
+          }
+
+          /* Make the results area scrollable as a whole when content is tall.
+             We pin max-height to the viewport, scroll vertically, AND override
+             the base flex layout so children don't share space — they stack
+             at their natural heights. */
+          .dashboard-results-text {
+            max-height: calc(100vh - 240px);
+            overflow-y: auto;
+            display: block !important;
+          }
+        
