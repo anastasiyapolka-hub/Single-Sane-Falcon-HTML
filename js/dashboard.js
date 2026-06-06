@@ -2980,6 +2980,13 @@
         if (!subscriptionCreateBlock) return;
         subscriptionCreateBlock.style.display = show ? "block" : "none";
         if (subCreateStatus) subCreateStatus.textContent = "";
+        // Пересчитываем высоту textarea текста запроса ТОЛЬКО когда форма уже
+        // видима: у скрытого (display:none) элемента scrollHeight = 0, поэтому
+        // вызовы autoResize до показа формы схлопывали поле. Делаем это здесь,
+        // чтобы при открытии (создание/редактирование) высота сразу была верной.
+        if (show && subPromptInput && typeof autoResizeTextarea === "function") {
+          autoResizeTextarea(subPromptInput);
+        }
       }
 
       function resetSubscriptionForm() {

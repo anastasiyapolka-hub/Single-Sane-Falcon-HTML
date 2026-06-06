@@ -1622,7 +1622,9 @@
                 </select>
               </div>
 
-              <div class="profile-field">
+              <!-- Поле выбора модели AI по умолчанию временно скрыто по требованию.
+                   Разметка и select сохранены в DOM (нужны JS-логике), скрыт только показ. -->
+              <div class="profile-field" style="display: none;">
                 <label for="profile-default-ai-model" data-i18n="auth:profile.settings.default_ai_model_label">Модель AI по умолчанию</label>
                 <select id="profile-default-ai-model" class="tg-select"></select>
                 <p class="profile-help-text" data-i18n="auth:profile.settings.default_ai_model_help">
