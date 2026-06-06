@@ -1906,7 +1906,7 @@ let _historyState = {
   items: [],
   offset: 0,
   total: 0,
-  includeSubscriptions: false,
+  mode: "chats", // "chats" | "subscriptions"
 };
 
 function _formatHistoryDate(isoStr) {
@@ -2027,11 +2027,11 @@ function escapeHtml(s) {
     .replaceAll('"', "&quot;");
 }
 
-async function _fetchHistoryPage(offset, includeSubs) {
+async function _fetchHistoryPage(offset, mode) {
   const qs = new URLSearchParams({
     limit: HISTORY_PAGE_SIZE,
     offset,
-    include_subscriptions: includeSubs ? "true" : "false",
+    mode: mode === "subscriptions" ? "subscriptions" : "chats",
   });
   const res = await apiFetch(`/account/usage-history?${qs}`, { method: "GET" });
   return res;
@@ -2061,7 +2061,7 @@ async function loadProfileHistory({ reset } = {}) {
   _historyState.loading = true;
 
   try {
-    const data = await _fetchHistoryPage(_historyState.offset, _historyState.includeSubscriptions);
+    const data = await _fetchHistoryPage(_historyState.offset, _historyState.mode);
     const newItems = Array.isArray(data?.items) ? data.items : [];
     _historyState.items.push(...newItems);
     _historyState.offset += newItems.length;
@@ -2103,24 +2103,37 @@ async function loadProfileHistory({ reset } = {}) {
   }
 }
 
+function _updateHistoryModeButtons() {
+  document.querySelectorAll(".profile-history-mode-btn").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.historyMode === _historyState.mode);
+  });
+}
+
 function ensureHistoryLoadedOnTabSwitch(tabName) {
   if (tabName !== "history") return;
-  // Каждый раз при открытии вкладки перезагружаем первую страницу (reset),
-  // чтобы только что сделанные запросы сразу попадали в историю. Грузим
-  // одну страницу (HISTORY_PAGE_SIZE = 30), остальное — по кнопке «Показать
-  // ещё», чтобы не гонять тяжёлый запрос.
+  // Каждый раз при открытии вкладки сбрасываемся в режим «Запросы к чатам»
+  // и перезагружаем первую страницу (reset), чтобы только что сделанные
+  // запросы сразу попадали в историю. Грузим одну страницу
+  // (HISTORY_PAGE_SIZE = 30), остальное — по кнопке «Показать ещё».
+  _historyState.mode = "chats";
+  _updateHistoryModeButtons();
   loadProfileHistory({ reset: true });
 }
 
 function setupHistoryHandlers() {
-  const includeCheckbox = byId("profile-history-include-subs");
-  if (includeCheckbox && !includeCheckbox._wired) {
-    includeCheckbox._wired = true;
-    includeCheckbox.addEventListener("change", () => {
-      _historyState.includeSubscriptions = !!includeCheckbox.checked;
+  document.querySelectorAll(".profile-history-mode-btn").forEach((btn) => {
+    if (btn._wired) return;
+    btn._wired = true;
+    btn.addEventListener("click", () => {
+      const nextMode = btn.dataset.historyMode === "subscriptions"
+        ? "subscriptions"
+        : "chats";
+      if (nextMode === _historyState.mode) return;
+      _historyState.mode = nextMode;
+      _updateHistoryModeButtons();
       loadProfileHistory({ reset: true });
     });
-  }
+  });
 
   const loadMoreBtn = byId("profile-history-load-more");
   if (loadMoreBtn && !loadMoreBtn._wired) {

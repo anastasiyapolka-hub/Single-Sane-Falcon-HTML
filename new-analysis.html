@@ -7012,10 +7012,12 @@ if (runSubscriptionsBtn) {
           <!-- HISTORY (новая вкладка «История запросов») -->
           <div class="profile-tab-panel" data-profile-panel="history">
             <div class="profile-history-header">
-              <label class="profile-history-filter">
-                <input type="checkbox" id="profile-history-include-subs">
-                <span data-i18n="auth:profile.history.include_subs">Показывать срабатывания подписок</span>
-              </label>
+              <div class="profile-history-modes" role="tablist" aria-label="Режим истории">
+                <button type="button" class="profile-history-mode-btn active" data-history-mode="chats"
+                        data-i18n="auth:profile.history.mode_chats">Запросы к чатам</button>
+                <button type="button" class="profile-history-mode-btn" data-history-mode="subscriptions"
+                        data-i18n="auth:profile.history.mode_subscriptions">Подписки</button>
+              </div>
               <div class="profile-history-total" id="profile-history-total" style="display:none">
                 <span data-i18n="auth:profile.history.total_label">Всего:</span>
                 <strong id="profile-history-total-count">0</strong>
