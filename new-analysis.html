@@ -1012,12 +1012,73 @@
                         </select>
                       </div>
 
-                      <div id="subAiModelRow" class="tg-field">
+                      <!-- Селектор модели AI скрыт (Этап B1). Поле остаётся
+                           в DOM для совместимости со старым JS, который читает
+                           значение при submit'е; visibility управляется через
+                           inline style. Удалять нельзя — initSubAiModel()
+                           вызывает .value на этом select'е. -->
+                      <div id="subAiModelRow" class="tg-field" style="display:none;">
                         <label for="subAiModelSelect" data-i18n="new-analysis:subscription_form.ai_model_label">Модель AI</label>
                         <select id="subAiModelSelect" class="tg-select"></select>
                         <p class="tg-status" data-i18n="new-analysis:subscription_form.ai_model_help">
                           Эта модель ИИ будет использоваться для данной подписки. Для Free-аккаунтов используется OpenAI.
                         </p>
+                      </div>
+
+                      <!-- Блок медиафильтра подписки (Этап B2).
+                           Оформление .tg-field (оранжевая вертикальная линия слева)
+                           — как у остальных полей формы. Виден только для events,
+                           прячется JS при subscription_type='digest'. -->
+                      <div id="subMediaFilterField" class="tg-field">
+                        <label class="sub-mf-toggle-label" for="subMediaFilterToggle">
+                          <input type="checkbox" id="subMediaFilterToggle" class="sub-mf-toggle" />
+                          <span data-i18n="new-analysis:subscription_form.media_filter_label">Медиафильтр</span>
+                        </label>
+                        <p class="tg-status sub-mf-hint" data-i18n="new-analysis:subscription_form.media_filter_hint">
+                          Отслеживать только сообщения с выбранными типами медиа. Текст запроса (если задан) уточняет фильтр по смыслу.
+                        </p>
+                        <div id="subMediaFilterCategories" class="sub-mf-categories" style="display:none;">
+                          <div class="sub-mf-row">
+                            <label class="sub-mf-cat-label">
+                              <input type="checkbox" class="sub-mf-cat" value="video" />
+                              <span>Видео</span>
+                            </label>
+                            <select class="sub-mf-subtype" data-cat="video" aria-label="Подтип видео">
+                              <option value="video_files">Видеофайлы</option>
+                              <option value="video_round">Видеокружки</option>
+                              <option value="video_both">Видеофайлы и видеокружки</option>
+                            </select>
+                          </div>
+                          <div class="sub-mf-row">
+                            <label class="sub-mf-cat-label">
+                              <input type="checkbox" class="sub-mf-cat" value="photo" />
+                              <span>Фото</span>
+                            </label>
+                          </div>
+                          <div class="sub-mf-row">
+                            <label class="sub-mf-cat-label">
+                              <input type="checkbox" class="sub-mf-cat" value="audio" />
+                              <span>Аудио</span>
+                            </label>
+                            <select class="sub-mf-subtype" data-cat="audio" aria-label="Подтип аудио">
+                              <option value="audio_files">Аудиофайлы</option>
+                              <option value="audio_voice">Голосовые сообщения</option>
+                              <option value="audio_both">Аудиофайлы и голосовые</option>
+                            </select>
+                          </div>
+                          <div class="sub-mf-row">
+                            <label class="sub-mf-cat-label">
+                              <input type="checkbox" class="sub-mf-cat" value="document" />
+                              <span>Документы</span>
+                            </label>
+                          </div>
+                          <div class="sub-mf-row">
+                            <label class="sub-mf-cat-label">
+                              <input type="checkbox" class="sub-mf-cat" value="url" />
+                              <span>Ссылки</span>
+                            </label>
+                          </div>
+                        </div>
                       </div>
 
                       <div class="tg-field">
@@ -1510,6 +1571,64 @@
             cursor: pointer;
           }
           .mf-card__open:hover { color: #155256; }
+
+          /* ------- Subscription form: media filter block (Этап B2) -------
+             Использует tg-field (оранжевая линия слева) как родитель,
+             добавляет внутреннее оформление под чекбокс + подкатегории. */
+          .sub-mf-toggle-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #1d2f33;
+          }
+          .sub-mf-toggle { accent-color: #FF8D37; width: 16px; height: 16px; }
+          .sub-mf-hint {
+            margin: 4px 0 6px 0;
+            font-size: 12px;
+            color: #5a7378;
+          }
+          .sub-mf-categories {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-top: 4px;
+          }
+          .sub-mf-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 0;
+          }
+          .sub-mf-cat-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            flex: 0 0 auto;
+            min-width: 110px;
+            font-size: 13px;
+            color: #1d2f33;
+          }
+          .sub-mf-cat-label input { accent-color: #FF8D37; }
+          .sub-mf-subtype {
+            flex: 1;
+            min-width: 0;
+            background: #fff;
+            border: 1px solid #d1d5db;
+            border-radius: 3px;
+            padding: 2px 6px;
+            font-size: 12px;
+            color: #1d2f33;
+          }
+          .sub-mf-subtype:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+          }
+          /* Когда subscription_type='digest', блок целиком прячется через
+             класс на родителе формы. */
+          .subscription-block--digest #subMediaFilterField { display: none; }
 
           /* Per-chat checkbox (added in group mode) lives on the right edge of each row. */
           .sidebar-chat-item { position: relative; }
@@ -2179,7 +2298,104 @@
       subTypeSelect?.addEventListener("change", () => {
         const t = (subTypeSelect.value || "events").trim();
         setPeriodOptionsForType(t);
+        applySubscriptionTypeMediaFilterVisibility(t);
       });
+
+      // ---- Subscription form: media filter (Этап B2) ----
+      // Те же контракты, что и в Q&A: enabled + categories[] + video_subtype + audio_subtype.
+      const subMediaFilterToggle = document.getElementById("subMediaFilterToggle");
+      const subMediaFilterField = document.getElementById("subMediaFilterField");
+      const subMediaFilterCategories = document.getElementById("subMediaFilterCategories");
+
+      function applySubscriptionTypeMediaFilterVisibility(subType) {
+        if (!subMediaFilterField) return;
+        // Только для events: digest и любые будущие типы не получают
+        // фильтр (по спеке). Скрытие через inline style — параллельно к
+        // CSS-классу, чтобы работало и при программной смене значения.
+        subMediaFilterField.style.display = (subType === "events") ? "" : "none";
+        if (subType !== "events" && subMediaFilterToggle) {
+          subMediaFilterToggle.checked = false;
+          refreshSubMediaFilterCategoriesVisibility();
+        }
+      }
+
+      function refreshSubMediaFilterCategoriesVisibility() {
+        if (!subMediaFilterCategories || !subMediaFilterToggle) return;
+        subMediaFilterCategories.style.display =
+          subMediaFilterToggle.checked ? "" : "none";
+      }
+
+      function refreshSubMediaFilterSubtypeStates() {
+        if (!subMediaFilterField) return;
+        const stateByCat = {};
+        subMediaFilterField.querySelectorAll(".sub-mf-cat").forEach((c) => {
+          stateByCat[c.value] = c.checked;
+        });
+        subMediaFilterField.querySelectorAll(".sub-mf-subtype").forEach((sel) => {
+          sel.disabled = !stateByCat[sel.dataset.cat];
+        });
+      }
+
+      function getSubscriptionMediaFilterPayload() {
+        // Не вызываем, если фильтр в принципе скрыт (не events).
+        if (!subMediaFilterField || subMediaFilterField.style.display === "none") return null;
+        if (!subMediaFilterToggle || !subMediaFilterToggle.checked) return null;
+        const categories = [];
+        subMediaFilterField.querySelectorAll(".sub-mf-cat").forEach((c) => {
+          if (c.checked) categories.push(c.value);
+        });
+        const videoSel = subMediaFilterField.querySelector('.sub-mf-subtype[data-cat="video"]');
+        const audioSel = subMediaFilterField.querySelector('.sub-mf-subtype[data-cat="audio"]');
+        return {
+          enabled: true,
+          categories: categories,
+          video_subtype: (videoSel && videoSel.value) || "video_files",
+          audio_subtype: (audioSel && audioSel.value) || "audio_files",
+        };
+      }
+
+      function applySubscriptionMediaFilterFromSub(mf) {
+        // Восстановить состояние формы из объекта media_filter в БД.
+        if (!subMediaFilterField) return;
+        const enabled = !!(mf && mf.enabled !== false && (Array.isArray(mf.categories) || mf.enabled));
+        if (subMediaFilterToggle) subMediaFilterToggle.checked = enabled;
+        subMediaFilterField.querySelectorAll(".sub-mf-cat").forEach((c) => {
+          c.checked = enabled && Array.isArray(mf.categories) && mf.categories.includes(c.value);
+        });
+        const videoSel = subMediaFilterField.querySelector('.sub-mf-subtype[data-cat="video"]');
+        const audioSel = subMediaFilterField.querySelector('.sub-mf-subtype[data-cat="audio"]');
+        if (videoSel) videoSel.value = (mf && mf.video_subtype) || "video_files";
+        if (audioSel) audioSel.value = (mf && mf.audio_subtype) || "audio_files";
+        refreshSubMediaFilterCategoriesVisibility();
+        refreshSubMediaFilterSubtypeStates();
+      }
+
+      function resetSubscriptionMediaFilter() {
+        if (subMediaFilterToggle) subMediaFilterToggle.checked = false;
+        subMediaFilterField?.querySelectorAll(".sub-mf-cat").forEach((c) => { c.checked = false; });
+        const videoSel = subMediaFilterField?.querySelector('.sub-mf-subtype[data-cat="video"]');
+        const audioSel = subMediaFilterField?.querySelector('.sub-mf-subtype[data-cat="audio"]');
+        if (videoSel) videoSel.value = "video_files";
+        if (audioSel) audioSel.value = "audio_files";
+        refreshSubMediaFilterCategoriesVisibility();
+        refreshSubMediaFilterSubtypeStates();
+      }
+
+      subMediaFilterToggle?.addEventListener("change", refreshSubMediaFilterCategoriesVisibility);
+      subMediaFilterField?.querySelectorAll(".sub-mf-cat").forEach((c) => {
+        c.addEventListener("change", refreshSubMediaFilterSubtypeStates);
+      });
+      refreshSubMediaFilterCategoriesVisibility();
+      refreshSubMediaFilterSubtypeStates();
+      // Стартовая видимость — по текущему значению типа подписки.
+      applySubscriptionTypeMediaFilterVisibility((subTypeSelect?.value || "events").trim());
+
+      // Экспонируем геттер payload'а для submit-обработчика.
+      window.cotelSubMediaFilter = {
+        getPayload: getSubscriptionMediaFilterPayload,
+        applyFromSub: applySubscriptionMediaFilterFromSub,
+        reset: resetSubscriptionMediaFilter,
+      };
 
       queryDaysInput?.addEventListener("change", clampQueryDaysByPlan);
       queryDaysInput?.addEventListener("blur", clampQueryDaysByPlan);
@@ -4541,6 +4757,15 @@
           subPromptInput.value = "";
           autoResizeTextarea(subPromptInput);
         }
+
+        // Сброс медиа-фильтра — выключаем чекбокс, снимаем категории,
+        // подтипы возвращаем к дефолтам, плюс показываем блок (events).
+        if (typeof window.cotelSubMediaFilter?.reset === "function") {
+          window.cotelSubMediaFilter.reset();
+        }
+        if (typeof applySubscriptionTypeMediaFilterVisibility === "function") {
+          applySubscriptionTypeMediaFilterVisibility("events");
+        }
         setSubscriptionFormMode(false);
       }
 
@@ -5015,6 +5240,14 @@
             subTypeSelect.value = subType;
           }
           setPeriodOptionsForType(subType);
+          // Видимость медиа-фильтра — по типу
+          if (typeof applySubscriptionTypeMediaFilterVisibility === "function") {
+            applySubscriptionTypeMediaFilterVisibility(subType);
+          }
+          // Восстановить состояние медиафильтра из БД (если был)
+          if (typeof window.cotelSubMediaFilter?.applyFromSub === "function") {
+            window.cotelSubMediaFilter.applyFromSub(sub.media_filter || null);
+          }
 
           // period
           subPeriodSelect.value = frequencyMinutesToPeriodValue(sub.frequency_minutes, subType);
@@ -5023,7 +5256,7 @@
             sub.ai_model || getDefaultAiModelForUi()
           );
           setSubscriptionFormMode(true);
-          showSubscriptionForm(true);   
+          showSubscriptionForm(true);
           scrollSubscriptionFormIntoView();
 
         } catch (e) {
@@ -5072,9 +5305,23 @@
       const subTypeSelect = document.getElementById("subTypeSelect");
       const subscriptionType = (subTypeSelect?.value || "events");
 
+      // Этап B2: медиа-фильтр (только для events).
+      const subMfPayload = (typeof window.cotelSubMediaFilter?.getPayload === "function")
+        ? window.cotelSubMediaFilter.getPayload()
+        : null;
+
       if (!name) { subCreateStatus.textContent = tI18n("new-analysis:subscription_form_dynamic.name_required", "Введите имя подписки."); return; }
       if (!chat_ref) { subCreateStatus.textContent = tI18n("new-analysis:subscription_form_dynamic.chat_required", "Выберите чат/канал или вставьте ссылку."); return; }
-      if (!prompt) { subCreateStatus.textContent = tI18n("new-analysis:subscription_form_dynamic.prompt_required", "Введите текст запроса для подписки."); return; }
+      // Текст запроса обязателен ТОЛЬКО если медиафильтр не активен.
+      // Если медиафильтр включён — пустой prompt валиден (можно ловить
+      // просто по типу медиа без семантического уточнения).
+      if (!prompt && !subMfPayload) {
+        subCreateStatus.textContent = tI18n(
+          "new-analysis:subscription_form_dynamic.prompt_or_media_required",
+          "Введите текст запроса или включите медиафильтр."
+        );
+        return;
+      }
 
       const frequency_minutes = periodToMinutes(periodVal);
 
@@ -5096,6 +5343,7 @@
         is_active: true,
         subscription_type: subscriptionType
       };
+      if (subMfPayload) payload.media_filter = subMfPayload;
 
       try {
         let responseData = null;
