@@ -4425,6 +4425,59 @@ if (runSubscriptionsBtn) {
           ]);
         }
 
+        // Медиафильтр-специфичная расшифровка: показываем работу
+        // парсера и реранкера по отдельности — это две разные LLM-стадии,
+        // и пользователю полезно видеть, что куда ушло.
+        const mfMeta = payload.media_filter_meta;
+        if (mfMeta && typeof mfMeta === "object") {
+          const cats = Array.isArray(mfMeta.selected_categories) ? mfMeta.selected_categories : [];
+          if (cats.length) {
+            const catLabelMap = {
+              video: "Видео", photo: "Фото", audio: "Аудио",
+              document: "Документы", url: "Ссылки",
+            };
+            rows.push([
+              tI18n("new-analysis:subscription_form.breakdown_categories", "Категории медиа"),
+              cats.map((c) => catLabelMap[c] || c).join(", "),
+            ]);
+          }
+          const parserModel = mfMeta.parser_model;
+          if (parserModel) {
+            const inTok = Number(mfMeta.parser_input_tokens || 0);
+            const outTok = Number(mfMeta.parser_output_tokens || 0);
+            rows.push([
+              tI18n("new-analysis:subscription_form.breakdown_parser_stage", "Парсер запроса"),
+              parserModel + " · " + tI18n(
+                "new-analysis:subscription_form.breakdown_tokens_inout",
+                "{{in}} вход / {{out}} выход",
+                { in: inTok, out: outTok }
+              ),
+            ]);
+          }
+          const rerankerCalls = Number(mfMeta.reranker_calls || 0);
+          if (rerankerCalls > 0) {
+            const rerankerModel = (Array.isArray(mfMeta.reranker_models) && mfMeta.reranker_models[0]) || "";
+            const inTok = Number(mfMeta.reranker_input_tokens || 0);
+            const outTok = Number(mfMeta.reranker_output_tokens || 0);
+            rows.push([
+              tI18n("new-analysis:subscription_form.breakdown_reranker_stage", "Семантический реранкер"),
+              rerankerModel + " · " + tI18n(
+                "new-analysis:subscription_form.breakdown_tokens_inout",
+                "{{in}} вход / {{out}} выход",
+                { in: inTok, out: outTok }
+              ),
+            ]);
+          } else if (parserModel) {
+            // Парсер был, реранкер — нет: значит запрос свёлся к
+            // структурным фильтрам или подходящих кандидатов не нашлось.
+            // Это полезный сигнал «семантика не запрашивалась/не нужна».
+            rows.push([
+              tI18n("new-analysis:subscription_form.breakdown_reranker_stage", "Семантический реранкер"),
+              tI18n("new-analysis:subscription_form.breakdown_reranker_skipped", "не понадобился"),
+            ]);
+          }
+        }
+
         if (!rows.length) return;
 
         const toggle = document.createElement("button");

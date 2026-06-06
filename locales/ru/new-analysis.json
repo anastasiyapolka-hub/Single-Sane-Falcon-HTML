@@ -133,7 +133,8 @@
     "category_filter_rank": "Топ-N с фильтром",
     "category_sentiment_dynamics": "Анализ настроений",
     "category_source_synthesis": "Оценка источников",
-    "category_cross_chat_analysis": "Анализ нескольких чатов"
+    "category_cross_chat_analysis": "Анализ нескольких чатов",
+    "category_media_filter": "Медиафильтр"
   },
   "subscriptions": {
     "section_title": "Подписки",
@@ -169,6 +170,12 @@
     "prompt_help": "Можно использовать ключевые слова или более сложный запрос — анализ выполняет нейросеть, подходящая модель подбирается автоматически.",
     "media_filter_label": "Медиафильтр",
     "media_filter_hint": "Отслеживать только сообщения с выбранными типами медиа. Текст запроса (если задан) уточняет фильтр по смыслу.",
+    "category_media_filter": "Медиафильтр",
+    "breakdown_parser_stage": "Парсер запроса",
+    "breakdown_reranker_stage": "Семантический реранкер",
+    "breakdown_reranker_skipped": "не понадобился",
+    "breakdown_tokens_inout": "{{in}} вход / {{out}} выход",
+    "breakdown_categories": "Категории медиа",
     "create_btn": "Создать подписку",
     "cancel_btn": "Отмена"
   },

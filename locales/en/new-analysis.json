@@ -133,7 +133,8 @@
     "category_filter_rank": "Top-N with filter",
     "category_sentiment_dynamics": "Sentiment analysis",
     "category_source_synthesis": "Source evaluation",
-    "category_cross_chat_analysis": "Cross-chat analysis"
+    "category_cross_chat_analysis": "Cross-chat analysis",
+    "category_media_filter": "Media filter"
   },
   "subscriptions": {
     "section_title": "Subscriptions",
@@ -169,6 +170,12 @@
     "prompt_help": "You can use keywords or a more complex query — analysis is performed by an AI model picked automatically by the router.",
     "media_filter_label": "Media filter",
     "media_filter_hint": "Track only messages with the selected media types. The query text (if any) refines the filter semantically.",
+    "category_media_filter": "Media filter",
+    "breakdown_parser_stage": "Query parser",
+    "breakdown_reranker_stage": "Semantic reranker",
+    "breakdown_reranker_skipped": "not needed",
+    "breakdown_tokens_inout": "{{in}} in / {{out}} out",
+    "breakdown_categories": "Media categories",
     "create_btn": "Create subscription",
     "cancel_btn": "Cancel"
   },
