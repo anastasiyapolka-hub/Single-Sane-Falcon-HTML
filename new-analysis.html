@@ -845,7 +845,51 @@
                           placeholder="Выберите чат/канал или вставьте ссылку"
                           data-i18n-placeholder="new-analysis:subscription_form.chat_placeholder"
                         />
-                        <!-- Список чатов (как в "Мои чаты") — внутри блока чат/канал -->
+
+                        <!-- Групповая подписка: галочка под полем чата.
+                             Прячется через .hidden когда:
+                               • выбран service-mode (групповые только для personal);
+                               • тариф free.
+                             Управляется dashboard.js → applySubGroupModeToggleVisibility(). -->
+                        <div
+                          id="subGroupModeRow"
+                          class="sidebar-inline-setting-row sidebar-inline-setting-row--toggle subscription-group-toggle-row hidden"
+                        >
+                          <label
+                            for="subGroupModeToggle"
+                            class="sidebar-inline-setting-label group-analysis-toggle-label"
+                            title="Подписка, мониторящая сразу несколько чатов"
+                            data-i18n="new-analysis:subscription_form.group_mode_label"
+                            data-i18n-title="new-analysis:subscription_form.group_mode_tooltip"
+                          >Групповая подписка:</label>
+                          <input
+                            id="subGroupModeToggle"
+                            type="checkbox"
+                            class="group-analysis-toggle"
+                          />
+                        </div>
+
+                        <!-- Блок «Выбрано N» — рендерится только при включённой галочке и наличии выбранных чатов.
+                             Цвет оранжевый (через .group-selection-counter--sub) — отдельно от Q&A. -->
+                        <div id="subGroupSelectionCounter" class="group-selection-counter group-selection-counter--sub hidden">
+                          <div class="group-selection-counter__header">
+                            <span class="group-selection-counter__title">
+                              <span data-i18n="new-analysis:chat_requests.group_counter_label">Выбрано:</span>
+                              <span id="subGroupSelectionCount">0</span>
+                            </span>
+                            <button
+                              type="button"
+                              id="subGroupClearAllBtn"
+                              class="group-clear-all-btn"
+                              data-i18n="new-analysis:chat_requests.group_clear_all"
+                            >Снять всё</button>
+                          </div>
+                          <div id="subGroupSelectedChatsList" class="group-selected-chats"></div>
+                        </div>
+
+                        <!-- Список чатов (как в "Мои чаты") — внутри блока чат/канал.
+                             В групповом режиме напротив каждого чата появляется чекбокс
+                             (логика в js/dashboard.js — createChatItemEl mode='subscription'). -->
                         <div id="subChatsList" class="sidebar-chat-list sidebar-chat-list--compact" aria-label="Список чатов для подписки" data-i18n-aria-label="new-analysis:subscription_form.chat_list_aria"></div>
                         <p class="sidebar-hint subscription-hint" data-i18n="new-analysis:subscription_form.private_chat_hint">
                           Подписка на приватные и личные чаты доступна только при авторизации через ваш личный аккаунт.

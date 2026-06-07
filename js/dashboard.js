@@ -309,6 +309,19 @@
 
       // Selected chat link strings, preserves insertion order.
       const selectedGroupChats = new Set();
+
+      // === Групповая ПОДПИСКА (отдельный state от Q&A-группы) ===
+      // DOM-узлы для нового UI в форме создания/редактирования подписки.
+      // Их добавим в new-analysis.html — здесь сразу резолвим, чтобы потом
+      // не дублировать getElementById на каждом обращении. Любой из них
+      // может быть null, если HTML ещё не задеплоен — обработчики это учитывают.
+      const subGroupModeToggle = document.getElementById("subGroupModeToggle");
+      const subGroupModeRow = document.getElementById("subGroupModeRow");
+      const subGroupSelectionCounter = document.getElementById("subGroupSelectionCounter");
+      const subGroupSelectionCount = document.getElementById("subGroupSelectionCount");
+      const subGroupSelectedChatsList = document.getElementById("subGroupSelectedChatsList");
+      const subGroupClearAllBtn = document.getElementById("subGroupClearAllBtn");
+      const selectedSubGroupChats = new Set();
       // Models with 1M+ context — get a "рекомендовано" badge in group mode.
       const RECOMMENDED_GROUP_MODELS = new Set([
         "openai:gpt-4.1",
@@ -1115,6 +1128,12 @@
         const tgMiniIconBtn = document.getElementById("tgMiniIconBtn");
         if (tgMiniIconBtn) {
           tgMiniIconBtn.style.display = mode === "account" ? "inline-flex" : "none";
+        }
+
+        // Пересчитать видимость галочки «Групповая подписка» — она
+        // зависит от source_mode (только personal).
+        if (typeof applySubGroupModeToggleVisibility === "function") {
+          applySubGroupModeToggleVisibility();
         }
       }
 
@@ -2025,6 +2044,205 @@
         updateGroupCounter();
       }
 
+      // ===== Group SUBSCRIPTION: helpers (зеркало Q&A-helpers выше) =====
+
+      function isSubGroupModeOn() {
+        return !!(subGroupModeToggle && subGroupModeToggle.checked);
+      }
+
+      // Тот же лимит, что и у Q&A-группы — backend использует то же
+      // resolve_group_chats_limit на бэке.
+      function getSubGroupChatsLimitForPlan() {
+        return getGroupChatsLimitForPlan();
+      }
+
+      function updateSubGroupCounter() {
+        if (!subGroupSelectionCounter || !subGroupSelectionCount) return;
+        const n = selectedSubGroupChats.size;
+        subGroupSelectionCount.textContent = String(n);
+        if (isSubGroupModeOn() && n > 0) {
+          subGroupSelectionCounter.classList.remove("hidden");
+        } else {
+          subGroupSelectionCounter.classList.add("hidden");
+        }
+        renderSubGroupSelectedList();
+      }
+
+      function renderSubGroupSelectedList() {
+        if (!subGroupSelectedChatsList) return;
+        subGroupSelectedChatsList.innerHTML = "";
+        if (!selectedSubGroupChats.size) return;
+        selectedSubGroupChats.forEach((link) => {
+          const row = document.createElement("div");
+          row.className = "group-selected-chat sub-group-selected-chat";
+
+          const titleEl = document.createElement("span");
+          titleEl.className = "group-selected-chat__title";
+          const title = getChatTitleByLink(link);
+          titleEl.textContent = title;
+          titleEl.title = title;
+          row.appendChild(titleEl);
+
+          const removeBtn = document.createElement("button");
+          removeBtn.type = "button";
+          removeBtn.className = "group-selected-chat__remove";
+          removeBtn.setAttribute(
+            "aria-label",
+            tI18n("new-analysis:chat_requests.group_remove_one", "Убрать из группы")
+          );
+          removeBtn.title = tI18n("new-analysis:chat_requests.group_remove_one", "Убрать из группы");
+          removeBtn.textContent = "✕";
+          removeBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            removeChatFromSubGroup(link);
+          });
+          row.appendChild(removeBtn);
+
+          subGroupSelectedChatsList.appendChild(row);
+        });
+      }
+
+      function removeChatFromSubGroup(link) {
+        if (!selectedSubGroupChats.has(link)) return;
+        selectedSubGroupChats.delete(link);
+        refreshSubGroupVisualState();
+        updateSubGroupCounter();
+      }
+
+      function clearAllSelectedSubGroupChats() {
+        if (!selectedSubGroupChats.size) return;
+        selectedSubGroupChats.clear();
+        refreshSubGroupVisualState();
+        updateSubGroupCounter();
+      }
+
+      // Зеркало refreshGroupVisualState — но для дерева ПОДПИСКИ (subChatsList).
+      function refreshSubGroupVisualState() {
+        if (!subChatsList) return;
+        const items = subChatsList.querySelectorAll(".sidebar-chat-item");
+        items.forEach((el) => {
+          const link = el.getAttribute("data-link") || "";
+          const isSel = selectedSubGroupChats.has(link);
+          el.classList.toggle("sidebar-chat-item--selected", isSel);
+          const cb = el.querySelector(".group-chat-checkbox");
+          if (cb) cb.checked = isSel;
+        });
+        const folderHeaders = subChatsList.querySelectorAll(".sidebar-folder");
+        folderHeaders.forEach((folderEl) => {
+          const folderCb = folderEl.querySelector(".group-folder-checkbox");
+          if (!folderCb) return;
+          const inner = folderEl.querySelectorAll(".sidebar-chat-item");
+          if (!inner.length) {
+            folderCb.checked = false;
+            return;
+          }
+          let allSel = true;
+          inner.forEach((it) => {
+            const l = it.getAttribute("data-link") || "";
+            if (!selectedSubGroupChats.has(l)) allSel = false;
+          });
+          folderCb.checked = allSel;
+        });
+      }
+
+      function toggleChatInSubGroup(link, chatItemEl, checkboxEl) {
+        const limit = getSubGroupChatsLimitForPlan();
+        if (selectedSubGroupChats.has(link)) {
+          selectedSubGroupChats.delete(link);
+          if (chatItemEl) chatItemEl.classList.remove("sidebar-chat-item--selected");
+          if (checkboxEl) checkboxEl.checked = false;
+        } else {
+          if (selectedSubGroupChats.size >= limit) {
+            if (checkboxEl) checkboxEl.checked = false;
+            alert(
+              tI18n("new-analysis:chat_requests.group_limit_reached", "Можно выбрать не более {{n}} чатов.")
+                .replace("{{n}}", String(limit))
+            );
+            return;
+          }
+          selectedSubGroupChats.add(link);
+          if (chatItemEl) chatItemEl.classList.add("sidebar-chat-item--selected");
+          if (checkboxEl) checkboxEl.checked = true;
+        }
+        updateSubGroupCounter();
+      }
+
+      function toggleFolderInSubGroup(folderChats, folderCheckboxEl) {
+        if (!Array.isArray(folderChats) || !folderChats.length) return;
+        const folderLinks = folderChats.map((c) => chatLinkValue(c)).filter(Boolean);
+        const allSelected = folderLinks.every((l) => selectedSubGroupChats.has(l));
+
+        if (allSelected) {
+          folderLinks.forEach((l) => selectedSubGroupChats.delete(l));
+          if (folderCheckboxEl) folderCheckboxEl.checked = false;
+          refreshSubGroupVisualState();
+          updateSubGroupCounter();
+          return;
+        }
+
+        const limit = getSubGroupChatsLimitForPlan();
+        const slotsLeft = Math.max(0, limit - selectedSubGroupChats.size);
+        if (slotsLeft === 0) {
+          if (folderCheckboxEl) folderCheckboxEl.checked = false;
+          alert(
+            tI18n("new-analysis:chat_requests.group_limit_reached", "Можно выбрать не более {{n}} чатов.")
+              .replace("{{n}}", String(limit))
+          );
+          return;
+        }
+        let added = 0;
+        for (const l of folderLinks) {
+          if (selectedSubGroupChats.has(l)) continue;
+          if (added >= slotsLeft) break;
+          selectedSubGroupChats.add(l);
+          added++;
+        }
+        const stillUnselected = folderLinks.length - folderLinks.filter((l) => selectedSubGroupChats.has(l)).length;
+        if (stillUnselected > 0) {
+          alert(
+            tI18n("new-analysis:chat_requests.group_limit_folder_truncated",
+                  "Ограничение по групповому запросу: выбрано {{n}} чатов из {{total}}.")
+              .replace("{{n}}", String(added))
+              .replace("{{total}}", String(folderLinks.length))
+          );
+        }
+        if (folderCheckboxEl) {
+          folderCheckboxEl.checked = folderLinks.every((l) => selectedSubGroupChats.has(l));
+        }
+        refreshSubGroupVisualState();
+        updateSubGroupCounter();
+      }
+
+      // Тоггл активируется/деактивируется → перерисовываем дерево,
+      // чтобы появились/убрались чекбоксы. Также прячем подсказку
+      // про одиночный input (она теряет смысл в групповом режиме).
+      subGroupModeToggle?.addEventListener("change", () => {
+        const on = isSubGroupModeOn();
+        // Если выключили — очищаем выбор, чтобы при следующем включении
+        // не было «призраков».
+        if (!on) {
+          selectedSubGroupChats.clear();
+        }
+        // Перерисовываем дерево чатов подписки с новым режимом.
+        if (typeof renderSubChatsList === "function") {
+          renderSubChatsList(getCurrentSubscriptionChatCandidates());
+        }
+        // Поле одиночного чата прячем/показываем (групповой выбор делается через дерево).
+        const subChatInputEl = document.getElementById("subChatInput");
+        if (subChatInputEl) {
+          subChatInputEl.disabled = on;
+          subChatInputEl.placeholder = on
+            ? tI18n("new-analysis:subscription_form.chat_placeholder_group", "Выберите чаты в дереве ниже")
+            : tI18n("new-analysis:subscription_form.chat_placeholder", "Выберите чат/канал или вставьте ссылку");
+          if (on) subChatInputEl.value = "";
+        }
+        updateSubGroupCounter();
+      });
+
+      subGroupClearAllBtn?.addEventListener("click", () => {
+        clearAllSelectedSubGroupChats();
+      });
+
       function toggleChatInGroup(link, chatItemEl, checkboxEl) {
         const limit = getGroupChatsLimitForPlan();
         if (selectedGroupChats.has(link)) {
@@ -2163,13 +2381,36 @@
         titleSpan.textContent = title; // textContent — никаких XSS на title из Telegram
         el.appendChild(titleSpan);
 
-        // В режиме подписки группового мультивыбора нет — это всегда один чат.
-        // Просто кликабельный элемент, по клику заполняем subChatInput.
+        // Режим подписки. Если активен групповой режим подписки (галочка
+        // "Групповая подписка") — рисуем чекбокс, как у Q&A-группы.
+        // Иначе — обычный кликабельный элемент, заполняющий subChatInput.
         if (mode === "subscription") {
-          el.addEventListener("click", () => {
-            const input = document.getElementById("subChatInput");
-            if (input) input.value = link;
-          });
+          if (isSubGroupModeOn()) {
+            el.classList.add("sidebar-chat-item--group");
+            el.classList.add("sidebar-chat-item--sub-group"); // оранжевая подсветка через CSS
+            if (selectedSubGroupChats.has(link)) {
+              el.classList.add("sidebar-chat-item--selected");
+            }
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.className = "group-chat-checkbox sub-group-chat-checkbox";
+            checkbox.checked = selectedSubGroupChats.has(link);
+            checkbox.addEventListener("click", (e) => {
+              e.stopPropagation();
+              toggleChatInSubGroup(link, el, checkbox);
+            });
+            el.appendChild(checkbox);
+
+            el.addEventListener("click", (e) => {
+              if (e.target === checkbox) return;
+              toggleChatInSubGroup(link, el, checkbox);
+            });
+          } else {
+            el.addEventListener("click", () => {
+              const input = document.getElementById("subChatInput");
+              if (input) input.value = link;
+            });
+          }
           return el;
         }
 
@@ -2253,9 +2494,14 @@
           setFolderCollapsed(id, nowCollapsed);
         });
 
-        // В подписке группового чекбокса на папку не существует — там
-        // выбирается всегда ровно один чат. Поэтому ветка группы пропускается.
-        if (mode !== "subscription" && isGroupModeOn()) {
+        // Folder-checkbox: в Q&A для группы, либо в подписке для групповой
+        // подписки. В одиночной подписке (mode='subscription' без галочки
+        // группы) — выбирается ровно один чат, чекбокс на папку не нужен.
+        const folderGroupChecks =
+          (mode !== "subscription" && isGroupModeOn()) ||
+          (mode === "subscription" && isSubGroupModeOn());
+
+        if (folderGroupChecks) {
           const headerRow = document.createElement("div");
           headerRow.style.display = "flex";
           headerRow.style.alignItems = "center";
@@ -2264,12 +2510,20 @@
           const folderCb = document.createElement("input");
           folderCb.type = "checkbox";
           folderCb.className = "group-folder-checkbox";
-          // Pre-check if all inner chats are already in the selection set.
+          if (mode === "subscription") {
+            folderCb.classList.add("sub-group-folder-checkbox");
+          }
           const folderLinks = chats.map((c) => chatLinkValue(c)).filter(Boolean);
-          folderCb.checked = folderLinks.length > 0 && folderLinks.every((l) => selectedGroupChats.has(l));
+          const selectedSet =
+            mode === "subscription" ? selectedSubGroupChats : selectedGroupChats;
+          folderCb.checked = folderLinks.length > 0 && folderLinks.every((l) => selectedSet.has(l));
           folderCb.addEventListener("click", (e) => {
             e.stopPropagation();
-            toggleFolderInGroup(chats, folderCb);
+            if (mode === "subscription") {
+              toggleFolderInSubGroup(chats, folderCb);
+            } else {
+              toggleFolderInGroup(chats, folderCb);
+            }
           });
           headerRow.appendChild(folderCb);
 
@@ -2991,7 +3245,10 @@
 
       function resetSubscriptionForm() {
         if (subNameInput) subNameInput.value = "";
-        if (subChatInput) subChatInput.value = "";
+        if (subChatInput) {
+          subChatInput.value = "";
+          subChatInput.disabled = false;
+        }
         if (subTypeSelect) subTypeSelect.value = "events";
         setPeriodOptionsForType("events");
 
@@ -3004,6 +3261,12 @@
           autoResizeTextarea(subPromptInput);
         }
 
+        // Сброс групповой подписки.
+        if (subGroupModeToggle) subGroupModeToggle.checked = false;
+        selectedSubGroupChats.clear();
+        updateSubGroupCounter();
+        applySubGroupModeToggleVisibility();
+
         // Сброс медиа-фильтра — выключаем чекбокс, снимаем категории,
         // подтипы возвращаем к дефолтам, плюс показываем блок (events).
         if (typeof window.cotelSubMediaFilter?.reset === "function") {
@@ -3014,6 +3277,28 @@
         }
         setSubscriptionFormMode(false);
       }
+
+      // Видимость галочки «Групповая подписка»:
+      // — прячем для service-mode (групповые подписки доступны только для личного аккаунта);
+      // — прячем для free-плана (групповые подписки доступны только для платных тарифов).
+      // Если галочка скрывается, заодно гасим её и очищаем выбор.
+      function applySubGroupModeToggleVisibility() {
+        if (!subGroupModeRow) return;
+        const mode = (typeof getCurrentSubscriptionSourceMode === "function")
+          ? getCurrentSubscriptionSourceMode()
+          : "personal";
+        const planCode = String(getPlanInfo()?.code || "free").toLowerCase();
+        const allowed = (mode === "personal") && (planCode !== "free");
+        subGroupModeRow.classList.toggle("hidden", !allowed);
+        if (!allowed && subGroupModeToggle && subGroupModeToggle.checked) {
+          subGroupModeToggle.checked = false;
+          selectedSubGroupChats.clear();
+          updateSubGroupCounter();
+        }
+      }
+      // Экспортируем в окно, чтобы код, переключающий source_mode и тариф,
+      // мог вызвать пересчёт без жёстких импортов.
+      window.cotelApplySubGroupModeToggleVisibility = applySubGroupModeToggleVisibility;
 
 
       function autoResizeTextarea(el) {
@@ -3486,11 +3771,24 @@
           persistSelectedDataSourceMode();
           updateDataSourceUI();
           await loadChatHistory();
+
+          // Сначала восстановим состояние группы (до renderSubChatsList,
+          // иначе дерево не покажет чекбоксы).
+          const isGroup = !!sub.is_group;
+          selectedSubGroupChats.clear();
+          if (isGroup && Array.isArray(sub.chats)) {
+            for (const c of sub.chats) {
+              if (c && c.chat_ref) selectedSubGroupChats.add(c.chat_ref);
+            }
+          }
+          if (subGroupModeToggle) subGroupModeToggle.checked = isGroup;
+          applySubGroupModeToggleVisibility();
           renderSubChatsList(getCurrentSubscriptionChatCandidates());
 
           // заполняем форму
           subNameInput.value = sub.name || "";
-          subChatInput.value = sub.chat_ref || "";
+          subChatInput.value = isGroup ? "" : (sub.chat_ref || "");
+          if (subChatInput) subChatInput.disabled = isGroup;
           subPromptInput.value = sub.prompt || "";
           autoResizeTextarea(subPromptInput);
 
@@ -3515,6 +3813,10 @@
             subAiModelSelect,
             sub.ai_model || getDefaultAiModelForUi()
           );
+
+          // Счётчик выбранных чатов — обновим после восстановления.
+          updateSubGroupCounter();
+
           setSubscriptionFormMode(true);
           showSubscriptionForm(true);
           scrollSubscriptionFormIntoView();
@@ -3564,6 +3866,7 @@
       const prompt = (subPromptInput?.value || "").trim();
       const subTypeSelect = document.getElementById("subTypeSelect");
       const subscriptionType = (subTypeSelect?.value || "events");
+      const isGroup = isSubGroupModeOn();
 
       // Этап B2: медиа-фильтр (только для events).
       const subMfPayload = (typeof window.cotelSubMediaFilter?.getPayload === "function")
@@ -3571,7 +3874,38 @@
         : null;
 
       if (!name) { subCreateStatus.textContent = tI18n("new-analysis:subscription_form_dynamic.name_required", "Введите имя подписки."); return; }
-      if (!chat_ref) { subCreateStatus.textContent = tI18n("new-analysis:subscription_form_dynamic.chat_required", "Выберите чат/канал или вставьте ссылку."); return; }
+
+      // Чат: либо одиночный (chat_ref), либо групповой (chats[] из дерева).
+      let groupChats = [];
+      if (isGroup) {
+        groupChats = Array.from(selectedSubGroupChats);
+        if (!groupChats.length) {
+          subCreateStatus.textContent = tI18n(
+            "new-analysis:subscription_form_dynamic.group_chats_required",
+            "Выберите хотя бы один чат для групповой подписки."
+          );
+          return;
+        }
+        const limit = getSubGroupChatsLimitForPlan();
+        if (groupChats.length > limit) {
+          subCreateStatus.textContent = tI18n(
+            "new-analysis:chat_requests.group_limit_reached",
+            "Можно выбрать не более {{n}} чатов."
+          ).replace("{{n}}", String(limit));
+          return;
+        }
+        // Групповые подписки не поддерживают media-фильтр — отбиваем явно.
+        if (subMfPayload) {
+          subCreateStatus.textContent = tI18n(
+            "new-analysis:subscription_form_dynamic.group_media_filter_unsupported",
+            "Групповая подписка не поддерживает медиафильтр. Снимите его."
+          );
+          return;
+        }
+      } else {
+        if (!chat_ref) { subCreateStatus.textContent = tI18n("new-analysis:subscription_form_dynamic.chat_required", "Выберите чат/канал или вставьте ссылку."); return; }
+      }
+
       // Текст запроса обязателен ТОЛЬКО если медиафильтр не активен.
       // Если медиафильтр включён — пустой prompt валиден (можно ловить
       // просто по типу медиа без семантического уточнения).
@@ -3594,7 +3928,9 @@
       const payload = {
         name,
         source_mode: getCurrentSubscriptionSourceMode(),
-        chat_ref,
+        chat_ref: isGroup ? null : chat_ref,
+        is_group: isGroup,
+        chats: isGroup ? groupChats : null,
         frequency_minutes,
         prompt,
         ai_model: normalizeAiModelUi(
@@ -3603,7 +3939,7 @@
         is_active: true,
         subscription_type: subscriptionType
       };
-      if (subMfPayload) payload.media_filter = subMfPayload;
+      if (!isGroup && subMfPayload) payload.media_filter = subMfPayload;
 
       try {
         let responseData = null;

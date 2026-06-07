@@ -146,6 +146,52 @@
           }
           .group-selected-chat__remove:hover { color: #c4444f; }
 
+          /* ------- Группа в форме ПОДПИСКИ — оранжевый вариант -------
+             Подписка отрисовывается оранжевыми акцентами (см.
+             .subscription-block в new-analysis.css). Чтобы счётчик
+             выбранных чатов в форме подписки не диссонировал — даём ему
+             те же тона, что и у subscription-block. */
+          .group-selection-counter--sub {
+            background: linear-gradient(
+              90deg,
+              rgba(255, 178, 102, 0.18),
+              rgba(255, 178, 102, 0.08)
+            );
+            border-left: 3px solid rgba(217, 119, 6, 0.6);
+            color: #6b3a06;
+          }
+          .group-selection-counter--sub .group-counter-collapse-btn,
+          .group-selection-counter--sub .group-clear-all-btn,
+          .group-selection-counter--sub .group-selected-chat__remove {
+            color: #8a4a05;
+          }
+          .group-selection-counter--sub .group-clear-all-btn:hover {
+            color: #6b3a06;
+          }
+          .group-selection-counter--sub .group-selected-chat {
+            background: rgba(255, 240, 220, 0.55);
+          }
+
+          /* Чекбоксы в дереве подписки в групповом режиме — оранжевые
+             вместо teal, чтобы согласовываться с .subscription-block. */
+          .sub-group-chat-checkbox,
+          .sub-group-folder-checkbox {
+            accent-color: #b8631a;
+          }
+
+          /* Строка с галочкой "Групповая подписка" внутри subscription-block —
+             та же раскладка, что у sidebar-inline-setting-row--toggle, но
+             с лёгким оранжевым акцентом сверху-слева. */
+          .subscription-group-toggle-row {
+            margin-top: 8px;
+            padding-top: 6px;
+            border-top: 1px dashed rgba(217, 119, 6, 0.3);
+          }
+          .subscription-group-toggle-row .group-analysis-toggle {
+            accent-color: #b8631a;
+          }
+          .subscription-group-toggle-row.hidden { display: none; }
+
           /* ------- Media filter block -------
              Same look as group-selection-counter (transparent green tint + soft
              teal accent on the left). Lives directly under queryMediaFilterRow,
