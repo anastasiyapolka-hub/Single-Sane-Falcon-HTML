@@ -2708,7 +2708,11 @@ html.cotel-preboot .sidebar-boot-loader {
 
 /* ===== Селектор глубины анализа (light / balanced / deep) ===== */
 .depth-selector {
-  display: inline-flex;
+  /* Раньше было inline-flex и info-кнопка липла к "Глубокий". Делаем
+     полноширочный flex, чтобы info-кнопка через margin-left:auto
+     ушла к правому краю блока. */
+  display: flex;
+  width: 100%;
   align-items: center;
   gap: 4px;
   border: 1px solid #d1d5db;
@@ -2747,6 +2751,9 @@ html.cotel-preboot .sidebar-boot-loader {
   padding: 6px 8px;
   font-size: 1rem;
   line-height: 1;
+  /* Прижимаем к правому краю .depth-selector — depth-кнопки слева,
+     info-кнопка отдельно у правого края. */
+  margin-left: auto;
 }
 
 .depth-info-btn:hover {

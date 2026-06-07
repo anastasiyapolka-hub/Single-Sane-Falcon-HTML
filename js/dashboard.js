@@ -1668,7 +1668,10 @@
         if (!sidebar || !sidebarResizer) return;
 
         const MIN_W = 280;
-        const MAX_W = 520;
+        // Подняли с 520 → 624 (+20%) по запросу пользователя:
+        // на широких экранах хочется тянуть панель шире, чтобы влезали
+        // длинные названия чатов в дереве.
+        const MAX_W = 624;
 
         // восстановить ширину из localStorage
         const saved = localStorage.getItem("cotel_sidebar_width");
@@ -1938,10 +1941,16 @@
       }
 
       function getGroupChatsLimitForPlan() {
+        // ВАЖНО: значения должны совпадать с backend/plan_limits.py
+        // GROUP_CHATS_LIMIT_BY_PLAN. Если правишь — правь оба места.
+        // По-хорошему лимит надо отдавать с бэка через usage snapshot;
+        // пока — синхронный хардкод.
         const code = String(getPlanInfo()?.code || "free").toLowerCase();
         if (code === "free") return 3;
-        if (code === "basic") return 10;
-        return 20; // pro and any future paid tier
+        if (code === "basic") return 5;
+        if (code === "pro") return 10;
+        if (code === "power") return 20;
+        return 20; // дефолт для любого другого платного тарифа
       }
 
       function getSelectedGroupCount() {
