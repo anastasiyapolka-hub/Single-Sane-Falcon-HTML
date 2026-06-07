@@ -3244,6 +3244,13 @@
       }
 
       function resetSubscriptionForm() {
+        // ВАЖНО: сбрасываем editingSubscriptionId. Без этого после закрытия
+        // формы редактирования (Отмена/+ Добавить новую) следующий клик
+        // на «Создать подписку» уйдёт как PUT на старую запись и
+        // перезапишет её данными новой подписки (= визуально «удалит»
+        // ту старую). Этот сброс — главный предохранитель.
+        editingSubscriptionId = null;
+
         if (subNameInput) subNameInput.value = "";
         if (subChatInput) {
           subChatInput.value = "";
