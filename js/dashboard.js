@@ -2780,9 +2780,10 @@
       });
 
       function periodToMinutes(v) {
-        // UI values in <select>: 10m/30m/1h/3h/6h/1d
+        // UI values in <select>: 10m/15m/30m/1h/3h/6h/12h/1d
         const map = {
           "10m": 10,
+          "15m": 15,
           "30m": 30,
           "1h": 60,
           "3h": 180,
@@ -2796,6 +2797,7 @@
       function minutesToHuman(m) {
           const n = Number(m);
           if (n === 10) return tI18n("new-analysis:subscription_frequency.human_10m", "1 раз в 10 минут");
+          if (n === 15) return tI18n("new-analysis:subscription_frequency.human_15m", "1 раз в 15 минут");
           if (n === 30) return tI18n("new-analysis:subscription_frequency.human_30m", "1 раз в 30 минут");
           if (n === 60) return tI18n("new-analysis:subscription_frequency.human_1h", "1 раз в час");
           if (n === 180) return tI18n("new-analysis:subscription_frequency.human_3h", "1 раз в 3 часа");
@@ -2815,6 +2817,8 @@
           return "6h";
         }
 
+        if (m === 10) return "10m";
+        if (m === 15) return "15m";
         if (m === 30) return "30m";
         if (m === 60) return "1h";
         if (m === 180) return "3h";
@@ -3591,6 +3595,8 @@
 
         const allByType = {
           events: [
+            { v: "10m", t: tI18n("new-analysis:subscription_form.period_10m", "1 раз в 10 минут"), m: 10 },
+            { v: "15m", t: tI18n("new-analysis:subscription_form.period_15m", "1 раз в 15 минут"), m: 15 },
             { v: "30m", t: tI18n("new-analysis:subscription_form.period_30m", "1 раз в 30 минут"), m: 30 },
             { v: "1h",  t: tI18n("new-analysis:subscription_frequency.per_hour_one", "1 раз в 1 час"), m: 60 },
             { v: "3h",  t: tI18n("new-analysis:subscription_form.period_3h", "1 раз в 3 часа"), m: 180 },

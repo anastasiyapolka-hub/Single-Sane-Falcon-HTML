@@ -160,6 +160,7 @@
     "chat_list_aria": "Chat list for subscription",
     "period_label": "Read period",
     "period_10m": "Every 10 minutes",
+    "period_15m": "Every 15 minutes",
     "period_30m": "Every 30 minutes",
     "period_1h": "Every hour",
     "period_3h": "Every 3 hours",
@@ -222,6 +223,7 @@
   },
   "subscription_frequency": {
     "human_10m": "Every 10 minutes",
+    "human_15m": "Every 15 minutes",
     "human_30m": "Every 30 minutes",
     "human_1h": "Every hour",
     "human_3h": "Every 3 hours",
