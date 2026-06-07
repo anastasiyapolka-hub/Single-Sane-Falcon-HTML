@@ -12,7 +12,7 @@
   --plan-free: #7acb7a;
   --plan-basic: #5b8def;
   --plan-pro: #e06666;
-  --plan-power: #5b54d6;
+  --plan-power: #2f2f2f;
 
   --dark-bar: #2f2f2f;
   --card-radius: 20px;
@@ -30,9 +30,9 @@ body {
 }
 
 .pricing-page {
-  max-width: 1200px;
+  max-width: 1480px;
   margin: 0 auto;
-  padding: 40px 20px 60px;
+  padding: 40px 32px 60px;
 }
 
 .pricing-header {
@@ -157,15 +157,18 @@ body {
 }
 
 .plan-price {
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--accent);
   text-align: right;
   white-space: nowrap;
 }
 
-.plan-price span {
-  font-size: 16px;
+.plan-price span:first-child {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.plan-price span:last-child {
+  font-size: 14px;
   font-weight: 500;
   color: var(--muted);
 }

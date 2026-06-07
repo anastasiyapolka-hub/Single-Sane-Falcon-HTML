@@ -17,7 +17,7 @@
       "description": "To get started with the service",
       "features": {
         "tokens": "300 tokens per month",
-        "history_days": "Chat history analysis for queries up to 7 days",
+        "history_days": "Chat history analysis for queries up to 5 days",
         "trial_subs": "Up to 2 trial subscriptions",
         "frequency": "Subscription analysis no more than once every 3 hours",
         "notifications": "Telegram notifications",
@@ -32,7 +32,6 @@
       "features": {
         "tokens": "3,600 tokens per month",
         "history_days": "Chat history analysis for queries up to 30 days",
-        "history_saved": "Chat and channel history",
         "active_subs": "Up to 5 active subscriptions",
         "frequency": "Subscription analysis no more than once every hour",
         "priority": "Priority subscription processing",
@@ -48,8 +47,7 @@
       "description": "For an intensive workload",
       "features": {
         "tokens": "10,000 tokens per month",
-        "history_days": "Chat history analysis for queries up to 90 days",
-        "history_saved": "Chat and channel history",
+        "history_days": "Chat history analysis for queries up to 60 days",
         "active_subs": "Up to 10 active subscriptions",
         "frequency": "Subscription analysis no more than once every 30 minutes",
         "priority": "Priority subscription processing",
@@ -66,7 +64,6 @@
       "features": {
         "tokens": "25,000 tokens per month",
         "history_days": "Chat history analysis for queries up to 90 days",
-        "history_saved": "Chat and channel history",
         "active_subs": "Up to 20 active subscriptions",
         "frequency": "Subscription analysis no more than once every 15 minutes",
         "priority": "Priority subscription processing",
