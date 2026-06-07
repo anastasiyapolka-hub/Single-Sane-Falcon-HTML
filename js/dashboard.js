@@ -3894,14 +3894,8 @@
           ).replace("{{n}}", String(limit));
           return;
         }
-        // Групповые подписки не поддерживают media-фильтр — отбиваем явно.
-        if (subMfPayload) {
-          subCreateStatus.textContent = tI18n(
-            "new-analysis:subscription_form_dynamic.group_media_filter_unsupported",
-            "Групповая подписка не поддерживает медиафильтр. Снимите его."
-          );
-          return;
-        }
+        // Медиа-фильтр поддерживается и для групповой — runner обрабатывает
+        // каждый чат отдельно через messages.search.
       } else {
         if (!chat_ref) { subCreateStatus.textContent = tI18n("new-analysis:subscription_form_dynamic.chat_required", "Выберите чат/канал или вставьте ссылку."); return; }
       }
@@ -3939,7 +3933,7 @@
         is_active: true,
         subscription_type: subscriptionType
       };
-      if (!isGroup && subMfPayload) payload.media_filter = subMfPayload;
+      if (subMfPayload) payload.media_filter = subMfPayload;
 
       try {
         let responseData = null;
