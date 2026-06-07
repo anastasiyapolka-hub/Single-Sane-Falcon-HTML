@@ -173,10 +173,21 @@
           }
 
           /* Чекбоксы в дереве подписки в групповом режиме — оранжевые
-             вместо teal, чтобы согласовываться с .subscription-block. */
+             вместо teal, чтобы согласовываться с .subscription-block.
+             Селектор по родителю #subChatsList даёт максимальную
+             специфичность и перебивает общие .group-*-checkbox (teal). */
           .sub-group-chat-checkbox,
-          .sub-group-folder-checkbox {
-            accent-color: #b8631a;
+          .sub-group-folder-checkbox,
+          #subChatsList .group-chat-checkbox,
+          #subChatsList .group-folder-checkbox {
+            accent-color: #b8631a !important;
+          }
+
+          /* Hover папки в дереве подписки — оранжевый вместо teal.
+             Перекрывает .sidebar-folder__toggle:hover из new-analysis.css. */
+          #subChatsList .sidebar-folder__toggle:hover {
+            background: rgba(255, 178, 102, 0.20) !important;
+            color: #111827;
           }
 
           /* Строка с галочкой "Групповая подписка" внутри subscription-block —
