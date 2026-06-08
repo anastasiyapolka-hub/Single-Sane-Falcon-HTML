@@ -1781,6 +1781,17 @@ function renderProfileLimits() {
   setText("profile-tokens-used", monthlyUsed);
   setText("profile-tokens-topup-balance", topupBalance);
 
+  // Разбивка расхода за период: Q&A vs подписки.
+  // Показываем блок, только если что-то реально потрачено (иначе лишний шум).
+  const spentQa = Number(tokens.spent_qa || 0);
+  const spentSubs = Number(tokens.spent_subscriptions || 0);
+  setText("profile-tokens-qa-used", spentQa);
+  setText("profile-tokens-subs-used", spentSubs);
+  const breakdownEl = byId("profile-tokens-breakdown");
+  if (breakdownEl) {
+    breakdownEl.style.display = (spentQa > 0 || spentSubs > 0) ? "" : "none";
+  }
+
   const progressFill = byId("profile-tokens-progress-fill");
   if (progressFill) {
     const pct = monthlyGranted > 0
