@@ -22,6 +22,8 @@
     <button class="admin-tab is-active" data-tab="users" role="tab">Users</button>
     <button class="admin-tab" data-tab="usage" role="tab">Usage / Requests</button>
     <button class="admin-tab" data-tab="subs" role="tab">Subscriptions</button>
+    <button class="admin-tab" data-tab="analytics" role="tab">Analytics</button>
+    <button class="admin-tab" data-tab="querylog" role="tab">Query log</button>
     <button class="admin-tab" data-tab="sessions" role="tab">Telegram / Sessions</button>
     <button class="admin-tab" data-tab="pricing" role="tab">Pricing</button>
   </nav>
@@ -40,6 +42,7 @@
               <th>ID</th>
               <th>Email</th>
               <th>Plan</th>
+              <th>Tokens left</th>
               <th>Lang/TZ</th>
               <th>Created</th>
               <th>Last login</th>
@@ -89,6 +92,7 @@
         </label>
         <button class="admin-btn" data-action="usage-apply">Применить</button>
         <span class="admin-pane__count" id="usageCount"></span>
+        <button class="admin-btn" data-action="usage-reload" style="margin-left:auto;">Обновить</button>
       </div>
       <div class="admin-table-wrap">
         <table class="admin-table" id="usageTable">
@@ -147,6 +151,7 @@
               <th>Matches / Digests</th>
               <th>Notify Q/S/F</th>
               <th>Last run $ / Total $</th>
+              <th>Tokens spent</th>
               <th>Last error</th>
             </tr>
           </thead>
@@ -157,6 +162,109 @@
         <button class="admin-btn" data-action="subs-prev">←</button>
         <span class="admin-pager__info" id="subsPagerInfo"></span>
         <button class="admin-btn" data-action="subs-next">→</button>
+      </div>
+    </section>
+
+    <!-- ANALYTICS TAB -->
+    <section class="admin-pane" data-pane="analytics">
+      <div class="admin-pane__controls">
+        <label class="admin-filter">
+          Период
+          <select id="analyticsDays">
+            <option value="7">7 дней</option>
+            <option value="30" selected>30 дней</option>
+            <option value="90">90 дней</option>
+          </select>
+        </label>
+        <button class="admin-btn" data-action="analytics-reload" style="margin-left:auto;">Обновить</button>
+      </div>
+
+      <h3 class="admin-section-title">По моделям <span class="admin-pane__count" id="analyticsModelsHint"></span></h3>
+      <div class="admin-table-wrap">
+        <table class="admin-table" id="analyticsModelsTable">
+          <thead>
+            <tr>
+              <th>Модель</th>
+              <th>Запросов</th>
+              <th>Токенов всего</th>
+              <th>Ср. токенов/запрос</th>
+              <th>Fallback %</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <h3 class="admin-section-title">По категориям запросов</h3>
+      <div class="admin-table-wrap">
+        <table class="admin-table" id="analyticsCategoriesTable">
+          <thead>
+            <tr>
+              <th>Категория</th>
+              <th>Запросов</th>
+              <th>Ср. уверенность</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <h3 class="admin-section-title">По тарифам</h3>
+      <div class="admin-table-wrap">
+        <table class="admin-table" id="analyticsPlansTable">
+          <thead>
+            <tr>
+              <th>Тариф</th>
+              <th>Юзеров</th>
+              <th>Токенов/мес</th>
+              <th>Ср. расход</th>
+              <th>Утилизация %</th>
+              <th>Расход всего</th>
+              <th>Split Q&A / подписки</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- QUERY LOG TAB -->
+    <section class="admin-pane" data-pane="querylog">
+      <div class="admin-pane__controls">
+        <label class="admin-filter">
+          User ID
+          <input type="number" id="queryLogUserId" placeholder="any" />
+        </label>
+        <button class="admin-btn" data-action="querylog-apply">Применить</button>
+        <span class="admin-pane__count" id="queryLogCount"></span>
+        <span class="admin-pane__count" id="queryLogTextHint"></span>
+        <button class="admin-btn" data-action="querylog-reload" style="margin-left:auto;">Обновить</button>
+      </div>
+      <p class="admin-pricing-hint">
+        Тексты запросов — приватные данные. Они показываются только если на сервере
+        включён флаг <code>ADMIN_SHOW_QUERY_TEXT=true</code>; иначе видны лишь
+        метаданные классификации (категория, уверенность, tier, модель).
+      </p>
+      <div class="admin-table-wrap">
+        <table class="admin-table" id="queryLogTable">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>User</th>
+              <th>Query text</th>
+              <th>Detected → Final</th>
+              <th>Confidence</th>
+              <th>Tier</th>
+              <th>Model</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="admin-pager">
+        <button class="admin-btn" data-action="querylog-prev">←</button>
+        <span class="admin-pager__info" id="queryLogPagerInfo"></span>
+        <button class="admin-btn" data-action="querylog-next">→</button>
       </div>
     </section>
 

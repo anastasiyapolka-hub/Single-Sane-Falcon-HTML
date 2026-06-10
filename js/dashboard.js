@@ -2222,6 +2222,19 @@
         updateSubGroupCounter();
       }
 
+      // Настройка поля subChatInput под текущий режим подписки.
+      // В групповом режиме (groupOn=true) поле НЕ блокируется и служит
+      // строкой поиска по дереву чатов (дерево может содержать тысячи
+      // чатов). В одиночном — обычное поле ввода чата/ссылки.
+      function applySubChatInputModeUI(groupOn) {
+        const el = document.getElementById("subChatInput");
+        if (!el) return;
+        el.disabled = false;
+        el.placeholder = groupOn
+          ? tI18n("new-analysis:subscription_form.chat_search_placeholder_group", "Поиск чатов в дереве…")
+          : tI18n("new-analysis:subscription_form.chat_placeholder", "Выберите чат/канал или вставьте ссылку");
+      }
+
       // Тоггл активируется/деактивируется → перерисовываем дерево,
       // чтобы появились/убрались чекбоксы. Также прячем подсказку
       // про одиночный input (она теряет смысл в групповом режиме).
@@ -2232,18 +2245,17 @@
         if (!on) {
           selectedSubGroupChats.clear();
         }
-        // Перерисовываем дерево чатов подписки с новым режимом.
+        // В групповом режиме поле работает как СТРОКА ПОИСКА по дереву
+        // (не блокируем!). В одиночном — как обычное поле ввода чата/ссылки.
+        applySubChatInputModeUI(on);
+        // Сбрасываем значение поля при переключении режима, чтобы не осталось
+        // отфильтрованного поиском подсписка чатов.
+        const subChatInputEl = document.getElementById("subChatInput");
+        if (subChatInputEl) subChatInputEl.value = "";
+        // Перерисовываем дерево чатов подписки с новым режимом по полному
+        // (несуженному) списку.
         if (typeof renderSubChatsList === "function") {
           renderSubChatsList(getCurrentSubscriptionChatCandidates());
-        }
-        // Поле одиночного чата прячем/показываем (групповой выбор делается через дерево).
-        const subChatInputEl = document.getElementById("subChatInput");
-        if (subChatInputEl) {
-          subChatInputEl.disabled = on;
-          subChatInputEl.placeholder = on
-            ? tI18n("new-analysis:subscription_form.chat_placeholder_group", "Выберите чаты в дереве ниже")
-            : tI18n("new-analysis:subscription_form.chat_placeholder", "Выберите чат/канал или вставьте ссылку");
-          if (on) subChatInputEl.value = "";
         }
         updateSubGroupCounter();
       });
@@ -3268,6 +3280,10 @@
         if (subChatInput) {
           subChatInput.value = "";
           subChatInput.disabled = false;
+          // Режим подписки сбрасывается на одиночный → плейсхолдер одиночного.
+          if (typeof applySubChatInputModeUI === "function") {
+            applySubChatInputModeUI(false);
+          }
         }
         if (subTypeSelect) subTypeSelect.value = "events";
         setPeriodOptionsForType("events");
@@ -3810,7 +3826,8 @@
           // заполняем форму
           subNameInput.value = sub.name || "";
           subChatInput.value = isGroup ? "" : (sub.chat_ref || "");
-          if (subChatInput) subChatInput.disabled = isGroup;
+          // В групповом режиме поле = строка поиска по дереву (не блокируем).
+          applySubChatInputModeUI(isGroup);
           subPromptInput.value = sub.prompt || "";
           autoResizeTextarea(subPromptInput);
 
@@ -4671,8 +4688,25 @@ if (runSubscriptionsBtn) {
         el.className = "mf-chat-block";
         const head = document.createElement("div");
         head.className = "mf-chat-block__header";
-        head.textContent = `${block.chat_title || block.chat_link}`
+
+        // Кликабельный заголовок-чата → сворачивает/разворачивает блок,
+        // как в обычном групповом ответе (group-result-section). Удобно,
+        // когда блоков по чатам много.
+        const chevron = document.createElement("span");
+        chevron.className = "mf-chat-block__chevron";
+        chevron.textContent = "▾";
+        head.appendChild(chevron);
+
+        const titleSpan = document.createElement("span");
+        titleSpan.textContent = `${block.chat_title || block.chat_link}`
           + (block.total_count ? ` (${block.total_count})` : "");
+        head.appendChild(titleSpan);
+
+        head.addEventListener("click", () => {
+          const collapsed = el.classList.toggle("mf-chat-block--collapsed");
+          chevron.textContent = collapsed ? "▸" : "▾";
+        });
+
         el.appendChild(head);
         if (block.error_code) {
           const err = document.createElement("div");

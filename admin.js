@@ -19,7 +19,15 @@
     users: { offset: 0, total: 0 },
     usage: { offset: 0, total: 0, userId: null, eventType: null },
     subs: { offset: 0, total: 0 },
+    querylog: { offset: 0, total: 0, userId: null },
   };
+
+  function fmtTokens(v) {
+    if (v === null || v === undefined) return "—";
+    const n = Number(v);
+    if (Number.isNaN(n)) return "—";
+    return n.toLocaleString();
+  }
 
   // ---------- helpers ----------
 
@@ -118,6 +126,8 @@
     if (name === "users") loadUsers();
     else if (name === "usage") loadUsage();
     else if (name === "subs") loadSubs();
+    else if (name === "analytics") loadAnalytics();
+    else if (name === "querylog") loadQueryLog();
     else if (name === "sessions") loadSessions();
     else if (name === "pricing") loadPricing();
   }
@@ -128,7 +138,7 @@
     const tbl = document.getElementById("usersTable");
     const tb = clearTbody(tbl);
     if (!tb) return;
-    tb.innerHTML = `<tr><td colspan="13" class="muted">Loading…</td></tr>`;
+    tb.innerHTML = `<tr><td colspan="14" class="muted">Loading…</td></tr>`;
 
     try {
       const res = await apiFetch(`/admin/users?limit=${PAGE_SIZE}&offset=${state.users.offset}`);
@@ -143,6 +153,11 @@
         tr.appendChild(tdText(u.id, "num"));
         tr.appendChild(tdText(u.email));
         tr.appendChild(tdText(u.plan));
+        // Баланс токенов. null = строки баланса нет (аномалия) — помечаем красным.
+        const tokCell = tdText(u.token_remaining == null ? "нет баланса" : fmtTokens(u.token_remaining), "num");
+        if (u.token_remaining == null) tokCell.classList.add("bad");
+        else if (Number(u.token_remaining) === 0) tokCell.classList.add("muted");
+        tr.appendChild(tokCell);
         tr.appendChild(tdText(`${u.language || "?"} / ${u.timezone || "?"}`));
         tr.appendChild(tdText(fmtDt(u.created_at)));
         tr.appendChild(tdText(fmtDt(u.last_login_at)));
@@ -169,11 +184,11 @@
       }
 
       if (!res.items || res.items.length === 0) {
-        tb.innerHTML = `<tr><td colspan="13" class="muted">No users.</td></tr>`;
+        tb.innerHTML = `<tr><td colspan="14" class="muted">No users.</td></tr>`;
       }
     } catch (err) {
       handleAdminError(err, "Failed to load users");
-      tb.innerHTML = `<tr><td colspan="13" class="bad">Load failed.</td></tr>`;
+      tb.innerHTML = `<tr><td colspan="14" class="bad">Load failed.</td></tr>`;
     }
   }
 
@@ -213,6 +228,9 @@
       }
       html.push(`</dl>`);
 
+      // Tokens (баланс + разбивка + журнал транзакций + ручная коррекция)
+      html.push(renderTokensSection(d.tokens || {}, userId));
+
       // Telegram
       const tg = d.telegram || {};
       html.push(`<h3>Web sessions (${(tg.web_sessions || []).length})</h3>`);
@@ -251,9 +269,130 @@
       ]));
 
       body.innerHTML = html.join("");
+      wireDrawerTokenActions(userId);
+      loadDrawerTokenTx(userId);
     } catch (err) {
       handleAdminError(err, "Failed to load user");
       body.innerHTML = `<p class="bad">Load failed.</p>`;
+    }
+  }
+
+  // ---------- USER DRAWER: tokens section ----------
+
+  function renderTokensSection(tok, userId) {
+    const errs = Array.isArray(tok._errors) ? tok._errors : [];
+    const noBalance = errs.includes("NO_BALANCE_ROW");
+
+    const granted = Number(tok.monthly_granted || 0);
+    const used = Number(tok.monthly_used || 0);
+    const pct = granted > 0 ? Math.min(100, Math.round((used / granted) * 100)) : 0;
+
+    // Разбивка расхода по reason
+    const spent = tok.spent_this_month || {};
+    const spentRows = Object.keys(spent).length
+      ? Object.entries(spent)
+          .map(([r, v]) => `<dt>${escapeHtml(r)}</dt><dd>${fmtTokens(v)}</dd>`)
+          .join("")
+      : `<dt class="muted">— нет списаний за период —</dt><dd></dd>`;
+
+    const warn = noBalance
+      ? `<p class="bad" style="font-size:12px;">⚠ Нет строки баланса (NO_BALANCE_ROW): баланс не создался при регистрации.</p>`
+      : "";
+
+    return `
+      <h3>Tokens</h3>
+      ${warn}
+      <dl class="kv">
+        <dt>Месячный лимит</dt><dd>${fmtTokens(used)} / ${fmtTokens(granted)} (${pct}%)</dd>
+        <dt>Осталось из месячных</dt><dd>${fmtTokens(tok.monthly_remaining)}</dd>
+        <dt>Докуплено (topup)</dt><dd>${fmtTokens(tok.topup_balance)}</dd>
+        <dt>Всего доступно</dt><dd>${fmtTokens(tok.total_remaining)}</dd>
+        <dt>Начало периода</dt><dd>${tok.period_start ? escapeHtml(tok.period_start) : "—"}</dd>
+      </dl>
+      <div style="font-size:12px;font-weight:600;margin:8px 0 4px;">Расход за период по типам:</div>
+      <dl class="kv">${spentRows}</dl>
+
+      <details style="margin-top:8px;">
+        <summary style="cursor:pointer;font-size:12px;font-weight:600;">Скорректировать баланс</summary>
+        <form class="admin-form" id="tokenAdjustForm" style="margin-top:8px;">
+          <div class="admin-form__row">
+            <label>Дельта (+/−)
+              <input type="number" id="tokenAdjustDelta" required placeholder="например 500 или -100" />
+            </label>
+            <label>Бакет
+              <select id="tokenAdjustBucket">
+                <option value="monthly">monthly</option>
+                <option value="topup">topup</option>
+              </select>
+            </label>
+          </div>
+          <label>Пояснение (обязательно)
+            <input type="text" id="tokenAdjustNote" required placeholder="например: компенсация за сбой 2026-06-03" />
+          </label>
+          <div class="admin-form__actions">
+            <button type="submit" class="admin-btn admin-btn--primary">Применить коррекцию</button>
+          </div>
+        </form>
+      </details>
+
+      <div style="font-size:12px;font-weight:600;margin:12px 0 4px;">Журнал транзакций</div>
+      <div id="tokenTxContainer"><p class="muted" style="font-size:12px;">Loading…</p></div>
+    `;
+  }
+
+  function wireDrawerTokenActions(userId) {
+    const form = document.getElementById("tokenAdjustForm");
+    if (form && !form._wired) {
+      form._wired = true;
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const delta = Number(document.getElementById("tokenAdjustDelta").value);
+        const bucket = document.getElementById("tokenAdjustBucket").value;
+        const note = (document.getElementById("tokenAdjustNote").value || "").trim();
+        if (!delta || Number.isNaN(delta)) { toast("Дельта должна быть ненулевым числом.", true); return; }
+        if (!note) { toast("Пояснение обязательно.", true); return; }
+        try {
+          await apiFetch(`/admin/users/${userId}/token-adjust`, {
+            method: "POST",
+            body: JSON.stringify({ delta, bucket, note }),
+          });
+          toast("Баланс скорректирован.");
+          openUserDrawer(userId); // перезагрузить drawer с новым балансом
+        } catch (err) {
+          handleAdminError(err, "Не удалось скорректировать баланс");
+        }
+      });
+    }
+  }
+
+  async function loadDrawerTokenTx(userId) {
+    const container = document.getElementById("tokenTxContainer");
+    if (!container) return;
+    try {
+      const res = await apiFetch(`/admin/users/${userId}/token-transactions?limit=50&offset=0`);
+      const rows = res.items || [];
+      if (!rows.length) {
+        container.innerHTML = `<p class="muted" style="font-size:12px;">— нет транзакций —</p>`;
+        return;
+      }
+      const head = ["created_at", "delta", "reason", "model", "event"]
+        .map((c) => `<th>${c}</th>`).join("");
+      const bodyRows = rows.map((tx) => {
+        const model = (tx.meta && (tx.meta.used_model || tx.meta.ai_model)) || "—";
+        const deltaCls = tx.delta < 0 ? "bad" : "ok";
+        return `<tr>
+          <td>${fmtDt(tx.created_at)}</td>
+          <td class="num ${deltaCls}">${tx.delta > 0 ? "+" : ""}${fmtTokens(tx.delta)}</td>
+          <td>${escapeHtml(tx.reason)}</td>
+          <td>${escapeHtml(model)}</td>
+          <td class="num">${tx.related_event_id != null ? "#" + tx.related_event_id : "—"}</td>
+        </tr>`;
+      }).join("");
+      container.innerHTML = `<div class="admin-table-wrap" style="margin-bottom:8px;">
+        <table class="admin-table"><thead><tr>${head}</tr></thead><tbody>${bodyRows}</tbody></table>
+      </div><p class="muted" style="font-size:11px;">Показаны последние ${rows.length} из ${res.total}.</p>`;
+    } catch (err) {
+      container.innerHTML = `<p class="bad" style="font-size:12px;">Не удалось загрузить транзакции.</p>`;
     }
   }
 
@@ -342,7 +481,7 @@
     const tbl = document.getElementById("subsTable");
     const tb = clearTbody(tbl);
     if (!tb) return;
-    tb.innerHTML = `<tr><td colspan="18" class="muted">Loading…</td></tr>`;
+    tb.innerHTML = `<tr><td colspan="19" class="muted">Loading…</td></tr>`;
 
     try {
       const res = await apiFetch(`/admin/subscriptions?limit=${PAGE_SIZE}&offset=${state.subs.offset}`);
@@ -378,6 +517,7 @@
           `${fmtCost(s.last_run_estimated_cost_usd)} / ${fmtCost(s.total_estimated_cost_usd)}`,
           "num"
         ));
+        tr.appendChild(tdText(fmtTokens(s.tokens_spent_total), "num"));
         const errCell = tdText(s.last_error || "—");
         if (s.last_error) errCell.classList.add("bad");
         tr.appendChild(errCell);
@@ -385,11 +525,11 @@
       }
 
       if (!res.items || res.items.length === 0) {
-        tb.innerHTML = `<tr><td colspan="18" class="muted">No subscriptions.</td></tr>`;
+        tb.innerHTML = `<tr><td colspan="19" class="muted">No subscriptions.</td></tr>`;
       }
     } catch (err) {
       handleAdminError(err, "Failed to load subscriptions");
-      tb.innerHTML = `<tr><td colspan="18" class="bad">Load failed.</td></tr>`;
+      tb.innerHTML = `<tr><td colspan="19" class="bad">Load failed.</td></tr>`;
     }
   }
 
@@ -592,6 +732,124 @@
     }
   }
 
+  // ---------- ANALYTICS ----------
+
+  async function loadAnalytics() {
+    const days = Number(document.getElementById("analyticsDays")?.value || 30);
+    const modelsTb = clearTbody(document.getElementById("analyticsModelsTable"));
+    const catsTb = clearTbody(document.getElementById("analyticsCategoriesTable"));
+    const plansTb = clearTbody(document.getElementById("analyticsPlansTable"));
+    if (modelsTb) modelsTb.innerHTML = `<tr><td colspan="5" class="muted">Loading…</td></tr>`;
+    if (catsTb) catsTb.innerHTML = `<tr><td colspan="3" class="muted">Loading…</td></tr>`;
+    if (plansTb) plansTb.innerHTML = `<tr><td colspan="7" class="muted">Loading…</td></tr>`;
+
+    try {
+      const [models, plans] = await Promise.all([
+        apiFetch(`/admin/analytics/models?days=${days}`),
+        apiFetch(`/admin/analytics/plans?days=${days}`),
+      ]);
+
+      // By model
+      const hint = document.getElementById("analyticsModelsHint");
+      if (hint) hint.textContent = `fallback событий: ${models.fallback_events ?? 0}`;
+      modelsTb.innerHTML = "";
+      for (const m of models.by_model || []) {
+        const tr = document.createElement("tr");
+        tr.appendChild(tdText(m.model));
+        tr.appendChild(tdText(fmtTokens(m.requests), "num"));
+        tr.appendChild(tdText(fmtTokens(m.tokens_charged_sum), "num"));
+        tr.appendChild(tdText(m.avg_tokens_per_request, "num"));
+        tr.appendChild(tdText(`${Math.round((m.fallback_rate || 0) * 100)}%`, "num"));
+        modelsTb.appendChild(tr);
+      }
+      if (!(models.by_model || []).length)
+        modelsTb.innerHTML = `<tr><td colspan="5" class="muted">Нет данных за период.</td></tr>`;
+
+      // By category
+      catsTb.innerHTML = "";
+      for (const c of models.by_category || []) {
+        const tr = document.createElement("tr");
+        tr.appendChild(tdText(c.category));
+        tr.appendChild(tdText(fmtTokens(c.requests), "num"));
+        tr.appendChild(tdText(c.avg_confidence != null ? c.avg_confidence : "—", "num"));
+        catsTb.appendChild(tr);
+      }
+      if (!(models.by_category || []).length)
+        catsTb.innerHTML = `<tr><td colspan="3" class="muted">Нет данных (user_query_log пуст за период).</td></tr>`;
+
+      // By plan
+      plansTb.innerHTML = "";
+      for (const p of plans.by_plan || []) {
+        const sp = p.split || {};
+        const tr = document.createElement("tr");
+        tr.appendChild(tdText(p.plan));
+        tr.appendChild(tdText(fmtTokens(p.users), "num"));
+        tr.appendChild(tdText(fmtTokens(p.monthly_tokens_each), "num"));
+        tr.appendChild(tdText(p.avg_monthly_used, "num"));
+        tr.appendChild(tdText(p.utilization_pct != null ? `${p.utilization_pct}%` : "—", "num"));
+        tr.appendChild(tdText(fmtTokens(p.total_tokens_spent), "num"));
+        tr.appendChild(tdText(`${fmtTokens(sp.qa || 0)} / ${fmtTokens(sp.subscriptions || 0)}`, "num"));
+        plansTb.appendChild(tr);
+      }
+      if (!(plans.by_plan || []).length)
+        plansTb.innerHTML = `<tr><td colspan="7" class="muted">Нет данных.</td></tr>`;
+    } catch (err) {
+      handleAdminError(err, "Failed to load analytics");
+      if (modelsTb) modelsTb.innerHTML = `<tr><td colspan="5" class="bad">Load failed.</td></tr>`;
+      if (catsTb) catsTb.innerHTML = `<tr><td colspan="3" class="bad">Load failed.</td></tr>`;
+      if (plansTb) plansTb.innerHTML = `<tr><td colspan="7" class="bad">Load failed.</td></tr>`;
+    }
+  }
+
+  // ---------- QUERY LOG ----------
+
+  async function loadQueryLog() {
+    const tbl = document.getElementById("queryLogTable");
+    const tb = clearTbody(tbl);
+    if (!tb) return;
+    tb.innerHTML = `<tr><td colspan="7" class="muted">Loading…</td></tr>`;
+
+    const params = new URLSearchParams({
+      limit: String(PAGE_SIZE),
+      offset: String(state.querylog.offset),
+    });
+    if (state.querylog.userId) params.append("user_id", String(state.querylog.userId));
+
+    try {
+      const res = await apiFetch(`/admin/query-log?${params.toString()}`);
+      state.querylog.total = res.total || 0;
+      document.getElementById("queryLogCount").textContent = `${state.querylog.total} записей`;
+      const textHint = document.getElementById("queryLogTextHint");
+      if (textHint) {
+        textHint.textContent = res.query_text_visible
+          ? "тексты: показаны"
+          : "тексты: скрыты (ADMIN_SHOW_QUERY_TEXT=false)";
+      }
+      setPagerInfo("queryLogPagerInfo", state.querylog.offset, state.querylog.total);
+
+      tb.innerHTML = "";
+      for (const q of res.items || []) {
+        const tr = document.createElement("tr");
+        tr.appendChild(tdText(fmtDt(q.created_at)));
+        tr.appendChild(tdText(q.user_id, "num"));
+        tr.appendChild(tdText(q.query_text == null ? "—" : q.query_text));
+        tr.appendChild(tdText(
+          `${q.detected_category || "—"} → ${q.final_category || "—"}`
+        ));
+        tr.appendChild(tdText(q.detected_confidence != null ? q.detected_confidence : "—", "num"));
+        tr.appendChild(tdText(q.selected_tier));
+        tr.appendChild(tdText(q.selected_model));
+        tb.appendChild(tr);
+      }
+      if (!res.items || res.items.length === 0) {
+        tb.innerHTML = `<tr><td colspan="7" class="muted">Нет записей.</td></tr>`;
+      }
+    } catch (err) {
+      handleAdminError(err, "Failed to load query log");
+      tb.innerHTML = `<tr><td colspan="7" class="bad">Load failed.</td></tr>`;
+    }
+  }
+
   // ---------- error handling ----------
 
   function handleAdminError(err, fallback) {
@@ -675,6 +933,7 @@
       state.usage.offset = 0;
       loadUsage();
     });
+    document.querySelector('[data-action="usage-reload"]')?.addEventListener("click", () => loadUsage());
     document.querySelector('[data-action="usage-prev"]')?.addEventListener("click", () => {
       state.usage.offset = Math.max(0, state.usage.offset - PAGE_SIZE);
       loadUsage();
@@ -695,6 +954,29 @@
       if (state.subs.offset + PAGE_SIZE < state.subs.total) {
         state.subs.offset += PAGE_SIZE;
         loadSubs();
+      }
+    });
+
+    // Analytics
+    document.querySelector('[data-action="analytics-reload"]')?.addEventListener("click", () => loadAnalytics());
+    document.getElementById("analyticsDays")?.addEventListener("change", () => loadAnalytics());
+
+    // Query log
+    document.querySelector('[data-action="querylog-apply"]')?.addEventListener("click", () => {
+      const uid = document.getElementById("queryLogUserId").value.trim();
+      state.querylog.userId = uid ? Number(uid) : null;
+      state.querylog.offset = 0;
+      loadQueryLog();
+    });
+    document.querySelector('[data-action="querylog-reload"]')?.addEventListener("click", () => loadQueryLog());
+    document.querySelector('[data-action="querylog-prev"]')?.addEventListener("click", () => {
+      state.querylog.offset = Math.max(0, state.querylog.offset - PAGE_SIZE);
+      loadQueryLog();
+    });
+    document.querySelector('[data-action="querylog-next"]')?.addEventListener("click", () => {
+      if (state.querylog.offset + PAGE_SIZE < state.querylog.total) {
+        state.querylog.offset += PAGE_SIZE;
+        loadQueryLog();
       }
     });
 

@@ -154,6 +154,7 @@
     "chat_label": "Chat / channel",
     "chat_placeholder": "Select a chat/channel or paste a link",
     "chat_placeholder_group": "Pick chats from the tree below",
+    "chat_search_placeholder_group": "Search chats in the tree…",
     "group_mode_label": "Group subscription:",
     "group_mode_tooltip": "Subscription that monitors several chats at once",
     "private_chat_hint": "Subscribing to private and personal chats is only available when signed in with your personal Telegram account.",

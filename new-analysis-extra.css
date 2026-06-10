@@ -307,6 +307,24 @@
             color: #1d4e54;
             margin-bottom: 8px;
             font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            user-select: none;
+          }
+          .mf-chat-block__chevron {
+            font-size: 12px;
+            color: #1d6a72;
+            flex: 0 0 auto;
+          }
+          /* Свёрнутый блок: показываем только заголовок, прячем содержимое
+             (секции/ошибку/пустое состояние). */
+          .mf-chat-block--collapsed .mf-chat-block__header {
+            margin-bottom: 0;
+          }
+          .mf-chat-block--collapsed > :not(.mf-chat-block__header) {
+            display: none;
           }
           .mf-chat-block__error {
             color: #a04050;
@@ -479,6 +497,30 @@
           }
           .sidebar-chat-item--sub-group.sidebar-chat-item--selected,
           .sidebar-chat-item--sub-group.sidebar-chat-item--selected:hover {
+            background: linear-gradient(
+              90deg,
+              rgba(255, 178, 102, 0.22),
+              rgba(255, 178, 102, 0.10)
+            ) !important;
+            box-shadow: inset 2px 0 0 rgba(217, 119, 6, 0.65) !important;
+          }
+
+          /* ВСЁ ДЕРЕВО ПОДПИСКИ (#subChatsList) — оранжевая подсветка,
+             одинаковая и в групповом, и в одиночном режиме. Раньше одиночный
+             режим наследовал бирюзовый hover/selected из new-analysis.css —
+             теперь подписочное дерево всегда оранжевое, как просили. */
+          #subChatsList .sidebar-chat-item:hover {
+            background: rgba(255, 178, 102, 0.32) !important;
+            box-shadow:
+              0 0 0 1px rgba(217, 119, 6, 0.18),
+              0 2px 6px rgba(217, 119, 6, 0.10) !important;
+            font-weight: 500;
+          }
+          #subChatsList .sidebar-chat-item:active {
+            background: rgba(255, 178, 102, 0.42) !important;
+          }
+          #subChatsList .sidebar-chat-item--selected,
+          #subChatsList .sidebar-chat-item--selected:hover {
             background: linear-gradient(
               90deg,
               rgba(255, 178, 102, 0.22),
