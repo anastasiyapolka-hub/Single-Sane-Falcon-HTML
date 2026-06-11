@@ -1566,7 +1566,9 @@ text-decoration: underline;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  /* Отступ МЕЖДУ блоками настроек — заметно больше, чем внутри блока
+     (между заголовком и его подсказкой). Так блоки читаются как группы. */
+  gap: 24px;
 }
 
 
@@ -1614,20 +1616,51 @@ text-decoration: underline;
   white-space: nowrap;
 }
 
+/* Подсказка к настройке прижата к ней (внутри блока) — расстояние задаёт
+   gap самого .profile-field (6px), без дополнительных margin. */
 .profile-setting-item__help {
-  margin-top: 8px;
+  margin-top: 0;
 }
 
 
 .profile-field > .profile-help-text {
-  margin-top: 6px;
+  margin-top: 0;
 }
 
 .profile-settings-actions {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
-  margin-top: 6px;
+  margin-top: 0;
+}
+
+/* Блок «Быстрый старт»: подсказка слева, кнопка справа в одну строку. */
+.profile-onboarding-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.profile-onboarding-row .profile-help-text {
+  flex: 1 1 auto;
+}
+
+.profile-onboarding-btn {
+  width: auto;
+  flex: 0 0 auto;
+  min-height: 40px;
+  white-space: nowrap;
+}
+
+@media (max-width: 760px) {
+  .profile-onboarding-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .profile-onboarding-btn {
+    width: 100%;
+  }
 }
 
 .profile-action-btn {

@@ -2868,7 +2868,6 @@ html.cotel-preboot .sidebar-boot-loader {
   z-index: 2147483200;
   border-radius: 10px;
   box-shadow: 0 0 0 9999px rgba(11, 15, 18, 0.55);
-  transition: top .25s ease, left .25s ease, width .25s ease, height .25s ease;
   pointer-events: none;
 }
 
@@ -2888,24 +2887,26 @@ html.cotel-preboot .sidebar-boot-loader {
   line-height: 1.5;
 }
 
-.tour-card__skip {
+.tour-card__close {
   position: absolute;
-  top: 10px;
-  right: 12px;
+  top: 8px;
+  right: 10px;
   border: none;
   background: transparent;
   color: #9ca3af;
-  font-size: 0.78rem;
+  font-size: 0.95rem;
+  line-height: 1;
   cursor: pointer;
-  padding: 2px 4px;
+  padding: 4px 6px;
+  border-radius: 6px;
 }
-.tour-card__skip:hover { color: #374151; }
+.tour-card__close:hover { color: #111827; background: #f3f4f6; }
 
 .tour-card__title {
   font-weight: 700;
   color: #111827;
   font-size: 0.98rem;
-  margin: 0 28px 6px 0;
+  margin: 4px 28px 6px 0;
 }
 
 .tour-card__body { color: #374151; }
@@ -2948,12 +2949,21 @@ html.cotel-preboot .sidebar-boot-loader {
   border-color: #d1d5db;
   color: #4b5563;
 }
-.tour-card__back:hover { background: #f3f4f6; }
+.tour-card__back:hover:not(:disabled) { background: #f3f4f6; }
+.tour-card__back:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
 .tour-card__next {
   background: #007e99;
   color: #fff;
 }
 .tour-card__next:hover { background: #006a82; }
+
+.tour-card__arrow {
+  font-weight: 700;
+  font-size: 0.9em;
+}
 
 /* Приглашение пройти обучение. */
 .tour-invite { position: fixed; inset: 0; z-index: 2147483600; }

@@ -426,8 +426,8 @@
     "skip": "Skip",
     "finish": "Done",
     "step_counter": "Step {n} of {total}",
-    "relaunch": "Restart the tour",
-    "relaunch_section": "Tutorial",
+    "relaunch": "Take the tour",
+    "relaunch_section": "Quick start",
     "relaunch_help": "A short tour of CoTel's main features.",
     "s_tg_title": "First — access to chats",
     "s_tg_body": "Connect your own Telegram (via QR or phone number) — or use the CoTel service account for public channels, without connecting your personal one. Without this the service has no access to the message history to analyze.",
@@ -451,6 +451,7 @@
     "s_tokens_title": "Tokens — the in-app currency",
     "s_tokens_body": "They pay for requests and subscriptions. Here in your profile you can see your balance, current plan and when the monthly limit resets.",
     "s_history_title": "Request history and tutorial",
-    "s_history_body": "The “Request history” tab shows what you analyzed and when, and how many tokens it used. You can restart this tour anytime from profile settings."
+    "s_history_body": "The “Request history” tab shows what you analyzed and when, and how many tokens it used. You can restart this tour anytime from profile settings.",
+    "close": "End tutorial"
   }
 }

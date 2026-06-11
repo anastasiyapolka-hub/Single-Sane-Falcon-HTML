@@ -104,7 +104,7 @@
 
   const STEPS = [
     {
-      anchor: "#telegramStatusSection",
+      anchor: "#dataSourceSection",
       titleKey: "new-analysis:onboarding.s_tg_title",
       titleFb: "Сначала — доступ к чатам",
       bodyKey: "new-analysis:onboarding.s_tg_body",
@@ -119,13 +119,6 @@
       titleFb: "Вставьте чат, канал или группу",
       bodyKey: "new-analysis:onboarding.s_chat_body",
       bodyFb: "Ссылка вида t.me/…, @username или выбор из списка ваших чатов. Это источник данных, который CoTel прочитает. В поле работает быстрый поиск при вводе по строке.",
-    },
-    {
-      anchor: "#queryInput",
-      titleKey: "new-analysis:onboarding.s_query_title",
-      titleFb: "Задайте вопрос своими словами",
-      bodyKey: "new-analysis:onboarding.s_query_body",
-      bodyFb: "Например: «о чём говорили за неделю», «найди вакансии Python, удалёнка», «собери ссылки на статьи». При поиске с медиафильтром поле можно оставлять пустым.",
     },
     {
       anchor: "#queryDaysInput",
@@ -158,6 +151,13 @@
       titleFb: "Только нужные медиа",
       bodyKey: "new-analysis:onboarding.s_media_body",
       bodyFb: "Нужны лишь сообщения с видео, фото, аудио, документами или ссылками? Включите медиафильтр и выберите типы.",
+    },
+    {
+      anchor: "#queryInput",
+      titleKey: "new-analysis:onboarding.s_query_title",
+      titleFb: "Задайте вопрос своими словами",
+      bodyKey: "new-analysis:onboarding.s_query_body",
+      bodyFb: "Например: «о чём говорили за неделю», «найди вакансии Python, удалёнка», «собери ссылки на статьи». При поиске с медиафильтром поле можно оставлять пустым.",
     },
     {
       anchor: "#analyzeBtn",
@@ -303,31 +303,37 @@
       .replace("{n}", String(idx + 1))
       .replace("{total}", String(total));
 
-    const skipLbl = t("new-analysis:onboarding.skip", "Пропустить");
     const backLbl = t("new-analysis:onboarding.back", "Назад");
     const nextLbl = isLast
       ? t("new-analysis:onboarding.finish", "Готово")
       : t("new-analysis:onboarding.next", "Далее");
+    const closeLbl = t("new-analysis:onboarding.close", "Завершить обучение");
+
+    const backHtml = '<span class="tour-card__arrow">←</span> ' + escapeHtml(backLbl);
+    const nextHtml = isLast
+      ? escapeHtml(nextLbl)
+      : escapeHtml(nextLbl) + ' <span class="tour-card__arrow">→</span>';
 
     cardEl.innerHTML =
-      '<button type="button" class="tour-card__skip">' + escapeHtml(skipLbl) + "</button>" +
+      '<button type="button" class="tour-card__close" aria-label="' + escapeHtml(closeLbl) +
+        '" title="' + escapeHtml(closeLbl) + '">✕</button>' +
       '<div class="tour-card__title">' + escapeHtml(title) + "</div>" +
       '<div class="tour-card__body">' + escapeHtml(body) + "</div>" +
       (note ? '<div class="tour-card__note">⚠️ ' + escapeHtml(note) + "</div>" : "") +
       '<div class="tour-card__footer">' +
         '<span class="tour-card__counter">' + escapeHtml(counter) + "</span>" +
         '<div class="tour-card__btns">' +
-          (isFirst ? "" : '<button type="button" class="tour-card__back">' + escapeHtml(backLbl) + "</button>") +
-          '<button type="button" class="tour-card__next">' + escapeHtml(nextLbl) + "</button>" +
+          '<button type="button" class="tour-card__back"' + (isFirst ? " disabled" : "") + ">" + backHtml + "</button>" +
+          '<button type="button" class="tour-card__next">' + nextHtml + "</button>" +
         "</div>" +
       "</div>";
 
-    cardEl.querySelector(".tour-card__skip").addEventListener("click", () => endTour("skipped"));
+    cardEl.querySelector(".tour-card__close").addEventListener("click", () => endTour("skipped"));
     cardEl.querySelector(".tour-card__next").addEventListener("click", () => {
       if (isLast) endTour("done"); else go(idx + 1);
     });
     const backBtn = cardEl.querySelector(".tour-card__back");
-    if (backBtn) backBtn.addEventListener("click", () => go(idx - 1));
+    if (backBtn && !isFirst) backBtn.addEventListener("click", () => go(idx - 1));
   }
 
   function escapeHtml(s) {
@@ -351,8 +357,9 @@
 
     let el = q(step.anchor);
     if (el && isVisible(el)) {
-      el.scrollIntoView({ block: "center", inline: "nearest", behavior: "smooth" });
-      await wait(320);
+      // Мгновенный переход без плавной прокрутки (по требованию — без «скольжения»).
+      el.scrollIntoView({ block: "center", inline: "nearest" });
+      await wait(40);
     }
     el = q(step.anchor);
 
