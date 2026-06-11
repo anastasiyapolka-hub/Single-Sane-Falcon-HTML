@@ -453,5 +453,21 @@
     "s_history_title": "Request history and tutorial",
     "s_history_body": "The “Request history” tab shows what you analyzed and when, and how many tokens it used. You can restart this tour anytime from profile settings.",
     "close": "End tutorial"
+  },
+  "saved_queries": {
+    "title": "Saved queries",
+    "save_current": "Save current query",
+    "name_placeholder": "Query name",
+    "save": "Save",
+    "cancel": "Cancel",
+    "empty": "No saved queries yet.",
+    "loading": "Loading…",
+    "load_error": "Couldn’t load queries.",
+    "apply_hint": "Apply this query’s settings",
+    "delete": "Delete",
+    "delete_confirm": "Delete saved query “{name}”?",
+    "delete_error": "Couldn’t delete the query.",
+    "save_error": "Couldn’t save the query.",
+    "name_required": "Enter a name."
   }
 }
