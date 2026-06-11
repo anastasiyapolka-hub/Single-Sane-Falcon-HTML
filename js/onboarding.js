@@ -132,7 +132,7 @@
       anchor: "#queryDepthSelector",
       before: ensureSettingsExpanded,
       titleKey: "new-analysis:onboarding.s_depth_title",
-      titleFb: "Выберите глубину, а не модель",
+      titleFb: "Выберите уровень сложности анализа",
       bodyKey: "new-analysis:onboarding.s_depth_body",
       bodyFb: "Лёгкий — для большинства задач (быстро и экономно). Сбалансированный и Глубокий — для сложной аналитики. Какую AI-модель использовать, CoTel решает сам. Нажмите ⓘ, чтобы увидеть примерную стоимость каждого уровня.",
     },

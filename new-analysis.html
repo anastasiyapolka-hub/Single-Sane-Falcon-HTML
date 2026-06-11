@@ -537,6 +537,7 @@
                     />
 
                     <div id="querySettingsInlineBlock" class="sidebar-history-block">
+                      <div class="sidebar-history-block-header">
                       <button
                         id="querySettingsInlineToggle"
                         type="button"
@@ -546,6 +547,25 @@
                         <span data-i18n="new-analysis:chat_requests.query_settings_toggle">Настройки запроса</span>
                         <span id="querySettingsInlineToggleIcon">▸</span>
                       </button>
+
+                      <button
+                        id="savedQueriesBtn"
+                        type="button"
+                        class="saved-queries-btn"
+                        aria-haspopup="dialog"
+                        aria-expanded="false"
+                        title="Сохранённые запросы"
+                        data-i18n-title="new-analysis:saved_queries.title"
+                        aria-label="Сохранённые запросы"
+                        data-i18n-aria-label="new-analysis:saved_queries.title"
+                      >
+                        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+                          <path d="M6 3.5h12a1 1 0 0 1 1 1V21l-7-4.2L5 21V4.5a1 1 0 0 1 1-1z"
+                                fill="none" stroke="currentColor" stroke-width="1.8"
+                                stroke-linejoin="round" stroke-linecap="round" />
+                        </svg>
+                      </button>
+                      </div>
 
                       <div id="querySettingsInlineBody" class="sidebar-history-body hidden">
                         <div class="sidebar-inline-setting-row sidebar-inline-setting-row--period">
@@ -2021,5 +2041,6 @@
 <script src="/js/auth.js"></script>
 <script src="/js/lang-switcher.js"></script>
 <script src="/js/onboarding.js"></script>
+<script src="/js/saved-queries.js"></script>
   </body>
 </html>

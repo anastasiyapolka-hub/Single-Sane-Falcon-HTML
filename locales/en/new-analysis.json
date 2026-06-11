@@ -438,7 +438,7 @@
     "s_query_body": "For example: “what was discussed this week”, “find Python jobs, remote”, “collect links to articles”. With the media filter on, you can leave the field empty.",
     "s_period_title": "How far back to read",
     "s_period_body": "Choose the period: minutes, hours or days. The longer the period, the more messages CoTel reads (and the more tokens the request costs).",
-    "s_depth_title": "Choose depth, not a model",
+    "s_depth_title": "Choose the analysis level",
     "s_depth_body": "Light — for most tasks (fast and economical). Balanced and Deep — for complex analysis. CoTel picks which AI model to use itself. Click ⓘ to see the approximate cost of each level.",
     "s_group_title": "Several chats at once",
     "s_group_body": "Turn this on to ask one question across several chats and get a combined answer. The number of chats depends on your plan.",

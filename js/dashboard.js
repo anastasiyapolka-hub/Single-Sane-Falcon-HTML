@@ -736,6 +736,104 @@
         getPayload: getMediaFilterPayload,
       };
 
+      // ---- Сохранённые запросы: чтение/запись состояния формы ----
+      // getState() — снапшот текущих настроек формы (формат зеркалит payload
+      // analyze-эндпоинтов + schema_version). applyState() — подставляет
+      // настройки из пресета/истории обратно в форму. Defensive: любые
+      // протухшие/кривые значения заменяются дефолтом, не падаем.
+      function getQueryFormState() {
+        const periodValue = parseInt(queryDaysInput?.value || "1", 10);
+        const isGroup = (typeof isGroupModeOn === "function") && isGroupModeOn();
+        return {
+          schema_version: 1,
+          is_group: !!isGroup,
+          chat_link: isGroup ? "" : (activeChatInput?.value || "").trim(),
+          chats: isGroup ? Array.from(selectedGroupChats) : [],
+          user_query: (queryInput?.value || ""),
+          period_value: Number.isFinite(periodValue) && periodValue > 0 ? periodValue : 1,
+          period_unit: getQueryPeriodUnit(),
+          depth: getSelectedDepth(),
+          category: null,
+          media_filter: getMediaFilterPayload(),
+        };
+      }
+
+      function applyQueryFormState(state) {
+        if (!state || typeof state !== "object") return;
+
+        // --- Период ---
+        const pv = parseInt(state.period_value, 10);
+        if (queryDaysInput && Number.isFinite(pv) && pv > 0) {
+          queryDaysInput.value = String(pv);
+        }
+        const unitSel = document.getElementById("queryPeriodUnitSelect");
+        if (unitSel) {
+          const allowed = ["minutes", "hours", "days"];
+          unitSel.value = allowed.includes(state.period_unit) ? state.period_unit : "days";
+          unitSel.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+
+        // --- Уровень анализа ---
+        if (typeof setSelectedDepth === "function") {
+          setSelectedDepth(state.depth);
+        }
+
+        // --- Текст запроса ---
+        if (queryInput) {
+          queryInput.value = typeof state.user_query === "string" ? state.user_query : "";
+          if (typeof autoResizeQueryInput === "function") autoResizeQueryInput();
+        }
+
+        // --- Групповой vs одиночный режим ---
+        const wantGroup = !!state.is_group;
+        if (queryGroupModeToggle && queryGroupModeToggle.checked !== wantGroup) {
+          queryGroupModeToggle.checked = wantGroup;
+          // change-обработчик сбрасывает выбор и перерисовывает списки.
+          queryGroupModeToggle.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+        if (wantGroup) {
+          selectedGroupChats.clear();
+          (Array.isArray(state.chats) ? state.chats : []).forEach((c) => {
+            if (c) selectedGroupChats.add(c);
+          });
+          if (typeof updateGroupCounter === "function") updateGroupCounter();
+          if (typeof renderChatsList === "function" && typeof cachedChats !== "undefined") {
+            renderChatsList(cachedChats);
+          }
+          if (typeof renderChatHistory === "function" && typeof cachedChatHistory !== "undefined") {
+            renderChatHistory(cachedChatHistory);
+          }
+        } else if (activeChatInput) {
+          activeChatInput.value = (state.chat_link || "");
+        }
+
+        // --- Медиафильтр ---
+        const mf = state.media_filter;
+        const wantMf = !!(mf && mf.enabled !== false && typeof mf === "object");
+        if (queryMediaFilterToggle && queryMediaFilterToggle.checked !== wantMf) {
+          queryMediaFilterToggle.checked = wantMf;
+          queryMediaFilterToggle.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+        if (wantMf && mediaFilterBlock) {
+          const cats = Array.isArray(mf.categories) ? mf.categories : [];
+          mediaFilterBlock.querySelectorAll(".media-filter-cat").forEach((c) => {
+            c.checked = cats.includes(c.value);
+          });
+          const videoSel = mediaFilterBlock.querySelector('.media-filter-subtype[data-cat="video"]');
+          const audioSel = mediaFilterBlock.querySelector('.media-filter-subtype[data-cat="audio"]');
+          if (videoSel) videoSel.value = mf.video_subtype || "video_files";
+          if (audioSel) audioSel.value = mf.audio_subtype || "audio_files";
+          if (typeof refreshMediaFilterSubtypeStates === "function") {
+            refreshMediaFilterSubtypeStates();
+          }
+        }
+      }
+
+      window.cotelQueryForm = {
+        getState: getQueryFormState,
+        applyState: applyQueryFormState,
+      };
+
       window.cotelRefreshLimitBoundControls = refreshLimitBoundControls;
 
       adminPanelBtn?.addEventListener("click", () => {
@@ -2911,7 +3009,7 @@
         const hint = topup
           ? tI18n(
               "new-analysis:subscriptions.paused_no_tokens_hint_topup",
-              "Докупите токены или перейдите на более широкий тариф, чтобы возобновить."
+              "Докупите токены или перейдите на расширенный тариф, чтобы возобновить."
             )
           : tI18n(
               "new-analysis:subscriptions.paused_no_tokens_hint_upgrade",
