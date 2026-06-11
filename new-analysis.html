@@ -807,6 +807,10 @@
                     </button>
                     <button id="dispatchBotBtn" type="button"  class="tg-button" data-i18n="new-analysis:subscriptions.dispatch_bot_btn">Запустить бота</button>
 
+                    <!-- Баннер: подписки приостановлены из-за нехватки токенов.
+                         Показывается JS-ом по флагу snapshot.usage.subscriptions_paused_no_tokens. -->
+                    <div id="subscriptionsTokenBanner" class="subscriptions-token-banner hidden" role="alert"></div>
+
                     <!-- Список подписок (пока простая заглушка) -->
                     <div id="subscriptionsList" class="sidebar-subscriptions-list" aria-label="Список подписок" data-i18n-aria-label="new-analysis:subscriptions.list_aria"></div>
 
@@ -1687,6 +1691,16 @@
                 </p>
               </div>
 
+              <div class="profile-field profile-field-full">
+                <label class="profile-setting-item__title" data-i18n="new-analysis:onboarding.relaunch_section">Обучение</label>
+                <p class="profile-help-text profile-setting-item__help" data-i18n="new-analysis:onboarding.relaunch_help">
+                  Короткий тур по основным возможностям CoTel.
+                </p>
+                <button id="onboarding-relaunch-btn" type="button" class="profile-action-btn" data-i18n="new-analysis:onboarding.relaunch">
+                  Пройти обучение заново
+                </button>
+              </div>
+
               <div class="profile-settings-actions">
                 <button id="change-password-btn" type="button" class="profile-action-btn" data-i18n="auth:profile.settings.change_password_btn">
                   Сменить пароль
@@ -2004,5 +2018,6 @@
 </script>
 <script src="/js/auth.js"></script>
 <script src="/js/lang-switcher.js"></script>
+<script src="/js/onboarding.js"></script>
   </body>
 </html>

@@ -1773,6 +1773,23 @@ select option {
 /* future states */
 .subscription-status-dot.is-paused { background: #9ca3af; }
 .subscription-status-dot.is-error  { background: #ef4444; }
+/* Приостановлена из-за нехватки токенов — серый кружок (как пауза). */
+.subscription-status-dot.is-no-tokens { background: #9ca3af; }
+
+/* Баннер «подписки приостановлены — нет токенов» над списком подписок. */
+.subscriptions-token-banner {
+  margin: 8px 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(255, 178, 102, 0.16);
+  border: 1px solid rgba(217, 119, 6, 0.30);
+  color: #7c3a06;
+  font-size: 0.85rem;
+  line-height: 1.35;
+}
+.subscriptions-token-banner.hidden { display: none; }
+.subscriptions-token-banner__title { font-weight: 600; }
+.subscriptions-token-banner__hint { font-weight: 400; }
 
 /* ===== Modal  ===== */
 .modal-overlay {
@@ -2833,6 +2850,179 @@ html.cotel-preboot .sidebar-boot-loader {
   left: auto;
   border-left: none;
   border-bottom: none;
+}
+
+/* ===== Онбординг-тур (product tour) ===== */
+
+/* Перехватывает клики по странице, пока идёт тур (переход — только по кнопкам). */
+.tour-blocker {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  background: transparent;
+}
+
+/* Затемнение всего экрана с «вырезом» вокруг активного элемента. */
+.tour-spotlight {
+  position: fixed;
+  z-index: 2147483200;
+  border-radius: 10px;
+  box-shadow: 0 0 0 9999px rgba(11, 15, 18, 0.55);
+  transition: top .25s ease, left .25s ease, width .25s ease, height .25s ease;
+  pointer-events: none;
+}
+
+/* Карточка-подсказка — тот же язык, что и .cotel-popover. */
+.tour-card {
+  position: fixed;
+  z-index: 2147483600;
+  width: 300px;
+  max-width: calc(100vw - 24px);
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 12px 36px rgba(15, 23, 42, 0.22);
+  padding: 16px 18px 14px;
+  font-size: 0.85rem;
+  color: #374151;
+  line-height: 1.5;
+}
+
+.tour-card__skip {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  font-size: 0.78rem;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+.tour-card__skip:hover { color: #374151; }
+
+.tour-card__title {
+  font-weight: 700;
+  color: #111827;
+  font-size: 0.98rem;
+  margin: 0 28px 6px 0;
+}
+
+.tour-card__body { color: #374151; }
+
+.tour-card__note {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid #f1f5f9;
+  color: #6b7280;
+  font-size: 0.78rem;
+}
+
+.tour-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.tour-card__counter {
+  color: #9ca3af;
+  font-size: 0.74rem;
+  white-space: nowrap;
+}
+
+.tour-card__btns { display: flex; gap: 8px; }
+
+.tour-card__back,
+.tour-card__next {
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.tour-card__back {
+  background: transparent;
+  border-color: #d1d5db;
+  color: #4b5563;
+}
+.tour-card__back:hover { background: #f3f4f6; }
+.tour-card__next {
+  background: #007e99;
+  color: #fff;
+}
+.tour-card__next:hover { background: #006a82; }
+
+/* Приглашение пройти обучение. */
+.tour-invite { position: fixed; inset: 0; z-index: 2147483600; }
+.tour-invite__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(11, 15, 18, 0.5);
+}
+.tour-invite__card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 420px;
+  max-width: calc(100vw - 32px);
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.28);
+  padding: 26px 26px 22px;
+  text-align: center;
+  color: #374151;
+}
+.tour-invite__close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+.tour-invite__close:hover { color: #374151; }
+.tour-invite__title {
+  font-weight: 800;
+  font-size: 1.3rem;
+  color: #111827;
+  margin-bottom: 10px;
+}
+.tour-invite__body { font-size: 0.92rem; line-height: 1.55; }
+.tour-invite__btns {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 22px;
+}
+.tour-invite__later,
+.tour-invite__start {
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.tour-invite__later {
+  background: transparent;
+  border: 1px solid #d1d5db;
+  color: #4b5563;
+}
+.tour-invite__later:hover { background: #f3f4f6; }
+.tour-invite__start {
+  background: #007e99;
+  border: 1px solid #007e99;
+  color: #fff;
+}
+.tour-invite__start:hover { background: #006a82; }
+
+@media (max-width: 640px) {
+  .tour-card { width: calc(100vw - 24px); }
 }
 
 /* ===== Расшифровка списания токенов под ответом ===== */

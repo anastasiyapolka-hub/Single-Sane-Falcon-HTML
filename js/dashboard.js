@@ -2889,8 +2889,44 @@
         }
       }
 
+      // Баннер «подписки приостановлены — нет токенов». Показывается по флагу
+      // из снапшота (usage.subscriptions_paused_no_tokens). Вызывается из
+      // renderSubscriptions и после каждого обновления снапшота (см. auth.js).
+      function updateSubscriptionsTokenBanner() {
+        const banner = document.getElementById("subscriptionsTokenBanner");
+        if (!banner) return;
+        const usage = window.currentPlanUsage?.usage || null;
+        const paused = !!(usage && usage.subscriptions_paused_no_tokens);
+        if (!paused) {
+          banner.classList.add("hidden");
+          banner.innerHTML = "";
+          return;
+        }
+        const plan = (typeof getPlanInfo === "function" ? getPlanInfo() : null) || {};
+        const topup = !!plan.topup_enabled;
+        const title = tI18n(
+          "new-analysis:subscriptions.paused_no_tokens_title",
+          "Подписки приостановлены: недостаточно токенов."
+        );
+        const hint = topup
+          ? tI18n(
+              "new-analysis:subscriptions.paused_no_tokens_hint_topup",
+              "Докупите токены или перейдите на более широкий тариф, чтобы возобновить."
+            )
+          : tI18n(
+              "new-analysis:subscriptions.paused_no_tokens_hint_upgrade",
+              "Перейдите на платный тариф, чтобы возобновить подписки."
+            );
+        banner.innerHTML =
+          `<span class="subscriptions-token-banner__title">${escapeHtml(title)}</span> ` +
+          `<span class="subscriptions-token-banner__hint">${escapeHtml(hint)}</span>`;
+        banner.classList.remove("hidden");
+      }
+      window.cotelUpdateSubscriptionsTokenBanner = updateSubscriptionsTokenBanner;
+
       function renderSubscriptions(currentList, otherList) {
         if (!subscriptionsList) return;
+        updateSubscriptionsTokenBanner();
 
         const currentSubs = Array.isArray(currentList) ? currentList : [];
         const otherSubs = Array.isArray(otherList) ? otherList : [];
@@ -2913,6 +2949,8 @@
           if (status === "paused") dotClass += " is-paused";
           if (status === "error") dotClass += " is-error";
           if (status === "trial_expired") dotClass += " is-error";
+          // Приостановлено из-за нехватки токенов — серый кружок, как пауза.
+          if (status === "no_tokens") dotClass += " is-no-tokens";
 
           return dotClass;
         }
@@ -2922,6 +2960,9 @@
 
     if (status === "trial_expired") {
       return tI18n("new-analysis:subscription_status.trial_expired", "Пробный период подписки завершён");
+    }
+    if (status === "no_tokens") {
+      return tI18n("new-analysis:subscription_status.no_tokens", "Приостановлена: недостаточно токенов");
     }
     if (status === "paused") {
       return tI18n("new-analysis:subscription_status.paused", "Подписка на паузе");

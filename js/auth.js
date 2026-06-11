@@ -1739,6 +1739,9 @@ async function fetchPlanUsageSnapshot() {
   try {
     const snapshot = await apiFetch("/account/plan-usage", { method: "GET" });
     setPlanUsageSnapshot(snapshot);
+    if (typeof window.cotelUpdateSubscriptionsTokenBanner === "function") {
+      window.cotelUpdateSubscriptionsTokenBanner();
+    }
     return snapshot;
   } catch (err) {
     console.warn("Plan usage load failed", err);
@@ -1753,6 +1756,9 @@ function applyUsageFromPayload(payload) {
 
     if (typeof window.cotelRefreshLimitBoundControls === "function") {
       window.cotelRefreshLimitBoundControls();
+    }
+    if (typeof window.cotelUpdateSubscriptionsTokenBanner === "function") {
+      window.cotelUpdateSubscriptionsTokenBanner();
     }
   }
 }
