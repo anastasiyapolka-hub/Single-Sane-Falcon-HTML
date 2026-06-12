@@ -38,6 +38,8 @@
     "RESEND_COOLDOWN": "Please wait {{retry_after_sec}}s before requesting a new code.",
     "RESET_RESEND_COOLDOWN": "Please wait {{retry_after_sec}}s before requesting a new reset code.",
     "INVALID_CREDENTIALS": "Incorrect email or password.",
+    "ACCOUNT_LOCKED": "Too many failed sign-in attempts. Access to this account is temporarily locked. Try again in {{retry_after_min}} min or reset your password via \"Forgot password?\".",
+    "IP_RATE_LIMITED": "Too many sign-in attempts from your device. Please wait {{retry_after_min}} min and try again.",
     "NOT_AUTHENTICATED": "Please sign in to continue.",
     "SESSION_INVALID": "Your session has expired. Please sign in again.",
     "USER_INACTIVE": "Your account is inactive.",

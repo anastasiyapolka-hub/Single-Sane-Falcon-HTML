@@ -882,25 +882,42 @@ async function handleLogin() {
 
     closeAuthModal();
   } catch (err) {
-    const detail = err?.detail?.detail || err?.detail || "";
+    const rawDetail = err?.detail?.detail ?? err?.detail;
+    // detail может быть строкой ("INVALID_CREDENTIALS") или объектом
+    // ({ code, message, retry_after_min } — напр. для блокировок).
+    const code = (rawDetail && typeof rawDetail === "object") ? rawDetail.code : rawDetail;
 
-    if (detail === "EMAIL_NOT_VERIFIED") {
+    if (code === "EMAIL_NOT_VERIFIED") {
       registerEmail = email;
       switchAuthView("verify");
       return;
     }
 
+    // Блокировка по аккаунту / лимит по IP — показываем локализованное
+    // сообщение с временем ожидания (через общий экстрактор по code+params).
+    if (code === "ACCOUNT_LOCKED" || code === "IP_RATE_LIMITED") {
+      const msg =
+        (window.extractBackendErrorMessage && window.extractBackendErrorMessage(err)) ||
+        (rawDetail && rawDetail.message) ||
+        tAuth("errors:rate_limited", "Слишком много запросов. Попробуйте позже.");
+      showLoginError(msg);
+      return;
+    }
+
     if (
-      detail === "INVALID_CREDENTIALS" ||
-      detail === "INVALID_PASSWORD" ||
-      detail === "LOGIN_FAILED" ||
-      detail === "UNAUTHORIZED"
+      code === "INVALID_CREDENTIALS" ||
+      code === "INVALID_PASSWORD" ||
+      code === "LOGIN_FAILED" ||
+      code === "UNAUTHORIZED"
     ) {
       showLoginError(tAuth("auth:messages.login_failed", "Неверный пароль"));
       return;
     }
 
-    showLoginError(tAuth("errors:unknown", "Не удалось войти"));
+    const fallbackMsg =
+      (window.extractBackendErrorMessage && window.extractBackendErrorMessage(err)) ||
+      tAuth("errors:unknown", "Не удалось войти");
+    showLoginError(fallbackMsg);
   }
 }
 
