@@ -228,8 +228,8 @@
       }
       html.push(`</dl>`);
 
-      // Tokens (баланс + разбивка + журнал транзакций + ручная коррекция)
-      html.push(renderTokensSection(d.tokens || {}, userId));
+      // Tokens (баланс + разбивка + смена тарифа + журнал транзакций + коррекция)
+      html.push(renderTokensSection(d.tokens || {}, userId, d.profile?.plan));
 
       // Telegram
       const tg = d.telegram || {};
@@ -269,7 +269,7 @@
       ]));
 
       body.innerHTML = html.join("");
-      wireDrawerTokenActions(userId);
+      wireDrawerTokenActions(userId, d.profile?.plan);
       loadDrawerTokenTx(userId);
     } catch (err) {
       handleAdminError(err, "Failed to load user");
@@ -279,7 +279,7 @@
 
   // ---------- USER DRAWER: tokens section ----------
 
-  function renderTokensSection(tok, userId) {
+  function renderTokensSection(tok, userId, currentPlan) {
     const errs = Array.isArray(tok._errors) ? tok._errors : [];
     const noBalance = errs.includes("NO_BALANCE_ROW");
 
@@ -312,6 +312,20 @@
       <div style="font-size:12px;font-weight:600;margin:8px 0 4px;">Расход за период по типам:</div>
       <dl class="kv">${spentRows}</dl>
 
+      <details style="margin-top:8px;" open>
+        <summary style="cursor:pointer;font-size:12px;font-weight:600;">Перевести на тариф</summary>
+        <div class="admin-form" style="margin-top:8px;">
+          <div style="font-size:12px;">Текущий тариф: <strong>${escapeHtml(currentPlan || "—")}</strong></div>
+          <div class="admin-form__row" style="align-items:flex-end;">
+            <label>Новый тариф
+              <select id="planChangeSelect"><option value="">Загрузка…</option></select>
+            </label>
+            <button type="button" class="admin-btn admin-btn--primary" id="planChangeBtn">Перевести на тариф</button>
+          </div>
+          <small class="muted">Месячный грант сбросится до порога нового тарифа (used → 0), topup не трогаем. Пишется транзакция plan_change.</small>
+        </div>
+      </details>
+
       <details style="margin-top:8px;">
         <summary style="cursor:pointer;font-size:12px;font-weight:600;">Скорректировать баланс</summary>
         <form class="admin-form" id="tokenAdjustForm" style="margin-top:8px;">
@@ -340,7 +354,57 @@
     `;
   }
 
-  function wireDrawerTokenActions(userId) {
+  let adminPlansCache = null;
+
+  async function populatePlanSelect(currentPlan) {
+    const sel = document.getElementById("planChangeSelect");
+    if (!sel) return;
+    try {
+      if (!adminPlansCache) {
+        const res = await apiFetch("/admin/plans");
+        adminPlansCache = res.items || [];
+      }
+      sel.innerHTML = "";
+      for (const p of adminPlansCache) {
+        const opt = document.createElement("option");
+        opt.value = p.code;
+        const inactive = p.is_active ? "" : " (inactive)";
+        opt.textContent = `${p.code} — ${fmtTokens(p.monthly_tokens)} ток/мес${inactive}`;
+        if (p.code === currentPlan) opt.selected = true;
+        sel.appendChild(opt);
+      }
+    } catch (err) {
+      sel.innerHTML = `<option value="">— не удалось загрузить тарифы —</option>`;
+    }
+  }
+
+  function wireDrawerTokenActions(userId, currentPlan) {
+    // Тарифы: заполнить селектор и повесить кнопку перевода
+    populatePlanSelect(currentPlan);
+    const planBtn = document.getElementById("planChangeBtn");
+    if (planBtn && !planBtn._wired) {
+      planBtn._wired = true;
+      planBtn.addEventListener("click", async () => {
+        const sel = document.getElementById("planChangeSelect");
+        const plan = sel ? sel.value : "";
+        if (!plan) { toast("Выбери тариф.", true); return; }
+        if (plan === currentPlan && !confirm(`Пользователь уже на тарифе «${plan}». Всё равно перевести (это сбросит месячный расход)?`)) return;
+        planBtn.disabled = true;
+        try {
+          const res = await apiFetch(`/admin/users/${userId}/change-plan`, {
+            method: "POST",
+            body: JSON.stringify({ plan }),
+          });
+          toast(`Тариф: ${res.old_plan || "—"} → ${res.new_plan}. Начислено ${fmtTokens(res.monthly_tokens)} токенов.`);
+          openUserDrawer(userId); // перезагрузить drawer
+        } catch (err) {
+          handleAdminError(err, "Не удалось сменить тариф");
+        } finally {
+          planBtn.disabled = false;
+        }
+      });
+    }
+
     const form = document.getElementById("tokenAdjustForm");
     if (form && !form._wired) {
       form._wired = true;
