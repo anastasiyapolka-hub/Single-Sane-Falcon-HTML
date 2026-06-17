@@ -1,22 +1,26 @@
 /* ============================================================================
  * CoTel — онбординг-тур (product tour).
  *
- * Лёгкий guided tour поверх существующего визуального языка поповеров
- * (.cotel-popover). Без сторонних библиотек, без расширения БД — состояние
- * хранится в localStorage.
+ * Два тура поверх общего визуального языка поповеров:
+ *   • "quick" — «Быстрый старт»: короткий тур по ключевым шагам (как и был).
+ *   • "full"  — «Подробное обучение»: проводит по всем основным кнопкам
+ *     страницы анализа и профиля.
+ *
+ * Без сторонних библиотек, без расширения БД — состояние в localStorage.
  *
  * Состояние:  localStorage["cotel:onboarding:v1"] = "later" | "skipped" | "done"
  *   нет ключа → новый пользователь, показываем приглашение один раз
  *   later     → отказался в приглашении, сам больше не всплывает
  *   skipped   → прервал тур, сам больше не всплывает
  *   done      → прошёл до конца
- * Версия v1 в ключе — задел: для обновлённого тура заведём v2.
+ * Приглашение всегда предлагает «Быстрый старт» — никто не хочет сразу
+ * погружаться в подробное обучение.
  *
  * Запуск:
- *   - автоматически: приглашение через INVITE_DELAY_MS после загрузки, если
- *     ключа ещё нет и нет открытых модалок / экрана логина;
- *   - вручную: window.startOnboardingTour() (кнопка «Пройти обучение заново»
- *     в настройках профиля) — игнорирует localStorage.
+ *   - автоматически: приглашение (quick) через INVITE_DELAY_MS после загрузки,
+ *     если ключа ещё нет и нет открытых модалок / экрана логина;
+ *   - вручную: window.startOnboardingTour("quick" | "full") — кнопки в настройках
+ *     профиля; игнорирует localStorage.
  * ========================================================================== */
 
 (function () {
@@ -71,6 +75,57 @@
     }
   }
 
+  // --- временный показ скрытых блоков (reveal/restore) -----------------------
+  // Некоторые блоки скрыты до наступления условия (статус Telegram, «Недавние»,
+  // форма подписки, выпадающее меню). На время шага показываем их, при переходе
+  // на другой шаг — возвращаем как было.
+
+  let revealed = [];
+
+  function revealOne(el) {
+    if (!el || el.__tourRevealed) return;
+    el.__tourRevealed = true;
+    revealed.push({
+      el,
+      display: el.style.display,
+      hadHidden: el.classList.contains("hidden"),
+    });
+    if (el.classList.contains("hidden")) el.classList.remove("hidden");
+    if (getComputedStyle(el).display === "none") el.style.display = "";
+  }
+
+  function applyReveals(step) {
+    if (!step || !step.reveal) return;
+    step.reveal.forEach((sel) => revealOne(q(sel)));
+  }
+
+  function restoreReveals() {
+    revealed.forEach(({ el, display, hadHidden }) => {
+      el.style.display = display;
+      if (hadHidden) el.classList.add("hidden");
+      delete el.__tourRevealed;
+    });
+    revealed = [];
+  }
+
+  // anchor может быть строкой или массивом селекторов — берём первый видимый
+  // (а если видимого нет — первый существующий).
+  function resolveAnchor(step) {
+    if (!step) return null;
+    const sels = Array.isArray(step.anchor) ? step.anchor : [step.anchor];
+    for (const sel of sels) {
+      const el = q(sel);
+      if (el && isVisible(el)) return el;
+    }
+    for (const sel of sels) {
+      const el = q(sel);
+      if (el) return el;
+    }
+    return null;
+  }
+
+  // --- профиль ---------------------------------------------------------------
+
   let profileOpenedByTour = false;
 
   function isProfileOpen() {
@@ -100,97 +155,184 @@
   }
 
   // --- определение шагов -----------------------------------------------------
-  // anchor — CSS-селектор; before — асинхронная подготовка; skipIf — пропуск.
+  // Хелпер: собирает шаг из ключа локали (<key>_title / <key>_body) + фолбэков.
+  function S(key, titleFb, bodyFb, extra) {
+    return Object.assign({
+      titleKey: "new-analysis:onboarding." + key + "_title",
+      titleFb: titleFb,
+      bodyKey: "new-analysis:onboarding." + key + "_body",
+      bodyFb: bodyFb,
+    }, extra || {});
+  }
 
-  const STEPS = [
-    {
-      anchor: "#dataSourceSection",
-      titleKey: "new-analysis:onboarding.s_tg_title",
-      titleFb: "Сначала — доступ к чатам",
-      bodyKey: "new-analysis:onboarding.s_tg_body",
-      bodyFb: "Подключите свой Telegram (по QR или номеру) — или используйте служебный аккаунт CoTel для публичных каналов, без подключения личного. Без этого у сервиса нет доступа к истории сообщений для анализа.",
-      noteKey: "new-analysis:onboarding.s_tg_note",
-      noteFb: "Мы не храним вашу историю сообщений и обрабатываем данные только по вашему запросу.",
-      skipIf: () => isVisible(document.getElementById("tgStateConnected")),
-    },
-    {
-      anchor: "#activeChatInput",
-      titleKey: "new-analysis:onboarding.s_chat_title",
-      titleFb: "Вставьте чат, канал или группу",
-      bodyKey: "new-analysis:onboarding.s_chat_body",
-      bodyFb: "Ссылка вида t.me/…, @username или выбор из списка ваших чатов. Это источник данных, который CoTel прочитает. В поле работает быстрый поиск при вводе по строке.",
-    },
-    {
-      anchor: "#queryDaysInput",
-      before: ensureSettingsExpanded,
-      titleKey: "new-analysis:onboarding.s_period_title",
-      titleFb: "За какой срок читать",
-      bodyKey: "new-analysis:onboarding.s_period_body",
-      bodyFb: "Выберите период: минуты, часы или дни. Чем больше период — тем больше сообщений CoTel прочитает (и тем дороже запрос в токенах).",
-    },
-    {
-      anchor: "#queryDepthSelector",
-      before: ensureSettingsExpanded,
-      titleKey: "new-analysis:onboarding.s_depth_title",
-      titleFb: "Выберите уровень сложности анализа",
-      bodyKey: "new-analysis:onboarding.s_depth_body",
-      bodyFb: "Лёгкий — для большинства задач (быстро и экономно). Сбалансированный и Глубокий — для сложной аналитики. Какую AI-модель использовать, CoTel решает сам. Нажмите ⓘ, чтобы увидеть примерную стоимость каждого уровня.",
-    },
-    {
-      anchor: "#queryGroupModeRow",
-      before: ensureSettingsExpanded,
-      titleKey: "new-analysis:onboarding.s_group_title",
-      titleFb: "Несколько чатов сразу",
-      bodyKey: "new-analysis:onboarding.s_group_body",
-      bodyFb: "Включите, чтобы задать один вопрос сразу нескольким чатам и получить сводный ответ. Количество чатов зависит от тарифа.",
-    },
-    {
-      anchor: "#queryMediaFilterRow",
-      before: ensureSettingsExpanded,
-      titleKey: "new-analysis:onboarding.s_media_title",
-      titleFb: "Только нужные медиа",
-      bodyKey: "new-analysis:onboarding.s_media_body",
-      bodyFb: "Нужны лишь сообщения с видео, фото, аудио, документами или ссылками? Включите медиафильтр и выберите типы.",
-    },
-    {
-      anchor: "#queryInput",
-      titleKey: "new-analysis:onboarding.s_query_title",
-      titleFb: "Задайте вопрос своими словами",
-      bodyKey: "new-analysis:onboarding.s_query_body",
-      bodyFb: "Например: «о чём говорили за неделю», «найди вакансии Python, удалёнка», «собери ссылки на статьи». При поиске с медиафильтром поле можно оставлять пустым.",
-    },
-    {
-      anchor: "#analyzeBtn",
-      titleKey: "new-analysis:onboarding.s_run_title",
-      titleFb: "Готово — запускаем",
-      bodyKey: "new-analysis:onboarding.s_run_body",
-      bodyFb: "Нажмите, чтобы получить структурированный ответ. Сколько токенов списалось — покажем под результатом, с расшифровкой.",
-    },
-    {
-      anchor: "#addSubscriptionBtn",
-      titleKey: "new-analysis:onboarding.s_subs_title",
-      titleFb: "Слежение в фоне",
-      bodyKey: "new-analysis:onboarding.s_subs_body",
-      bodyFb: "Подписки сами проверяют выбранные чаты по расписанию и присылают уведомление в Telegram, когда появляется важное. Удобно для мониторинга новостей, вакансий, упоминаний.",
-    },
-    {
-      anchor: ".profile-tokens-card",
-      inProfile: true,
-      tab: "limits",
-      titleKey: "new-analysis:onboarding.s_tokens_title",
-      titleFb: "Токены — внутренняя валюта",
-      bodyKey: "new-analysis:onboarding.s_tokens_body",
-      bodyFb: "Ими оплачиваются запросы и подписки. Здесь, в профиле, виден ваш баланс, текущий тариф и когда обновится месячный лимит.",
-    },
-    {
-      anchor: '[data-profile-tab="history"]',
-      inProfile: true,
-      tab: "history",
-      titleKey: "new-analysis:onboarding.s_history_title",
-      titleFb: "История запросов и обучение",
-      bodyKey: "new-analysis:onboarding.s_history_body",
-      bodyFb: "На вкладке «История запросов» видно, что и когда вы анализировали и сколько токенов ушло. А запустить это обучение заново можно в любой момент из настроек профиля.",
-    },
+  const TG_NOTE = {
+    noteKey: "new-analysis:onboarding.s_tg_note",
+    noteFb: "Мы не храним вашу историю сообщений и обрабатываем данные только по вашему запросу.",
+  };
+  const isTgConnected = () => isVisible(document.getElementById("tgStateConnected"));
+
+  // ---- «Быстрый старт» (короткий тур) ----
+  const QUICK_STEPS = [
+    S("s_tg", "Сначала — доступ к чатам",
+      "Подключите свой Telegram (по QR или номеру) — или используйте служебный аккаунт CoTel для публичных каналов, без подключения личного.",
+      Object.assign({ anchor: "#dataSourceSection", skipIf: isTgConnected }, TG_NOTE)),
+    S("s_chat", "Вставьте чат, канал или группу",
+      "Ссылка вида t.me/…, @username или выбор из списка ваших чатов. Это источник данных, который CoTel прочитает. В поле работает быстрый поиск при вводе по строке.",
+      { anchor: "#activeChatInput" }),
+    S("s_period", "За какой срок читать",
+      "Выберите период: минуты, часы или дни. Чем больше период — тем больше сообщений CoTel прочитает (и тем дороже запрос в токенах).",
+      { anchor: "#queryDaysInput", before: ensureSettingsExpanded }),
+    S("s_depth", "Выберите уровень сложности анализа",
+      "Лёгкий — для большинства задач (быстро и экономно). Сбалансированный и Глубокий — для сложной аналитики. Какую AI-модель использовать, CoTel решает сам. Нажмите ⓘ, чтобы увидеть примерную стоимость каждого уровня.",
+      { anchor: "#queryDepthSelector", before: ensureSettingsExpanded }),
+    S("s_group", "Несколько чатов сразу",
+      "Включите, чтобы задать один вопрос сразу нескольким чатам и получить сводный ответ. Количество чатов зависит от тарифа.",
+      { anchor: "#queryGroupModeRow", before: ensureSettingsExpanded }),
+    S("s_media", "Только нужные медиа",
+      "Нужны лишь сообщения с видео, фото, аудио, документами или ссылками? Включите медиафильтр и выберите типы.",
+      { anchor: "#queryMediaFilterRow", before: ensureSettingsExpanded }),
+    S("s_query", "Задайте вопрос своими словами",
+      "Например: «о чём говорили за неделю», «найди вакансии Python, удалёнка», «собери ссылки на статьи». При поиске с медиафильтром поле можно оставлять пустым.",
+      { anchor: "#queryInput" }),
+    S("s_run", "Готово — запускаем",
+      "Нажмите, чтобы получить структурированный ответ. Сколько токенов списалось — покажем под результатом, с расшифровкой.",
+      { anchor: "#analyzeBtn" }),
+    S("s_subs", "Слежение в фоне",
+      "Подписки сами проверяют выбранные чаты по расписанию и присылают уведомление в Telegram, когда появляется важное. Удобно для мониторинга новостей, вакансий, упоминаний.",
+      { anchor: "#addSubscriptionBtn" }),
+    S("s_tokens", "Токены — внутренняя валюта",
+      "Ими оплачиваются запросы и подписки. Здесь, в профиле, виден ваш баланс, текущий тариф и когда обновится месячный лимит.",
+      { anchor: ".profile-tokens-card", inProfile: true, tab: "limits" }),
+    S("s_history", "История запросов и обучение",
+      "На вкладке «История запросов» видно, что и когда вы анализировали и сколько токенов ушло. А запустить это обучение заново можно в любой момент из настроек профиля.",
+      { anchor: '[data-profile-tab="history"]', inProfile: true, tab: "history" }),
+  ];
+
+  // ---- «Подробное обучение» (полный тур) ----
+  const SUB_FORM = { reveal: ["#subscriptionCreateBlock"] };
+  const FULL_STEPS = [
+    // Источник данных (если личный Telegram уже подключён — пропускаем).
+    S("s_tg", "Сначала — доступ к чатам",
+      "Подключите свой Telegram (по QR или номеру) — или используйте служебный аккаунт CoTel для публичных каналов, без подключения личного.",
+      Object.assign({ anchor: "#dataSourceSection", skipIf: isTgConnected }, TG_NOTE)),
+    // Статус авторизации Telegram (блок скрыт до подключения — показываем).
+    S("f_tgstatus", "Авторизация в Telegram",
+      "При подключении личного аккаунта Telegram здесь горит зелёный индикатор и отображается ваш никнейм. В любой момент вы можете завершить сеанс — кнопкой «Завершить сеанс».",
+      { anchor: "#telegramStatusSection", reveal: ["#telegramStatusSection"] }),
+    S("s_chat", "Вставьте чат, канал или группу",
+      "Ссылка вида t.me/…, @username или выбор из списка ваших чатов. Это источник данных, который CoTel прочитает. В поле работает быстрый поиск при вводе по строке.",
+      { anchor: "#activeChatInput" }),
+    S("s_period", "За какой срок читать",
+      "Выберите период: минуты, часы или дни. Чем больше период — тем больше сообщений CoTel прочитает (и тем дороже запрос в токенах).",
+      { anchor: "#queryDaysInput", before: ensureSettingsExpanded }),
+    S("f_unit", "Единица измерения времени",
+      "Выберите нужную единицу: минуты, часы или дни. Вместе с числом слева это и есть период, за который CoTel читает сообщения.",
+      { anchor: "#queryPeriodUnitSelect", before: ensureSettingsExpanded }),
+    S("s_depth", "Выберите уровень сложности анализа",
+      "Лёгкий — для большинства задач (быстро и экономно). Сбалансированный и Глубокий — для сложной аналитики. Какую AI-модель использовать, CoTel решает сам. Нажмите ⓘ, чтобы увидеть примерную стоимость каждого уровня.",
+      { anchor: "#queryDepthSelector", before: ensureSettingsExpanded }),
+    S("s_group", "Несколько чатов сразу",
+      "Включите, чтобы задать один вопрос сразу нескольким чатам и получить сводный ответ. Количество чатов зависит от тарифа.",
+      { anchor: "#queryGroupModeRow", before: ensureSettingsExpanded }),
+    S("s_media", "Только нужные медиа",
+      "Нужны лишь сообщения с видео, фото, аудио, документами или ссылками? Включите медиафильтр и выберите типы.",
+      { anchor: "#queryMediaFilterRow", before: ensureSettingsExpanded }),
+    // «Недавние» (блок истории чатов — скрыт, пока нет истории).
+    S("f_recent", "Недавние чаты",
+      "Здесь отображаются последние чаты, в которых вы выполняли запросы, — чтобы быстро к ним вернуться.",
+      { anchor: "#chatHistoryBlock", reveal: ["#chatHistoryBlock"] }),
+    S("s_query", "Задайте вопрос своими словами",
+      "Например: «о чём говорили за неделю», «найди вакансии Python, удалёнка», «собери ссылки на статьи». При поиске с медиафильтром поле можно оставлять пустым.",
+      { anchor: "#queryInput" }),
+    S("s_run", "Готово — запускаем",
+      "Нажмите, чтобы получить структурированный ответ. Сколько токенов списалось — покажем под результатом, с расшифровкой.",
+      { anchor: "#analyzeBtn" }),
+    S("s_subs", "Слежение в фоне",
+      "Подписки сами проверяют выбранные чаты по расписанию и присылают уведомление в Telegram, когда появляется важное. Удобно для мониторинга новостей, вакансий, упоминаний.",
+      { anchor: "#addSubscriptionBtn" }),
+    // Режимы работы (личный / служебный аккаунт).
+    S("f_subs_modes", "Личный и служебный аккаунт",
+      "Вы можете работать как под личным аккаунтом Telegram, так и под служебным. Подписка создаётся и выполняется под тем аккаунтом, с которого вы её создали, и отображается в соответствующем режиме.",
+      { anchor: [".subscriptions-group-title", "#mySubscriptionsSection > summary"] }),
+    // Подписки из другого режима — карточка появляется, только если такие есть.
+    S("f_subs_other", "Подписки из другого режима",
+      "Если вы переключаетесь между режимами работы с Telegram (например, личный аккаунт ↔ служебный) и есть подписки, созданные в другом режиме, — они показываются здесь.",
+      { anchor: ".subscriptions-group--other",
+        skipIf: () => !document.querySelector(".subscriptions-group--other") }),
+    // Форма создания подписки + проход по полям (форма скрыта — показываем).
+    S("f_sub_create", "Создание подписки",
+      "Нажмите «+», чтобы создать новую подписку. Дальше пройдёмся по полям формы — те же поля используются и при редактировании существующей подписки.",
+      { anchor: ["#subscriptionCreateBlock h3", "#subNameInput"], reveal: ["#subscriptionCreateBlock"] }),
+    S("f_sub_name", "Название подписки",
+      "Понятное имя, по которому вы узнаете подписку в списке.",
+      Object.assign({ anchor: "#subNameInput" }, SUB_FORM)),
+    S("f_sub_type", "Тип подписки",
+      "«События» — присылает конкретные сообщения по вашему запросу. «Саммари» — готовит резюме/дайджест чата за период.",
+      Object.assign({ anchor: "#subTypeSelect" }, SUB_FORM)),
+    S("f_sub_chat", "Чат / канал",
+      "Выберите чат из списка или вставьте ссылку. Это источник, который подписка будет отслеживать.",
+      Object.assign({ anchor: "#subChatInput" }, SUB_FORM)),
+    S("f_sub_group", "Групповая подписка",
+      "Включите, чтобы одна подписка следила сразу за несколькими чатами. Доступность зависит от тарифа и режима.",
+      { anchor: "#subGroupModeRow", reveal: ["#subscriptionCreateBlock", "#subGroupModeRow"] }),
+    S("f_sub_period", "Период чтения",
+      "Как часто подписка проверяет чат — от раза в 10 минут до раза в день. Минимальная частота зависит от тарифа.",
+      Object.assign({ anchor: "#subPeriodSelect" }, SUB_FORM)),
+    S("f_sub_media", "Медиафильтр подписки",
+      "Отслеживать только сообщения с выбранными типами медиа: видео, фото, аудио, документы, ссылки.",
+      Object.assign({ anchor: "#subMediaFilterField" }, SUB_FORM)),
+    S("f_sub_prompt", "Текст запроса",
+      "Опишите, какую информацию собирать и когда уведомлять. Можно ключевыми словами или более сложным запросом.",
+      Object.assign({ anchor: "#subPromptInput" }, SUB_FORM)),
+    S("f_sub_actions", "Создать или отменить",
+      "Создаём подписку или отменяем изменения. Позже подписку можно отредактировать — поля те же, что и здесь.",
+      { anchor: [".subscription-actions", "#createSubscriptionBtn"], reveal: ["#subscriptionCreateBlock"] }),
+    // Управление панелью.
+    S("f_panel_collapse", "Свернуть рабочую панель",
+      "Эта иконка сворачивает рабочую панель — удобно для чтения результатов. Нажмите ещё раз, чтобы развернуть.",
+      { anchor: "#sidebarToggle" }),
+    S("f_block_collapse", "Свернуть любой блок",
+      "Любой блок можно свернуть, нажав на его заголовок с иконкой. Так панель занимает меньше места.",
+      { anchor: ["#myChatsSection > summary", "#myChatsSection"] }),
+    // Блок пользователя и меню.
+    S("f_user_area", "Аккаунт, тариф и выход",
+      "Здесь — ваш email, текущий тариф и кнопка выхода. При выходе, если включена «Повышенная безопасность», завершается и ваша Telegram-сессия.",
+      { anchor: "#user-profile" }),
+    S("f_menu_profile", "Меню: Профиль",
+      "Профиль открывает всю информацию об аккаунте: личные данные, настройки, историю запросов и лимиты. Отсюда же можно сменить тариф и докупить токены.",
+      { anchor: "#profile-btn", reveal: ["#user-dropdown"] }),
+    S("f_menu_help", "Меню: Справка",
+      "В «Справке» — все инструкции и документация по сервису.",
+      { anchor: "#help-btn", reveal: ["#user-dropdown"] }),
+    S("f_menu_feedback", "Меню: Обратная связь",
+      "Ждём ваши предложения, сообщения об ошибках и любую обратную связь. Можно выбрать категорию и прикрепить файлы.",
+      { anchor: "#feedback-btn", reveal: ["#user-dropdown"] }),
+    // Профиль.
+    S("s_tokens", "Токены — внутренняя валюта",
+      "Ими оплачиваются запросы и подписки. Здесь, в профиле, виден ваш баланс, текущий тариф и когда обновится месячный лимит.",
+      { anchor: ".profile-tokens-card", inProfile: true, tab: "limits" }),
+    S("f_prof_limits", "Возможности тарифа",
+      "Это ваши возможности на текущем тарифе: число активных подписок, глубина анализа истории, минимальная частота, групповой анализ и докупка токенов.",
+      { anchor: ".profile-limits-grid", inProfile: true, tab: "limits" }),
+    S("f_prof_levels", "Подробнее об уровне анализа",
+      "Здесь можно почитать, как работает уровень (глубина) анализа и как CoTel подбирает AI-модель под разные запросы.",
+      { anchor: "#profile-levels-guide-link", inProfile: true, tab: "limits" }),
+    S("f_prof_history", "История запросов",
+      "Сводка по всем вашим запросам: когда, сколько токенов, групповой или нет. Историю по подпискам можно посмотреть на соседней вкладке.",
+      { anchor: ['[data-profile-panel="history"] .profile-history-modes', '[data-profile-tab="history"]'],
+        inProfile: true, tab: "history" }),
+    S("f_prof_personal", "Личные данные",
+      "Указанные при регистрации данные. Телефон и часовой пояс можно менять: телефон подставляется при авторизации в Telegram, а часовой пояс влияет на время в уведомлениях подписок.",
+      { anchor: ["#profile-phone", '[data-profile-panel="personal"]'], inProfile: true, tab: "personal" }),
+    S("f_prof_lang", "Язык интерфейса",
+      "Доступны русский и английский. При смене язык интерфейса переключится сразу.",
+      { anchor: "#profile-language", inProfile: true, tab: "settings" }),
+    S("f_prof_secure", "Повышенная безопасность",
+      "Если включить, при выходе из CoTel сервис также завершит вашу активную Telegram-сессию.",
+      { anchor: "#ultra-secure-logout", inProfile: true, tab: "settings" }),
+    S("f_prof_relaunch", "Готово!",
+      "Вы прошли подробное обучение. Запустить его (или быстрый старт) заново можно в любой момент здесь, в настройках профиля.",
+      { anchor: [".profile-onboarding-btns", "#onboarding-relaunch-full-btn"], inProfile: true, tab: "settings" }),
   ];
 
   // --- DOM-слой тура ---------------------------------------------------------
@@ -240,7 +382,7 @@
     repositionRaf = requestAnimationFrame(() => {
       repositionRaf = 0;
       const step = activeSteps[idx];
-      const el = step && q(step.anchor);
+      const el = step && resolveAnchor(step);
       if (el && isVisible(el)) positionFor(el);
     });
   }
@@ -347,6 +489,10 @@
     const direction = dir || (i >= idx ? 1 : -1);
     if (i < 0) { i = 0; }
     if (i >= activeSteps.length) { endTour("done"); return; }
+
+    // Снять показ блоков предыдущего шага.
+    restoreReveals();
+
     idx = i;
     const step = activeSteps[idx];
 
@@ -354,14 +500,16 @@
     if (typeof step.before === "function") {
       try { await step.before(); } catch (_) { /* ignore */ }
     }
+    // Временно показать скрытые блоки, нужные шагу (статус TG, форма и т.п.).
+    applyReveals(step);
 
-    let el = q(step.anchor);
+    let el = resolveAnchor(step);
     if (el && isVisible(el)) {
       // Мгновенный переход без плавной прокрутки (по требованию — без «скольжения»).
       el.scrollIntoView({ block: "center", inline: "nearest" });
       await wait(40);
     }
-    el = q(step.anchor);
+    el = resolveAnchor(step);
 
     // Недоступный/скрытый якорь — пропускаем в текущем направлении.
     if (!el || !isVisible(el)) {
@@ -378,6 +526,7 @@
   // --- запуск / завершение ---------------------------------------------------
 
   function endTour(state) {
+    restoreReveals();
     destroyLayer();
     if (isProfileOpen() && profileOpenedByTour && typeof window.closeProfileModal === "function") {
       window.closeProfileModal(true);
@@ -386,9 +535,10 @@
     if (state) setState(state);
   }
 
-  function startTour() {
+  function startTour(mode) {
     if (cardEl) return; // уже идёт
-    activeSteps = STEPS.filter((s) => (typeof s.skipIf === "function" ? !s.skipIf() : true));
+    const steps = mode === "full" ? FULL_STEPS : QUICK_STEPS;
+    activeSteps = steps.filter((s) => (typeof s.skipIf === "function" ? !s.skipIf() : true));
     if (!activeSteps.length) return;
     idx = 0;
     buildLayer();
@@ -430,7 +580,7 @@
     inviteEl.querySelector(".tour-invite__backdrop").addEventListener("click", dismiss);
     inviteEl.querySelector(".tour-invite__start").addEventListener("click", () => {
       hideInvite();
-      startTour();
+      startTour("quick");
     });
   }
 
@@ -470,30 +620,40 @@
 
   // --- внешний API + проводка ------------------------------------------------
 
-  // Принудительный запуск (кнопка «Пройти обучение заново») — мимо localStorage.
-  window.startOnboardingTour = function () {
+  // Принудительный запуск (кнопки «Быстрый старт» / «Подробное обучение»).
+  // mode: "quick" (по умолчанию) | "full". Игнорирует localStorage.
+  window.startOnboardingTour = function (mode) {
+    const m = mode === "full" ? "full" : "quick";
     hideInvite();
     if (isProfileOpen() && typeof window.closeProfileModal === "function") {
       window.closeProfileModal(true);
-      setTimeout(startTour, 280);
+      setTimeout(() => startTour(m), 280);
     } else {
-      startTour();
+      startTour(m);
     }
   };
 
-  function wireRelaunchButton() {
-    const btn = document.getElementById("onboarding-relaunch-btn");
-    if (btn && !btn._wired) {
-      btn._wired = true;
-      btn.addEventListener("click", (e) => {
+  function wireRelaunchButtons() {
+    const quickBtn = document.getElementById("onboarding-relaunch-btn");
+    if (quickBtn && !quickBtn._wired) {
+      quickBtn._wired = true;
+      quickBtn.addEventListener("click", (e) => {
         e.preventDefault();
-        window.startOnboardingTour();
+        window.startOnboardingTour("quick");
+      });
+    }
+    const fullBtn = document.getElementById("onboarding-relaunch-full-btn");
+    if (fullBtn && !fullBtn._wired) {
+      fullBtn._wired = true;
+      fullBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        window.startOnboardingTour("full");
       });
     }
   }
 
   function init() {
-    wireRelaunchButton();
+    wireRelaunchButtons();
     scheduleInvite();
   }
 

@@ -196,7 +196,6 @@
           .subscription-group-toggle-row {
             margin-top: 8px;
             padding-top: 6px;
-            border-top: 1px dashed rgba(217, 119, 6, 0.3);
           }
           .subscription-group-toggle-row .group-analysis-toggle {
             accent-color: #b8631a;

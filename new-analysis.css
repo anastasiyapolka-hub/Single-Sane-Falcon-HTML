@@ -2965,6 +2965,18 @@ html.cotel-preboot .sidebar-boot-loader {
   font-size: 0.9em;
 }
 
+/* Две кнопки обучения (быстрый старт / подробное) — в одну линию. */
+.profile-onboarding-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+.profile-onboarding-btns .profile-onboarding-btn {
+  flex: 1 1 auto;
+  white-space: nowrap;
+}
+
 /* Приглашение пройти обучение. */
 .tour-invite { position: fixed; inset: 0; z-index: 2147483600; }
 .tour-invite__backdrop {

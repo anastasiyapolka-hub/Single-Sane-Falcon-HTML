@@ -748,7 +748,7 @@
                         class="sidebar-history-toggle"
                         aria-expanded="true"
                       >
-                        <span data-i18n="new-analysis:chat_requests.history_toggle">История</span>
+                        <span data-i18n="new-analysis:chat_requests.history_toggle">Недавние</span>
                         <span id="chatHistoryToggleIcon">▾</span>
                       </button>
 
@@ -1712,14 +1712,19 @@
               </div>
 
               <div class="profile-field profile-field-full">
-                <label data-i18n="new-analysis:onboarding.relaunch_section">Быстрый старт</label>
+                <label data-i18n="new-analysis:onboarding.relaunch_section">Обучение</label>
                 <div class="profile-onboarding-row">
                   <p class="profile-help-text" data-i18n="new-analysis:onboarding.relaunch_help">
-                    Короткий тур по основным возможностям CoTel.
+                    Короткий и подробный тур по основным возможностям CoTel.
                   </p>
-                  <button id="onboarding-relaunch-btn" type="button" class="profile-action-btn profile-onboarding-btn" data-i18n="new-analysis:onboarding.relaunch">
-                    Пройти обучение
-                  </button>
+                  <div class="profile-onboarding-btns">
+                    <button id="onboarding-relaunch-btn" type="button" class="profile-action-btn profile-onboarding-btn" data-i18n="new-analysis:onboarding.relaunch_quick">
+                      Быстрый старт
+                    </button>
+                    <button id="onboarding-relaunch-full-btn" type="button" class="profile-action-btn profile-onboarding-btn" data-i18n="new-analysis:onboarding.relaunch_full">
+                      Подробное обучение
+                    </button>
+                  </div>
                 </div>
               </div>
 
