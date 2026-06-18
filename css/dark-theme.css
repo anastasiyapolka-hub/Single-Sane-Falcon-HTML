@@ -1,0 +1,958 @@
+/* ============================================================================
+   CoTel — Dark theme override layer.
+
+   Activated by `data-theme="dark"` on <html> (set by js/theme-toggle.js).
+   This file ONLY adds overrides for dark mode; the light theme is untouched.
+
+   Strategy: the base stylesheets (new-analysis.css, new-analysis-extra.css,
+   css/auth.css) hardcode colors instead of using variables, so we re-map the
+   recurring surfaces / text / borders here, scoped under html[data-theme="dark"].
+   Selectors are prefixed with html[data-theme="dark"] so they out-specify the
+   originals (including the many `!important` rules in the base files).
+
+   Palette: a "Linear / GitHub dark" style deep-slate base, keeping CoTel's
+   brand orange (#ff8d37 family) and teal (#007e99 family) as accents.
+   ========================================================================== */
+
+html[data-theme="dark"] {
+  /* Surfaces */
+  --dt-bg:          #0e1116;  /* page base (was #FFFFFF)               */
+  --dt-surface:     #161b22;  /* nav / sidebar / input panel (#F3F4F6) */
+  --dt-surface-2:   #1c2128;  /* cards / dropdowns / inputs (#ffffff)  */
+  --dt-surface-3:   #262c36;  /* hover fills (#f3f4f6 / #f7f8f9 ...)    */
+  --dt-surface-sunken: #12161c; /* inactive / sunken rows              */
+
+  /* Borders */
+  --dt-border:        rgba(255, 255, 255, 0.10);
+  --dt-border-strong: rgba(255, 255, 255, 0.18);
+
+  /* Text */
+  --dt-text:        #e6edf3;  /* primary (#2A2A2A / #111827)           */
+  --dt-text-soft:   #c4ccd6;  /* secondary (#374151 / #4b5563)         */
+  --dt-text-muted:  #8b949e;  /* muted (#6b7280 / #9ca3af / #a0a0b4)   */
+
+  /* Brand accents (kept, nudged brighter for contrast on dark) */
+  --dt-orange:      #ff8d37;
+  --dt-orange-bright:#ff9d4d;
+  --dt-orange-text: #ffae6b;
+  --dt-teal:        #1f9cb8;  /* solid teal buttons (#007e99)          */
+  --dt-teal-text:   #7fd8cc;  /* teal-tinted text (#1d6a72 / #205964)  */
+
+  /* Status */
+  --dt-green:       #2ecc71;
+  --dt-red:         #f0686d;
+
+  /* Re-map the few real CSS vars the base files do expose */
+  --color-surface:    var(--dt-bg);
+  --color-on-surface: var(--dt-text);
+  --color-border:     var(--dt-border);
+
+  color-scheme: dark;
+}
+
+/* ---------------------------------------------------------------------------
+   1. Base page + scrollbars
+   ------------------------------------------------------------------------- */
+html[data-theme="dark"],
+html[data-theme="dark"] body {
+  background: var(--dt-bg) !important;
+  color: var(--dt-text);
+}
+
+html[data-theme="dark"] * {
+  scrollbar-color: var(--dt-surface-3) transparent;
+}
+html[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: var(--dt-surface-3);
+  border-radius: 8px;
+}
+html[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ---------------------------------------------------------------------------
+   2. Top navigation bar + logo
+   ------------------------------------------------------------------------- */
+html[data-theme="dark"] .navigation {
+  background: var(--dt-surface) !important;
+  border-bottom: 1px solid var(--dt-border) !important;
+}
+html[data-theme="dark"] .navigation__logo-text,
+html[data-theme="dark"] .navigation__logo-text *,
+html[data-theme="dark"] .section-title {
+  color: var(--dt-text) !important;
+}
+html[data-theme="dark"] .navigation__link span {
+  color: var(--dt-text-soft);
+}
+
+/* ---------------------------------------------------------------------------
+   3. Language switcher + theme toggle (header controls)
+   ------------------------------------------------------------------------- */
+html[data-theme="dark"] .navigation .lang-switcher__button,
+html[data-theme="dark"] .theme-toggle__button {
+  background: var(--dt-surface-2) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4) !important;
+}
+html[data-theme="dark"] .sidebar-mini-icon-btn:hover,
+html[data-theme="dark"] .navigation .lang-switcher__button:hover,
+html[data-theme="dark"] .navigation .lang-switcher__button:focus-visible,
+html[data-theme="dark"] .theme-toggle__button:hover,
+html[data-theme="dark"] .theme-toggle__button:focus-visible {
+  background: rgba(127, 196, 192, 0.18) !important;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 4px 10px rgba(0, 0, 0, 0.45) !important;
+}
+/* Globe icon is a dark PNG → lighten it so it reads on dark surface */
+html[data-theme="dark"] .lang-switcher__globe {
+  filter: invert(1) brightness(1.6) hue-rotate(180deg);
+}
+
+html[data-theme="dark"] #user-dropdown,
+html[data-theme="dark"] .navigation .lang-switcher__menu {
+  background: var(--dt-surface-2) !important;
+  border: 1px solid var(--dt-border) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+}
+html[data-theme="dark"] #user-dropdown button,
+html[data-theme="dark"] .navigation .lang-switcher__item {
+  background: transparent !important;
+  color: var(--dt-text) !important;
+}
+html[data-theme="dark"] #user-dropdown button:hover,
+html[data-theme="dark"] #user-dropdown button:focus-visible,
+html[data-theme="dark"] .navigation .lang-switcher__item:hover,
+html[data-theme="dark"] .navigation .lang-switcher__item:focus-visible {
+  background: rgba(255, 141, 55, 0.16) !important;
+  color: var(--dt-orange-text) !important;
+}
+html[data-theme="dark"] .navigation .lang-switcher__item[aria-current="true"] {
+  background: rgba(255, 141, 55, 0.16) !important;
+  color: var(--dt-orange-text) !important;
+}
+
+/* ---------------------------------------------------------------------------
+   4. Sidebar
+   ------------------------------------------------------------------------- */
+html[data-theme="dark"] .dashboard-sidebar,
+html[data-theme="dark"] .dashboard-input-panel,
+html[data-theme="dark"] .sidebar-boot-loader {
+  background: var(--dt-surface) !important;
+  border-color: var(--dt-border) !important;
+}
+html[data-theme="dark"] .sidebar-header {
+  border-bottom: 1px solid var(--dt-border);
+}
+html[data-theme="dark"] .dashboard-bottom-block {
+  background: var(--dt-surface) !important;
+}
+html[data-theme="dark"] .sidebar-resizer:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+html[data-theme="dark"] .sidebar-toggle-btn {
+  background: var(--dt-surface-3);
+  color: var(--dt-text);
+}
+html[data-theme="dark"] .sidebar-toggle-btn:hover {
+  background: #323a45;
+}
+html[data-theme="dark"] .sidebar-mini-icon-btn,
+html[data-theme="dark"] #quick-logout-btn,
+html[data-theme="dark"] .sidebar-add-subscription-btn {
+  background: var(--dt-surface-2);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+html[data-theme="dark"] .sidebar-mini-icon-btn:hover,
+html[data-theme="dark"] #quick-logout-btn:hover {
+  background: var(--dt-surface-3);
+}
+
+html[data-theme="dark"] #sidebarUserArea {
+  background: var(--dt-surface-2) !important;
+  border: 1px solid var(--dt-border) !important;
+}
+html[data-theme="dark"] body.user-not-auth #sidebarUserArea {
+  background: transparent !important;
+}
+html[data-theme="dark"] #sidebarUserArea .user-email,
+html[data-theme="dark"] .user-email {
+  color: var(--dt-text);
+}
+html[data-theme="dark"] #sidebarUserArea .user-plan,
+html[data-theme="dark"] .user-plan {
+  color: var(--dt-text-muted);
+}
+
+html[data-theme="dark"] .sidebar-chat-list {
+  border: 1px solid var(--dt-border);
+  background: rgba(255, 255, 255, 0.02);
+}
+html[data-theme="dark"] .sidebar-chat-item:hover {
+  background: rgba(127, 196, 192, 0.20);
+}
+html[data-theme="dark"] .sidebar-chat-item:active {
+  background: rgba(127, 196, 192, 0.30);
+}
+
+html[data-theme="dark"] .sidebar-history-toggle,
+html[data-theme="dark"] .sidebar-refresh-btn,
+html[data-theme="dark"] .sidebar-folder--orphans .sidebar-folder__toggle {
+  color: var(--dt-text-muted);
+}
+html[data-theme="dark"] .sidebar-folder__toggle {
+  color: var(--dt-text-soft);
+}
+html[data-theme="dark"] .sidebar-history-toggle:hover,
+html[data-theme="dark"] .sidebar-folder__toggle:hover,
+html[data-theme="dark"] .sidebar-history-remove:hover {
+  color: var(--dt-text);
+  background: rgba(127, 196, 192, 0.12);
+}
+html[data-theme="dark"] .sidebar-refresh-btn:hover,
+html[data-theme="dark"] .sidebar-refresh-btn:focus-visible {
+  background: rgba(127, 196, 192, 0.18);
+  color: var(--dt-text);
+}
+html[data-theme="dark"] .sidebar-folder__chevron,
+html[data-theme="dark"] .sidebar-folder__count,
+html[data-theme="dark"] .sidebar-history-remove,
+html[data-theme="dark"] .tg-group-chevron {
+  color: var(--dt-text-muted);
+}
+html[data-theme="dark"] .sidebar-history-remove:hover {
+  background: var(--dt-surface-3);
+}
+html[data-theme="dark"] .sidebar-hint {
+  color: var(--dt-teal-text);
+}
+html[data-theme="dark"] .sidebar-hint,
+html[data-theme="dark"] .tg-status,
+html[data-theme="dark"] .profile-help-text,
+html[data-theme="dark"] .subscriptions-group-note {
+  color: var(--dt-orange-text) !important;
+}
+
+/* ---------------------------------------------------------------------------
+   5. Inputs / selects / textareas (global)
+   ------------------------------------------------------------------------- */
+html[data-theme="dark"] .analysis-query-input,
+html[data-theme="dark"] .sidebar-text-input,
+html[data-theme="dark"] .tg-textarea,
+html[data-theme="dark"] .tg-field .iti__tel-input,
+html[data-theme="dark"] .sidebar-inline-setting-input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] .tg-select,
+html[data-theme="dark"] #queryAiModelSelect,
+html[data-theme="dark"] #subAiModelSelect,
+html[data-theme="dark"] .depth-selector,
+html[data-theme="dark"] input[type="text"],
+html[data-theme="dark"] input[type="password"],
+html[data-theme="dark"] input[type="email"],
+html[data-theme="dark"] input[type="tel"],
+html[data-theme="dark"] input[type="number"],
+html[data-theme="dark"] input[type="search"],
+html[data-theme="dark"] input[type="url"],
+html[data-theme="dark"] textarea {
+  background-color: var(--dt-surface-2) !important;
+  border-color: var(--dt-border-strong) !important;
+  color: var(--dt-text) !important;
+}
+html[data-theme="dark"] select option {
+  background: var(--dt-surface-2);
+  color: var(--dt-text);
+}
+html[data-theme="dark"] .analysis-query-input::placeholder,
+html[data-theme="dark"] .sidebar-text-input::placeholder,
+html[data-theme="dark"] .tg-textarea::placeholder,
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder {
+  color: var(--dt-text-muted) !important;
+}
+html[data-theme="dark"] input[type="text"]:focus,
+html[data-theme="dark"] input[type="password"]:focus,
+html[data-theme="dark"] input[type="email"]:focus,
+html[data-theme="dark"] input[type="tel"]:focus,
+html[data-theme="dark"] input[type="number"]:focus,
+html[data-theme="dark"] input[type="search"]:focus,
+html[data-theme="dark"] input[type="url"]:focus,
+html[data-theme="dark"] textarea:focus,
+html[data-theme="dark"] select:focus,
+html[data-theme="dark"] .sidebar-text-input:focus,
+html[data-theme="dark"] .tg-textarea:focus {
+  border-color: rgba(127, 196, 192, 0.7) !important;
+  box-shadow:
+    0 0 0 1px rgba(127, 196, 192, 0.35),
+    0 1px 2px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* ---------------------------------------------------------------------------
+   6. Buttons — analysis controls + primary/dark CTAs
+   ------------------------------------------------------------------------- */
+html[data-theme="dark"] .analysis-icon-button {
+  background-color: var(--dt-surface-3);
+}
+html[data-theme="dark"] .analysis-icon-button:hover {
+  background-color: #323a45;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+html[data-theme="dark"] .analysis-play-button {
+  background-color: var(--dt-surface-2) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+html[data-theme="dark"] .analysis-play-button:hover {
+  background-color: var(--dt-surface-3) !important;
+}
+
+/* Dark-fill CTA buttons (#2A2A2A / #111827 / #000000) become brand orange
+   so they stay legible and on-brand against the dark canvas. */
+html[data-theme="dark"] .subscription-actions .tg-button,
+html[data-theme="dark"] #change-plan-btn,
+html[data-theme="dark"] .profile-plan-btn,
+html[data-theme="dark"] #save-profile-btn,
+html[data-theme="dark"] .profile-save-btn,
+html[data-theme="dark"] #auth-continue-submit,
+html[data-theme="dark"] #login-submit,
+html[data-theme="dark"] #register-submit,
+html[data-theme="dark"] #verify-submit,
+html[data-theme="dark"] #reset-request-submit,
+html[data-theme="dark"] #reset-confirm-submit,
+html[data-theme="dark"] #change-password-submit {
+  background: var(--dt-orange) !important;
+  color: #101317 !important;
+  border-color: var(--dt-orange) !important;
+}
+html[data-theme="dark"] .subscription-actions .tg-button:hover,
+html[data-theme="dark"] #change-plan-btn:hover,
+html[data-theme="dark"] .profile-plan-btn:hover,
+html[data-theme="dark"] #save-profile-btn:hover,
+html[data-theme="dark"] .profile-save-btn:hover,
+html[data-theme="dark"] #auth-continue-submit:hover,
+html[data-theme="dark"] #login-submit:hover,
+html[data-theme="dark"] #register-submit:hover,
+html[data-theme="dark"] #verify-submit:hover,
+html[data-theme="dark"] #reset-request-submit:hover,
+html[data-theme="dark"] #reset-confirm-submit:hover,
+html[data-theme="dark"] #change-password-submit:hover {
+  background: var(--dt-orange-bright) !important;
+}
+
+/* Outline / neutral buttons */
+html[data-theme="dark"] .tg-auth-block:not(.subscription-block) .tg-button {
+  border: 1px solid var(--dt-border-strong);
+  background: transparent;
+  color: var(--dt-text);
+}
+html[data-theme="dark"] .tg-auth-block:not(.subscription-block) .tg-button:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+html[data-theme="dark"] .subscription-actions #cancelSubscriptionBtn {
+  background: transparent;
+  color: var(--dt-text);
+}
+html[data-theme="dark"] .subscription-actions #cancelSubscriptionBtn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--dt-text);
+}
+
+/* Teal CTAs (tour) — keep teal, brighten */
+html[data-theme="dark"] .tour-card__next,
+html[data-theme="dark"] .tour-invite__start {
+  background: var(--dt-teal) !important;
+  border-color: var(--dt-teal) !important;
+  color: #fff !important;
+}
+html[data-theme="dark"] .tour-card__next:hover,
+html[data-theme="dark"] .tour-invite__start:hover {
+  background: #2bb0ce !important;
+}
+
+/* ---------------------------------------------------------------------------
+   7. Chat title bar / disclaimers / misc text
+   ------------------------------------------------------------------------- */
+html[data-theme="dark"] .chat-title-bar {
+  background: rgba(255, 141, 55, 0.08);
+  color: var(--dt-orange-text);
+  border: 1px solid rgba(255, 141, 55, 0.30);
+}
+html[data-theme="dark"] .analysis-disclaimer,
+html[data-theme="dark"] .tg-group-label,
+html[data-theme="dark"] .sidebar-inline-setting-label,
+html[data-theme="dark"] .subscriptions-group-title {
+  color: var(--dt-text-muted);
+}
+html[data-theme="dark"] .dashboard-status-text {
+  color: var(--dt-text-soft);
+}
+html[data-theme="dark"] .tg-auth-block h3,
+html[data-theme="dark"] .tg-auth-block.subscription-block h3,
+html[data-theme="dark"] .profile-field label:not(.profile-setting-item),
+html[data-theme="dark"] .profile-setting-item__title {
+  color: var(--dt-text);
+}
+html[data-theme="dark"] .msg-link {
+  color: var(--dt-orange-text);
+}
+html[data-theme="dark"] .msg-link:hover,
+html[data-theme="dark"] .msg-link:focus-visible {
+  background: rgba(127, 196, 192, 0.16);
+  color: var(--dt-orange-bright);
+}
+
+/* Group dividers / borders */
+html[data-theme="dark"] .tg-auth-block:not(.subscription-block) .tg-group:not(:last-child),
+html[data-theme="dark"] .subscription-block .tg-field,
+html[data-theme="dark"] .subscriptions-group + .subscriptions-group {
+  border-color: var(--dt-border);
+}
+html[data-theme="dark"] .tg-auth-block.subscription-block {
+  border: 1px solid rgba(255, 141, 55, 0.30) !important;
+}
+html[data-theme="dark"] .tg-group {
+  border-left-color: var(--dt-orange);
+}
+
+/* ---------------------------------------------------------------------------
+   8. Subscriptions list
+   ------------------------------------------------------------------------- */
+html[data-theme="dark"] .subscription-item:hover,
+html[data-theme="dark"] .subscription-action-btn:hover,
+html[data-theme="dark"] .subscription-item--inactive .sub-btn-switch:hover,
+html[data-theme="dark"] .subscription-item--inactive .sub-btn-del-other:hover {
+  background: var(--dt-surface-3);
+}
+html[data-theme="dark"] .subscription-item--inactive {
+  background: var(--dt-surface-sunken);
+}
+html[data-theme="dark"] .subscription-action-btn,
+html[data-theme="dark"] .subscription-item--inactive .sub-btn-switch,
+html[data-theme="dark"] .subscription-item--inactive .sub-btn-del-other {
+  background: var(--dt-surface-2);
+  border: 1px solid var(--dt-border);
+  color: var(--dt-text-soft) !important;
+}
+html[data-theme="dark"] .subscriptions-token-banner {
+  background: rgba(255, 178, 102, 0.12);
+  border: 1px solid rgba(217, 119, 6, 0.30);
+  color: var(--dt-orange-text);
+}
+
+/* ---------------------------------------------------------------------------
+   9. Modals / popovers / tour cards
+   ------------------------------------------------------------------------- */
+html[data-theme="dark"] .modal-overlay,
+html[data-theme="dark"] .auth-modal-backdrop,
+html[data-theme="dark"] .tour-invite__backdrop {
+  background: rgba(0, 0, 0, 0.6);
+}
+html[data-theme="dark"] .modal-card,
+html[data-theme="dark"] .auth-modal-content,
+html[data-theme="dark"] .cotel-popover,
+html[data-theme="dark"] .cotel-popover-arrow,
+html[data-theme="dark"] .tour-card,
+html[data-theme="dark"] .tour-invite__card,
+html[data-theme="dark"] .saved-queries-popover,
+html[data-theme="dark"] .user-dropdown {
+  background: var(--dt-surface-2) !important;
+  border: 1px solid var(--dt-border) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6) !important;
+  color: var(--dt-text);
+}
+html[data-theme="dark"] .auth-modal-content h2 {
+  color: var(--dt-text) !important;
+  background: transparent !important;
+}
+html[data-theme="dark"] .modal-text {
+  color: var(--dt-text-soft);
+}
+html[data-theme="dark"] .modal-link {
+  border: 1px solid var(--dt-border);
+  background: var(--dt-surface-2);
+}
+html[data-theme="dark"] .modal-close-btn,
+html[data-theme="dark"] .auth-modal-close,
+html[data-theme="dark"] .cotel-popover-close,
+html[data-theme="dark"] .tour-card__close,
+html[data-theme="dark"] .tour-invite__close {
+  background: transparent;
+  color: var(--dt-text-muted);
+}
+html[data-theme="dark"] .modal-close-btn:hover,
+html[data-theme="dark"] .auth-modal-close:hover,
+html[data-theme="dark"] .cotel-popover-close:hover,
+html[data-theme="dark"] .tour-card__close:hover,
+html[data-theme="dark"] .tour-invite__close:hover {
+  color: var(--dt-text);
+  background: var(--dt-surface-3);
+}
+html[data-theme="dark"] .cotel-popover,
+html[data-theme="dark"] .tour-card,
+html[data-theme="dark"] .tour-invite__card { color: var(--dt-text-soft); }
+html[data-theme="dark"] .cotel-popover-row b,
+html[data-theme="dark"] .tour-card__title,
+html[data-theme="dark"] .tour-invite__title { color: var(--dt-text); }
+html[data-theme="dark"] .cotel-popover-note,
+html[data-theme="dark"] .tour-card__note { border-top-color: var(--dt-border); color: var(--dt-text-muted); }
+html[data-theme="dark"] .tour-card__counter { color: var(--dt-text-muted); }
+html[data-theme="dark"] .tour-card__back,
+html[data-theme="dark"] .tour-invite__later {
+  background: transparent;
+  border: 1px solid var(--dt-border-strong);
+  color: var(--dt-text-soft);
+}
+html[data-theme="dark"] .tour-card__back:hover:not(:disabled),
+html[data-theme="dark"] .tour-invite__later:hover {
+  background: var(--dt-surface-3);
+}
+
+/* intl-tel-input country dropdown */
+html[data-theme="dark"] .iti__country-list,
+html[data-theme="dark"] .iti__dropdown-content,
+html[data-theme="dark"] #profile-modal .profile-field .iti__country-list {
+  background: var(--dt-surface-2) !important;
+  border: 1px solid var(--dt-border) !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5) !important;
+  color: var(--dt-text);
+}
+html[data-theme="dark"] .iti__country.iti__highlight,
+html[data-theme="dark"] .iti__country:hover {
+  background: var(--dt-surface-3) !important;
+}
+
+/* ---------------------------------------------------------------------------
+   10. Depth selector / popover bits
+   ------------------------------------------------------------------------- */
+html[data-theme="dark"] .depth-btn,
+html[data-theme="dark"] .depth-info-btn {
+  background: transparent;
+  color: var(--dt-text-muted);
+}
+html[data-theme="dark"] .depth-btn.active {
+  background: var(--dt-orange);
+  color: #101317;
+}
+html[data-theme="dark"] .depth-btn:hover:not(.active) {
+  background: var(--dt-surface-3);
+}
+html[data-theme="dark"] .depth-info-btn:hover { color: var(--dt-orange-text); }
+html[data-theme="dark"] .cotel-popover-arrow { box-shadow: none; }
+
+/* ---------------------------------------------------------------------------
+   11. Saved queries popover
+   ------------------------------------------------------------------------- */
+html[data-theme="dark"] .saved-queries-btn { color: var(--dt-text-muted); }
+html[data-theme="dark"] .saved-queries-btn:hover {
+  background: var(--dt-surface-3);
+  color: var(--dt-orange-text);
+}
+html[data-theme="dark"] .saved-queries-btn[aria-expanded="true"] { color: var(--dt-orange-text); }
+html[data-theme="dark"] .sq-pop-header { color: var(--dt-text-soft); border-bottom-color: var(--dt-border); }
+html[data-theme="dark"] .sq-pop-footer { border-top-color: var(--dt-border); }
+html[data-theme="dark"] .sq-item:hover { background: var(--dt-surface-3); }
+html[data-theme="dark"] .sq-item-name { color: var(--dt-text); }
+html[data-theme="dark"] .sq-item-del { color: var(--dt-text-muted); }
+html[data-theme="dark"] .sq-item-del:hover { background: rgba(240, 104, 109, 0.15); color: var(--dt-red); }
+html[data-theme="dark"] .sq-empty,
+html[data-theme="dark"] .sq-loading { color: var(--dt-text-muted); }
+html[data-theme="dark"] .sq-save-toggle { color: var(--dt-orange-text); }
+html[data-theme="dark"] .sq-save-toggle:hover { background: rgba(255, 141, 55, 0.10); }
+html[data-theme="dark"] .sq-save-name { border-color: var(--dt-border-strong); }
+html[data-theme="dark"] .sq-save-name:focus { border-color: var(--dt-orange); }
+html[data-theme="dark"] .sq-btn {
+  border: 1px solid var(--dt-border-strong);
+  background: var(--dt-surface-2);
+  color: var(--dt-text-soft);
+}
+html[data-theme="dark"] .sq-btn:hover { background: var(--dt-surface-3); }
+html[data-theme="dark"] .sq-btn--primary {
+  background: var(--dt-orange);
+  border-color: var(--dt-orange);
+  color: #101317;
+}
+html[data-theme="dark"] .sq-btn--primary:hover { background: var(--dt-orange-bright); }
+html[data-theme="dark"] .sq-empty--error,
+html[data-theme="dark"] .sq-save-error { color: var(--dt-red); }
+
+/* ---------------------------------------------------------------------------
+   12. Result / billing breakdown
+   ------------------------------------------------------------------------- */
+html[data-theme="dark"] .result-charged { color: var(--dt-text-soft); }
+html[data-theme="dark"] .result-charged-amount,
+html[data-theme="dark"] .result-breakdown-row .value { color: var(--dt-text); }
+html[data-theme="dark"] .result-breakdown-toggle { color: var(--dt-orange-text); }
+html[data-theme="dark"] .result-breakdown {
+  border: 1px solid var(--dt-border);
+  background: var(--dt-surface-sunken);
+  color: var(--dt-text-soft);
+}
+html[data-theme="dark"] .result-breakdown-row .label,
+html[data-theme="dark"] .result-breakdown-note { color: var(--dt-text-muted); }
+
+/* QR helpers */
+html[data-theme="dark"] .tg-qr-canvas { background: #fff; border-color: var(--dt-border); }
+html[data-theme="dark"] .tg-qr-divider { background: var(--dt-border); }
+
+/* ---------------------------------------------------------------------------
+   13. new-analysis-extra.css — media filter / group selection (teal-tinted)
+   ------------------------------------------------------------------------- */
+html[data-theme="dark"] .group-selection-counter,
+html[data-theme="dark"] .media-filter-block,
+html[data-theme="dark"] .mf-chat-block {
+  background: linear-gradient(90deg, rgba(127,196,192,0.10), rgba(127,196,192,0.04));
+  border-left-color: rgba(94, 191, 168, 0.55);
+  color: var(--dt-teal-text);
+}
+html[data-theme="dark"] .group-selection-counter--sub {
+  background: linear-gradient(90deg, rgba(255,178,102,0.16), rgba(255,178,102,0.06));
+  border-left-color: rgba(217, 119, 6, 0.6);
+  color: var(--dt-orange-text);
+}
+html[data-theme="dark"] .group-counter-collapse-btn,
+html[data-theme="dark"] .group-clear-all-btn,
+html[data-theme="dark"] .group-selected-chat__remove,
+html[data-theme="dark"] .media-filter-collapse-btn,
+html[data-theme="dark"] .mf-chat-block__chevron,
+html[data-theme="dark"] .mf-card__urls a,
+html[data-theme="dark"] .mf-card__open,
+html[data-theme="dark"] .group-result-section__header,
+html[data-theme="dark"] .group-result-section__chevron,
+html[data-theme="dark"] .group-result-summary__title {
+  color: var(--dt-teal-text);
+}
+html[data-theme="dark"] .group-clear-all-btn:hover,
+html[data-theme="dark"] .mf-card__open:hover { color: #a6e6dc; }
+html[data-theme="dark"] .group-selection-counter--sub .group-counter-collapse-btn,
+html[data-theme="dark"] .group-selection-counter--sub .group-clear-all-btn,
+html[data-theme="dark"] .group-selection-counter--sub .group-selected-chat__remove {
+  color: var(--dt-orange-text);
+}
+html[data-theme="dark"] .group-selected-chat,
+html[data-theme="dark"] .media-filter-row {
+  background: rgba(255, 255, 255, 0.04);
+}
+html[data-theme="dark"] .media-filter-cat-label,
+html[data-theme="dark"] .mf-section__header,
+html[data-theme="dark"] .mf-card__details { color: var(--dt-teal-text); }
+html[data-theme="dark"] .media-filter-subtype,
+html[data-theme="dark"] .sub-mf-subtype {
+  background: var(--dt-surface-2);
+  border: 1px solid rgba(94, 191, 168, 0.35);
+  color: var(--dt-teal-text);
+}
+html[data-theme="dark"] .mf-headline,
+html[data-theme="dark"] .mf-chat-block__header,
+html[data-theme="dark"] .mf-card__caption,
+html[data-theme="dark"] .sub-mf-toggle-label,
+html[data-theme="dark"] .sub-mf-cat-label { color: var(--dt-text); }
+html[data-theme="dark"] .mf-chat-block__empty,
+html[data-theme="dark"] .mf-card__meta,
+html[data-theme="dark"] .sub-mf-hint { color: var(--dt-text-muted); }
+html[data-theme="dark"] .mf-card {
+  background: var(--dt-surface-2);
+  border: 1px solid rgba(94, 191, 168, 0.20);
+  color: var(--dt-text);
+}
+html[data-theme="dark"] .mf-badge {
+  background: rgba(127, 196, 192, 0.18);
+  color: var(--dt-teal-text);
+}
+html[data-theme="dark"] .ai-model-recommended-badge {
+  background: rgba(127, 196, 192, 0.2);
+  color: var(--dt-teal-text);
+}
+html[data-theme="dark"] .group-result-section {
+  border: 1px solid rgba(127, 196, 192, 0.30);
+  background: var(--dt-surface-2);
+}
+html[data-theme="dark"] .group-result-section__header,
+html[data-theme="dark"] .group-result-summary {
+  background: linear-gradient(90deg, rgba(127,196,192,0.12), rgba(127,196,192,0.05));
+}
+html[data-theme="dark"] .group-result-section__body { border-top-color: rgba(127, 196, 192, 0.20); }
+
+/* ---------------------------------------------------------------------------
+   14. css/auth.css — user area, auth + profile modal internals
+   ------------------------------------------------------------------------- */
+html[data-theme="dark"] .sidebar-user-area {
+  border-top: 1px solid var(--dt-border);
+  background: rgba(245, 158, 11, 0.08);
+}
+html[data-theme="dark"] body.user-not-auth .sidebar-user-area {
+  background: transparent !important;
+}
+html[data-theme="dark"] .auth-open-btn,
+html[data-theme="dark"] .sidebar-collapsed .auth-open-btn,
+html[data-theme="dark"] .profile-plan-btn,
+html[data-theme="dark"] .feedback-submit-btn {
+  background: var(--dt-orange);
+  border-color: var(--dt-orange);
+  color: #101317;
+}
+html[data-theme="dark"] .auth-open-btn:hover,
+html[data-theme="dark"] .profile-plan-btn:hover,
+html[data-theme="dark"] .feedback-submit-btn:hover {
+  background: var(--dt-orange-bright);
+  color: #101317;
+}
+html[data-theme="dark"] .auth-open-btn:active,
+html[data-theme="dark"] .feedback-submit-btn[disabled] { background: var(--dt-orange); }
+
+html[data-theme="dark"] .user-profile-trigger,
+html[data-theme="dark"] .user-dropdown button {
+  border: 1px solid var(--dt-border);
+  background: var(--dt-surface-2);
+}
+html[data-theme="dark"] .user-profile-trigger { background: transparent; }
+html[data-theme="dark"] .user-profile-trigger:hover { background: rgba(255, 255, 255, 0.06); }
+html[data-theme="dark"] .user-dropdown button:hover { background: var(--dt-surface-3); }
+html[data-theme="dark"] .quick-logout-btn { color: var(--dt-text-muted); }
+html[data-theme="dark"] .quick-logout-btn:hover { background: rgba(255,255,255,0.08); color: var(--dt-text); }
+
+html[data-theme="dark"] .auth-field label,
+html[data-theme="dark"] .profile-field label,
+html[data-theme="dark"] .profile-setting-item__title { color: var(--dt-text-soft); }
+html[data-theme="dark"] .auth-note,
+html[data-theme="dark"] .auth-switch-text,
+html[data-theme="dark"] .profile-help-text,
+html[data-theme="dark"] .plan-chip,
+html[data-theme="dark"] .plan-divider { color: var(--dt-text-muted); }
+html[data-theme="dark"] .auth-brand-name,
+html[data-theme="dark"] .profile-email-header { color: var(--dt-text); }
+html[data-theme="dark"] .auth-brand-subtitle { color: var(--dt-text-muted); }
+html[data-theme="dark"] .auth-header-divider { background: var(--dt-border); }
+
+html[data-theme="dark"] .auth-modal-content input:not([type="checkbox"]):not([type="radio"]),
+html[data-theme="dark"] .auth-modal-content select,
+html[data-theme="dark"] .auth-modal-content textarea,
+html[data-theme="dark"] .auth-modal-content .iti__tel-input,
+html[data-theme="dark"] #profile-modal .profile-field .iti__tel-input,
+html[data-theme="dark"] .profile-field input:not([type="checkbox"]):not([type="radio"]):not(.iti__tel-input),
+html[data-theme="dark"] .profile-field select,
+html[data-theme="dark"] .profile-field textarea,
+html[data-theme="dark"] .profile-field .profile-static-value,
+html[data-theme="dark"] #profile-modal input:not([type="checkbox"]):not([type="radio"]):not(.iti__tel-input),
+html[data-theme="dark"] #profile-modal select,
+html[data-theme="dark"] #profile-modal textarea,
+html[data-theme="dark"] #register-timezone,
+html[data-theme="dark"] #profile-timezone {
+  background-color: var(--dt-surface-2) !important;
+  border-color: var(--dt-border-strong) !important;
+  color: var(--dt-text) !important;
+}
+
+html[data-theme="dark"] .password-toggle-btn { color: var(--dt-text-muted); }
+html[data-theme="dark"] .password-toggle-btn:hover,
+html[data-theme="dark"] .password-toggle-btn.is-active { color: var(--dt-text); }
+html[data-theme="dark"] .auth-link-btn,
+html[data-theme="dark"] .secondary-btn { color: var(--dt-teal-text); }
+html[data-theme="dark"] .auth-link-btn:hover,
+html[data-theme="dark"] .secondary-btn:hover { color: #a6e6dc; }
+html[data-theme="dark"] .auth-modal-close:hover { color: var(--dt-text); }
+
+/* Profile tabs */
+html[data-theme="dark"] .profile-tab-btn {
+  border: 1px solid var(--dt-border-strong) !important;
+  background: var(--dt-surface-2) !important;
+  color: var(--dt-text-muted) !important;
+}
+html[data-theme="dark"] .profile-tab-btn:hover {
+  background: var(--dt-surface-3) !important;
+  color: var(--dt-text) !important;
+}
+html[data-theme="dark"] .profile-tab-btn.active {
+  background: var(--dt-orange) !important;
+  color: #101317 !important;
+  border-color: var(--dt-orange) !important;
+}
+html[data-theme="dark"] .profile-tab-panel,
+html[data-theme="dark"] .profile-tab-panel.active {
+  background: var(--dt-surface-sunken) !important;
+  border: 1px solid var(--dt-border) !important;
+}
+html[data-theme="dark"] .profile-tab-panel .profile-limits-grid > *,
+html[data-theme="dark"] .profile-tab-panel .profile-personal-grid > * {
+  background: var(--dt-surface-2);
+}
+
+/* Profile cards / plan / tokens / limits / history */
+html[data-theme="dark"] .profile-plan-card,
+html[data-theme="dark"] .profile-limit-card,
+html[data-theme="dark"] .profile-history-item,
+html[data-theme="dark"] .profile-tokens-card,
+html[data-theme="dark"] .levels-guide-card {
+  border: 1px solid var(--dt-border);
+  background: var(--dt-surface-2);
+}
+html[data-theme="dark"] .levels-guide-info,
+html[data-theme="dark"] .profile-history-modes,
+html[data-theme="dark"] .profile-tokens-progress-bar {
+  background: var(--dt-surface-sunken);
+  border-color: var(--dt-border);
+}
+html[data-theme="dark"] .levels-guide-title,
+html[data-theme="dark"] .levels-guide-badge,
+html[data-theme="dark"] .profile-limit-card-value,
+html[data-theme="dark"] .profile-limit-card-text,
+html[data-theme="dark"] .profile-tokens-title,
+html[data-theme="dark"] .profile-tokens-topup-row strong,
+html[data-theme="dark"] .profile-history-total strong,
+html[data-theme="dark"] .profile-history-row3 strong,
+html[data-theme="dark"] .profile-static-value { color: var(--dt-text); }
+html[data-theme="dark"] .profile-static-value {
+  border: 1px solid var(--dt-border-strong);
+  background: var(--dt-surface-2);
+}
+html[data-theme="dark"] .levels-guide-intro,
+html[data-theme="dark"] .levels-guide-desc,
+html[data-theme="dark"] .levels-guide-list,
+html[data-theme="dark"] .levels-guide-info-label,
+html[data-theme="dark"] .levels-guide-info-line,
+html[data-theme="dark"] .profile-tokens-progress-text,
+html[data-theme="dark"] .profile-tokens-topup-row,
+html[data-theme="dark"] .profile-history-row2,
+html[data-theme="dark"] .profile-history-row3,
+html[data-theme="dark"] .profile-action-btn,
+html[data-theme="dark"] .feedback-files-list li { color: var(--dt-text-soft); }
+html[data-theme="dark"] .levels-guide-card-sub,
+html[data-theme="dark"] .profile-limit-card-title,
+html[data-theme="dark"] .profile-limit-card-note,
+html[data-theme="dark"] .profile-tokens-period,
+html[data-theme="dark"] .profile-tokens-breakdown,
+html[data-theme="dark"] .profile-history-date,
+html[data-theme="dark"] .profile-history-total,
+html[data-theme="dark"] .profile-history-loading,
+html[data-theme="dark"] .profile-limit-sep,
+html[data-theme="dark"] .profile-tokens-sep,
+html[data-theme="dark"] .feedback-attach-hint,
+html[data-theme="dark"] .feedback-files-list .feedback-file-size { color: var(--dt-text-muted); }
+html[data-theme="dark"] .profile-history-source { color: var(--dt-text); }
+
+html[data-theme="dark"] .levels-guide-note {
+  background: rgba(255, 141, 55, 0.10);
+  border: 1px solid rgba(255, 141, 55, 0.30);
+  color: var(--dt-orange-text);
+}
+html[data-theme="dark"] .profile-tokens-card {
+  background: linear-gradient(180deg, var(--dt-surface-2) 0%, var(--dt-surface-sunken) 100%);
+}
+html[data-theme="dark"] .profile-history-modes,
+html[data-theme="dark"] .levels-guide-info { color: var(--dt-text-soft); }
+html[data-theme="dark"] .profile-history-mode-btn { color: var(--dt-text-muted); }
+html[data-theme="dark"] .profile-history-mode-btn:hover { color: var(--dt-text-soft); }
+html[data-theme="dark"] .profile-history-mode-btn.active {
+  background: var(--dt-surface-2);
+  color: var(--dt-orange-text);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+html[data-theme="dark"] .profile-tokens-topup-row { border-top-color: var(--dt-border); }
+html[data-theme="dark"] .profile-tokens-topup-btn,
+html[data-theme="dark"] .profile-history-load-more {
+  border: 1px solid var(--dt-teal);
+  background: var(--dt-surface-2);
+  color: var(--dt-teal-text);
+}
+html[data-theme="dark"] .profile-tokens-topup-btn:hover:not(:disabled) {
+  background: var(--dt-teal);
+  color: #fff;
+}
+html[data-theme="dark"] .profile-history-load-more:hover { background: var(--dt-surface-3); }
+html[data-theme="dark"] .profile-history-spinner,
+html[data-theme="dark"] .sidebar-boot-loader__spinner { border-color: var(--dt-border); border-top-color: var(--dt-orange); }
+html[data-theme="dark"] .profile-history-empty { color: var(--dt-text-muted); border-color: var(--dt-border); }
+
+/* Action / feedback buttons */
+html[data-theme="dark"] .profile-action-btn,
+html[data-theme="dark"] .feedback-attach-btn {
+  border: 1px solid var(--dt-border-strong);
+  background: var(--dt-surface-2);
+  color: var(--dt-text-soft);
+}
+html[data-theme="dark"] .profile-action-btn:hover,
+html[data-theme="dark"] .feedback-attach-btn:hover { background: var(--dt-surface-3); }
+html[data-theme="dark"] .feedback-files-list li {
+  background: var(--dt-surface-sunken);
+  border: 1px solid var(--dt-border);
+}
+
+/* Plan card divider chips keep their bright brand colors (.plan-*.active) */
+
+/* Levels guide accent left-borders keep brand hues; nudge neutral one */
+html[data-theme="dark"] .levels-guide-card { border-left-color: var(--dt-border-strong); }
+
+/* Cookie banner */
+html[data-theme="dark"] .cookie-banner__card {
+  background: var(--dt-surface-2);
+  border: 1px solid var(--dt-border);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+}
+html[data-theme="dark"] .cookie-banner__text strong { color: var(--dt-text); }
+html[data-theme="dark"] .cookie-banner__text p { color: var(--dt-text-soft); }
+html[data-theme="dark"] .cookie-banner__btn {
+  background: var(--dt-orange) !important;
+  color: #101317 !important;
+}
+html[data-theme="dark"] .cookie-banner__btn:hover { background: var(--dt-orange-bright) !important; }
+
+/* Terms / misc links */
+html[data-theme="dark"] .auth-terms-label { color: var(--dt-text-soft); }
+html[data-theme="dark"] .auth-terms-links { color: var(--dt-text-muted); }
+html[data-theme="dark"] .auth-terms-links a { color: var(--dt-teal-text); }
+html[data-theme="dark"] .auth-terms-sep { color: var(--dt-text-muted); }
+html[data-theme="dark"] .profile-limit-link { color: var(--dt-orange-text); border-bottom-color: rgba(255,141,55,0.35); }
+html[data-theme="dark"] .profile-limit-link:hover { color: var(--dt-orange-bright); border-bottom-color: var(--dt-orange-bright); }
+
+/* Errors / status (keep semantics, brighten for dark) */
+html[data-theme="dark"] .auth-inline-error,
+html[data-theme="dark"] .profile-danger-btn,
+html[data-theme="dark"] .profile-action-btn.profile-danger-btn,
+html[data-theme="dark"] .profile-history-error,
+html[data-theme="dark"] .auth-note.auth-country-error,
+html[data-theme="dark"] .profile-help-text.profile-save-note { color: var(--dt-red) !important; }
+html[data-theme="dark"] .auth-input-error { border-color: var(--dt-red) !important; box-shadow: 0 0 0 2px rgba(240,104,109,0.15); }
+html[data-theme="dark"] .feedback-error {
+  background: rgba(240, 104, 109, 0.10);
+  color: var(--dt-red);
+  border: 1px solid rgba(240, 104, 109, 0.30);
+}
+html[data-theme="dark"] .feedback-success {
+  background: rgba(46, 204, 113, 0.10);
+  color: #57d98a;
+  border: 1px solid rgba(46, 204, 113, 0.30);
+}
+html[data-theme="dark"] .feedback-files-list .feedback-file-remove { color: var(--dt-red) !important; }
+
+/* Delete-account submit stays red */
+html[data-theme="dark"] #delete-account-submit {
+  background: #b91c1c !important;
+  color: #fff !important;
+}
+html[data-theme="dark"] #delete-account-submit:hover { background: #991b1b !important; }
+
+/* History status badges */
+html[data-theme="dark"] .profile-history-badge-ok { background: rgba(46,204,113,0.18); color: #57d98a; }
+html[data-theme="dark"] .profile-history-badge-subs { background: rgba(255,178,102,0.18); color: var(--dt-orange-text); }
+html[data-theme="dark"] .profile-history-badge-fail,
+html[data-theme="dark"] .profile-history-error { background: rgba(240,104,109,0.18); color: var(--dt-red); }
+html[data-theme="dark"] .profile-history-badge-other { background: var(--dt-surface-3); color: var(--dt-text-soft); }
+html[data-theme="dark"] .profile-history-item-fail { background: rgba(240,104,109,0.08); border-color: rgba(240,104,109,0.30); }
+
+/* ---------------------------------------------------------------------------
+   15. Coverage patches (rules that re-assert light colors in hover/nested state)
+   ------------------------------------------------------------------------- */
+html[data-theme="dark"] .profile-field input.iti__tel-input,
+html[data-theme="dark"] #profile-modal input.iti__tel-input {
+  background: var(--dt-surface-2) !important;
+  border-color: var(--dt-border-strong) !important;
+  color: var(--dt-text) !important;
+}
+html[data-theme="dark"] .tour-card__body { color: var(--dt-text-soft); }
+html[data-theme="dark"] #subChatsList .sidebar-folder__toggle:hover {
+  background: rgba(255, 178, 102, 0.18) !important;
+  color: var(--dt-text) !important;
+}
+html[data-theme="dark"] .profile-action-btn.profile-danger-btn:hover {
+  background: rgba(240, 104, 109, 0.10) !important;
+  border-color: rgba(240, 104, 109, 0.30) !important;
+  color: var(--dt-red) !important;
+}

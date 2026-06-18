@@ -3,7 +3,24 @@
   <head>
     <title>Work area</title>
     <link rel="icon" type="image/png" href="images/cotel-cat.png">
+    <!-- Apply saved/system theme before stylesheets paint (no flash of wrong theme). -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem("cotel_theme");
+          if (t !== "dark" && t !== "light") {
+            t = (window.matchMedia &&
+              window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+          }
+          document.documentElement.setAttribute("data-theme", t);
+        } catch (e) {
+          document.documentElement.setAttribute("data-theme", "light");
+        }
+      })();
+    </script>
     <link rel="stylesheet" href="/css/auth.css">
+    <link rel="stylesheet" href="/css/theme-toggle.css">
+    <link rel="stylesheet" href="/css/dark-theme.css">
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/intl-tel-input@26.8.1/build/css/intlTelInput.css"
@@ -115,6 +132,29 @@
                   </a>
                 </div>
 
+              </div>
+              <!-- Theme toggle (sun/moon), pinned just left of the language switcher. -->
+              <div class="theme-toggle">
+                <button
+                  id="themeToggleBtn"
+                  type="button"
+                  class="theme-toggle__button"
+                  aria-pressed="false"
+                  aria-label="Switch to dark theme"
+                  data-i18n-aria-label="common:theme_toggle.to_dark"
+                  title="Switch to dark theme"
+                  data-i18n-title="common:theme_toggle.to_dark"
+                >
+                  <!-- Moon: shown in light mode (click → dark) -->
+                  <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor"/>
+                  </svg>
+                  <!-- Sun: shown in dark mode (click → light) -->
+                  <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <circle cx="12" cy="12" r="4"/>
+                    <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+                  </svg>
+                </button>
               </div>
               <!-- Language switcher (globe icon + dropdown)
                    Positioned absolutely inside .navigation so it's visible even when
@@ -2048,6 +2088,7 @@
 </script>
 <script src="/js/auth.js"></script>
 <script src="/js/lang-switcher.js"></script>
+<script src="/js/theme-toggle.js"></script>
 <script src="/js/onboarding.js"></script>
 <script src="/js/saved-queries.js"></script>
   </body>

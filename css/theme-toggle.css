@@ -1,0 +1,61 @@
+/* ============================================================================
+   CoTel — theme toggle button (sun / moon).
+   Sits just left of the language switcher in the top-right of .navigation.
+   Base + light styling here; dark-surface styling lives in dark-theme.css.
+   ========================================================================== */
+
+.theme-toggle {
+  position: absolute !important;
+  right: 54px !important;            /* lang-switcher is at right:14px, 32px wide */
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  z-index: 210 !important;
+  pointer-events: auto !important;
+}
+
+.theme-toggle__button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+  color: #4b5563;
+  cursor: pointer;
+  transition: background 0.18s ease, box-shadow 0.18s ease, color 0.18s ease;
+}
+
+.theme-toggle__button:hover,
+.theme-toggle__button:focus-visible {
+  background: rgba(127, 196, 192, 0.18);
+  box-shadow:
+    0 0 0 1px rgba(15, 23, 42, 0.05),
+    0 4px 10px rgba(15, 23, 42, 0.10),
+    0 1px 2px rgba(43, 168, 158, 0.18);
+  color: #1f2937;
+  outline: none;
+}
+
+.theme-toggle__icon {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+/* Show the icon of the theme you'd switch TO:
+   light mode → show moon; dark mode → show sun. */
+.theme-toggle__icon--sun { display: none; }
+.theme-toggle__icon--moon { display: block; }
+
+html[data-theme="dark"] .theme-toggle__icon--sun { display: block; }
+html[data-theme="dark"] .theme-toggle__icon--moon { display: none; }
+
+html[data-theme="dark"] .theme-toggle__button { color: #ffb066; }
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle__button { transition: none; }
+}

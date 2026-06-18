@@ -155,31 +155,53 @@
   }
 
   // --- меню пользователя (Профиль / Справка / Обратная связь) ----------------
-  // Меню #user-dropdown лежит в сайдбаре с overflow:hidden — простое снятие
-  // класса .hidden его обрезает. Открываем штатно (клик по триггеру): приложение
-  // переносит меню в body и позиционирует, тогда якоря пунктов видимы.
+  // Меню #user-dropdown лежит в сайдбаре с overflow:hidden, а штатное открытие
+  // (клик по триггеру) зависит от состояния приложения и ставит низкий z-index
+  // (под оверлеем тура) — из-за этого пункты могли «не находиться» и шаги
+  // пропускались. Поэтому тур открывает меню сам: переносит в body, позиционирует
+  // над триггером фиксированно и поднимает над оверлеем тура. При уходе с
+  // menu-шагов возвращает меню на место.
 
   let userMenuOpenedByTour = false;
+  let menuOrigParent = null;
+  let menuOrigNext = null;
+  const MENU_INLINE_PROPS = ["position", "left", "right", "top", "bottom", "width", "z-index"];
 
-  function isUserMenuOpen() {
+  function forceOpenMenu() {
     const dd = document.getElementById("user-dropdown");
-    return !!dd && !dd.classList.contains("hidden");
-  }
-
-  async function ensureUserMenuOpen() {
-    if (isUserMenuOpen()) return;
     const trigger = document.getElementById("user-profile-trigger");
-    if (trigger) {
-      trigger.click();
-      userMenuOpenedByTour = true;
-      await wait(240);
-    }
+    if (!dd || !trigger) return;
+    if (!menuOrigParent) { menuOrigParent = dd.parentElement; menuOrigNext = dd.nextSibling; }
+
+    const r = trigger.getBoundingClientRect();
+    const w = 200;
+    const left = Math.max(8, Math.min(r.left, window.innerWidth - w - 8));
+    const bottom = window.innerHeight - r.top + 8; // открываем вверх над триггером
+    dd.style.setProperty("position", "fixed", "important");
+    dd.style.setProperty("left", left + "px", "important");
+    dd.style.setProperty("right", "auto", "important");
+    dd.style.setProperty("top", "auto", "important");
+    dd.style.setProperty("bottom", bottom + "px", "important");
+    dd.style.setProperty("width", w + "px", "important");
+    // Выше spotlight-оверлея (2147483200), но ниже карточки тура (2147483600).
+    dd.style.setProperty("z-index", "2147483500", "important");
+    if (dd.parentElement !== document.body) document.body.appendChild(dd);
+    dd.classList.remove("hidden");
+    userMenuOpenedByTour = true;
   }
 
-  function closeUserMenuByTour() {
-    if (isUserMenuOpen()) {
-      const trigger = document.getElementById("user-profile-trigger");
-      if (trigger) trigger.click();
+  function forceCloseMenu() {
+    const dd = document.getElementById("user-dropdown");
+    if (dd) {
+      dd.classList.add("hidden");
+      MENU_INLINE_PROPS.forEach((p) => dd.style.removeProperty(p));
+      if (menuOrigParent && dd.parentElement !== menuOrigParent) {
+        if (menuOrigNext && menuOrigNext.parentElement === menuOrigParent) {
+          menuOrigParent.insertBefore(dd, menuOrigNext);
+        } else {
+          menuOrigParent.appendChild(dd);
+        }
+      }
     }
     userMenuOpenedByTour = false;
   }
@@ -197,7 +219,7 @@
 
   const TG_NOTE = {
     noteKey: "new-analysis:onboarding.s_tg_note",
-    noteFb: "Мы не храним вашу историю сообщений и обрабатываем данные только по вашему запросу.",
+    noteFb: "Мы не храним вашу историю сообщений и паролей, и обрабатываем данные только по вашему запросу.",
   };
   const isTgConnected = () => isVisible(document.getElementById("tgStateConnected"));
 
@@ -531,9 +553,9 @@
     // Меню пользователя: открыть для menu-шагов, закрыть при уходе с них
     // (до открытия профиля, чтобы они не накладывались).
     if (step.menu) {
-      try { await ensureUserMenuOpen(); } catch (_) { /* ignore */ }
+      try { forceOpenMenu(); await wait(80); } catch (_) { /* ignore */ }
     } else if (userMenuOpenedByTour) {
-      closeUserMenuByTour();
+      try { forceCloseMenu(); } catch (_) { /* ignore */ }
     }
 
     try { await ensureProfileState(step); } catch (_) { /* ignore */ }
@@ -551,6 +573,13 @@
     }
     el = resolveAnchor(step);
 
+    // Якорь ещё не виден — даём подготовке (открытие профиля/меню, reveal,
+    // рендер) чуть больше времени и пробуем ещё раз, прежде чем пропускать шаг.
+    if (!el || !isVisible(el)) {
+      await wait(240);
+      el = resolveAnchor(step);
+    }
+
     // Недоступный/скрытый якорь — пропускаем в текущем направлении.
     if (!el || !isVisible(el)) {
       const nextIdx = idx + direction;
@@ -567,7 +596,7 @@
 
   function endTour(state) {
     restoreReveals();
-    if (userMenuOpenedByTour) closeUserMenuByTour();
+    if (userMenuOpenedByTour) forceCloseMenu();
     destroyLayer();
     if (isProfileOpen() && profileOpenedByTour && typeof window.closeProfileModal === "function") {
       window.closeProfileModal(true);

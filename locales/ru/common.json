@@ -42,6 +42,10 @@
     "option_en": "English",
     "option_ru": "Русский"
   },
+  "theme_toggle": {
+    "to_dark": "Включить тёмную тему",
+    "to_light": "Включить светлую тему"
+  },
   "ai_models": {
     "openai_gpt_4_1_mini": "OpenAI GPT-4.1 mini — быстрый и универсальный анализ",
     "openai_gpt_5_4_mini": "OpenAI GPT-5.4 mini — сбалансированный анализ",
