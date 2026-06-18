@@ -2384,6 +2384,16 @@ select.sidebar-inline-setting-input {
   color: #2A2A2A;
 }
 
+/* «Повышенная безопасность» — это span-заголовок галочки. Приводим его шрифт
+   к тем же значениям, что у .profile-field label (выше переопределён в этом
+   файле), иначе он остаётся жирнее из-за правила в auth.css. Только шрифт —
+   раскладку (display/margin) не трогаем, чтобы не сбить флекс с чекбоксом. */
+.profile-setting-item__title {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #2A2A2A;
+}
+
 /* Статичные значения (email, страна) визуально такие же как input,
    но без cursor: text (не редактируется) */
 .profile-field .profile-static-value {
@@ -2937,11 +2947,16 @@ html.cotel-preboot .sidebar-boot-loader {
 
 .tour-card__back,
 .tour-card__next {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
   border: 1px solid transparent;
   border-radius: 8px;
   padding: 7px 14px;
   font-size: 0.82rem;
   font-weight: 600;
+  line-height: 1.2;
   cursor: pointer;
 }
 .tour-card__back {
@@ -2963,18 +2978,6 @@ html.cotel-preboot .sidebar-boot-loader {
 .tour-card__arrow {
   font-weight: 700;
   font-size: 0.9em;
-}
-
-/* Две кнопки обучения (быстрый старт / подробное) — в одну линию. */
-.profile-onboarding-btns {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 6px;
-}
-.profile-onboarding-btns .profile-onboarding-btn {
-  flex: 1 1 auto;
-  white-space: nowrap;
 }
 
 /* Приглашение пройти обучение. */

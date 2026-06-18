@@ -1632,14 +1632,19 @@ text-decoration: underline;
   margin-top: 0;
 }
 
-/* Блок «Быстрый старт»: подсказка слева, кнопка справа. Та же 2-колоночная
-   сетка, что и у .profile-settings-actions ниже — поэтому кнопка «Пройти
-   обучение» встаёт ровно над «Удалить профиль» того же размера. */
+/* Блок «Обучение»: подсказка в одну линию сверху, под ней — две кнопки
+   («Быстрый старт» и «Подробное обучение») в один горизонтальный ряд. */
 .profile-onboarding-row {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.profile-onboarding-btns {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
-  align-items: center;
 }
 
 .profile-onboarding-btn {
@@ -1647,7 +1652,7 @@ text-decoration: underline;
 }
 
 @media (max-width: 760px) {
-  .profile-onboarding-row {
+  .profile-onboarding-btns {
     grid-template-columns: 1fr;
   }
 }
