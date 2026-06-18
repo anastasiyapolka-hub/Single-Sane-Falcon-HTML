@@ -2376,22 +2376,36 @@ select.sidebar-inline-setting-input {
 }
 
 /* Метки полей в модалке профиля — компактнее */
-.profile-field label {
+/* :not(.profile-setting-item) — чтобы это правило (display:block) не перебивало
+   flex-раскладку строки-галочки в auth.css, иначе заголовок галочки съезжает
+   вниз и не центрируется по вертикали. margin-bottom убран: вертикальные
+   отступы задаём единым gap у .profile-field (ниже). */
+.profile-field label:not(.profile-setting-item) {
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: 0;
   font-size: 0.85rem;
   font-weight: 500;
   color: #2A2A2A;
 }
 
-/* «Повышенная безопасность» — это span-заголовок галочки. Приводим его шрифт
-   к тем же значениям, что у .profile-field label (выше переопределён в этом
-   файле), иначе он остаётся жирнее из-за правила в auth.css. Только шрифт —
-   раскладку (display/margin) не трогаем, чтобы не сбить флекс с чекбоксом. */
+/* «Повышенная безопасность» — span-заголовок галочки. Приводим только шрифт к
+   тем же значениям, что у .profile-field label; раскладку (flex с чекбоксом)
+   не трогаем. */
 .profile-setting-item__title {
   font-size: 0.85rem;
   font-weight: 500;
   color: #2A2A2A;
+}
+
+/* Единое вертикальное расстояние от заголовка настройки до следующего элемента
+   во всех блоках вкладки «Настройки профиля» (заголовок → поле/подсказка/кнопки
+   одинаково). Сбрасываем дефолтные margin у <p>-подсказок, чтобы они не
+   увеличивали разрыв в одних блоках и не отличались от других. */
+.profile-tab-panel .profile-field {
+  gap: 12px;
+}
+.profile-tab-panel .profile-field p {
+  margin: 0;
 }
 
 /* Статичные значения (email, страна) визуально такие же как input,

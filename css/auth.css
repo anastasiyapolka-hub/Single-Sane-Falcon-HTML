@@ -1630,6 +1630,11 @@ text-decoration: underline;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
   margin-top: 0;
+  /* Родитель .profile-field-full имеет align-items:flex-start — без этого
+     сетка сжимается по контенту. Растягиваем на всю ширину блока, чтобы
+     кнопки были равной ширины и тянулись по горизонтали. */
+  align-self: stretch;
+  width: 100%;
 }
 
 /* Блок «Обучение»: подсказка в одну линию сверху, под ней — две кнопки
@@ -1639,6 +1644,8 @@ text-decoration: underline;
   flex-direction: column;
   gap: 12px;
   align-items: stretch;
+  align-self: stretch;
+  width: 100%;
 }
 
 .profile-onboarding-btns {
