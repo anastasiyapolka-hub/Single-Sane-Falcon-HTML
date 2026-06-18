@@ -503,7 +503,7 @@ html[data-theme="dark"] .plan-success-card {
   transform: none !important;
 }
 html[data-theme="dark"] .theme-toggle__button {
-  background: #1c2128;
+  background: #2a313c;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 html[data-theme="dark"] .theme-toggle__button:hover,

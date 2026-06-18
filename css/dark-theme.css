@@ -21,6 +21,8 @@ html[data-theme="dark"] {
   --dt-surface-2:   #1c2128;  /* cards / dropdowns / inputs (#ffffff)  */
   --dt-surface-3:   #262c36;  /* hover fills (#f3f4f6 / #f7f8f9 ...)    */
   --dt-surface-sunken: #12161c; /* inactive / sunken rows              */
+  --dt-card:        #21272f;  /* work-panel section cards (a touch lighter) */
+  --dt-icon-btn:    #2a313c;  /* round icon-button bg (clearly visible) */
 
   /* Borders */
   --dt-border:        rgba(255, 255, 255, 0.10);
@@ -91,7 +93,7 @@ html[data-theme="dark"] .navigation__link span {
    ------------------------------------------------------------------------- */
 html[data-theme="dark"] .navigation .lang-switcher__button,
 html[data-theme="dark"] .theme-toggle__button {
-  background: var(--dt-surface-2) !important;
+  background: var(--dt-icon-btn) !important;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4) !important;
 }
 html[data-theme="dark"] .sidebar-mini-icon-btn:hover,
@@ -144,15 +146,17 @@ html[data-theme="dark"] .sidebar-boot-loader {
 html[data-theme="dark"] .sidebar-header {
   border-bottom: 1px solid var(--dt-border);
 }
+/* Outermost rectangle behind the query input — make it match the answer/page
+   background so it disappears, leaving just the oval input panel. */
 html[data-theme="dark"] .dashboard-bottom-block {
-  background: var(--dt-surface) !important;
+  background: var(--dt-bg) !important;
 }
 html[data-theme="dark"] .sidebar-resizer:hover {
   background: rgba(255, 255, 255, 0.06);
 }
 
 html[data-theme="dark"] .sidebar-toggle-btn {
-  background: var(--dt-surface-3);
+  background: var(--dt-icon-btn);
   color: var(--dt-text);
 }
 html[data-theme="dark"] .sidebar-toggle-btn:hover {
@@ -161,7 +165,7 @@ html[data-theme="dark"] .sidebar-toggle-btn:hover {
 html[data-theme="dark"] .sidebar-mini-icon-btn,
 html[data-theme="dark"] #quick-logout-btn,
 html[data-theme="dark"] .sidebar-add-subscription-btn {
-  background: var(--dt-surface-2);
+  background: var(--dt-icon-btn);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 html[data-theme="dark"] .sidebar-mini-icon-btn:hover,
@@ -291,14 +295,14 @@ html[data-theme="dark"] .tg-textarea:focus {
    6. Buttons — analysis controls + primary/dark CTAs
    ------------------------------------------------------------------------- */
 html[data-theme="dark"] .analysis-icon-button {
-  background-color: var(--dt-surface-3);
+  background-color: var(--dt-icon-btn);
 }
 html[data-theme="dark"] .analysis-icon-button:hover {
   background-color: #323a45;
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 html[data-theme="dark"] .analysis-play-button {
-  background-color: var(--dt-surface-2) !important;
+  background-color: var(--dt-icon-btn) !important;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 html[data-theme="dark"] .analysis-play-button:hover {
@@ -961,7 +965,7 @@ html[data-theme="dark"] .profile-action-btn.profile-danger-btn:hover {
    16. Fixes — sidebar section cards, base tg inputs/buttons (new-analysis-base.css)
    ------------------------------------------------------------------------- */
 html[data-theme="dark"] .sidebar-section details {
-  background: var(--dt-surface-2);
+  background: var(--dt-card);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 html[data-theme="dark"] .tg-input {

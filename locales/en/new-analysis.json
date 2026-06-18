@@ -304,6 +304,7 @@
   },
   "dashboard_dynamic": {
     "no_data": "No data",
+    "empty_answer": "The model returned no answer for this request. Please try again or pick a deeper analysis mode.",
     "request_error_prefix": "Request error:",
     "import_json_first": "Please import the Telegram export JSON file first.",
     "enter_chat_link": "Enter a Telegram chat or channel link.",

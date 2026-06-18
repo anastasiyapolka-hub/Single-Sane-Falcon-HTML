@@ -5119,7 +5119,14 @@ if (runSubscriptionsBtn) {
         contentEl.style.whiteSpace = "pre-wrap";
         contentEl.style.wordWrap = "break-word";
 
-        const fullText = text || rawText || tI18n("new-analysis:dashboard_dynamic.no_data", "Нет данных");
+        // НИКОГДА не показываем сырой payload (rawText) пользователю — это была
+        // причина «технического лога вместо ответа». Если текста нет, выводим
+        // понятное сообщение. Пустой ответ модели бэкенд теперь отдаёт как
+        // ошибку EMPTY_LLM_RESPONSE (см. catch ниже), сюда попадаем редко.
+        const fullText = text || tI18n(
+          "new-analysis:dashboard_dynamic.empty_answer",
+          "Модель не вернула ответ на этот запрос. Попробуйте ещё раз или выберите более глубокий режим анализа."
+        );
         const messageLinks = payload?.message_links || null;
 
         if (messageLinks) {
