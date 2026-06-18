@@ -438,3 +438,75 @@ body {
   transform: none;
   box-shadow: none;
 }
+/* ============================================================================
+   Dark theme — pricing page.
+   pricing.css is variable-driven, so most of dark mode is a :root remap.
+   Activated by data-theme="dark" on <html> (js/theme-toggle.js).
+   ========================================================================== */
+html[data-theme="dark"] {
+  --bg: #0e1116;
+  --card: #1c2128;
+  --card-active: #2a2018;          /* warm, brand-tinted elevated surface */
+  --text: #e6edf3;
+  --muted: #9aa4b0;
+  --border: rgba(255, 255, 255, 0.12);
+  --accent: #ff8d37;
+  --accent-2: #ff9d4d;
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+
+  --plan-free: #7fdcb0;
+  --plan-basic: #79b0ff;
+  --plan-pro: #ff8a8a;
+  --plan-power: #c4ccd6;
+
+  --dark-bar: #ff8d37;             /* "Рекомендуем" ribbon → brand orange */
+  color-scheme: dark;
+}
+
+html[data-theme="dark"] .plan-card.is-active {
+  border-color: rgba(255, 141, 55, 0.55);
+}
+html[data-theme="dark"] .featured-bar { color: #101317; }   /* on orange ribbon */
+html[data-theme="dark"] .plan-divider { background: rgba(255, 255, 255, 0.14); }
+
+html[data-theme="dark"] .plan-btn { color: #101317; }       /* dark text on orange */
+html[data-theme="dark"] .plan-btn.current {
+  background: rgba(255, 141, 55, 0.16);
+  color: var(--text);
+  border: 1px solid rgba(255, 141, 55, 0.40);
+}
+html[data-theme="dark"] .plan-btn--disabled,
+html[data-theme="dark"] .plan-btn:disabled.plan-btn--disabled {
+  background: var(--card);
+  color: var(--muted);
+}
+
+html[data-theme="dark"] .pricing-notes {
+  background: #161b22;
+  border: 1px solid var(--border);
+}
+html[data-theme="dark"] .pricing-notes h2 { color: var(--text); }
+html[data-theme="dark"] .pricing-notes p { color: #c4ccd6; }
+
+html[data-theme="dark"] .plan-success-backdrop { background: rgba(0, 0, 0, 0.6); }
+html[data-theme="dark"] .plan-success-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+}
+
+/* Theme toggle button placement on the pricing page (no .navigation here). */
+.pricing-page .theme-toggle {
+  position: fixed !important;
+  top: 16px !important;
+  right: 16px !important;
+  transform: none !important;
+}
+html[data-theme="dark"] .theme-toggle__button {
+  background: #1c2128;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+html[data-theme="dark"] .theme-toggle__button:hover,
+html[data-theme="dark"] .theme-toggle__button:focus-visible {
+  background: rgba(127, 196, 192, 0.18);
+}

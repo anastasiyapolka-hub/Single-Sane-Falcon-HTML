@@ -956,3 +956,40 @@ html[data-theme="dark"] .profile-action-btn.profile-danger-btn:hover {
   border-color: rgba(240, 104, 109, 0.30) !important;
   color: var(--dt-red) !important;
 }
+
+/* ---------------------------------------------------------------------------
+   16. Fixes — sidebar section cards, base tg inputs/buttons (new-analysis-base.css)
+   ------------------------------------------------------------------------- */
+html[data-theme="dark"] .sidebar-section details {
+  background: var(--dt-surface-2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+html[data-theme="dark"] .tg-input {
+  background: var(--dt-surface-2);
+  border-color: var(--dt-border-strong);
+  color: var(--dt-text);
+}
+html[data-theme="dark"] .tg-input::placeholder { color: var(--dt-text-muted); }
+html[data-theme="dark"] .tg-button {
+  background: var(--dt-surface-3);
+  border-color: var(--dt-border-strong);
+  color: var(--dt-text);
+}
+html[data-theme="dark"] .tg-button:hover { background: #323a45; }
+
+/* Profile language / timezone / model selects — base files use TWO-id selectors
+   (#profile-modal #profile-language ...), so the override needs matching weight. */
+html[data-theme="dark"] #profile-modal #profile-language,
+html[data-theme="dark"] #profile-modal #profile-timezone,
+html[data-theme="dark"] #profile-modal #profile-default-ai-model {
+  background-color: var(--dt-surface-2) !important;
+  border-color: var(--dt-border-strong) !important;
+  color: var(--dt-text) !important;
+}
+
+/* Active plan chip colors in the profile menu (our muted .plan-chip override
+   was out-weighing .plan-*.active and flattening the highlight). */
+html[data-theme="dark"] .plan-free.active  { color: #95FFF7; }
+html[data-theme="dark"] .plan-basic.active,
+html[data-theme="dark"] .plan-pro.active   { color: #FF8D37; }
+html[data-theme="dark"] .plan-power.active { color: #E570BF; }

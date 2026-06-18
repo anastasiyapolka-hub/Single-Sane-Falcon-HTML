@@ -8,12 +8,50 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@100;300;400;500;700;800;900&display=swap" rel="stylesheet">
+  <!-- Apply saved/system theme before stylesheets paint (no flash of wrong theme). -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("cotel_theme");
+        if (t !== "dark" && t !== "light") {
+          t = (window.matchMedia &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+        }
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
   <link rel="stylesheet" href="pricing.css" />
+  <link rel="stylesheet" href="/css/theme-toggle.css" />
+  <link rel="stylesheet" href="/css/dark-theme.css" />
 </head>
 <body>
   <div class="pricing-page">
+    <!-- Theme toggle (sun/moon), fixed top-right (positioned via pricing.css). -->
+    <div class="theme-toggle">
+      <button
+        id="themeToggleBtn"
+        type="button"
+        class="theme-toggle__button"
+        aria-pressed="false"
+        aria-label="Switch to dark theme"
+        data-i18n-aria-label="common:theme_toggle.to_dark"
+        title="Switch to dark theme"
+        data-i18n-title="common:theme_toggle.to_dark"
+      >
+        <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor"/>
+        </svg>
+        <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+        </svg>
+      </button>
+    </div>
     <header class="pricing-header">
-      <a href="new-analysis.html" class="back-link" data-i18n="pricing:header.back_link">← Назад в CoTel</a>
+      <a href="new-analysis.html" class="back-link" id="backToServiceLink" data-i18n="pricing:header.back_link">← Назад в CoTel</a>
       <h1 data-i18n="pricing:header.title">Тарифы CoTel</h1>
       <p class="subtitle" data-i18n="pricing:header.subtitle">
         Выберите подходящий тариф для AI-анализа Telegram-чатов и автоматических подписок.
@@ -171,6 +209,27 @@
 <script src="https://cdn.jsdelivr.net/npm/i18next@23.15.1/dist/umd/i18next.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/i18next-http-backend@2.6.2/i18nextHttpBackend.min.js"></script>
 <script src="/js/i18n.js"></script>
+<script src="/js/theme-toggle.js"></script>
+<script>
+  // "← Назад в CoTel": if we arrived here from the app in this tab, go BACK
+  // instead of navigating forward. Back-navigation restores the dashboard from
+  // the browser's bfcache instantly — no full reload, no re-fetching the
+  // sidebar. A real plan change uses location.href elsewhere, so that path
+  // still reloads with fresh data.
+  (function () {
+    var link = document.getElementById("backToServiceLink");
+    if (!link) return;
+    link.addEventListener("click", function (e) {
+      try {
+        var cameFromApp = /\/new-analysis\.html(?:[?#]|$)/.test(document.referrer || "");
+        if (cameFromApp && window.history.length > 1) {
+          e.preventDefault();
+          window.history.back();
+        }
+      } catch (_) { /* fall through to normal navigation */ }
+    });
+  })();
+</script>
 <script>
   // Load the `pricing` namespace on top of the default `common` namespace.
   if (window.cotelI18n && typeof window.cotelI18n.init === "function") {
