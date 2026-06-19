@@ -3,14 +3,16 @@
   <head>
     <title>Work area</title>
     <link rel="icon" type="image/png" href="images/cotel-cat.png">
-    <!-- Apply saved/system theme before stylesheets paint (no flash of wrong theme). -->
+    <!-- Apply saved/time-based theme before stylesheets paint (no flash of wrong theme).
+         Без явного выбора пользователя тема определяется по времени суток:
+         с 21:00 до 07:00 — тёмная, иначе светлая. -->
     <script>
       (function () {
         try {
           var t = localStorage.getItem("cotel_theme");
           if (t !== "dark" && t !== "light") {
-            t = (window.matchMedia &&
-              window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+            var h = new Date().getHours();
+            t = (h >= 21 || h < 7) ? "dark" : "light";
           }
           document.documentElement.setAttribute("data-theme", t);
         } catch (e) {

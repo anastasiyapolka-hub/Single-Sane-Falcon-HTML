@@ -46,6 +46,13 @@
   display: block;
 }
 
+/* Луна — всегда оранжевая (как иконка смены языка), а не чёрная. Задаём fill
+   явно через CSS, чтобы наследование color у .navigation button не делало её
+   тёмной. На hover/focus — чуть светлее оранжевый. */
+.theme-toggle__icon--moon path { fill: #fd7e14; }
+.theme-toggle__button:hover .theme-toggle__icon--moon path,
+.theme-toggle__button:focus-visible .theme-toggle__icon--moon path { fill: #ff8f2e; }
+
 /* Show the icon of the theme you'd switch TO:
    light mode → show moon; dark mode → show sun. */
 .theme-toggle__icon--sun { display: none; }

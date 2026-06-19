@@ -261,9 +261,9 @@
             const lightLbl = tI18n("new-analysis:chat_requests.depth_light", "Лёгкий");
             const balancedLbl = tI18n("new-analysis:chat_requests.depth_balanced", "Сбалансированный");
             const deepLbl = tI18n("new-analysis:chat_requests.depth_deep", "Глубокий");
-            const lightTxt = tI18n("new-analysis:chat_requests.depth_estimate_light", "~30-150 токенов");
-            const balancedTxt = tI18n("new-analysis:chat_requests.depth_estimate_balanced", "~80-300 токенов");
-            const deepTxt = tI18n("new-analysis:chat_requests.depth_estimate_deep", "~200-800 токенов");
+            const lightTxt = tI18n("new-analysis:chat_requests.depth_estimate_light", "~10-120 токенов");
+            const balancedTxt = tI18n("new-analysis:chat_requests.depth_estimate_balanced", "~50-200 токенов");
+            const deepTxt = tI18n("new-analysis:chat_requests.depth_estimate_deep", "~150-500 токенов");
             const note = tI18n(
               "new-analysis:chat_requests.depth_estimate_note",
               "Точное списание зависит от активности чата и считается после выполнения."

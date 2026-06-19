@@ -25,10 +25,12 @@
 
   var STORAGE_KEY = "cotel_theme"; // "dark" | "light"
 
-  function systemPrefersDark() {
+  // Без явного выбора пользователя тема определяется по времени суток:
+  // с 21:00 до 07:00 — тёмная, иначе светлая (как в большинстве приложений).
+  function timeBasedDark() {
     try {
-      return window.matchMedia &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches;
+      var h = new Date().getHours();
+      return h >= 21 || h < 7;
     } catch (_) { return false; }
   }
 
@@ -39,7 +41,7 @@
   function resolveTheme() {
     var s = storedTheme();
     if (s === "dark" || s === "light") return s;
-    return systemPrefersDark() ? "dark" : "light";
+    return timeBasedDark() ? "dark" : "light";
   }
 
   function applyTheme(theme) {
@@ -94,17 +96,6 @@
       e.stopPropagation();
       setTheme(currentTheme() === "dark" ? "light" : "dark");
     });
-
-    // Follow OS changes only while the user hasn't made an explicit choice.
-    try {
-      var mq = window.matchMedia("(prefers-color-scheme: dark)");
-      var onChange = function (ev) {
-        if (storedTheme()) return; // explicit choice wins
-        applyTheme(ev.matches ? "dark" : "light");
-      };
-      if (mq.addEventListener) mq.addEventListener("change", onChange);
-      else if (mq.addListener) mq.addListener(onChange);
-    } catch (_) { /* ignore */ }
 
     // Re-label on language change.
     try {
