@@ -524,12 +524,23 @@
         "</div>" +
       "</div>";
 
-    cardEl.querySelector(".tour-card__close").addEventListener("click", () => endTour("skipped"));
-    cardEl.querySelector(".tour-card__next").addEventListener("click", () => {
+    // stopPropagation обязателен: глобальный обработчик в auth.js закрывает меню
+    // пользователя при любом клике вне #user-profile. Кнопки тура лежат в body,
+    // и без остановки всплытия клик по «Далее»/«Назад» закрывал бы только что
+    // открытое меню — из-за этого menu-шаги (Профиль/Обратная связь) пропускались.
+    cardEl.querySelector(".tour-card__close").addEventListener("click", (e) => {
+      e.stopPropagation();
+      endTour("skipped");
+    });
+    cardEl.querySelector(".tour-card__next").addEventListener("click", (e) => {
+      e.stopPropagation();
       if (isLast) endTour("done"); else go(idx + 1);
     });
     const backBtn = cardEl.querySelector(".tour-card__back");
-    if (backBtn && !isFirst) backBtn.addEventListener("click", () => go(idx - 1));
+    if (backBtn && !isFirst) backBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      go(idx - 1);
+    });
   }
 
   function escapeHtml(s) {
