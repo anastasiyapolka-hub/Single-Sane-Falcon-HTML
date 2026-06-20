@@ -1219,8 +1219,10 @@ body.sidebar-collapsed {
   justify-content: center;
   align-items: center;
 
-  width: 100%;
+  width: fit-content;
   max-width: 220px;
+  margin-left: auto;
+  margin-right: auto;
   background: #fff;
   border-radius: 14px;
   padding: 10px;
@@ -1228,10 +1230,12 @@ body.sidebar-collapsed {
   box-sizing: border-box;
 }
 
-/* 3) Если QRCode.js рисует <img> или <canvas> — заставляем его ужиматься */
+/* 3) Если QRCode.js рисует <img>, <canvas> или <table> — ужимаем и центрируем */
 .tg-qr-canvas img,
-.tg-qr-canvas canvas {
+.tg-qr-canvas canvas,
+.tg-qr-canvas table {
   display: block;
+  margin: 0 auto;
   max-width: 100%;
   height: auto;
 }
