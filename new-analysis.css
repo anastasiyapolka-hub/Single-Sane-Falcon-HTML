@@ -2314,12 +2314,30 @@ body.user-not-auth.sidebar-collapsed #sidebarUserArea .auth-open-btn .expanded-o
   min-width: 0 !important;
 }
 
-/* Блок диапазона недоступен при включённом медиафильтре. */
-.sidebar-inline-setting-row--daterange.is-disabled {
+/* Неактивный режим периода (относительный/диапазон) — приглушаем. */
+.sidebar-inline-setting-row--daterange.is-disabled,
+.sidebar-inline-setting-row--period.is-disabled {
   opacity: 0.5;
 }
-.sidebar-inline-setting-row--daterange.is-disabled .sidebar-daterange-input {
+.sidebar-inline-setting-row--daterange.is-disabled .sidebar-daterange-input,
+.sidebar-inline-setting-row--period.is-disabled .sidebar-inline-setting-input {
   cursor: not-allowed;
+}
+
+/* Заголовок-чекбокс выбора режима периода. */
+.period-mode-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+.period-mode-check {
+  width: 15px;
+  height: 15px;
+  min-width: 15px;
+  margin: 0;
+  accent-color: #007e99;
+  cursor: pointer;
 }
 
 .sidebar-inline-setting-label {

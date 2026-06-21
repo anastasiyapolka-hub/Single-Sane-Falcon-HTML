@@ -611,7 +611,10 @@
 
                       <div id="querySettingsInlineBody" class="sidebar-history-body hidden">
                         <div class="sidebar-inline-setting-row sidebar-inline-setting-row--period">
-                          <label for="queryDaysInput" class="sidebar-inline-setting-label" data-i18n="new-analysis:chat_requests.history_period_label">Последние сообщения за:</label>
+                          <label class="sidebar-inline-setting-label period-mode-label">
+                            <input type="checkbox" id="periodModeRelative" class="period-mode-check" checked />
+                            <span data-i18n="new-analysis:chat_requests.history_period_label">Последние сообщения за:</span>
+                          </label>
                           <div class="sidebar-inline-period-controls">
                             <input
                               id="queryDaysInput"
@@ -640,15 +643,22 @@
                              диапазон дат «С–По». Если заполнен (обе даты) — он
                              приоритетнее «Последних сообщений за…». -->
                         <div class="sidebar-inline-setting-row sidebar-inline-setting-row--daterange">
-                          <label class="sidebar-inline-setting-label" data-i18n="new-analysis:chat_requests.date_range_label">Или диапазон дат:</label>
+                          <label class="sidebar-inline-setting-label period-mode-label">
+                            <input type="checkbox" id="periodModeRange" class="period-mode-check" />
+                            <span data-i18n="new-analysis:chat_requests.date_range_label">Диапазон дат:</span>
+                          </label>
                           <div class="sidebar-inline-daterange-controls">
                             <div class="sidebar-daterange-field">
                               <span class="sidebar-daterange-cap" data-i18n="new-analysis:chat_requests.date_from">С</span>
                               <input
                                 id="queryDateFrom"
-                                type="date"
+                                type="text"
+                                inputmode="numeric"
+                                maxlength="10"
+                                placeholder="YYYY-MM-DD"
+                                pattern="\d{4}-\d{2}-\d{2}"
                                 class="sidebar-inline-setting-input sidebar-daterange-input"
-                                aria-label="Дата начала диапазона"
+                                aria-label="Дата начала диапазона (ГГГГ-ММ-ДД)"
                                 data-i18n-aria-label="new-analysis:chat_requests.date_from_aria"
                               />
                             </div>
@@ -656,9 +666,13 @@
                               <span class="sidebar-daterange-cap" data-i18n="new-analysis:chat_requests.date_to">По</span>
                               <input
                                 id="queryDateTo"
-                                type="date"
+                                type="text"
+                                inputmode="numeric"
+                                maxlength="10"
+                                placeholder="YYYY-MM-DD"
+                                pattern="\d{4}-\d{2}-\d{2}"
                                 class="sidebar-inline-setting-input sidebar-daterange-input"
-                                aria-label="Дата конца диапазона"
+                                aria-label="Дата конца диапазона (ГГГГ-ММ-ДД)"
                                 data-i18n-aria-label="new-analysis:chat_requests.date_to_aria"
                               />
                             </div>
@@ -740,6 +754,8 @@
                             for="queryMediaFilterToggle"
                             class="sidebar-inline-setting-label media-filter-toggle-label"
                             title="Искать только сообщения с медиа-файлами выбранных типов"
+                            data-i18n="new-analysis:chat_requests.media_filter_toggle_label"
+                            data-i18n-title="new-analysis:chat_requests.media_filter_toggle_tooltip"
                           >Медиафильтр:</label>
                           <input
                             id="queryMediaFilterToggle"

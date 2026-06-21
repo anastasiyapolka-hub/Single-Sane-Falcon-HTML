@@ -669,22 +669,63 @@
         return !!(queryMediaFilterToggle && queryMediaFilterToggle.checked);
       }
 
-      // При включённом медиафильтре абсолютный диапазон «С–По» недоступен
-      // (media-search строит окно только «от сейчас назад», см. BACKLOG).
-      // Поэтому блокируем поля дат и очищаем их значения — остаётся только
-      // относительный период «Последние сообщения за…».
-      function applyDateRangeAvailability() {
-        const on = isMediaFilterOn();
+      // Режим периода: ровно один из двух чекбоксов активен —
+      // «Последние сообщения за…» (periodModeRelative) ИЛИ «Диапазон дат»
+      // (periodModeRange). Активный блок — поля enabled, неактивный — disabled
+      // и приглушён. Медиафильтр форсит относительный режим (диапазон «С–По»
+      // в media-поиске не поддержан, см. BACKLOG).
+      function isRangeModeActive() {
+        const rangeCb = document.getElementById("periodModeRange");
+        return !!(rangeCb && rangeCb.checked) && !isMediaFilterOn();
+      }
+
+      function applyPeriodModeState() {
+        const relCb = document.getElementById("periodModeRelative");
+        const rangeCb = document.getElementById("periodModeRange");
+        const mediaOn = isMediaFilterOn();
+
+        // Медиафильтр → принудительно относительный режим.
+        if (mediaOn && rangeCb) { rangeCb.checked = false; if (relCb) relCb.checked = true; }
+        // Защита от «обе выключены» — по умолчанию относительный.
+        if (relCb && rangeCb && !relCb.checked && !rangeCb.checked) relCb.checked = true;
+
+        const rangeActive = !!(rangeCb && rangeCb.checked) && !mediaOn;
+        const relativeActive = !rangeActive;
+
+        // Относительный блок.
+        const daysEl = document.getElementById("queryDaysInput");
+        const unitEl = document.getElementById("queryPeriodUnitSelect");
+        if (daysEl) daysEl.disabled = !relativeActive;
+        if (unitEl) unitEl.disabled = !relativeActive;
+        const periodRow = document.querySelector(".sidebar-inline-setting-row--period");
+        if (periodRow) periodRow.classList.toggle("is-disabled", !relativeActive);
+
+        // Блок диапазона.
         const fromEl = document.getElementById("queryDateFrom");
         const toEl = document.getElementById("queryDateTo");
-        [fromEl, toEl].forEach((el) => {
-          if (!el) return;
-          el.disabled = on;
-          if (on) el.value = "";
-        });
-        const row = document.querySelector(".sidebar-inline-setting-row--daterange");
-        if (row) row.classList.toggle("is-disabled", on);
+        [fromEl, toEl].forEach((el) => { if (el) el.disabled = !rangeActive; });
+        const rangeRow = document.querySelector(".sidebar-inline-setting-row--daterange");
+        if (rangeRow) rangeRow.classList.toggle("is-disabled", !rangeActive);
+
+        // Чекбокс диапазона недоступен при медиафильтре.
+        if (rangeCb) rangeCb.disabled = mediaOn;
       }
+
+      // Радио-поведение для двух чекбоксов режима периода.
+      (function wirePeriodModeCheckboxes() {
+        const relCb = document.getElementById("periodModeRelative");
+        const rangeCb = document.getElementById("periodModeRange");
+        if (relCb) relCb.addEventListener("change", () => {
+          if (relCb.checked) { if (rangeCb) rangeCb.checked = false; }
+          else { relCb.checked = true; } // нельзя снять активный
+          applyPeriodModeState();
+        });
+        if (rangeCb) rangeCb.addEventListener("change", () => {
+          if (rangeCb.checked) { if (relCb) relCb.checked = false; }
+          else { rangeCb.checked = true; }
+          applyPeriodModeState();
+        });
+      })();
 
       // Подтипы активны только если соответствующая категория отмечена.
       // Это снимает дилемму «что значит выбранный подтип у выключенной категории».
@@ -727,10 +768,10 @@
             mediaFilterCollapseBtn?.setAttribute("aria-expanded", "true");
           }
         }
-        applyDateRangeAvailability();
+        applyPeriodModeState();
       });
-      // Начальное состояние полей диапазона (на случай, если медиафильтр уже включён).
-      applyDateRangeAvailability();
+      // Начальное состояние (по умолчанию активен относительный режим).
+      applyPeriodModeState();
 
       mediaFilterCollapseBtn?.addEventListener("click", (e) => {
         e.preventDefault();
@@ -756,29 +797,16 @@
         getPayload: getMediaFilterPayload,
       };
 
-      // Локаль календаря/маски у <input type="date"> Chrome берёт из lang
-      // элемента. Синхронизируем с текущим языком интерфейса (иначе в EN-режиме
-      // остаётся русский календарь «дд.мм.гггг»).
-      function syncDateInputsLang() {
-        let lang = "en";
-        try {
-          if (window.i18next && i18next.language) lang = String(i18next.language).slice(0, 2);
-          else if (document.documentElement.lang) lang = document.documentElement.lang.slice(0, 2);
-        } catch (_) { /* ignore */ }
-        ["queryDateFrom", "queryDateTo"].forEach((id) => {
-          const el = document.getElementById(id);
-          if (el) el.setAttribute("lang", lang);
-        });
-      }
-      syncDateInputsLang();
+      // Поля диапазона дат — текстовые, формат нейтральный YYYY-MM-DD
+      // (нативный календарь следует языку браузера, переопределить нельзя —
+      // см. историю обсуждения). Локаль им не нужна.
 
-      // При смене языка: поправить локаль дат и перерисовать список подписок
-      // (заголовки групп переводятся через data-i18n, но карточки с tI18n-
-      // тултипами/статусами обновим перерендером).
+      // При смене языка перерисовываем список подписок: заголовки групп
+      // переводятся через data-i18n, но карточки с tI18n-тултипами/статусами
+      // обновим перерендером.
       try {
         if (window.i18next && typeof i18next.on === "function") {
           i18next.on("languageChanged", () => {
-            syncDateInputsLang();
             if (typeof refreshSubscriptions === "function") {
               refreshSubscriptions();
             }
@@ -3761,20 +3789,40 @@
       //   { error: "<текст>" }                         — ошибка валидации
       // Поддерживается и для личного, и для служебного аккаунта Telegram.
       function resolvePeriodSelection() {
+        // Режим выбирается чекбоксами. Если активен относительный — диапазон
+        // дат игнорируем (даже если в полях что-то осталось).
+        if (typeof isRangeModeActive === "function" && !isRangeModeActive()) {
+          return { mode: "relative" };
+        }
+
         const f = (document.getElementById("queryDateFrom")?.value || "").trim();
         const t = (document.getElementById("queryDateTo")?.value || "").trim();
 
-        if (!f && !t) return { mode: "relative" };
         if (!f || !t) {
           return { error: tI18n("new-analysis:chat_requests.date_range_incomplete",
-            "Укажите обе даты диапазона: «С» и «По» — или очистите оба поля и используйте «Последние сообщения за…».") };
+            "Укажите обе даты диапазона: «С» и «По» — или переключитесь на «Последние сообщения за…».") };
         }
 
-        const fromD = new Date(f + "T00:00:00");
-        const toD = new Date(t + "T23:59:59.999");
-        if (isNaN(fromD.getTime()) || isNaN(toD.getTime())) {
-          return { error: tI18n("new-analysis:chat_requests.date_range_invalid", "Некорректные даты диапазона.") };
+        // Поля — текстовые с нейтральным форматом YYYY-MM-DD. Строго валидируем
+        // формат и что это реальная дата (например, не 2026-13-40).
+        const parseYmd = (s) => {
+          const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s);
+          if (!m) return null;
+          const y = +m[1], mo = +m[2], d = +m[3];
+          if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;
+          const dt = new Date(y, mo - 1, d);
+          if (dt.getFullYear() !== y || dt.getMonth() !== mo - 1 || dt.getDate() !== d) return null;
+          return { y, mo, d };
+        };
+        const pf = parseYmd(f);
+        const pt = parseYmd(t);
+        if (!pf || !pt) {
+          return { error: tI18n("new-analysis:chat_requests.date_range_invalid",
+            "Некорректные даты диапазона. Формат: ГГГГ-ММ-ДД (например, 2026-06-21).") };
         }
+
+        const fromD = new Date(pf.y, pf.mo - 1, pf.d, 0, 0, 0, 0);
+        const toD = new Date(pt.y, pt.mo - 1, pt.d, 23, 59, 59, 999);
         if (fromD > toD) {
           return { error: tI18n("new-analysis:chat_requests.date_range_order", "Дата «С» не может быть позже даты «По».") };
         }
