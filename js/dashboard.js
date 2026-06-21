@@ -752,6 +752,10 @@
           user_query: (queryInput?.value || ""),
           period_value: Number.isFinite(periodValue) && periodValue > 0 ? periodValue : 1,
           period_unit: getQueryPeriodUnit(),
+          // Абсолютный диапазон (сырые значения date-инпутов YYYY-MM-DD) — для
+          // сохранённых запросов/истории. Пустые → null.
+          date_from: (document.getElementById("queryDateFrom")?.value || "") || null,
+          date_to: (document.getElementById("queryDateTo")?.value || "") || null,
           depth: getSelectedDepth(),
           category: null,
           media_filter: getMediaFilterPayload(),
@@ -772,6 +776,12 @@
           unitSel.value = allowed.includes(state.period_unit) ? state.period_unit : "days";
           unitSel.dispatchEvent(new Event("change", { bubbles: true }));
         }
+
+        // --- Абсолютный диапазон дат ---
+        const dfEl = document.getElementById("queryDateFrom");
+        const dtEl = document.getElementById("queryDateTo");
+        if (dfEl) dfEl.value = (typeof state.date_from === "string") ? state.date_from : "";
+        if (dtEl) dtEl.value = (typeof state.date_to === "string") ? state.date_to : "";
 
         // --- Уровень анализа ---
         if (typeof setSelectedDepth === "function") {
@@ -3694,6 +3704,42 @@
         return PERIOD_UI_BOUNDS[v] ? v : "days";
       }
 
+      // Период анализа: либо относительный («за последние N…»), либо абсолютный
+      // диапазон дат «С–По». Возвращает:
+      //   { mode: "relative" }                         — даты не заданы
+      //   { mode: "range", date_from, date_to }        — обе даты валидны (ISO UTC)
+      //   { error: "<текст>" }                         — ошибка валидации
+      // Поддерживается и для личного, и для служебного аккаунта Telegram.
+      function resolvePeriodSelection() {
+        const f = (document.getElementById("queryDateFrom")?.value || "").trim();
+        const t = (document.getElementById("queryDateTo")?.value || "").trim();
+
+        if (!f && !t) return { mode: "relative" };
+        if (!f || !t) {
+          return { error: tI18n("new-analysis:chat_requests.date_range_incomplete",
+            "Укажите обе даты диапазона: «С» и «По» — или очистите оба поля и используйте «Последние сообщения за…».") };
+        }
+
+        const fromD = new Date(f + "T00:00:00");
+        const toD = new Date(t + "T23:59:59.999");
+        if (isNaN(fromD.getTime()) || isNaN(toD.getTime())) {
+          return { error: tI18n("new-analysis:chat_requests.date_range_invalid", "Некорректные даты диапазона.") };
+        }
+        if (fromD > toD) {
+          return { error: tI18n("new-analysis:chat_requests.date_range_order", "Дата «С» не может быть позже даты «По».") };
+        }
+
+        const plan = (typeof getPlanInfo === "function") ? getPlanInfo() : null;
+        const maxDays = Number(plan?.qa_history_days || 0);
+        const spanDays = Math.max(1, Math.ceil((toD.getTime() - fromD.getTime()) / 86400000));
+        if (maxDays && spanDays > maxDays) {
+          return { error: tI18n("new-analysis:chat_requests.date_range_too_long",
+            `Длина диапазона больше лимита тарифа (${maxDays} дн.). Сократите период «С–По».`, { n: maxDays }) };
+        }
+
+        return { mode: "range", date_from: fromD.toISOString(), date_to: toD.toISOString() };
+      }
+
       // Универсальная валидация поля периода для текущей выбранной
       // единицы. Заменила clampQueryDaysByPlan: теперь работает для
       // минут, часов и дней. Для дней потолок берёт из тарифа, для
@@ -5227,6 +5273,10 @@ if (runSubscriptionsBtn) {
               const days = periodUnit === "days" ? periodValue : 1;
               const depth = getSelectedDepth();
 
+              // Период: относительный или абсолютный диапазон «С–По».
+              const rangeSel = resolvePeriodSelection();
+              if (rangeSel.error) { alert(rangeSel.error); showLoader(false); return; }
+
               // --- Group mode: multi-chat request ---
               if (typeof isGroupModeOn === "function" && isGroupModeOn()) {
                 const links = Array.from(selectedGroupChats);
@@ -5247,6 +5297,10 @@ if (runSubscriptionsBtn) {
                   user_query: query || null,
                   depth: depth,
                 };
+                if (rangeSel.mode === "range") {
+                  payload.date_from = rangeSel.date_from;
+                  payload.date_to = rangeSel.date_to;
+                }
 
                 // Этап 8: добавляем media_filter, если пользователь его включил.
                 const mfPayload = (typeof window.cotelMediaFilter?.getPayload === "function")
@@ -5287,6 +5341,10 @@ if (runSubscriptionsBtn) {
                 user_query: query || null,
                 depth: depth,
               };
+              if (rangeSel.mode === "range") {
+                payload.date_from = rangeSel.date_from;
+                payload.date_to = rangeSel.date_to;
+              }
 
               // Этап 8: media_filter (опц., если включён в UI)
               const mfPayloadSingle = (typeof window.cotelMediaFilter?.getPayload === "function")
@@ -5317,6 +5375,10 @@ if (runSubscriptionsBtn) {
               const periodUnit = getQueryPeriodUnit();
               const days = periodUnit === "days" ? periodValue : 1;
 
+              // Период: относительный или абсолютный диапазон «С–По».
+              const rangeSel = resolvePeriodSelection();
+              if (rangeSel.error) { alert(rangeSel.error); showLoader(false); return; }
+
               if (!chatLink) {
                 alert(tI18n("new-analysis:dashboard_dynamic.enter_public_link", "Введите публичный username или ссылку на публичный чат/канал Telegram."));
                 showLoader(false);
@@ -5331,6 +5393,10 @@ if (runSubscriptionsBtn) {
                 user_query: query || "",
                 depth: getSelectedDepth(),
               };
+              if (rangeSel.mode === "range") {
+                payload.date_from = rangeSel.date_from;
+                payload.date_to = rangeSel.date_to;
+              }
 
               const data = await apiFetch("/tg/service/analyze_chat", {
                 method: "POST",

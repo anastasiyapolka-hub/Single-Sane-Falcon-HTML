@@ -611,7 +611,7 @@
 
                       <div id="querySettingsInlineBody" class="sidebar-history-body hidden">
                         <div class="sidebar-inline-setting-row sidebar-inline-setting-row--period">
-                          <label for="queryDaysInput" class="sidebar-inline-setting-label" data-i18n="new-analysis:chat_requests.history_period_label">Период анализа истории:</label>
+                          <label for="queryDaysInput" class="sidebar-inline-setting-label" data-i18n="new-analysis:chat_requests.history_period_label">Последние сообщения за:</label>
                           <div class="sidebar-inline-period-controls">
                             <input
                               id="queryDaysInput"
@@ -633,6 +633,35 @@
                               <option value="hours" data-i18n="new-analysis:chat_requests.period_unit_hours">часы</option>
                               <option value="days" selected data-i18n="new-analysis:chat_requests.period_unit_days">дни</option>
                             </select>
+                          </div>
+                        </div>
+
+                        <!-- Альтернатива относительному периоду: абсолютный
+                             диапазон дат «С–По». Если заполнен (обе даты) — он
+                             приоритетнее «Последних сообщений за…». -->
+                        <div class="sidebar-inline-setting-row sidebar-inline-setting-row--daterange">
+                          <label class="sidebar-inline-setting-label" data-i18n="new-analysis:chat_requests.date_range_label">Или диапазон дат:</label>
+                          <div class="sidebar-inline-daterange-controls">
+                            <div class="sidebar-daterange-field">
+                              <span class="sidebar-daterange-cap" data-i18n="new-analysis:chat_requests.date_from">С</span>
+                              <input
+                                id="queryDateFrom"
+                                type="date"
+                                class="sidebar-inline-setting-input sidebar-daterange-input"
+                                aria-label="Дата начала диапазона"
+                                data-i18n-aria-label="new-analysis:chat_requests.date_from_aria"
+                              />
+                            </div>
+                            <div class="sidebar-daterange-field">
+                              <span class="sidebar-daterange-cap" data-i18n="new-analysis:chat_requests.date_to">По</span>
+                              <input
+                                id="queryDateTo"
+                                type="date"
+                                class="sidebar-inline-setting-input sidebar-daterange-input"
+                                aria-label="Дата конца диапазона"
+                                data-i18n-aria-label="new-analysis:chat_requests.date_to_aria"
+                              />
+                            </div>
                           </div>
                         </div>
 

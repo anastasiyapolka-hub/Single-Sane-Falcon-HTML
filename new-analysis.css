@@ -2287,6 +2287,33 @@ body.user-not-auth.sidebar-collapsed #sidebarUserArea .auth-open-btn .expanded-o
   padding-right: 26px !important; /* место под стрелку селекта */
 }
 
+/* Абсолютный диапазон дат «С–По»: два поля равной ширины в одну строку. */
+.sidebar-inline-daterange-controls {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+.sidebar-daterange-field {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.sidebar-daterange-cap {
+  flex: 0 0 auto;
+  font-size: 0.85rem;
+  color: #4b5563;
+  font-weight: 500;
+}
+.sidebar-daterange-field input.sidebar-daterange-input {
+  flex: 1 1 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+}
+
 .sidebar-inline-setting-label {
   font-size: 0.85rem;
   color: #4b5563;
