@@ -669,6 +669,23 @@
         return !!(queryMediaFilterToggle && queryMediaFilterToggle.checked);
       }
 
+      // При включённом медиафильтре абсолютный диапазон «С–По» недоступен
+      // (media-search строит окно только «от сейчас назад», см. BACKLOG).
+      // Поэтому блокируем поля дат и очищаем их значения — остаётся только
+      // относительный период «Последние сообщения за…».
+      function applyDateRangeAvailability() {
+        const on = isMediaFilterOn();
+        const fromEl = document.getElementById("queryDateFrom");
+        const toEl = document.getElementById("queryDateTo");
+        [fromEl, toEl].forEach((el) => {
+          if (!el) return;
+          el.disabled = on;
+          if (on) el.value = "";
+        });
+        const row = document.querySelector(".sidebar-inline-setting-row--daterange");
+        if (row) row.classList.toggle("is-disabled", on);
+      }
+
       // Подтипы активны только если соответствующая категория отмечена.
       // Это снимает дилемму «что значит выбранный подтип у выключенной категории».
       function refreshMediaFilterSubtypeStates() {
@@ -710,7 +727,10 @@
             mediaFilterCollapseBtn?.setAttribute("aria-expanded", "true");
           }
         }
+        applyDateRangeAvailability();
       });
+      // Начальное состояние полей диапазона (на случай, если медиафильтр уже включён).
+      applyDateRangeAvailability();
 
       mediaFilterCollapseBtn?.addEventListener("click", (e) => {
         e.preventDefault();
@@ -735,6 +755,36 @@
         isOn: isMediaFilterOn,
         getPayload: getMediaFilterPayload,
       };
+
+      // Локаль календаря/маски у <input type="date"> Chrome берёт из lang
+      // элемента. Синхронизируем с текущим языком интерфейса (иначе в EN-режиме
+      // остаётся русский календарь «дд.мм.гггг»).
+      function syncDateInputsLang() {
+        let lang = "en";
+        try {
+          if (window.i18next && i18next.language) lang = String(i18next.language).slice(0, 2);
+          else if (document.documentElement.lang) lang = document.documentElement.lang.slice(0, 2);
+        } catch (_) { /* ignore */ }
+        ["queryDateFrom", "queryDateTo"].forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) el.setAttribute("lang", lang);
+        });
+      }
+      syncDateInputsLang();
+
+      // При смене языка: поправить локаль дат и перерисовать список подписок
+      // (заголовки групп переводятся через data-i18n, но карточки с tI18n-
+      // тултипами/статусами обновим перерендером).
+      try {
+        if (window.i18next && typeof i18next.on === "function") {
+          i18next.on("languageChanged", () => {
+            syncDateInputsLang();
+            if (typeof refreshSubscriptions === "function") {
+              refreshSubscriptions();
+            }
+          });
+        }
+      } catch (_) { /* ignore */ }
 
       // ---- Сохранённые запросы: чтение/запись состояния формы ----
       // getState() — снапшот текущих настроек формы (формат зеркалит payload
@@ -3143,7 +3193,7 @@
   if (currentSubs.length) {
     html += `
       <div class="subscriptions-group">
-        <div class="subscriptions-group-title">${escapeHtml(tI18n("new-analysis:subscription_groups.current_title", "Активные в этом режиме"))}</div>
+        <div class="subscriptions-group-title" data-i18n="new-analysis:subscription_groups.current_title">${escapeHtml(tI18n("new-analysis:subscription_groups.current_title", "Активные в этом режиме"))}</div>
         <div class="subscriptions-group-list">
           ${currentSubs.map(renderCurrentCard).join("")}
         </div>
@@ -3154,8 +3204,8 @@
   if (otherSubs.length) {
     html += `
       <div class="subscriptions-group subscriptions-group--other">
-        <div class="subscriptions-group-title">${escapeHtml(tI18n("new-analysis:subscription_groups.other_title", "Из другого режима"))}</div>
-        <div class="subscriptions-group-note">
+        <div class="subscriptions-group-title" data-i18n="new-analysis:subscription_groups.other_title">${escapeHtml(tI18n("new-analysis:subscription_groups.other_title", "Из другого режима"))}</div>
+        <div class="subscriptions-group-note" data-i18n="new-analysis:subscription_groups.other_note">
           ${escapeHtml(tI18n("new-analysis:subscription_groups.other_note", "Эти подписки созданы в другом режиме и пока не активны здесь."))}
         </div>
         <div class="subscriptions-group-list">

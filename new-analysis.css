@@ -2314,6 +2314,14 @@ body.user-not-auth.sidebar-collapsed #sidebarUserArea .auth-open-btn .expanded-o
   min-width: 0 !important;
 }
 
+/* Блок диапазона недоступен при включённом медиафильтре. */
+.sidebar-inline-setting-row--daterange.is-disabled {
+  opacity: 0.5;
+}
+.sidebar-inline-setting-row--daterange.is-disabled .sidebar-daterange-input {
+  cursor: not-allowed;
+}
+
 .sidebar-inline-setting-label {
   font-size: 0.85rem;
   color: #4b5563;
