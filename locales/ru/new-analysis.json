@@ -143,6 +143,7 @@
     "depth_estimate_note": "Точное списание зависит от активности чата и считается после выполнения.",
     "charged_label": "Списано: {{n}} токенов",
     "breakdown_toggle": "Расшифровка",
+    "breakdown_messages_analyzed": "Проанализировано сообщений",
     "breakdown_model": "Модель",
     "breakdown_tier": "Глубина",
     "breakdown_category": "Категория запроса",

@@ -5061,6 +5061,18 @@ if (runSubscriptionsBtn) {
 
         // Собираем строки расшифровки только из присутствующих полей.
         const rows = [];
+        // Сколько сообщений реально проанализировано — прозрачность по объёму
+        // работы и по тому, за что списались токены.
+        const msgCount = payload.messages_count;
+        if (msgCount !== null && msgCount !== undefined && Number(msgCount) > 0) {
+          rows.push([
+            tI18n(
+              "new-analysis:chat_requests.breakdown_messages_analyzed",
+              "Проанализировано сообщений"
+            ),
+            String(msgCount),
+          ]);
+        }
         const modelLabel = payload.used_model;
         if (modelLabel) {
           rows.push([

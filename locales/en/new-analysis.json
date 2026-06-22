@@ -143,6 +143,7 @@
     "depth_estimate_note": "The exact charge depends on chat activity and is calculated after the request completes.",
     "charged_label": "Charged: {{n}} tokens",
     "breakdown_toggle": "Details",
+    "breakdown_messages_analyzed": "Messages analyzed",
     "breakdown_model": "Model",
     "breakdown_tier": "Depth",
     "breakdown_category": "Query type",
