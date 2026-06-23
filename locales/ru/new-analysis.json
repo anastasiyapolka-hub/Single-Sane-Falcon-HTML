@@ -144,6 +144,7 @@
     "charged_label": "Списано: {{n}} токенов",
     "breakdown_toggle": "Расшифровка",
     "breakdown_messages_analyzed": "Проанализировано сообщений",
+    "breakdown_chunks": "Обработано частей",
     "breakdown_model": "Модель",
     "breakdown_tier": "Глубина",
     "breakdown_category": "Категория запроса",

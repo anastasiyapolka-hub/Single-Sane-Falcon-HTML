@@ -144,6 +144,7 @@
     "charged_label": "Charged: {{n}} tokens",
     "breakdown_toggle": "Details",
     "breakdown_messages_analyzed": "Messages analyzed",
+    "breakdown_chunks": "Parts processed",
     "breakdown_model": "Model",
     "breakdown_tier": "Depth",
     "breakdown_category": "Query type",

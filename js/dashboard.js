@@ -5080,6 +5080,14 @@ if (runSubscriptionsBtn) {
             modelLabel,
           ]);
         }
+        // Чанкование: показываем, на сколько частей разбили большой запрос.
+        const chunks = payload.chunks_count;
+        if (chunks && Number(chunks) > 1) {
+          rows.push([
+            tI18n("new-analysis:chat_requests.breakdown_chunks", "Обработано частей"),
+            String(chunks),
+          ]);
+        }
         const tier = tierLabel(payload.tier);
         if (tier) {
           rows.push([
