@@ -5470,11 +5470,38 @@ if (runSubscriptionsBtn) {
                 : null;
               if (mfPayloadSingle) payload.media_filter = mfPayloadSingle;
 
-              const data = await apiFetch("/tg/analyze_chat", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-              });
+              let data;
+              if (mfPayloadSingle) {
+                // Медиафильтр — пока синхронный путь.
+                data = await apiFetch("/tg/analyze_chat", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(payload),
+                });
+              } else {
+                // Обычный анализ — асинхронно: submit → job_id → опрос статуса.
+                // Так тяжёлый запрос (минуты) не упирается в таймаут прокси.
+                const accepted = await apiFetch("/tg/analyze_chat_async", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(payload),
+                });
+                const jobId = accepted.job_id;
+                data = null;
+                for (let i = 0; i < 300; i++) {  // ~15 мин максимум (300 × 3с)
+                  await new Promise((r) => setTimeout(r, 3000));
+                  const st = await apiFetch(
+                    "/tg/analyze_job/" + encodeURIComponent(jobId),
+                    { method: "GET" }
+                  );
+                  if (st.status === "done") { data = st.result; break; }
+                  if (st.status === "error") {
+                    throw { status: 500, detail: st.error_code || "JOB_ERROR" };
+                  }
+                  // pending / running → продолжаем опрос
+                }
+                if (data === null) throw { status: 504, detail: "JOB_TIMEOUT" };
+              }
 
               if (loaderMinPromise) {
                 await loaderMinPromise;
