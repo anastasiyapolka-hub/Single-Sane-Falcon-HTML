@@ -5488,7 +5488,7 @@ if (runSubscriptionsBtn) {
                 });
                 const jobId = accepted.job_id;
                 data = null;
-                for (let i = 0; i < 300; i++) {  // ~15 мин максимум (300 × 3с)
+                for (let i = 0; i < 800; i++) {  // ~40 мин максимум (800 × 3с)
                   await new Promise((r) => setTimeout(r, 3000));
                   const st = await apiFetch(
                     "/tg/analyze_job/" + encodeURIComponent(jobId),
