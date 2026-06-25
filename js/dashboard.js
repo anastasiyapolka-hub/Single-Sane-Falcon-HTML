@@ -5463,11 +5463,52 @@ if (runSubscriptionsBtn) {
                   : null;
                 if (mfPayload) payload.media_filter = mfPayload;
 
-                const data = await apiFetch("/tg/analyze_chats_group", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify(payload),
-                });
+                let data;
+                if (mfPayload) {
+                  // Медиафильтр — пока синхронный путь.
+                  data = await apiFetch("/tg/analyze_chats_group", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+                  });
+                } else {
+                  // Группа — асинхронно: submit → job_id → опрос статуса.
+                  // Чанкование группы делает запрос длиннее, синхронный путь
+                  // упирался бы в 5-мин таймаут прокси.
+                  let accepted = await apiFetch("/tg/analyze_chats_group_async", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+                  });
+                  // B4 red-зона: один или несколько чатов очень активны.
+                  if (accepted && accepted.status === "needs_confirmation") {
+                    const proceed = await confirmHeavyChat(accepted.message || tI18n(
+                      "new-analysis:chat_requests.heavy_confirm",
+                      "Это очень активный чат, анализ займёт время. Продолжить?"
+                    ));
+                    if (!proceed) { showLoader(false); return; }
+                    payload.confirm_heavy = true;
+                    accepted = await apiFetch("/tg/analyze_chats_group_async", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify(payload),
+                    });
+                  }
+                  const jobId = accepted.job_id;
+                  data = null;
+                  for (let i = 0; i < 800; i++) {  // ~40 мин максимум (800 × 3с)
+                    await new Promise((r) => setTimeout(r, 3000));
+                    const st = await apiFetch(
+                      "/tg/analyze_job/" + encodeURIComponent(jobId),
+                      { method: "GET" }
+                    );
+                    if (st.status === "done") { data = st.result; break; }
+                    if (st.status === "error") {
+                      throw { status: 500, detail: st.error_code || "JOB_ERROR" };
+                    }
+                  }
+                  if (data === null) throw { status: 504, detail: "JOB_TIMEOUT" };
+                }
 
                 if (loaderMinPromise) {
                   await loaderMinPromise;
