@@ -5481,11 +5481,26 @@ if (runSubscriptionsBtn) {
               } else {
                 // Обычный анализ — асинхронно: submit → job_id → опрос статуса.
                 // Так тяжёлый запрос (минуты) не упирается в таймаут прокси.
-                const accepted = await apiFetch("/tg/analyze_chat_async", {
+                let accepted = await apiFetch("/tg/analyze_chat_async", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify(payload),
                 });
+                // B2 red-зона: бэкенд прикинул, что чат очень активный, и просит
+                // подтверждение. Спрашиваем: выполнить или сначала сузить период.
+                if (accepted && accepted.status === "needs_confirmation") {
+                  const proceed = window.confirm(accepted.message || tI18n(
+                    "new-analysis:chat_requests.heavy_confirm",
+                    "Это очень активный чат, анализ займёт время. Продолжить?"
+                  ));
+                  if (!proceed) { showLoader(false); return; }
+                  payload.confirm_heavy = true;
+                  accepted = await apiFetch("/tg/analyze_chat_async", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+                  });
+                }
                 const jobId = accepted.job_id;
                 data = null;
                 for (let i = 0; i < 800; i++) {  // ~40 мин максимум (800 × 3с)

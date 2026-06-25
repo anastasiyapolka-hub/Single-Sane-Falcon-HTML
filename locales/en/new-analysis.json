@@ -78,6 +78,7 @@
     "logout_btn": "End session"
   },
   "chat_requests": {
+    "heavy_confirm": "This is a very active chat; the analysis will take a while. Continue, or reduce the period first?",
     "section_title": "Chat requests",
     "active_chat_placeholder": "Enter a chat to query…",
     "query_settings_toggle": "Query settings",

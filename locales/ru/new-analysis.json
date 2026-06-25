@@ -78,6 +78,7 @@
     "logout_btn": "Завершить сеанс"
   },
   "chat_requests": {
+    "heavy_confirm": "Это очень активный чат, анализ займёт время. Продолжить или сначала уменьшить период?",
     "section_title": "Запросы к чатам",
     "active_chat_placeholder": "Введите чат для запроса…",
     "query_settings_toggle": "Настройки запроса",
