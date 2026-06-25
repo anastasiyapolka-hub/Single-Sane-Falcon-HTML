@@ -2038,3 +2038,32 @@ text-decoration: underline;
   opacity: 0.7;
   cursor: not-allowed;
 }
+
+/* B2: модалка тяжёлого чата — две кнопки в подвале */
+.heavy-chat-modal-content {
+  width: min(92vw, 460px);
+}
+
+.heavy-chat-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.heavy-chat-back-btn {
+  background: #ffffff;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  font-weight: 600;
+  transition: background 0.18s ease;
+}
+
+.heavy-chat-back-btn:hover {
+  background: #f3f4f6;
+}
+
+.heavy-chat-run-btn {
+  flex: 0 0 auto;
+}

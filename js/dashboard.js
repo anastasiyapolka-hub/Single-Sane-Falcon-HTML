@@ -1265,6 +1265,43 @@
         setChatHistoryExpanded(isChatHistoryExpanded);
       }
 
+      // B2: модалка подтверждения тяжёлого чата. Возвращает Promise<boolean>:
+      // true — «Выполнить запрос», false — «Вернуться»/закрытие.
+      function confirmHeavyChat(message) {
+        const modal = document.getElementById("heavy-chat-modal");
+        const textEl = document.getElementById("heavy-chat-text");
+        const runBtn = document.getElementById("heavy-chat-run");
+        const backBtn = document.getElementById("heavy-chat-back");
+        const closeBtn = document.getElementById("heavy-chat-close");
+        const backdrop = modal ? modal.querySelector(".auth-modal-backdrop") : null;
+        if (!modal || !textEl || !runBtn || !backBtn) {
+          // Фолбэк, если разметки нет — нативное окно.
+          return Promise.resolve(window.confirm(message || ""));
+        }
+        textEl.textContent = message || "";
+        modal.classList.remove("hidden");
+
+        return new Promise((resolve) => {
+          function cleanup(result) {
+            modal.classList.add("hidden");
+            runBtn.removeEventListener("click", onRun);
+            backBtn.removeEventListener("click", onBack);
+            if (closeBtn) closeBtn.removeEventListener("click", onBack);
+            if (backdrop) backdrop.removeEventListener("click", onBack);
+            document.removeEventListener("keydown", onKey);
+            resolve(result);
+          }
+          function onRun() { cleanup(true); }
+          function onBack() { cleanup(false); }
+          function onKey(e) { if (e.key === "Escape") cleanup(false); }
+          runBtn.addEventListener("click", onRun);
+          backBtn.addEventListener("click", onBack);
+          if (closeBtn) closeBtn.addEventListener("click", onBack);
+          if (backdrop) backdrop.addEventListener("click", onBack);
+          document.addEventListener("keydown", onKey);
+        });
+      }
+
       async function loadChatHistory() {
         const sourceMode = getCurrentHistorySourceMode();
 
@@ -5489,7 +5526,7 @@ if (runSubscriptionsBtn) {
                 // B2 red-зона: бэкенд прикинул, что чат очень активный, и просит
                 // подтверждение. Спрашиваем: выполнить или сначала сузить период.
                 if (accepted && accepted.status === "needs_confirmation") {
-                  const proceed = window.confirm(accepted.message || tI18n(
+                  const proceed = await confirmHeavyChat(accepted.message || tI18n(
                     "new-analysis:chat_requests.heavy_confirm",
                     "Это очень активный чат, анализ займёт время. Продолжить?"
                   ));

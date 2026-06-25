@@ -702,6 +702,15 @@ html[data-theme="dark"] .feedback-submit-btn:hover {
 html[data-theme="dark"] .auth-open-btn:active,
 html[data-theme="dark"] .feedback-submit-btn[disabled] { background: var(--dt-orange); }
 
+html[data-theme="dark"] .heavy-chat-back-btn {
+  background: transparent;
+  color: var(--dt-text);
+  border: 1px solid var(--dt-border);
+}
+html[data-theme="dark"] .heavy-chat-back-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
 html[data-theme="dark"] .user-profile-trigger,
 html[data-theme="dark"] .user-dropdown button {
   border: 1px solid var(--dt-border);

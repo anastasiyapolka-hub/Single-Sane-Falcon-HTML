@@ -2102,6 +2102,22 @@
       </div>
     </div>
 
+    <!-- B2: модалка подтверждения тяжёлого (очень активного) чата -->
+    <div id="heavy-chat-modal" class="auth-modal hidden">
+      <div class="auth-modal-backdrop"></div>
+      <div class="auth-modal-content heavy-chat-modal-content">
+        <button id="heavy-chat-close" type="button" class="auth-modal-close" aria-label="Закрыть" data-i18n-aria-label="auth:profile.close_label">×</button>
+        <div class="auth-view">
+          <h2 data-i18n="new-analysis:chat_requests.heavy_title">Очень активный чат</h2>
+          <p id="heavy-chat-text" class="auth-note"></p>
+          <div class="heavy-chat-actions">
+            <button id="heavy-chat-back" type="button" class="heavy-chat-back-btn" data-i18n="new-analysis:chat_requests.heavy_back">Вернуться</button>
+            <button id="heavy-chat-run" type="button" class="feedback-submit-btn heavy-chat-run-btn" data-i18n="new-analysis:chat_requests.heavy_run">Выполнить запрос</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div id="cookie-banner" class="cookie-banner hidden">
       <div class="cookie-banner__card">
         <div class="cookie-banner__text">
