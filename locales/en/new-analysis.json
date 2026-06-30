@@ -79,11 +79,13 @@
   },
   "chat_requests": {
     "heavy_confirm": "This is a very active chat; the analysis will take a while. Continue, or reduce the period first?",
+    "chunk_progress": "Parts processed: {{done}} of {{total}}",
     "heavy_title": "Very active chat",
     "heavy_back": "Go back",
     "heavy_run": "Run anyway",
     "section_title": "Chat requests",
     "active_chat_placeholder": "Enter a chat to query…",
+    "group_search_placeholder": "Search chats in the list…",
     "query_settings_toggle": "Query settings",
     "history_days_label": "History analysis period, days:",
     "history_period_label": "Recent messages for:",

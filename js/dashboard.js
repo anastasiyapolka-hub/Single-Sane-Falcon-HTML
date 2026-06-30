@@ -645,10 +645,17 @@
         if (typeof renderChatHistory === "function" && typeof cachedChatHistory !== "undefined") {
           renderChatHistory(cachedChatHistory);
         }
-        // Hide the single-chat input in group mode; restore in single mode.
+        // Поле ввода НЕ прячем в групповом режиме — там оно работает как
+        // быстрый поиск по дереву чатов (filterChatsByInput). В одиночном
+        // режиме это поле ссылки на чат. Меняем только подсказку и сбрасываем
+        // значение при переключении, показывая полный список.
         if (activeChatInput) {
-          activeChatInput.style.display = on ? "none" : "";
-          if (on) activeChatInput.value = "";
+          activeChatInput.style.display = "";
+          activeChatInput.placeholder = on
+            ? tI18n("new-analysis:chat_requests.group_search_placeholder", "Поиск по чатам в списке…")
+            : tI18n("new-analysis:chat_requests.active_chat_placeholder", "Введите чат для запроса…");
+          activeChatInput.value = "";
+          if (typeof filterChatsByInput === "function") filterChatsByInput();
         }
         // In group mode the AI model selector may show "рекомендовано"
         // badges — rebuild it.
@@ -1302,6 +1309,29 @@
         });
       }
 
+      // C3: прогресс чанкования под лоадером. Показываем только когда частей
+      // больше одной (т.е. запрос реально режется); маленькие чаты — без него.
+      function updateChunkProgress(progress) {
+        const loader = document.querySelector(".dashboard-loader");
+        if (!loader || !progress || !progress.total || progress.total <= 1) return;
+        let el = document.getElementById("chunk-progress");
+        if (!el) {
+          el = document.createElement("div");
+          el.id = "chunk-progress";
+          el.className = "chunk-progress";
+          (loader.querySelector(".dashboard-loader-inner") || loader).appendChild(el);
+        }
+        const done = Math.min(progress.done, progress.total);
+        el.textContent = tI18n(
+          "new-analysis:chat_requests.chunk_progress",
+          "Обработано частей: {{done}} из {{total}}"
+        ).replace("{{done}}", done).replace("{{total}}", progress.total);
+      }
+      function clearChunkProgress() {
+        const el = document.getElementById("chunk-progress");
+        if (el) el.remove();
+      }
+
       async function loadChatHistory() {
         const sourceMode = getCurrentHistorySourceMode();
 
@@ -1809,6 +1839,7 @@
           }, MIN_LOADER_VISIBLE_MS);
         } else {
           loader.style.display = "none";
+          clearChunkProgress();
           resetLoaderState();
         }
       }
@@ -5506,6 +5537,7 @@ if (runSubscriptionsBtn) {
                     if (st.status === "error") {
                       throw { status: 500, detail: st.error_code || "JOB_ERROR" };
                     }
+                    if (st.progress) updateChunkProgress(st.progress);
                   }
                   if (data === null) throw { status: 504, detail: "JOB_TIMEOUT" };
                 }
@@ -5591,6 +5623,7 @@ if (runSubscriptionsBtn) {
                   if (st.status === "error") {
                     throw { status: 500, detail: st.error_code || "JOB_ERROR" };
                   }
+                  if (st.progress) updateChunkProgress(st.progress);
                   // pending / running → продолжаем опрос
                 }
                 if (data === null) throw { status: 504, detail: "JOB_TIMEOUT" };

@@ -79,11 +79,13 @@
   },
   "chat_requests": {
     "heavy_confirm": "Это очень активный чат, анализ займёт время. Продолжить или сначала уменьшить период?",
+    "chunk_progress": "Обработано частей: {{done}} из {{total}}",
     "heavy_title": "Очень активный чат",
     "heavy_back": "Вернуться",
     "heavy_run": "Выполнить запрос",
     "section_title": "Запросы к чатам",
     "active_chat_placeholder": "Введите чат для запроса…",
+    "group_search_placeholder": "Поиск по чатам в списке…",
     "query_settings_toggle": "Настройки запроса",
     "history_days_label": "Период анализа истории, дней:",
     "history_period_label": "Последние сообщения за:",
